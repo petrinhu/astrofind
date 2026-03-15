@@ -6,13 +6,17 @@
 #include <QLabel>
 #include <QTimer>
 #include <QSettings>
+#include <QTemporaryDir>
 #include <memory>
 
 #include "core/ImageSession.h"
+#include "BlinkWidget.h"
+#include "ThumbnailBar.h"
 
 class WorkflowPanel;
 class LogPanel;
 class FitsSubWindow;
+class BackgroundRangeDialog;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -135,13 +139,22 @@ private:
     QAction* actZoomOut_       = nullptr;
 
     // ── Blink state ───────────────────────────────────────────────────────────
-    QTimer* blinkTimer_       = nullptr;
-    int     blinkCurrentIdx_  = 0;
-    int     blinkIntervalMs_  = 500;
-    bool    blinkActive_      = false;
+    QTimer*      blinkTimer_       = nullptr;
+    int          blinkCurrentIdx_  = 0;
+    int          blinkIntervalMs_  = 500;
+    bool         blinkActive_      = false;
+
+    // ── Phase 1: Blink widget + thumbnail bar ─────────────────────────────────
+    BlinkWidget*    blinkWidget_   = nullptr;   ///< Shown in MDI during blink mode
+    ThumbnailBar*   thumbnailBar_  = nullptr;   ///< Bottom dock strip
+    QMdiSubWindow*  blinkMdiWin_   = nullptr;   ///< MDI container for blink widget
 
     // ── Session ───────────────────────────────────────────────────────────────
     std::unique_ptr<core::ImageSession> session_;
+    std::unique_ptr<QTemporaryDir>      tempDir_;   ///< Temp dir for ZIP extractions
 
     QSettings settings_;
+
+    /// Extract FITS files from a ZIP archive into a temp directory.
+    QStringList expandZip(const QString& zipPath);
 };

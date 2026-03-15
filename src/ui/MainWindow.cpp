@@ -3,6 +3,9 @@
 #include "WorkflowPanel.h"
 #include "LogPanel.h"
 #include "AboutDialog.h"
+#include "BlinkWidget.h"
+#include "ThumbnailBar.h"
+#include "BackgroundRangeDialog.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -16,6 +19,9 @@
 #include <QUrl>
 #include <QKeySequence>
 #include <QProgressDialog>
+#include <QProcess>
+#include <QDir>
+#include <QFileInfo>
 
 #include <spdlog/spdlog.h>
 
@@ -241,9 +247,32 @@ void MainWindow::setupDockWidgets()
     addDockWidget(Qt::BottomDockWidgetArea, logDock);
     logDock->setMaximumHeight(160);
 
-    // Make log panel accessible from View menu
+    // ── Thumbnail bar (bottom, above log) ─────────────────────────────────────
+    thumbnailBar_ = new ThumbnailBar(this);
+    auto* thumbDock = new QDockWidget(tr("Images"), this);
+    thumbDock->setObjectName("ThumbnailDock");
+    thumbDock->setWidget(thumbnailBar_);
+    thumbDock->setAllowedAreas(Qt::BottomDockWidgetArea);
+    thumbDock->setFeatures(QDockWidget::DockWidgetMovable);
+    thumbDock->setMaximumHeight(100);
+    addDockWidget(Qt::BottomDockWidgetArea, thumbDock);
+
+    connect(thumbnailBar_, &ThumbnailBar::imageActivated, this, [this](int idx) {
+        const auto wins = allFitsWindows();
+        if (idx < wins.size()) {
+            for (auto* sw : mdiArea_->subWindowList()) {
+                if (sw->widget() == wins[idx]) {
+                    mdiArea_->setActiveSubWindow(sw);
+                    break;
+                }
+            }
+        }
+    });
+
+    // Make panels accessible from View menu
     windowMenu_->addSeparator();
     windowMenu_->addAction(wfDock->toggleViewAction());
+    windowMenu_->addAction(thumbDock->toggleViewAction());
     windowMenu_->addAction(logDock->toggleViewAction());
 }
 
@@ -321,9 +350,18 @@ void MainWindow::onLoadImages()
 
     const QStringList files = QFileDialog::getOpenFileNames(this,
         tr("Load FITS Images"), lastDir,
-        tr("FITS Images (*.fits *.fit *.fts *.FITS *.FIT);;All files (*)"));
+        tr("FITS & ZIP (*.fits *.fit *.fts *.FITS *.FIT *.zip *.ZIP);;FITS Images (*.fits *.fit *.fts);;ZIP archives (*.zip);;All files (*)"));
 
     if (files.isEmpty()) return;
+
+    // Expand any ZIP archives → extract FITS to temp directory
+    QStringList expandedFiles;
+    for (const auto& path : files) {
+        if (path.endsWith(".zip", Qt::CaseInsensitive))
+            expandedFiles.append(expandZip(path));
+        else
+            expandedFiles.append(path);
+    }
 
     settings_.setValue("paths/lastImageDir", QFileInfo(files.first()).absolutePath());
 
@@ -334,12 +372,12 @@ void MainWindow::onLoadImages()
         if (btn == QMessageBox::Yes) onResetFiles();
     }
 
-    QProgressDialog progress(tr("Loading FITS images…"), tr("Cancel"), 0, files.size(), this);
+    QProgressDialog progress(tr("Loading FITS images..."), tr("Cancel"), 0, expandedFiles.size(), this);
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(300);
 
     int loaded = 0;
-    for (const auto& path : files) {
+    for (const auto& path : expandedFiles) {
         progress.setValue(loaded);
         progress.setLabelText(tr("Loading %1…").arg(QFileInfo(path).fileName()));
         if (progress.wasCanceled()) break;
@@ -380,13 +418,20 @@ void MainWindow::onLoadImages()
 
         ++loaded;
     }
-    progress.setValue(files.size());
+    progress.setValue(expandedFiles.size());
 
     if (loaded > 0) {
         session_->setStep(core::SessionStep::ImagesLoaded);
         mdiArea_->tileSubWindows();
         sbImages_->setText(tr("%1 image(s)").arg(session_->imageCount()));
-        sbStep_->setText(tr("Step 1: Images loaded → Run Data Reduction"));
+        sbStep_->setText(tr("Step 1: Images loaded — Run Data Reduction"));
+
+        // Populate thumbnail bar
+        QVector<core::FitsImage> imgs;
+        imgs.reserve(session_->imageCount());
+        for (int i = 0; i < session_->imageCount(); ++i)
+            imgs.append(session_->image(i));
+        thumbnailBar_->setImages(imgs);
     }
 }
 
@@ -404,6 +449,9 @@ void MainWindow::onResetFiles()
     for (auto* sw : mdiArea_->subWindowList())
         sw->close();
     session_->clear();
+    thumbnailBar_->clear();
+    blinkMdiWin_ = nullptr;
+    blinkWidget_ = nullptr;
     sbImages_->setText(tr("No images"));
     sbStep_->setText(tr("Ready"));
     logPanel_->appendInfo(tr("Session reset"));
@@ -427,7 +475,39 @@ void MainWindow::onDisplayHeader()
     auto* fw = activeFitsWindow();
     if (fw) fw->showFitsHeader();
 }
-void MainWindow::onBackgroundAndRange()  { statusBar()->showMessage(tr("Background and Range — Phase 1"), 3000); }
+void MainWindow::onBackgroundAndRange()
+{
+    auto* fw = activeFitsWindow();
+    if (!fw) { statusBar()->showMessage(tr("No active image"), 2000); return; }
+
+    // Find corresponding FitsImage in session (match by file path)
+    core::FitsImage* imgPtr = nullptr;
+    for (int i = 0; i < session_->imageCount(); ++i) {
+        if (session_->image(i).filePath == fw->fitsImage().filePath) {
+            imgPtr = &session_->image(i);
+            break;
+        }
+    }
+    if (!imgPtr) return;
+
+    auto* dlg = new BackgroundRangeDialog(fw->imageView(), imgPtr, this);
+    connect(dlg, &BackgroundRangeDialog::stretchChanged,
+        this, [this](float mn, float mx, bool all) {
+            if (!all) return;
+            for (auto* fsw : allFitsWindows()) {
+                for (int i = 0; i < session_->imageCount(); ++i) {
+                    if (session_->image(i).filePath == fsw->fitsImage().filePath) {
+                        session_->image(i).displayMin = mn;
+                        session_->image(i).displayMax = mx;
+                        fsw->imageView()->setStretch(mn, mx);
+                        break;
+                    }
+                }
+            }
+        });
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+}
 void MainWindow::onReStackImages()       { statusBar()->showMessage(tr("Re-Stack — Phase 7"), 3000); }
 
 void MainWindow::onZoomIn()
@@ -461,23 +541,65 @@ void MainWindow::onMagnifyingGlass() { statusBar()->showMessage(tr("Magnifying g
 
 void MainWindow::onBlinkImages()
 {
-    const auto wins = allFitsWindows();
-    if (wins.size() < 2) {
+    if (session_->imageCount() < 2) {
         QMessageBox::information(this, tr("Blink Images"),
             tr("Load at least 2 images to use blink mode."));
         return;
     }
-    blinkActive_      = true;
-    blinkCurrentIdx_  = 0;
+
+    if (!blinkWidget_) {
+        blinkWidget_ = new BlinkWidget(nullptr);
+        connect(blinkWidget_, &BlinkWidget::stopRequested,
+                this, &MainWindow::onStopBlinking);
+        connect(blinkWidget_, &BlinkWidget::imageChanged,
+                thumbnailBar_, &ThumbnailBar::setActiveIndex);
+        connect(blinkWidget_, &BlinkWidget::objectClicked,
+            this, [this](QPointF /*pos*/, double /*ra*/, double /*dec*/,
+                         float /*val*/, int imgIdx) {
+                thumbnailBar_->setActiveIndex(imgIdx);
+                logPanel_->appendInfo(tr("Object selected in image %1 — "
+                    "measurement mode coming in Phase 4").arg(imgIdx + 1));
+                session_->setStep(core::SessionStep::Measuring);
+            });
+    }
+
+    // Load session images into blink widget
+    QVector<core::FitsImage> imgs;
+    imgs.reserve(session_->imageCount());
+    for (int i = 0; i < session_->imageCount(); ++i)
+        imgs.append(session_->image(i));
+    blinkWidget_->setImages(imgs);
+    blinkWidget_->setInterval(blinkIntervalMs_);
+
+    // Show as maximized MDI child
+    if (!blinkMdiWin_) {
+        blinkMdiWin_ = mdiArea_->addSubWindow(blinkWidget_,
+            Qt::SubWindow | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        blinkMdiWin_->setWindowTitle(tr("Blink View"));
+    }
+    blinkMdiWin_->showMaximized();
+    blinkWidget_->startBlink();
+
+    blinkActive_     = true;
+    blinkCurrentIdx_ = 0;
     actBlink_->setEnabled(false);
     actStopBlink_->setEnabled(true);
-    sbStep_->setText(tr("Blinking — Space to pause, click object to measure"));
-    blinkTimer_->start(blinkIntervalMs_);
+    session_->setStep(core::SessionStep::Blinking);
+    sbStep_->setText(tr("Blinking — Space = pause, Left/Right = step, click object to measure"));
     logPanel_->appendInfo(tr("Blink started (%1 ms interval)").arg(blinkIntervalMs_));
 }
 
 void MainWindow::onStopBlinking()
 {
+    if (blinkWidget_)
+        blinkWidget_->stopBlink();
+
+    if (blinkMdiWin_) {
+        blinkMdiWin_->close();
+        blinkMdiWin_ = nullptr;
+        blinkWidget_ = nullptr;
+    }
+
     blinkActive_ = false;
     blinkTimer_->stop();
     actBlink_->setEnabled(true);
@@ -575,4 +697,48 @@ void MainWindow::onUpdateMenuState()
     actKOO_->setEnabled(hasImages);
     actZoomIn_->setEnabled(hasActive);
     actZoomOut_->setEnabled(hasActive);
+}
+
+// ─── ZIP extraction ───────────────────────────────────────────────────────────
+
+QStringList MainWindow::expandZip(const QString& zipPath)
+{
+    QStringList result;
+
+    if (!tempDir_)
+        tempDir_ = std::make_unique<QTemporaryDir>();
+
+    if (!tempDir_->isValid()) {
+        logPanel_->appendError(tr("Could not create temp directory for ZIP extraction"));
+        return result;
+    }
+
+    // Extract only FITS files from the ZIP using system unzip
+    QProcess proc;
+    proc.start("unzip", {
+        "-o", zipPath,
+        "*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
+        "-d", tempDir_->path()
+    });
+
+    if (!proc.waitForFinished(30000)) {
+        logPanel_->appendError(tr("Timed out extracting ZIP: %1").arg(zipPath));
+        return result;
+    }
+
+    const QDir dir(tempDir_->path());
+    const QStringList fitsFiles = dir.entryList(
+        {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT"},
+        QDir::Files, QDir::Name);
+
+    for (const auto& f : fitsFiles)
+        result.append(dir.filePath(f));
+
+    if (result.isEmpty())
+        logPanel_->appendWarning(tr("No FITS files found in ZIP: %1").arg(QFileInfo(zipPath).fileName()));
+    else
+        logPanel_->appendInfo(tr("Extracted %1 FITS file(s) from %2")
+            .arg(result.size()).arg(QFileInfo(zipPath).fileName()));
+
+    return result;
 }

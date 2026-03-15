@@ -31,6 +31,24 @@ public:
     void toggleFlipH() { setFlipH(!flipH_); }
     void toggleFlipV() { setFlipV(!flipV_); }
 
+    /// Update display stretch and redraw (does NOT reload FITS from disk).
+    void setStretch(float displayMin, float displayMax);
+    void resetStretch();  ///< Recompute sigma-clipped auto-stretch
+
+    /// Set a precomputed display image (for fast blink switching).
+    /// Metadata (WCS, filename, etc.) is taken from img; pixel data is NOT copied.
+    void setPrecomputedImage(const QImage& displayImg, const core::FitsImage& img);
+
+    // ── Static utilities ──────────────────────────────────────────────────
+    /// Convert FitsImage pixel data to a display QImage (stretch + transforms).
+    static QImage toDisplayImage(const core::FitsImage& img,
+                                  bool invert = false,
+                                  bool flipH  = false,
+                                  bool flipV  = false);
+
+    /// Generate a square thumbnail of the given size.
+    static QImage toThumbnail(const core::FitsImage& img, int size = 96);
+
     /// Pixel coordinates → sky coordinates (requires valid WCS)
     bool pixToSky(QPointF pix, double& ra, double& dec) const noexcept;
 

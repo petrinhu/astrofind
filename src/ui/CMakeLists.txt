@@ -5,6 +5,9 @@ set(UI_SOURCES
     WorkflowPanel.cpp
     AboutDialog.cpp
     LogPanel.cpp
+    BlinkWidget.cpp
+    ThumbnailBar.cpp
+    BackgroundRangeDialog.cpp
 )
 
 set(UI_HEADERS
@@ -14,6 +17,9 @@ set(UI_HEADERS
     WorkflowPanel.h
     AboutDialog.h
     LogPanel.h
+    BlinkWidget.h
+    ThumbnailBar.h
+    BackgroundRangeDialog.h
 )
 
 add_library(astrofind_ui STATIC

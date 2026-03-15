@@ -33,27 +33,7 @@ void FitsImageView::clearImage()
 
 QImage FitsImageView::makeDisplayImage() const
 {
-    if (!fitsImg_.isValid()) return {};
-
-    const int w = fitsImg_.width;
-    const int h = fitsImg_.height;
-    QImage img(w, h, QImage::Format_Grayscale8);
-
-    const float dmin = fitsImg_.displayMin;
-    const float dmax = fitsImg_.displayMax;
-
-    for (int y = 0; y < h; ++y) {
-        auto* line = img.scanLine(y);
-        const float* src = fitsImg_.data.data() + static_cast<size_t>(y) * w;
-        for (int x = 0; x < w; ++x)
-            line[x] = core::stretchPixel(src[x], dmin, dmax);
-    }
-
-    if (invert_) img.invertPixels();
-    if (flipH_)  img = img.flipped(Qt::Horizontal);
-    if (flipV_)  img = img.flipped(Qt::Vertical);
-
-    return img;
+    return toDisplayImage(fitsImg_, invert_, flipH_, flipV_);
 }
 
 void FitsImageView::fitToWidget()
@@ -222,4 +202,68 @@ void FitsImageView::clampPan()
     // Allow panning so at least 20% of image stays visible
     panOff_.setX(std::clamp(panOff_.x(), -iw * 0.8, width()  - iw * 0.2));
     panOff_.setY(std::clamp(panOff_.y(), -ih * 0.8, height() - ih * 0.2));
+}
+
+// ─── New public stretch / precomputed-image methods ───────────────────────────
+
+void FitsImageView::setStretch(float displayMin, float displayMax)
+{
+    fitsImg_.displayMin = displayMin;
+    fitsImg_.displayMax = displayMax;
+    displayImg_ = makeDisplayImage();
+    update();
+}
+
+void FitsImageView::resetStretch()
+{
+    core::computeAutoStretch(fitsImg_);
+    displayImg_ = makeDisplayImage();
+    update();
+}
+
+void FitsImageView::setPrecomputedImage(const QImage& displayImg, const core::FitsImage& img)
+{
+    displayImg_ = displayImg;
+    // Copy metadata but avoid holding a second copy of the heavy pixel buffer.
+    fitsImg_ = img;
+    fitsImg_.data.clear();
+    fitsImg_.data.shrink_to_fit();
+    fitToWidget();
+    update();
+}
+
+// ─── Static utilities ─────────────────────────────────────────────────────────
+
+QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
+                                      bool invert, bool flipH, bool flipV)
+{
+    if (!img.isValid()) return {};
+
+    const int w = img.width;
+    const int h = img.height;
+    QImage out(w, h, QImage::Format_Grayscale8);
+
+    const float dmin = img.displayMin;
+    const float dmax = img.displayMax;
+
+    for (int y = 0; y < h; ++y) {
+        auto* line = out.scanLine(y);
+        const float* src = img.data.data() + static_cast<size_t>(y) * w;
+        for (int x = 0; x < w; ++x)
+            line[x] = core::stretchPixel(src[x], dmin, dmax);
+    }
+
+    if (invert) out.invertPixels();
+    if (flipH)  out = out.flipped(Qt::Horizontal);
+    if (flipV)  out = out.flipped(Qt::Vertical);
+
+    return out;
+}
+
+QImage FitsImageView::toThumbnail(const core::FitsImage& img, int size)
+{
+    if (!img.isValid()) return {};
+    const QImage full = toDisplayImage(img);
+    if (full.isNull()) return {};
+    return full.scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 }
