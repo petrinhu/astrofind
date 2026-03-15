@@ -38,6 +38,18 @@ FitsSubWindow::FitsSubWindow(const core::FitsImage& img, QWidget* parent)
     setAttribute(Qt::WA_DeleteOnClose);
 }
 
+void FitsSubWindow::updateImage(const core::FitsImage& img)
+{
+    // Copy overlay and WCS from updated img (pixel buffer stays unchanged)
+    img_.detectedStars = img.detectedStars;
+    img_.catalogStars  = img.catalogStars;
+    img_.kooObjects    = img.kooObjects;
+    img_.wcs           = img.wcs;
+    img_.pixScaleX     = img.pixScaleX;
+    img_.pixScaleY     = img.pixScaleY;
+    view_->setFitsImage(img_);
+}
+
 void FitsSubWindow::showFitsHeader()
 {
     fitsfile* fptr = nullptr;

@@ -24,6 +24,9 @@ public:
 
     void showFitsHeader();
 
+    /// Refresh overlay data (detectedStars / catalogStars / kooObjects) without reloading pixels.
+    void updateImage(const core::FitsImage& img);
+
 signals:
     void cursorMoved(double ra, double dec, float value);
 

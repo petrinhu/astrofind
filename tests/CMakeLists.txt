@@ -3,6 +3,7 @@ enable_testing()
 add_executable(astrofind_tests
     test_fits_loader.cpp
     test_image_session.cpp
+    test_star_detector.cpp
 )
 
 target_link_libraries(astrofind_tests PRIVATE

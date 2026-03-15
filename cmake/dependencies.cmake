@@ -75,6 +75,26 @@ else()
     message(STATUS "QuaZip disabled — install qt6-qt5compat-devel to enable ZIP support")
 endif()
 
+# ─── SEP (Source Extractor C library) — Phase 2 ───────────────────────────
+FetchContent_Declare(
+    sep
+    GIT_REPOSITORY https://github.com/kbarbary/sep.git
+    GIT_TAG        v1.2.1
+    GIT_SHALLOW    TRUE
+)
+FetchContent_GetProperties(sep)
+if(NOT sep_POPULATED)
+    FetchContent_Populate(sep)
+    file(GLOB SEP_SRCS "${sep_SOURCE_DIR}/src/*.c")
+    add_library(sep_lib STATIC ${SEP_SRCS})
+    target_include_directories(sep_lib PUBLIC ${sep_SOURCE_DIR}/src)
+    set_property(TARGET sep_lib PROPERTY C_STANDARD 99)
+    # Suppress warnings from third-party C code
+    target_compile_options(sep_lib PRIVATE -w)
+    add_library(sep::sep ALIAS sep_lib)
+    message(STATUS "SEP (Source Extractor) built from source")
+endif()
+
 # ─── Catch2 (unit tests) ───────────────────────────────────────────────────
 FetchContent_Declare(
     Catch2

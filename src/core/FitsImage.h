@@ -1,7 +1,10 @@
 #pragma once
 
+#include "Overlay.h"
+
 #include <QString>
 #include <QDateTime>
+#include <QVector>
 #include <vector>
 #include <optional>
 #include <expected>
@@ -59,6 +62,11 @@ struct FitsImage {
 
     // Plate solution (filled after data reduction)
     PlateSolution wcs;
+
+    // Overlay data (filled during data reduction / KOO step)
+    QVector<DetectedStar> detectedStars;
+    QVector<CatalogStar>  catalogStars;
+    QVector<KooObject>    kooObjects;
 
     bool isValid() const noexcept { return !data.empty() && width > 0 && height > 0; }
 

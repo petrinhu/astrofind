@@ -10,8 +10,13 @@
 #include <memory>
 
 #include "core/ImageSession.h"
+#include "core/AstrometryClient.h"
+#include "core/CatalogClient.h"
+#include "core/KooEngine.h"
 #include "BlinkWidget.h"
 #include "ThumbnailBar.h"
+
+class QNetworkAccessManager;
 
 class WorkflowPanel;
 class LogPanel;
@@ -148,6 +153,21 @@ private:
     BlinkWidget*    blinkWidget_   = nullptr;   ///< Shown in MDI during blink mode
     ThumbnailBar*   thumbnailBar_  = nullptr;   ///< Bottom dock strip
     QMdiSubWindow*  blinkMdiWin_   = nullptr;   ///< MDI container for blink widget
+
+    // ── Phase 2: network + astrometry clients ─────────────────────────────────
+    QNetworkAccessManager*    nam_              = nullptr;
+    core::AstrometryClient*   astrometryClient_ = nullptr;
+    core::CatalogClient*      catalogClient_    = nullptr;
+    core::KooEngine*          kooEngine_        = nullptr;
+    QVector<int>              reductionQueue_;   ///< Images pending astrometry
+    int                       reducingIdx_      = -1;
+
+    void processNextReduction();
+    void onAstrometrySolved(const core::PlateSolution& wcs, int jobId);
+    void onAstrometryFailed(const QString& reason);
+    void onCatalogReady(const QVector<core::CatalogStar>& stars);
+    void onKooReady(const QVector<core::KooObject>& objects);
+    void updateImageOverlay(int sessionIdx);
 
     // ── Session ───────────────────────────────────────────────────────────────
     std::unique_ptr<core::ImageSession> session_;

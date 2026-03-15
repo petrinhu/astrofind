@@ -114,6 +114,13 @@ void FitsImageView::paintEvent(QPaintEvent* /*e*/)
 
     p.setRenderHint(zoom_ >= 2.0 ? QPainter::Antialiasing : QPainter::SmoothPixmapTransform, false);
     p.drawImage(dst, displayImg_);
+
+    if (showOverlay_) {
+        p.setRenderHint(QPainter::Antialiasing, true);
+        drawCatalogStars(p);
+        drawDetectedStars(p);
+        drawKooObjects(p);
+    }
 }
 
 void FitsImageView::mouseMoveEvent(QMouseEvent* e)
@@ -266,4 +273,84 @@ QImage FitsImageView::toThumbnail(const core::FitsImage& img, int size)
     const QImage full = toDisplayImage(img);
     if (full.isNull()) return {};
     return full.scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+}
+
+// ─── Overlay control ──────────────────────────────────────────────────────────
+
+void FitsImageView::setShowOverlay(bool on)
+{
+    if (showOverlay_ == on) return;
+    showOverlay_ = on;
+    update();
+}
+
+// ─── Overlay drawing ──────────────────────────────────────────────────────────
+
+void FitsImageView::drawDetectedStars(QPainter& p) const
+{
+    if (fitsImg_.detectedStars.isEmpty()) return;
+
+    QPen pen(QColor(0, 220, 255), 1.5);   // cyan
+    p.setPen(pen);
+    p.setBrush(Qt::NoBrush);
+
+    for (const auto& star : fitsImg_.detectedStars) {
+        const QPointF w = imageToWidget(QPointF(star.x, star.y));
+        const double  r = std::max(4.0, star.a * zoom_);
+        p.drawEllipse(w, r, r);
+    }
+}
+
+void FitsImageView::drawCatalogStars(QPainter& p) const
+{
+    if (fitsImg_.catalogStars.isEmpty() || !fitsImg_.wcs.solved) return;
+
+    QPen pen(QColor(255, 220, 0), 1.0);   // yellow
+    p.setPen(pen);
+
+    for (const auto& star : fitsImg_.catalogStars) {
+        double px = 0.0, py = 0.0;
+        // skyToPix returns 1-based FITS coords → subtract 1 for 0-based display
+        fitsImg_.wcs.skyToPix(star.ra, star.dec, px, py);
+        const QPointF w = imageToWidget(QPointF(px - 1.0, py - 1.0));
+        // Skip stars outside the visible image area
+        if (!rect().marginsAdded(QMargins(20, 20, 20, 20)).contains(w.toPoint())) continue;
+        const double s = 4.0;
+        p.drawLine(w + QPointF(-s, 0), w + QPointF(s, 0));
+        p.drawLine(w + QPointF(0, -s), w + QPointF(0, s));
+    }
+}
+
+void FitsImageView::drawKooObjects(QPainter& p) const
+{
+    if (fitsImg_.kooObjects.isEmpty() || !fitsImg_.wcs.solved) return;
+
+    static const QColor kAsteroidColor(80, 255, 120);   // green
+    static const QColor kPlanetColor(120, 180, 255);    // light blue
+    static const QColor kCometColor(255, 160, 80);      // orange
+
+    const QFont labelFont(QStringLiteral("monospace"), 7);
+    p.setFont(labelFont);
+
+    for (const auto& obj : fitsImg_.kooObjects) {
+        double px = 0.0, py = 0.0;
+        fitsImg_.wcs.skyToPix(obj.ra, obj.dec, px, py);
+        const QPointF w = imageToWidget(QPointF(px - 1.0, py - 1.0));
+        if (!rect().marginsAdded(QMargins(20, 20, 20, 20)).contains(w.toPoint())) continue;
+
+        const QColor col = (obj.type == QLatin1String("planet"))  ? kPlanetColor
+                         : (obj.type == QLatin1String("comet"))   ? kCometColor
+                         : kAsteroidColor;
+        const double r = 10.0;
+        p.setPen(QPen(col, 2.0));
+        p.setBrush(Qt::NoBrush);
+        p.drawEllipse(w, r, r);
+
+        // Label (name or MPC number)
+        p.setPen(col);
+        const QString label = obj.number > 0
+            ? QString::number(obj.number)
+            : obj.name;
+        p.drawText(w + QPointF(r + 2.0, 4.0), label);
+    }
 }

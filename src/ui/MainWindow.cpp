@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QMenuBar>
@@ -22,6 +23,9 @@
 #include <QProcess>
 #include <QDir>
 #include <QFileInfo>
+#include <QNetworkAccessManager>
+
+#include "core/StarDetector.h"
 
 #include <spdlog/spdlog.h>
 
@@ -41,6 +45,12 @@ MainWindow::MainWindow(QWidget* parent)
     mdiArea_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea_->setBackground(QBrush(QColor(0x1a, 0x1a, 0x2e)));
     setCentralWidget(mdiArea_);
+
+    // ── Phase 2: network + astrometry clients ─────────────────────────────
+    nam_              = new QNetworkAccessManager(this);
+    astrometryClient_ = new core::AstrometryClient(nam_, this);
+    catalogClient_    = new core::CatalogClient(nam_, this);
+    kooEngine_        = new core::KooEngine(nam_, this);
 
     setupMenus();
     setupToolBar();
@@ -463,7 +473,105 @@ void MainWindow::onExit()         { close(); }
 
 // ─── Astrometry slots ─────────────────────────────────────────────────────────
 
-void MainWindow::onDataReduction()        { statusBar()->showMessage(tr("Data Reduction — Phase 2"), 3000); }
+void MainWindow::onDataReduction()
+{
+    if (session_->isEmpty()) return;
+
+    if (astrometryClient_->isBusy()) {
+        QMessageBox::information(this, tr("Data Reduction"),
+            tr("Plate solving is already in progress. Please wait."));
+        return;
+    }
+
+    // Ensure API key is configured
+    QString apiKey = settings_.value("astrometry/apiKey").toString();
+    if (apiKey.isEmpty()) {
+        bool ok = false;
+        apiKey = QInputDialog::getText(this,
+            tr("Astrometry.net API Key"),
+            tr("Enter your free API key from nova.astrometry.net:"),
+            QLineEdit::Normal, QString(), &ok);
+        if (!ok || apiKey.trimmed().isEmpty()) return;
+        settings_.setValue("astrometry/apiKey", apiKey.trimmed());
+    }
+    astrometryClient_->setApiKey(apiKey.trimmed());
+
+    // Connect client signals (disconnect first to avoid duplicates)
+    disconnect(astrometryClient_, nullptr, this, nullptr);
+    connect(astrometryClient_, &core::AstrometryClient::progress,
+            this, [this](const QString& msg, int pct) {
+        logPanel_->appendInfo(tr("[Astrometry] %1 (%2%)").arg(msg).arg(pct));
+        statusBar()->showMessage(msg);
+    });
+    connect(astrometryClient_, &core::AstrometryClient::solved,
+            this, &MainWindow::onAstrometrySolved);
+    connect(astrometryClient_, &core::AstrometryClient::failed,
+            this, &MainWindow::onAstrometryFailed);
+
+    // Build reduction queue
+    reductionQueue_.clear();
+    for (int i = 0; i < session_->imageCount(); ++i)
+        reductionQueue_.append(i);
+
+    logPanel_->appendInfo(tr("Starting data reduction for %1 image(s)...")
+                          .arg(session_->imageCount()));
+    processNextReduction();
+}
+
+void MainWindow::processNextReduction()
+{
+    if (reductionQueue_.isEmpty()) {
+        logPanel_->appendInfo(tr("Data reduction complete."));
+        session_->setStep(core::SessionStep::DataReduced);
+        onUpdateMenuState();
+        return;
+    }
+
+    reducingIdx_ = reductionQueue_.takeFirst();
+    core::FitsImage& img = session_->image(reducingIdx_);
+
+    // ── Star detection (synchronous, fast) ────────────────────────────────
+    logPanel_->appendInfo(tr("Detecting stars in %1...").arg(img.fileName));
+    auto result = core::detectStars(img);
+    if (result) {
+        img.detectedStars = *result;
+        logPanel_->appendInfo(tr("  Found %1 stars").arg(img.detectedStars.size()));
+        updateImageOverlay(reducingIdx_);
+    } else {
+        logPanel_->appendWarning(tr("  Star detection failed: %1").arg(result.error()));
+    }
+
+    // ── Plate solving (async, astrometry.net) ─────────────────────────────
+    logPanel_->appendInfo(tr("Submitting %1 to astrometry.net...").arg(img.fileName));
+    astrometryClient_->solveFits(img.filePath, img.ra, img.dec);
+}
+
+void MainWindow::onAstrometrySolved(const core::PlateSolution& wcs, int /*jobId*/)
+{
+    if (reducingIdx_ < 0 || reducingIdx_ >= session_->imageCount()) return;
+
+    core::FitsImage& img = session_->image(reducingIdx_);
+    img.wcs = wcs;
+
+    // Update pixel scale
+    img.pixScaleX = std::abs(std::hypot(wcs.cd1_1, wcs.cd2_1)) * 3600.0;
+    img.pixScaleY = std::abs(std::hypot(wcs.cd1_2, wcs.cd2_2)) * 3600.0;
+
+    logPanel_->appendInfo(tr("  Solved! RA=%.4f Dec=%.4f scale=%.3f\"/px")
+        .arg(wcs.crval1, 0, 'f', 4)
+        .arg(wcs.crval2, 0, 'f', 4)
+        .arg(img.pixScaleX, 0, 'f', 3));
+
+    updateImageOverlay(reducingIdx_);
+    processNextReduction();
+}
+
+void MainWindow::onAstrometryFailed(const QString& reason)
+{
+    logPanel_->appendWarning(tr("  Plate solving failed: %1").arg(reason));
+    processNextReduction();   // continue with next image
+}
+
 void MainWindow::onMovingObjectDetection(){ statusBar()->showMessage(tr("Moving Object Detection — Phase 7"), 3000); }
 void MainWindow::onTrackAndStack()        { statusBar()->showMessage(tr("Track & Stack — Phase 7"), 3000); }
 
@@ -608,7 +716,84 @@ void MainWindow::onStopBlinking()
     logPanel_->appendInfo(tr("Blink stopped"));
 }
 
-void MainWindow::onKnownObjectOverlay() { statusBar()->showMessage(tr("Known Object Overlay — Phase 3"), 3000); }
+void MainWindow::onKnownObjectOverlay()
+{
+    if (session_->isEmpty()) return;
+
+    disconnect(catalogClient_, nullptr, this, nullptr);
+    disconnect(kooEngine_,     nullptr, this, nullptr);
+
+    connect(catalogClient_, &core::CatalogClient::starsReady,
+            this, &MainWindow::onCatalogReady);
+    connect(catalogClient_, &core::CatalogClient::failed,
+            this, [this](const QString& r) {
+        logPanel_->appendWarning(tr("Catalog download failed: %1").arg(r));
+    });
+    connect(kooEngine_, &core::KooEngine::objectsReady,
+            this, &MainWindow::onKooReady);
+    connect(kooEngine_, &core::KooEngine::failed,
+            this, [this](const QString& r) {
+        logPanel_->appendWarning(tr("SkyBoT query failed: %1").arg(r));
+    });
+
+    // Use the first image's solved WCS for the field center
+    const core::FitsImage& ref = session_->image(0);
+    const double ra      = ref.wcs.solved ? ref.wcs.crval1 : ref.ra;
+    const double dec     = ref.wcs.solved ? ref.wcs.crval2 : ref.dec;
+    const double fovDeg  = ref.wcs.solved
+        ? std::max(ref.pixScaleX, ref.pixScaleY) * std::max(ref.width, ref.height) / 3600.0 * 0.7
+        : 0.5;
+    const double jd      = ref.jd;
+
+    logPanel_->appendInfo(tr("Querying VizieR (UCAC4) and SkyBoT at RA=%.4f Dec=%.4f r=%.2f°...")
+        .arg(ra, 0, 'f', 4).arg(dec, 0, 'f', 4).arg(fovDeg, 0, 'f', 2));
+
+    catalogClient_->queryRegion(ra, dec, fovDeg);
+    if (jd > 2400000.0)
+        kooEngine_->queryField(ra, dec, fovDeg, jd);
+}
+
+void MainWindow::onCatalogReady(const QVector<core::CatalogStar>& stars)
+{
+    logPanel_->appendInfo(tr("Catalog: %1 UCAC4 stars").arg(stars.size()));
+    for (int i = 0; i < session_->imageCount(); ++i) {
+        session_->image(i).catalogStars = stars;
+        updateImageOverlay(i);
+    }
+    if (session_->step() < core::SessionStep::OverlayApplied)
+        session_->setStep(core::SessionStep::OverlayApplied);
+    onUpdateMenuState();
+}
+
+void MainWindow::onKooReady(const QVector<core::KooObject>& objects)
+{
+    logPanel_->appendInfo(tr("SkyBoT: %1 known object(s) in field").arg(objects.size()));
+    for (int i = 0; i < session_->imageCount(); ++i) {
+        session_->image(i).kooObjects = objects;
+        updateImageOverlay(i);
+    }
+    if (!objects.isEmpty()) {
+        QStringList names;
+        for (const auto& obj : objects)
+            names.append(obj.name);
+        logPanel_->appendInfo(tr("  Objects: %1").arg(names.join(", ")));
+    }
+}
+
+void MainWindow::updateImageOverlay(int idx)
+{
+    if (idx < 0 || idx >= session_->imageCount()) return;
+    const core::FitsImage& img = session_->image(idx);
+
+    // Find the FitsSubWindow displaying this image and refresh its overlay
+    for (auto* sw : mdiArea_->subWindowList()) {
+        auto* fw = qobject_cast<FitsSubWindow*>(sw->widget());
+        if (fw && fw->fitsImage().filePath == img.filePath) {
+            fw->updateImage(img);
+            break;
+        }
+    }
+}
 
 // ─── Internet slots ───────────────────────────────────────────────────────────
 

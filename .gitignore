@@ -54,3 +54,4 @@ PhotReport.txt
 
 # Originals (reference only, don't commit binaries)
 originals/
+.cache/

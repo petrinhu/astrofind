@@ -52,6 +52,11 @@ public:
     /// Pixel coordinates → sky coordinates (requires valid WCS)
     bool pixToSky(QPointF pix, double& ra, double& dec) const noexcept;
 
+    // ── Overlay control ───────────────────────────────────────────────────
+    void setShowOverlay(bool on);
+    bool showOverlay() const noexcept { return showOverlay_; }
+    void toggleOverlay()              { setShowOverlay(!showOverlay_); }
+
 signals:
     void cursorMoved(double ra, double dec, float pixelValue);
     void pixelClicked(QPointF imagePixel, double ra, double dec, float pixelValue);
@@ -82,4 +87,10 @@ private:
     bool    panning_    = false;
     QPoint  panStart_;
     QPointF panOffStart_;
+
+    bool    showOverlay_ = true;
+
+    void drawDetectedStars(QPainter& p) const;
+    void drawCatalogStars(QPainter& p) const;
+    void drawKooObjects(QPainter& p) const;
 };
