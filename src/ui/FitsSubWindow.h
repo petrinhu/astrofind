@@ -1,0 +1,34 @@
+#pragma once
+
+#include "FitsImageView.h"
+#include "core/FitsImage.h"
+
+#include <QWidget>
+#include <QLabel>
+
+/// MDI child widget that wraps FitsImageView and shows image info.
+class FitsSubWindow : public QWidget {
+    Q_OBJECT
+public:
+    explicit FitsSubWindow(const core::FitsImage& img, QWidget* parent = nullptr);
+
+    const core::FitsImage& fitsImage() const noexcept { return img_; }
+    FitsImageView*         imageView()       noexcept { return view_; }
+
+    void zoomIn()         { view_->zoomIn(); }
+    void zoomOut()        { view_->zoomOut(); }
+    void fitToWindow()    { view_->fitToWidget(); }
+    void toggleInvert()   { view_->toggleInvert(); }
+    void flipHorizontal() { view_->toggleFlipH(); }
+    void flipVertical()   { view_->toggleFlipV(); }
+
+    void showFitsHeader();
+
+signals:
+    void cursorMoved(double ra, double dec, float value);
+
+private:
+    core::FitsImage img_;
+    FitsImageView*  view_    = nullptr;
+    QLabel*         infoBar_ = nullptr;
+};

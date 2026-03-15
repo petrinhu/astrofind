@@ -1,0 +1,56 @@
+# Build
+build/
+build-*/
+cmake-build-*/
+_deps/
+.cmake/
+
+# Qt
+*.qmlc
+*.jsc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.autosave
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled
+*.o
+*.obj
+*.so
+*.dll
+*.a
+*.lib
+*.exe
+*.out
+
+# Logs
+*.log
+Astrometrica.log
+PhotReport.txt
+
+# Local config (keep cfg/ini in originals only)
+*.cfg
+*.ini
+
+# Originals (reference only, don't commit binaries)
+originals/
