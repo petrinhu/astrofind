@@ -1,7 +1,19 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/translations">
+        <file alias="astrofind_pt_BR.qm">../i18n/astrofind_pt_BR.qm</file>
+    </qresource>
+    <qresource prefix="/help">
+        <file alias="help_en.html">help/help_en.html</file>
+        <file alias="help_pt_br.html">help/help_pt_br.html</file>
     </qresource>
     <qresource prefix="/icons">
+        <file>icons/astrofind-16.png</file>
+        <file>icons/astrofind-32.png</file>
+        <file>icons/astrofind-48.png</file>
+        <file>icons/astrofind-64.png</file>
+        <file>icons/astrofind-128.png</file>
+        <file>icons/astrofind-256.png</file>
+        <file>icons/astrofind-512.png</file>
     </qresource>
 </RCC>

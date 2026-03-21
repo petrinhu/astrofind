@@ -8,6 +8,7 @@
 #include <vector>
 #include <optional>
 #include <expected>
+#include <limits>
 
 namespace core {
 
@@ -35,6 +36,7 @@ struct FitsImage {
     // File info
     QString  filePath;
     QString  fileName;
+    QString  sourceZipPath;  ///< Original ZIP archive path if extracted from one (empty otherwise)
 
     // Image data (row-major, float, physical values after BZERO/BSCALE)
     int                  width  = 0;
@@ -50,15 +52,24 @@ struct FitsImage {
     double   ra       = 0.0;   ///< RA from OBJCTRA header (degrees)
     double   dec      = 0.0;   ///< Dec from OBJCTDEC header (degrees)
     double   expTime  = 0.0;   ///< Exposure time (seconds)
-    QDateTime dateObs;          ///< DATE-OBS
+    QDateTime dateObs;          ///< DATE-OBS (always UTC after load)
+    bool dateObsAmbiguous = false; ///< True when no explicit timezone marker and TIMESYS absent
     double   jd       = 0.0;   ///< Julian Date (mid-exposure)
     QString  filter;
     QString  telescope;
     QString  observer;
     double   gain     = 1.0;
-    double   pixScaleX= 0.0;   ///< arcsec/pixel X (from WCS or config)
-    double   pixScaleY= 0.0;   ///< arcsec/pixel Y
+    double   pixScaleX  = 0.0;   ///< arcsec/pixel X (from WCS or config)
+    double   pixScaleY  = 0.0;   ///< arcsec/pixel Y
     double   saturation = 65535.0;
+    int      binningX   = 1;     ///< CCD binning factor X (from XBINNING header)
+    int      binningY   = 1;     ///< CCD binning factor Y (from YBINNING header)
+
+    /// Observer site location from FITS headers (NaN = not present in file).
+    /// Keys tried: SITELAT/SITELONG, LAT-OBS/LONG-OBS, OBSGEO-B/OBSGEO-L.
+    double   siteLat    = std::numeric_limits<double>::quiet_NaN();
+    double   siteLon    = std::numeric_limits<double>::quiet_NaN();
+    double   siteAlt    = std::numeric_limits<double>::quiet_NaN();
 
     // Plate solution (filled after data reduction)
     PlateSolution wcs;
@@ -81,6 +92,10 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath);
 
 /// Compute display stretch using sigma-clipping. Fills displayMin/displayMax.
 void computeAutoStretch(FitsImage& img, float sigmaLow = 2.0f, float sigmaHigh = 6.0f);
+
+/// Write WCS keywords (CRVAL1/2, CRPIX1/2, CD matrix) back to the original FITS file.
+/// Returns an empty string on success, or an error description on failure.
+QString saveWcsToFits(const QString& filePath, const PlateSolution& wcs);
 
 /// Convert float data pixel to 8-bit display value using current stretch
 inline uint8_t stretchPixel(float val, float dmin, float dmax) noexcept {

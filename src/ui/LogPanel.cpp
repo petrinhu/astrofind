@@ -4,6 +4,8 @@
 #include <QHBoxLayout>
 #include <QDateTime>
 #include <QPushButton>
+#include <QClipboard>
+#include <QApplication>
 
 LogPanel::LogPanel(QWidget* parent)
     : QWidget(parent)
@@ -18,16 +20,25 @@ LogPanel::LogPanel(QWidget* parent)
     log_->setStyleSheet(
         "QTextEdit { background:#0d1117; color:#aabbcc; border:none; }");
     log_->document()->setMaximumBlockCount(2000);
+    // Fixed size hint so the dock height is identical across themes.
+    log_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 
-    auto* btnBar   = new QWidget(this);
-    auto* btnLay   = new QHBoxLayout(btnBar);
+    auto* btnBar  = new QWidget(this);
+    auto* btnLay  = new QHBoxLayout(btnBar);
     btnLay->setContentsMargins(4, 2, 4, 2);
+    btnLay->setSpacing(4);
+
+    auto* copyBtn  = new QPushButton(tr("Copy all"), btnBar);
+    connect(copyBtn, &QPushButton::clicked, this, [this]() {
+        QApplication::clipboard()->setText(log_->toPlainText());
+    });
+
     auto* clearBtn = new QPushButton(tr("Clear"), btnBar);
-    clearBtn->setFixedHeight(20);
-    clearBtn->setFixedWidth(60);
-    btnLay->addStretch();
-    btnLay->addWidget(clearBtn);
     connect(clearBtn, &QPushButton::clicked, this, &LogPanel::clear);
+
+    btnLay->addStretch();
+    btnLay->addWidget(copyBtn);
+    btnLay->addWidget(clearBtn);
 
     lay->addWidget(log_);
     lay->addWidget(btnBar);

@@ -147,7 +147,7 @@ bool BackgroundRangeDialog::eventFilter(QObject* obj, QEvent* ev)
         for (int i = 0; i < bins; ++i) {
             const int x  = i * w / bins;
             const int bw = std::max(1, w / bins);
-            const int bh = static_cast<int>(histBins_[i] * (h - 4));
+            const int bh = static_cast<int>(histBins_[i] * static_cast<float>(h - 4));
             p.drawRect(x, h - bh, bw, bh);
         }
 
@@ -172,7 +172,7 @@ void BackgroundRangeDialog::paintEvent(QPaintEvent* e) { QDialog::paintEvent(e);
 
 float BackgroundRangeDialog::sliderToValue(int sliderVal) const
 {
-    return dataMin_ + (dataMax_ - dataMin_) * static_cast<float>(sliderVal) / sldMin_->maximum();
+    return dataMin_ + (dataMax_ - dataMin_) * static_cast<float>(sliderVal) / static_cast<float>(sldMin_->maximum());
 }
 
 void BackgroundRangeDialog::updatePreview()
@@ -203,9 +203,9 @@ void BackgroundRangeDialog::onAutoClicked()
     core::computeAutoStretch(*image_);
     const int range = sldMin_->maximum();
     sldMin_->setValue(static_cast<int>(
-        (image_->displayMin - dataMin_) / (dataMax_ - dataMin_) * range));
+        (image_->displayMin - dataMin_) / (dataMax_ - dataMin_) * static_cast<float>(range)));
     sldMax_->setValue(static_cast<int>(
-        (image_->displayMax - dataMin_) / (dataMax_ - dataMin_) * range));
+        (image_->displayMax - dataMin_) / (dataMax_ - dataMin_) * static_cast<float>(range)));
     updatePreview();
 }
 

@@ -27,6 +27,8 @@ public:
     /// Override base URL for self-hosted astrometry.net instances.
     void setBaseUrl(const QString& url) { baseUrl_ = url; }
 
+    void setTimeout(int seconds) { maxPollCount_ = std::max(1, seconds / 5); }
+
     /// Submit a FITS file for blind plate solving.
     /// raHint/decHint are initial position guesses (degrees, 0 = no hint).
     /// radiusDeg is the search radius around the hint position.
@@ -66,6 +68,7 @@ private:
     State    state_         = State::Idle;
     QTimer*  pollTimer_     = nullptr;
     int      pollCount_     = 0;
+    int      maxPollCount_  = 60;
 };
 
 } // namespace core

@@ -30,6 +30,17 @@ public:
 signals:
     void cursorMoved(double ra, double dec, float value);
 
+    // ── Context menu actions — connected in MainWindow ────────────────────
+    void exportImageRequested();
+    void applyDarkRequested();
+    void applyFlatRequested();
+    void showHistogramRequested();
+    void showImageCatalogRequested();
+
+protected:
+    void contextMenuEvent(QContextMenuEvent* event) override;
+    void keyPressEvent(QKeyEvent* e) override;
+
 private:
     core::FitsImage img_;
     FitsImageView*  view_    = nullptr;

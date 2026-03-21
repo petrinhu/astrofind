@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <algorithm>
 
 namespace core {
 
@@ -18,14 +19,24 @@ enum class SessionStep {
     ReportReady     = 6,
 };
 
-/// A session groups up to 4 FITS images from the same observation field
+/// Default maximum images per session. Can be overridden via setMaxImages().
+static constexpr int kDefaultMaxImages = 20;
+
+/// Groups FITS images from the same observation field.
+/// addImage() returns false (and does NOT add the image) if the session
+/// has already reached maxImages(). Callers must check the return value
+/// and inform the user rather than silently discarding files.
 class ImageSession : public QObject {
     Q_OBJECT
 public:
     explicit ImageSession(QObject* parent = nullptr);
 
+    /// Add an image. Returns false if the session limit has been reached.
     bool addImage(FitsImage img);
     void clear();
+
+    int  maxImages()                   const noexcept { return maxImages_; }
+    void setMaxImages(int n)                          { maxImages_ = std::max(1, n); }
 
     int         imageCount()           const noexcept { return images_.size(); }
     bool        isEmpty()              const noexcept { return images_.isEmpty(); }
@@ -49,6 +60,7 @@ private:
     QVector<FitsImage> images_;
     SessionStep        step_      = SessionStep::Idle;
     QString            sessionId_;
+    int                maxImages_ = kDefaultMaxImages;
 };
 
 } // namespace core

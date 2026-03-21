@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=AstroFind
+GenericName=Asteroid Detection Software
+Comment=Detect and measure moving objects in astronomical FITS images
+Exec=AstroFind %F
+Icon=astrofind
+Type=Application
+Categories=Science;Astronomy;Education;
+MimeType=image/fits;application/fits;
+Keywords=astronomy;asteroid;FITS;astrometry;photometry;moving object;
+StartupNotify=true
+StartupWMClass=AstroFind

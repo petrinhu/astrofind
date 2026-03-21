@@ -9,7 +9,7 @@ TEST_CASE("ImageSession starts empty", "[session]")
     REQUIRE(session.step() == core::SessionStep::Idle);
 }
 
-TEST_CASE("ImageSession limits to 4 images", "[session]")
+TEST_CASE("ImageSession limits to 20 images", "[session]")
 {
     core::ImageSession session;
     core::FitsImage img;
@@ -17,13 +17,11 @@ TEST_CASE("ImageSession limits to 4 images", "[session]")
     img.height = 100;
     img.data.resize(10000, 1.0f);
 
-    REQUIRE(session.addImage(img));
-    REQUIRE(session.addImage(img));
-    REQUIRE(session.addImage(img));
-    REQUIRE(session.addImage(img));
-    REQUIRE_FALSE(session.addImage(img)); // 5th should fail
+    for (int i = 0; i < 20; ++i)
+        REQUIRE(session.addImage(img));
 
-    REQUIRE(session.imageCount() == 4);
+    REQUIRE_FALSE(session.addImage(img)); // 21st should fail
+    REQUIRE(session.imageCount() == 20);
 }
 
 TEST_CASE("ImageSession clear resets step", "[session]")

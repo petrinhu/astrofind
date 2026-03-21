@@ -55,3 +55,15 @@ PhotReport.txt
 # Originals (reference only, don't commit binaries)
 originals/
 .cache/
+
+# Lint / audit artifacts
+build_warn/
+clang_tidy_*.txt
+cppcheck_*.txt
+warnings_gcc.txt
+
+# Claude Code session data
+.claude/
+
+# Reference implementations (local study copies, not part of repo)
+semelhantes/

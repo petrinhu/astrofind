@@ -4,110 +4,172 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
+#include <QWheelEvent>
+#include <QScrollBar>
 
 ThumbnailBar::ThumbnailBar(QWidget* parent)
     : QWidget(parent)
 {
     setFixedHeight(86);
-    setStyleSheet("ThumbnailBar { background:#161b22; border-top:1px solid #21262d; }");
 
-    auto* lay = new QHBoxLayout(this);
-    lay->setContentsMargins(8, 4, 8, 4);
-    lay->setSpacing(8);
+    // Scroll area fills the bar
+    scrollArea_ = new QScrollArea(this);
+    scrollArea_->setFrameShape(QFrame::NoFrame);
+    scrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea_->setWidgetResizable(false);
+    scrollArea_->viewport()->installEventFilter(this);
 
-    for (int i = 0; i < kMaxImages; ++i) {
-        auto& s = slots_[i];
+    // Content widget holds the actual slot frames
+    content_ = new QWidget;
+    layout_  = new QHBoxLayout(content_);
+    layout_->setContentsMargins(8, 4, 8, 4);
+    layout_->setSpacing(8);
+    layout_->addStretch();
 
-        s.frame = new QWidget(this);
-        s.frame->setFixedSize(68, 76);
-        s.frame->setStyleSheet("QWidget { background:#0d1117; border:1px solid #21262d; border-radius:4px; }");
-        s.frame->setCursor(Qt::PointingHandCursor);
-        s.frame->setProperty("slotIndex", i);
-        s.frame->installEventFilter(this);
+    scrollArea_->setWidget(content_);
 
-        auto* vl = new QVBoxLayout(s.frame);
-        vl->setContentsMargins(3, 3, 3, 3);
-        vl->setSpacing(2);
+    auto* outerLay = new QHBoxLayout(this);
+    outerLay->setContentsMargins(0, 0, 0, 0);
+    outerLay->addWidget(scrollArea_);
 
-        s.thumb = new QLabel(s.frame);
-        s.thumb->setFixedSize(62, 52);
-        s.thumb->setAlignment(Qt::AlignCenter);
-        s.thumb->setStyleSheet("background:#0d1117; color:#30363d;");
-        s.thumb->setText(QString::number(i + 1));
-
-        s.label = new QLabel(s.frame);
-        s.label->setAlignment(Qt::AlignCenter);
-        s.label->setStyleSheet("color:#555; font-size:8px;");
-        s.label->setText(QString("--- %1 ---").arg(i + 1));
-
-        vl->addWidget(s.thumb);
-        vl->addWidget(s.label);
-
-        lay->addWidget(s.frame);
-    }
-    lay->addStretch();
+    applyTheme(true);
 }
 
 void ThumbnailBar::setImages(const QVector<core::FitsImage>& images)
 {
-    for (int i = 0; i < kMaxImages; ++i) {
-        if (i < images.size())
-            updateSlot(i, images[i]);
-        else
-            clearSlot(i);
-    }
+    // Remove all existing slot widgets
+    for (auto& s : slots_)
+        delete s.frame;
+    slots_.clear();
+
+    // Remove stretch, add slots, re-add stretch
+    // layout_ currently has a stretch at index 0 (after clear)
+    while (layout_->count())
+        layout_->takeAt(0);
+
+    for (int i = 0; i < images.size(); ++i)
+        buildSlot(i, images[i]);
+
+    layout_->addStretch();
+    content_->adjustSize();
+
+    activeIdx_ = -1;
     setActiveIndex(images.isEmpty() ? -1 : 0);
 }
 
 void ThumbnailBar::setActiveIndex(int idx)
 {
     activeIdx_ = idx;
-    for (int i = 0; i < kMaxImages; ++i) {
-        const bool active = (i == idx);
-        slots_[i].frame->setStyleSheet(active
-            ? "QWidget { background:#0d1117; border:2px solid #58a6ff; border-radius:4px; }"
-            : "QWidget { background:#0d1117; border:1px solid #21262d; border-radius:4px; }");
-    }
+    for (int i = 0; i < slots_.size(); ++i)
+        applyFrameBorder(i, i == idx);
+
+    if (idx >= 0 && idx < slots_.size())
+        scrollArea_->ensureWidgetVisible(slots_[idx].frame);
 }
 
 void ThumbnailBar::clear()
 {
-    for (int i = 0; i < kMaxImages; ++i) clearSlot(i);
-    activeIdx_ = -1;
+    setImages({});
 }
 
-void ThumbnailBar::updateSlot(int i, const core::FitsImage& img)
+void ThumbnailBar::buildSlot(int i, const core::FitsImage& img)
 {
-    auto& s = slots_[i];
+    Slot s;
+    s.frame = new QWidget(content_);
+    s.frame->setFixedSize(68, 76);
+    s.frame->setCursor(Qt::PointingHandCursor);
+    s.frame->setProperty("slotIndex", i);
+    s.frame->installEventFilter(this);
+
+    auto* vl = new QVBoxLayout(s.frame);
+    vl->setContentsMargins(3, 3, 3, 3);
+    vl->setSpacing(2);
+
+    s.thumb = new QLabel(s.frame);
+    s.thumb->setFixedSize(62, 52);
+    s.thumb->setAlignment(Qt::AlignCenter);
+    s.thumb->setProperty("slotIndex", i);
+    s.thumb->installEventFilter(this);
+
     const QImage th = FitsImageView::toThumbnail(img, 62);
     s.thumb->setPixmap(QPixmap::fromImage(th));
-    s.label->setStyleSheet("color:#8b949e; font-size:8px;");
 
-    // Truncate filename to fit
+    s.label = new QLabel(s.frame);
+    s.label->setAlignment(Qt::AlignCenter);
+    s.label->setProperty("slotIndex", i);
+    s.label->installEventFilter(this);
+
     QString name = img.fileName;
-    if (name.length() > 10) name = name.left(8) + QString::fromUtf8("\xe2\x80\xa6"); // ellipsis
+    if (name.length() > 10) name = name.left(8) + QString::fromUtf8("\xe2\x80\xa6");
     s.label->setText(name);
+    s.label->setStyleSheet(night_ ? "color:#8b949e; font-size:8px;" : "color:#445566; font-size:8px;");
+
     s.frame->setToolTip(img.fileName + (img.jd > 0
         ? QString("\nJD %1").arg(img.jd, 0, 'f', 4) : QString()));
+
+    vl->addWidget(s.thumb);
+    vl->addWidget(s.label);
+
+    // Insert before the trailing stretch
+    layout_->insertWidget(i, s.frame);
+    slots_.append(s);
 }
 
-void ThumbnailBar::clearSlot(int i)
+void ThumbnailBar::applyFrameBorder(int i, bool active)
 {
-    auto& s = slots_[i];
-    s.thumb->clear();
-    s.thumb->setText(QString::number(i + 1));
-    s.thumb->setStyleSheet("background:#0d1117; color:#30363d;");
-    s.label->setText(QString("--- %1 ---").arg(i + 1));
-    s.label->setStyleSheet("color:#30363d; font-size:8px;");
-    s.frame->setToolTip(QString());
+    if (i < 0 || i >= slots_.size()) return;
+    if (night_) {
+        slots_[i].frame->setStyleSheet(active
+            ? "QWidget { background:#0d1117; border:2px solid #58a6ff; border-radius:4px; }"
+            : "QWidget { background:#0d1117; border:1px solid #21262d; border-radius:4px; }");
+    } else {
+        slots_[i].frame->setStyleSheet(active
+            ? "QWidget { background:#ffffff; border:2px solid #3060a0; border-radius:4px; }"
+            : "QWidget { background:#ffffff; border:1px solid #b0b8c8; border-radius:4px; }");
+    }
+}
+
+void ThumbnailBar::applyTheme(bool night)
+{
+    night_ = night;
+    if (night) {
+        setStyleSheet("ThumbnailBar { background:#161b22; border-top:1px solid #21262d; }");
+        scrollArea_->setStyleSheet("QScrollArea { background:#161b22; }");
+        content_->setStyleSheet("QWidget { background:#161b22; }");
+        for (auto& s : slots_)
+            s.thumb->setStyleSheet("background:#0d1117; color:#30363d;");
+    } else {
+        setStyleSheet("ThumbnailBar { background:#dde3ed; border-top:1px solid #b0b8c8; }");
+        scrollArea_->setStyleSheet("QScrollArea { background:#dde3ed; }");
+        content_->setStyleSheet("QWidget { background:#dde3ed; }");
+        for (auto& s : slots_)
+            s.thumb->setStyleSheet("background:#f0f4f8; color:#b0b8c8;");
+    }
+    setActiveIndex(activeIdx_);
+    for (int i = 0; i < slots_.size(); ++i) {
+        slots_[i].label->setStyleSheet(night
+            ? "color:#8b949e; font-size:8px;"
+            : "color:#445566; font-size:8px;");
+    }
 }
 
 bool ThumbnailBar::eventFilter(QObject* obj, QEvent* ev)
 {
+    // Forward wheel events on the viewport to horizontal scrollbar
+    if (obj == scrollArea_->viewport() && ev->type() == QEvent::Wheel) {
+        auto* we = static_cast<QWheelEvent*>(ev);
+        QScrollBar* hbar = scrollArea_->horizontalScrollBar();
+        const int delta = we->angleDelta().y();
+        hbar->setValue(hbar->value() - delta / 4);
+        return true;
+    }
+
+    // Click on any slot child → emit imageActivated
     if (ev->type() == QEvent::MouseButtonPress) {
         bool ok = false;
         const int idx = obj->property("slotIndex").toInt(&ok);
-        if (ok && idx >= 0 && idx < kMaxImages) {
+        if (ok && idx >= 0 && idx < slots_.size()) {
             emit imageActivated(idx);
             return true;
         }

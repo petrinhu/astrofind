@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroFind — Help</title>
+<style>
+/* ── Reset & Base ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #0d1117;
+  --bg2:       #161b22;
+  --bg3:       #21262d;
+  --border:    #30363d;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --accent:    #00e8ff;
+  --accent2:   #58a6ff;
+  --white:     #ffffff;
+  --warn:      #d29922;
+  --tip:       #3fb950;
+  --info:      #388bfd;
+  --sw:        240px;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sw);
+  min-width: var(--sw);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0 0 40px 0;
+  z-index: 100;
+}
+.sb-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 20px 18px 18px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.sb-logo-title { font-size: 17px; font-weight: 700; color: var(--white); }
+.sb-logo-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+#sidebar nav a {
+  display: block;
+  padding: 5px 18px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  line-height: 1.5;
+}
+#sidebar nav a:hover,
+#sidebar nav a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: rgba(0,232,255,0.05);
+}
+.nav-group {
+  padding: 14px 18px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  color: var(--muted);
+}
+
+/* ── Main ─────────────────────────────────────────────────────────── */
+#main {
+  margin-left: var(--sw);
+  flex: 1;
+  max-width: 860px;
+  padding: 48px 52px 100px 52px;
+}
+
+/* ── Typography ───────────────────────────────────────────────────── */
+h1 { font-size: 30px; font-weight: 800; color: var(--white); margin-bottom: 6px; letter-spacing: -0.4px; }
+h1 .ac { color: var(--accent); }
+h2 {
+  font-size: 21px; font-weight: 700; color: var(--white);
+  margin: 52px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin: 26px 0 8px; }
+h4 { font-size: 14px; font-weight: 600; color: var(--text); margin: 18px 0 6px; }
+p  { margin-bottom: 13px; }
+ul, ol { margin: 8px 0 13px 22px; }
+li { margin-bottom: 5px; }
+a  { color: var(--accent2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+strong { color: var(--white); font-weight: 600; }
+em { color: var(--muted); font-style: italic; }
+code {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  color: var(--accent);
+}
+section { padding-top: 12px; }
+.hero-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+/* ── Callouts ─────────────────────────────────────────────────────── */
+.callout {
+  border-radius: 8px; padding: 13px 17px; margin: 16px 0;
+  border-left: 4px solid; font-size: 14px;
+}
+.callout .ct { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+.callout.info    { background: rgba(56,139,253,0.08); border-color: var(--info); }
+.callout.info    .ct { color: var(--info); }
+.callout.warning { background: rgba(210,153,34,0.08); border-color: var(--warn); }
+.callout.warning .ct { color: var(--warn); }
+.callout.tip     { background: rgba(63,185,80,0.08);  border-color: var(--tip); }
+.callout.tip     .ct { color: var(--tip); }
+
+/* ── Tables ───────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 14px; }
+th { background: var(--bg3); color: var(--white); font-weight: 600; text-align: left; padding: 9px 13px; border: 1px solid var(--border); }
+td { padding: 8px 13px; border: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+kbd {
+  display: inline-block; background: var(--bg3);
+  border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: 4px; padding: 1px 7px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px; color: var(--text);
+}
+
+/* ── Diagrams ─────────────────────────────────────────────────────── */
+.diagram {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 20px; margin: 18px 0;
+  text-align: center; overflow-x: auto;
+}
+.diagram figcaption { margin-top: 10px; font-size: 12px; color: var(--muted); font-style: italic; }
+
+/* ── Step list ────────────────────────────────────────────────────── */
+.steps { list-style: none; margin-left: 0; counter-reset: sc; }
+.steps li {
+  counter-increment: sc; position: relative;
+  padding: 11px 15px 11px 54px; margin-bottom: 9px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+}
+.steps li::before {
+  content: counter(sc);
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 27px; height: 27px; background: var(--accent); color: var(--bg);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px;
+}
+.steps li strong { color: var(--accent); }
+
+/* ── Glossary ─────────────────────────────────────────────────────── */
+.gt { margin: 18px 0 3px; font-weight: 700; color: var(--accent); font-size: 15px; }
+.gd { margin-left: 16px; margin-bottom: 0; }
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; padding: 24px 20px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sb-logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="15" cy="15" r="14" stroke="#00e8ff" stroke-width="1.4"/>
+      <circle cx="15" cy="15" r="5.5" fill="#00e8ff" opacity="0.12"/>
+      <circle cx="15" cy="15" r="2.2" fill="#00e8ff"/>
+      <line x1="15" y1="1"  x2="15" y2="7"  stroke="#00e8ff" stroke-width="1.2"/>
+      <line x1="15" y1="23" x2="15" y2="29" stroke="#00e8ff" stroke-width="1.2"/>
+      <line x1="1"  y1="15" x2="7"  y2="15" stroke="#00e8ff" stroke-width="1.2"/>
+      <line x1="23" y1="15" x2="29" y2="15" stroke="#00e8ff" stroke-width="1.2"/>
+      <circle cx="6"  cy="6"  r="1.4" fill="#00e8ff" opacity="0.6"/>
+      <circle cx="24" cy="7"  r="1"   fill="#00e8ff" opacity="0.45"/>
+      <circle cx="22" cy="23" r="1.1" fill="#00e8ff" opacity="0.55"/>
+      <circle cx="8"  cy="22" r="0.8" fill="#00e8ff" opacity="0.4"/>
+    </svg>
+    <div>
+      <div class="sb-logo-title">AstroFind</div>
+      <div class="sb-logo-sub">Help &amp; Reference</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-group">Getting Started</div>
+    <a href="#introduction">Introduction</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#loading">Loading FITS Images</a>
+
+    <div class="nav-group">Processing Pipeline</div>
+    <a href="#calibration">Calibration</a>
+    <a href="#datareduction">Data Reduction</a>
+    <a href="#stacking">Image Stacking</a>
+
+    <div class="nav-group">Detection &amp; Reporting</div>
+    <a href="#measuring">Measuring Objects</a>
+    <a href="#detection">Moving Object Detection</a>
+    <a href="#koo">Known Object Overlay</a>
+
+    <div class="nav-group">Reference</div>
+    <a href="#tools">Tools Reference</a>
+    <a href="#shortcuts">Keyboard Shortcuts</a>
+    <a href="#settings">Settings</a>
+    <a href="#glossary">Glossary</a>
+    <div class="nav-group">Support</div>
+    <a href="#faq">FAQ</a>
+    <a href="#students">For Students</a>
+    <a href="#credits">Credits &amp; License</a>
+  </nav>
+</aside>
+
+<!-- ═══════════════ MAIN ══════════════════════════════════════════════ -->
+<main id="main">
+
+<!-- ─────────────────────── INTRODUCTION ─────────────────────────── -->
+<section id="introduction">
+  <h1><span class="ac">AstroFind</span> Help</h1>
+  <p class="hero-sub">Astronomical FITS Image Viewer &amp; Moving Object Detection — User Guide</p>
+
+  <h2>Introduction</h2>
+  <p>
+    <strong>AstroFind</strong> is a desktop application for citizen scientists who want to detect, measure,
+    and report moving objects — asteroids, comets, and other solar-system bodies — in astronomical images.
+    It combines a full-featured FITS image viewer with automated data-reduction pipelines and direct support
+    for submitting astrometric measurements to the <strong>Minor Planet Center (MPC)</strong>.
+  </p>
+  <p>
+    The workflow mirrors professional practice: load images, perform calibration, solve the astrometry,
+    blink the frames to identify a moving dot, measure it with the aperture tool, and export an ADES XML
+    report for MPC submission — all within a single application.
+  </p>
+
+  <h3>What is a FITS File?</h3>
+  <p>
+    <strong>FITS (Flexible Image Transport System)</strong> is the standard file format in professional and
+    amateur astronomy, defined by the International Astronomical Union (IAU) since 1981. A FITS file consists
+    of one or more <em>Header/Data Units</em>. The header is a collection of plain-text keyword=value pairs
+    encoding metadata: observation date and time, exposure duration, telescope name, filter, pointing
+    coordinates, and — after plate solving — WCS astrometry keywords. The data unit contains the raw pixel
+    array in integer or floating-point format.
+  </p>
+  <p>
+    AstroFind reads any standard FITS file produced by camera-control software such as Sequence Generator
+    Pro, KStars/EKOS, AstroImageJ, MaxIm DL, or similar.
+  </p>
+
+  <h3>Key Features at a Glance</h3>
+  <ul>
+    <li>Load up to <strong>4 FITS frames</strong> per session — drag &amp; drop or File menu</li>
+    <li>ZIP archive support: drop a <code>.zip</code> containing FITS files</li>
+    <li><strong>Calibration</strong> with master dark frame and/or flat field</li>
+    <li><strong>Star detection</strong> via the SEP / Source Extractor algorithm</li>
+    <li><strong>Plate solving</strong> via the astrometry.net online API</li>
+    <li><strong>Known Object Overlay (KOO)</strong> — MPCORB.DAT asteroids and comets overlaid on your field</li>
+    <li><strong>Aperture tool</strong> — PSF centroid fitting for precise position and magnitude</li>
+    <li><strong>Image stacking</strong> with FFT phase-correlation alignment (Add / Average / Median)</li>
+    <li><strong>Track &amp; Stack</strong> — compensate for a moving object's motion before stacking</li>
+    <li><strong>Automated moving object detection</strong> across multiple frames</li>
+    <li><strong>ADES XML export</strong> for direct MPC submission</li>
+    <li>Full undo/redo for measurements, dark/night theme, blink mode</li>
+  </ul>
+
+  <div class="callout info">
+    <div class="ct">Note — Citizen Science &amp; the MPC</div>
+    The Minor Planet Center (MPC) accepts observations from any observer worldwide, including amateurs.
+    Accurate astrometric measurements from citizen scientists are a genuine contribution to planetary
+    defence and solar-system science. AstroFind is designed to make this process accessible without
+    sacrificing scientific rigour.
+  </div>
+</section>
+
+<!-- ─────────────────────── QUICK START ──────────────────────────── -->
+<section id="quickstart">
+  <h2>Quick Start</h2>
+  <p>
+    Follow these five steps to go from raw images to a submitted MPC report. Each step links to the
+    corresponding detailed section below.
+  </p>
+
+  <ol class="steps">
+    <li>
+      <strong>Load Images</strong> — Drag and drop 2–4 FITS files onto the AstroFind window, or use
+      <em>File → Open FITS…</em> (<kbd>Ctrl</kbd>+<kbd>O</kbd>). Each file appears in a numbered panel.
+      Aim for images of the same sky field taken 20–60 minutes apart.
+    </li>
+    <li>
+      <strong>Calibrate</strong> — Open <em>Processing → Calibration…</em> and supply a master dark frame
+      and/or a master flat field. AstroFind subtracts thermal noise and corrects pixel sensitivity
+      variations across the detector. Skip if your images are already calibrated.
+    </li>
+    <li>
+      <strong>Data Reduction</strong> — Click <em>Processing → Data Reduction</em>
+      (<kbd>Ctrl</kbd>+<kbd>D</kbd>). AstroFind detects stars in every frame with SEP and sends the star
+      list to the astrometry.net API, which returns precise WCS coordinates for each image.
+    </li>
+    <li>
+      <strong>Blink &amp; Measure</strong> — Press <kbd>B</kbd> to blink through the frames and spot the
+      moving object (a dot that shifts while stars stand still). Switch to the <strong>Aperture tool</strong>
+      (<kbd>A</kbd>), click the object in each frame; AstroFind fits a PSF centroid and records position,
+      date, and magnitude.
+    </li>
+    <li>
+      <strong>Export Report</strong> — Open <em>File → Export ADES XML…</em> (<kbd>Ctrl</kbd>+<kbd>E</kbd>).
+      Fill in your observer details in Settings beforehand. Submit the generated XML file to the MPC via
+      their online submission portal.
+    </li>
+  </ol>
+
+  <!-- Workflow SVG Diagram -->
+  <div class="diagram">
+    <svg width="680" height="86" viewBox="0 0 680 86" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AstroFind workflow diagram">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#00e8ff"/>
+        </marker>
+      </defs>
+      <!-- Boxes -->
+      <rect x="2"   y="23" width="90"  height="40" rx="7" fill="#161b22" stroke="#00e8ff" stroke-width="1.3"/>
+      <rect x="112" y="23" width="90"  height="40" rx="7" fill="#161b22" stroke="#00e8ff" stroke-width="1.3"/>
+      <rect x="222" y="23" width="110" height="40" rx="7" fill="#161b22" stroke="#00e8ff" stroke-width="1.3"/>
+      <rect x="352" y="23" width="80"  height="40" rx="7" fill="#161b22" stroke="#00e8ff" stroke-width="1.3"/>
+      <rect x="452" y="23" width="90"  height="40" rx="7" fill="#161b22" stroke="#00e8ff" stroke-width="1.3"/>
+      <rect x="562" y="23" width="90"  height="40" rx="7" fill="#161b22" stroke="#3fb950" stroke-width="1.3"/>
+      <!-- Labels -->
+      <text x="47"  y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Load Images</text>
+      <text x="157" y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Calibrate</text>
+      <text x="277" y="41" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Data</text>
+      <text x="277" y="55" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Reduction</text>
+      <text x="392" y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Blink</text>
+      <text x="497" y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Measure</text>
+      <text x="607" y="47" text-anchor="middle" fill="#3fb950" font-size="12" font-family="sans-serif">Export</text>
+      <!-- Arrows -->
+      <line x1="92"  y1="43" x2="110" y2="43" stroke="#00e8ff" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="202" y1="43" x2="220" y2="43" stroke="#00e8ff" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="332" y1="43" x2="350" y2="43" stroke="#00e8ff" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="432" y1="43" x2="450" y2="43" stroke="#00e8ff" stroke-width="1.4" marker-end="url(#arr)"/>
+      <line x1="542" y1="43" x2="560" y2="43" stroke="#00e8ff" stroke-width="1.4" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption>Figure 1 — AstroFind processing workflow. The green Export box is the final step.</figcaption>
+  </div>
+
+  <div class="callout tip">
+    <div class="ct">Tip — Optimal Imaging Strategy</div>
+    Take <strong>3 or 4</strong> images separated by at least 20 minutes. A main-belt asteroid moves
+    roughly 0.3–1 arcsec/minute; over 20 minutes this gives a clearly detectable shift at most plate scales.
+    Use consistent exposure times so magnitudes are comparable across frames.
+  </div>
+</section>
+
+<!-- ─────────────────────── LOADING FITS ─────────────────────────── -->
+<section id="loading">
+  <h2>Loading FITS Images</h2>
+  <p>
+    AstroFind holds up to <strong>4 FITS frames</strong> simultaneously. Each occupies one numbered panel
+    in the main view. Frames are numbered 1–4 in the order they are loaded.
+  </p>
+
+  <h3>Ways to Load Files</h3>
+  <ul>
+    <li>
+      <strong>Drag &amp; Drop</strong> — Drag one or more <code>.fits</code>, <code>.fit</code>, or
+      <code>.fts</code> files (or a ZIP archive) directly onto the AstroFind window. Multiple files are
+      assigned to successive panels.
+    </li>
+    <li>
+      <strong>File Menu</strong> — <em>File → Open FITS…</em> (<kbd>Ctrl</kbd>+<kbd>O</kbd>) opens a
+      standard file dialog. Hold <kbd>Ctrl</kbd> to select multiple files.
+    </li>
+    <li>
+      <strong>ZIP Archives</strong> — Drop a <code>.zip</code> file containing FITS images. AstroFind
+      extracts and loads all FITS files found inside, in filename order.
+    </li>
+  </ul>
+
+  <h3>Supported FITS Variants</h3>
+  <ul>
+    <li>Standard 2-D images — 8, 16, 32-bit integer; 32 and 64-bit floating-point</li>
+    <li>Compressed FITS — tile-compressed with Rice, HCOMPRESS, or gzip algorithms</li>
+    <li>Multi-Extension FITS (MEF) — first image extension is used</li>
+    <li>Monochrome (grayscale) images only — Bayer-mosaic or RGB FITS are not currently supported</li>
+  </ul>
+
+  <h3>Image Display and Stretch</h3>
+  <p>
+    After loading, the image is auto-stretched for display (default: linear stretch between the 1st and
+    99th percentile of pixel values). The toolbar stretch controls let you switch between linear,
+    square-root, logarithmic, and histogram-equalization modes, and adjust the black/white points.
+    Stretch settings affect only the visual display; the raw pixel data is always preserved intact
+    for scientific measurements.
+  </p>
+  <p>
+    The panel header shows the filename, <code>DATE-OBS</code>, and exposure time extracted from the
+    FITS header. A missing or malformed header keyword is highlighted in orange.
+  </p>
+
+  <div class="callout warning">
+    <div class="ct">Warning — DATE-OBS is Required</div>
+    If your FITS file lacks a valid <code>DATE-OBS</code> header keyword (in ISO 8601 format, e.g.,
+    <code>2024-03-15T22:14:37.5</code>), AstroFind cannot determine the observation epoch and the
+    resulting MPC report will be invalid. Verify that your camera-control software writes this keyword
+    correctly before imaging.
+  </div>
+
+  <div class="callout info">
+    <div class="ct">FITS Header Keywords Used by AstroFind</div>
+    <code>DATE-OBS</code>, <code>EXPTIME</code> (or <code>EXPOSURE</code>), <code>TELESCOP</code>,
+    <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>, <code>RA</code>, <code>DEC</code>,
+    <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>, <code>RDNOISE</code>, and WCS keywords
+    (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>, <code>CD1_1</code>, <code>CD1_2</code>, etc.)
+    after plate solving.
+  </div>
+</section>
+
+<!-- ─────────────────────── CALIBRATION ─────────────────────────── -->
+<section id="calibration">
+  <h2>Calibration</h2>
+  <p>
+    Raw astronomical images contain instrumental artefacts that, if uncorrected, distort photometric
+    measurements and leave structured noise in the background. AstroFind supports two standard
+    calibration corrections: <strong>dark subtraction</strong> and <strong>flat-field division</strong>.
+  </p>
+
+  <!-- Calibration formula SVG -->
+  <div class="diagram">
+    <svg width="500" height="110" viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg">
+      <!-- Science -->
+      <rect x="10"  y="35" width="95"  height="40" rx="6" fill="#21262d" stroke="#58a6ff" stroke-width="1.4"/>
+      <text x="57"  y="59" text-anchor="middle" fill="#e6edf3" font-size="13" font-family="sans-serif">Science</text>
+      <!-- minus -->
+      <text x="120" y="61" text-anchor="middle" fill="#00e8ff" font-size="26" font-family="sans-serif">−</text>
+      <!-- Dark -->
+      <rect x="135" y="35" width="80"  height="40" rx="6" fill="#21262d" stroke="#8b949e" stroke-width="1.4"/>
+      <text x="175" y="59" text-anchor="middle" fill="#e6edf3" font-size="13" font-family="sans-serif">Dark</text>
+      <!-- divide -->
+      <text x="232" y="61" text-anchor="middle" fill="#00e8ff" font-size="26" font-family="sans-serif">÷</text>
+      <!-- Flat fraction box -->
+      <rect x="248" y="12" width="106" height="86" rx="6" fill="#161b22" stroke="#3fb950" stroke-width="1.4"/>
+      <text x="301" y="38"  text-anchor="middle" fill="#e6edf3" font-size="13" font-family="sans-serif">Flat</text>
+      <line x1="258" y1="56" x2="344" y2="56" stroke="#8b949e" stroke-width="1.1"/>
+      <text x="301" y="75" text-anchor="middle" fill="#8b949e" font-size="11" font-family="sans-serif">mean(Flat)</text>
+      <!-- = -->
+      <text x="372" y="61" text-anchor="middle" fill="#00e8ff" font-size="26" font-family="sans-serif">=</text>
+      <!-- Result -->
+      <rect x="390" y="35" width="100" height="40" rx="6" fill="#21262d" stroke="#3fb950" stroke-width="1.4"/>
+      <text x="440" y="53" text-anchor="middle" fill="#3fb950" font-size="13" font-family="sans-serif">Calibrated</text>
+      <text x="440" y="68" text-anchor="middle" fill="#3fb950" font-size="11" font-family="sans-serif">Image</text>
+    </svg>
+    <figcaption>Figure 2 — Calibration pipeline: (Science − Dark) ÷ Flat_normalized</figcaption>
+  </div>
+
+  <h3>Dark Frame — What It Is</h3>
+  <p>
+    A <strong>dark frame</strong> is an exposure taken with the camera shutter closed (no incoming light),
+    at the same sensor temperature and the same integration time as the science images. It captures two
+    unwanted electronic signals:
+  </p>
+  <ul>
+    <li>
+      <strong>Bias/Offset</strong> — A constant pedestal added by the readout electronics to every pixel
+      to ensure that sky-background pixels always read above zero ADU.
+    </li>
+    <li>
+      <strong>Dark current</strong> — Thermal electrons that accumulate in pixels during the exposure,
+      proportional to temperature and integration time. They appear as bright speckles (<em>hot pixels</em>)
+      and a diffuse elevated background.
+    </li>
+  </ul>
+  <p>Subtracting the dark frame removes both signals from your science image.</p>
+
+  <div class="callout tip">
+    <div class="ct">Tip — Master Dark</div>
+    Always use a <strong>master dark</strong>: the median combination of ≥10 individual dark frames taken at
+    the same temperature and exposure length. This averages down the random noise in the dark itself,
+    so you subtract only the fixed-pattern signal. Temperature must match to within 1–2 °C.
+  </div>
+
+  <h3>Flat Field — What It Is</h3>
+  <p>
+    A <strong>flat field</strong> is an image of a uniformly illuminated source — an evenly lit panel
+    (sky flat or light box). It captures two additional artefacts:
+  </p>
+  <ul>
+    <li><strong>Pixel-to-pixel sensitivity variation</strong> — Individual pixels have slightly different
+    quantum efficiencies. A uniform illumination reveals these micro-variations.</li>
+    <li><strong>Vignetting</strong> — Most optical systems transmit slightly less light toward the image
+    corners than the centre, producing a smooth radial dimming.</li>
+    <li><strong>Dust donuts</strong> — Dust particles on the optical path cast soft shadows on the
+    detector, appearing as ring-shaped artefacts.</li>
+  </ul>
+  <p>
+    Dividing the (dark-subtracted) science image by the flat field — after first normalising the flat
+    to a mean of 1.0 — corrects all these variations.
+  </p>
+
+  <div class="callout warning">
+    <div class="ct">Warning — Flat Field Matching</div>
+    Flat fields must be taken with <em>exactly</em> the same optical configuration as your science images:
+    same filter, same focus position, same camera rotation. Even a small rotation of the camera
+    between flat and science frames will leave ring-shaped residuals. Rotational derotators or field
+    rotators must be in the same position.
+  </div>
+
+  <h3>Applying Calibration in AstroFind</h3>
+  <ol>
+    <li>Open <em>Processing → Calibration…</em></li>
+    <li>Click <strong>Load Dark</strong> and select your master dark FITS file.</li>
+    <li>Click <strong>Load Flat</strong> and select your master flat FITS file.</li>
+    <li>Click <strong>Apply</strong>. The calibrated images replace the raw frames in all panels.
+        The original raw data is never overwritten on disk.</li>
+  </ol>
+  <p>
+    You may apply only a dark, only a flat, or both. If your images are already calibrated (e.g., produced
+    by a preprocessing pipeline), you can skip this step entirely.
+  </p>
+</section>
+
+<!-- ─────────────────────── DATA REDUCTION ───────────────────────── -->
+<section id="datareduction">
+  <h2>Data Reduction</h2>
+  <p>
+    Data reduction prepares images for scientific measurement. In AstroFind it means two things:
+    <strong>detecting stars</strong> in each frame and <strong>plate solving</strong> to assign precise
+    sky coordinates to every pixel.
+  </p>
+
+  <h3>Star Detection — SEP / Source Extractor</h3>
+  <p>
+    AstroFind uses <strong>SEP</strong> (Source Extraction and Photometry), a C/Python library that
+    implements the core algorithms of the widely used SExtractor program. The detection pipeline:
+  </p>
+  <ol>
+    <li>
+      <strong>Sky estimation</strong> — The image is divided into a mesh of cells. Within each cell
+      the local median sky level is computed. These values are bicubically interpolated to produce
+      a smooth sky-background map, which is then subtracted.
+    </li>
+    <li>
+      <strong>Gaussian convolution</strong> — The background-subtracted image is convolved with a 2-D
+      Gaussian kernel whose FWHM is matched to the typical stellar FWHM. This maximises the SNR of
+      point sources.
+    </li>
+    <li>
+      <strong>Thresholding &amp; segmentation</strong> — Pixels above a configurable threshold (default
+      5σ above the local RMS noise) are connected into detection islands.
+    </li>
+    <li>
+      <strong>Deblending</strong> — Overlapping or touching sources are separated by a multi-threshold
+      deblending algorithm.
+    </li>
+    <li>
+      <strong>Measurement</strong> — For each detection, centroid position, flux, ellipticity, and FWHM
+      are measured. Only compact, near-circular detections (stars) are passed to the plate solver.
+    </li>
+  </ol>
+
+  <h3>Plate Solving — What It Is</h3>
+  <p>
+    <strong>Plate solving</strong> (or astrometric calibration) is the process of matching the geometric
+    pattern of detected stars to a reference star catalog to determine precisely which region of sky
+    the image covers and how it is oriented. The result is a <strong>WCS (World Coordinate System)</strong>
+    solution: a set of FITS header keywords that map any pixel (x, y) to celestial coordinates
+    (Right Ascension and Declination) with sub-arcsecond accuracy.
+  </p>
+  <p>
+    Without a WCS solution, a detected object has only a pixel position; with one, it has a precise
+    RA/Dec that can be reported to the MPC.
+  </p>
+
+  <h3>The astrometry.net API</h3>
+  <p>
+    AstroFind submits your source list (typically 20–200 bright stars) to the
+    <strong>nova.astrometry.net</strong> online API. The service:
+  </p>
+  <ol>
+    <li>Builds geometric quads (groups of 4 stars) from your list and hashes their shape ratios.</li>
+    <li>Looks up matching quads in pre-built index files derived from Gaia and 2MASS catalogs.</li>
+    <li>Verifies candidate matches by computing a full astrometric fit.</li>
+    <li>Returns the WCS solution, which AstroFind writes directly into the FITS header.</li>
+  </ol>
+  <p>A successful solve typically takes 10–60 seconds, depending on the field.</p>
+
+  <div class="callout info">
+    <div class="ct">Why Plate Solving Matters</div>
+    Plate solving is the single most important step for producing scientifically valid observations.
+    Without an accurate WCS, the RA/Dec of any detected object is unknown and no report can be submitted.
+    AstroFind will not allow you to export an ADES report for images that have not been plate-solved.
+  </div>
+
+  <div class="callout warning">
+    <div class="ct">API Key Required</div>
+    Plate solving requires a free API key from
+    <a href="https://nova.astrometry.net" target="_blank">nova.astrometry.net</a>.
+    Register for a free account, copy your key from the profile page, and paste it into
+    <em>Settings → Astrometry → API Key</em>.
+  </div>
+
+  <h3>Running Data Reduction</h3>
+  <ol>
+    <li>Confirm your astrometry.net API key is set in Settings.</li>
+    <li>Open <em>Processing → Data Reduction</em> or press <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li>
+    <li>Optionally set a scale hint (arcsec/pixel) and search radius to speed up the solve.</li>
+    <li>Click <strong>Run</strong>. The status bar shows progress for each frame.</li>
+    <li>On success, each panel shows coloured star-overlay markers and the WCS field info
+        (plate scale, field centre, orientation angle).</li>
+  </ol>
+</section>
+
+<!-- ─────────────────────── MEASURING ────────────────────────────── -->
+<section id="measuring">
+  <h2>Measuring Moving Objects</h2>
+  <p>
+    Once images are plate-solved, use the <strong>Aperture tool</strong> to measure the position and
+    brightness of a moving object in each frame.
+  </p>
+
+  <!-- Finder diagram SVG -->
+  <div class="diagram">
+    <svg width="400" height="210" viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg">
+      <!-- Image background -->
+      <rect x="8" y="8" width="384" height="194" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+      <!-- Field stars -->
+      <circle cx="55"  cy="45"  r="2.2" fill="white" opacity="0.7"/>
+      <circle cx="110" cy="75"  r="2.8" fill="white" opacity="0.85"/>
+      <circle cx="195" cy="35"  r="1.9" fill="white" opacity="0.6"/>
+      <circle cx="310" cy="55"  r="2.4" fill="white" opacity="0.75"/>
+      <circle cx="355" cy="140" r="1.7" fill="white" opacity="0.5"/>
+      <circle cx="75"  cy="160" r="2.1" fill="white" opacity="0.65"/>
+      <circle cx="250" cy="170" r="3.0" fill="white" opacity="0.9"/>
+      <circle cx="330" cy="175" r="1.6" fill="white" opacity="0.55"/>
+      <circle cx="145" cy="135" r="2.1" fill="white" opacity="0.7"/>
+      <circle cx="370" cy="80"  r="1.4" fill="white" opacity="0.45"/>
+      <circle cx="30"  cy="110" r="1.8" fill="white" opacity="0.6"/>
+      <!-- Trail of moving object -->
+      <circle cx="183" cy="112" r="2.1" fill="#d29922" opacity="0.35"/>
+      <circle cx="191" cy="109" r="2.1" fill="#d29922" opacity="0.55"/>
+      <!-- Moving object — bright dot -->
+      <circle cx="201" cy="106" r="5"   fill="#ffd700" opacity="0.96"/>
+      <circle cx="201" cy="106" r="9"   fill="none" stroke="#ffd700" stroke-width="0.9" opacity="0.35"/>
+      <!-- Photometry aperture (green dashed) -->
+      <circle cx="201" cy="106" r="15"  fill="none" stroke="#3fb950" stroke-width="1.4" stroke-dasharray="4,3"/>
+      <!-- Sky annulus -->
+      <circle cx="201" cy="106" r="22"  fill="none" stroke="#3fb950" stroke-width="0.8" stroke-dasharray="2,4" opacity="0.5"/>
+      <!-- Finder brackets (cyan) -->
+      <line x1="184" y1="89"  x2="184" y2="94"  stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="184" y1="89"  x2="189" y2="89"  stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="218" y1="89"  x2="213" y2="89"  stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="218" y1="89"  x2="218" y2="94"  stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="184" y1="123" x2="184" y2="118" stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="184" y1="123" x2="189" y2="123" stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="218" y1="123" x2="213" y2="123" stroke="#00e8ff" stroke-width="2.2"/>
+      <line x1="218" y1="123" x2="218" y2="118" stroke="#00e8ff" stroke-width="2.2"/>
+      <!-- Labels -->
+      <text x="201" y="82"  text-anchor="middle" fill="#00e8ff"  font-size="10" font-family="sans-serif">Moving Object</text>
+      <line x1="201" y1="83" x2="201" y2="99" stroke="#00e8ff" stroke-width="0.7" opacity="0.6"/>
+      <text x="158" y="115" text-anchor="end"   fill="#d29922"  font-size="10" font-family="sans-serif">Trail</text>
+      <line x1="159" y1="113" x2="178" y2="109" stroke="#d29922" stroke-width="0.7" opacity="0.7"/>
+      <text x="225" y="95"  text-anchor="start" fill="#3fb950"  font-size="10" font-family="sans-serif">Aperture</text>
+      <text x="260" y="80"  text-anchor="start" fill="#3fb950"  font-size="9"  font-family="sans-serif">Sky annulus</text>
+      <line x1="258" y1="79" x2="224" y2="90" stroke="#3fb950" stroke-width="0.6" opacity="0.5"/>
+      <text x="55"  y="30"  text-anchor="start" fill="#8b949e"  font-size="10" font-family="sans-serif">Background stars (fixed)</text>
+    </svg>
+    <figcaption>Figure 3 — Finder view: fixed background stars (white), moving object (gold) with trail,
+    cyan finder brackets, green photometry aperture, and sky annulus</figcaption>
+  </div>
+
+  <h3>Using the Aperture Tool</h3>
+  <ol>
+    <li>Press <kbd>A</kbd> or click the Aperture button in the toolbar.</li>
+    <li>Click on the moving object in the first frame. AstroFind fits a 2-D Gaussian
+        <strong>PSF centroid</strong> within the aperture, locating the source centre to sub-pixel
+        accuracy.</li>
+    <li>The <strong>Verification dialog</strong> shows the computed RA/Dec (from WCS), Julian Date
+        (from <code>DATE-OBS</code>), instrumental magnitude, and SNR. Review the values and click
+        <strong>Accept</strong> to record the measurement.</li>
+    <li>Repeat for every frame. Each accepted measurement appears in the Observations list panel.</li>
+    <li>Use <kbd>Ctrl</kbd>+<kbd>Z</kbd> to undo the last measurement if needed.</li>
+  </ol>
+
+  <h3>PSF Centroid Fitting</h3>
+  <p>
+    When you click on a source, AstroFind fits a symmetric 2-D Gaussian model to the pixel values
+    within a small window centred on the click position:
+    <em>I(x,y) = A · exp[−((x−x₀)² + (y−y₀)²) / (2σ²)] + sky</em>.
+    The best-fit centre (x₀, y₀) is the PSF centroid, which is then converted to RA/Dec using the
+    WCS solution. For a well-exposed star-like source (SNR &gt; 10), the centroid precision is
+    typically 0.1–0.2 pixel RMS — far better than the pixel scale.
+  </p>
+
+  <h3>Aperture Photometry</h3>
+  <p>
+    The instrumental magnitude is computed from aperture photometry. All pixel flux within a circular
+    aperture (radius set in Settings) is summed. The sky background is estimated from the median
+    of pixels in an annular region just outside the aperture and subtracted. The net flux is
+    converted to magnitude: <code>mag = −2.5 × log₁₀(flux)</code>.
+  </p>
+  <p>
+    To obtain calibrated (absolute) magnitudes, AstroFind compares the measurement to reference stars
+    from a photometric catalog (ATLAS-REFCAT2 or APASS) visible in the same field.
+  </p>
+
+  <h3>Submitting to the MPC</h3>
+  <ol>
+    <li>Complete all observer information in <em>Settings → Observer</em>: MPC observatory code,
+        observer names, telescope description, etc.</li>
+    <li>Optionally toggle <strong>Known Object Overlay</strong> to check whether your object is
+        already in the MPCORB catalog.</li>
+    <li>Open <em>File → Export ADES XML…</em> (<kbd>Ctrl</kbd>+<kbd>E</kbd>).</li>
+    <li>Review the observation list. Each entry shows designation (if identified), epoch, RA, Dec,
+        magnitude, filter, and observatory code.</li>
+    <li>Click <strong>Export</strong>. Save the XML file to disk.</li>
+    <li>Submit the file at the MPC's online submission portal (minorplanetcenter.net).</li>
+  </ol>
+
+  <div class="callout info">
+    <div class="ct">About ADES — Astrometry Data Exchange Standard</div>
+    ADES is the modern XML-based format required by the MPC for all new observation submissions since 2017.
+    It supersedes the older 80-column fixed-width format. ADES carries richer metadata: structured observer,
+    telescope, and detection fields; position uncertainties; filter identifiers; and optional ORCID IDs
+    for observers. AstroFind generates fully compliant ADES PSV (Pipe-Separated Values) and XML variants.
+  </div>
+</section>
+
+<!-- ─────────────────────── STACKING ─────────────────────────────── -->
+<section id="stacking">
+  <h2>Image Stacking</h2>
+  <p>
+    Combining multiple exposures increases the effective signal-to-noise ratio (SNR), revealing objects
+    too faint to detect in a single frame. For N combined frames of equal exposure, the theoretical
+    SNR improvement is √N (e.g., 4 frames → 2× the SNR).
+  </p>
+
+  <h3>FFT Phase-Correlation Alignment</h3>
+  <p>
+    Before frames can be combined, they must be spatially registered so that stars overlap precisely.
+    AstroFind uses <strong>Fourier-domain phase correlation</strong>:
+  </p>
+  <ol>
+    <li>Compute the 2-D Fast Fourier Transform (FFT) of two images: <em>F</em> and <em>G</em>.</li>
+    <li>Form the normalised cross-power spectrum: <em>R = (F · G*) / |F · G*|</em>, where G* is the
+        complex conjugate of G.</li>
+    <li>Compute the inverse FFT of R. The result is a delta-function-like peak at the shift
+        (Δx, Δy) between the two images.</li>
+    <li>The sub-pixel location of the peak is found by fitting a 2-D parabola, giving sub-pixel
+        alignment accuracy.</li>
+  </ol>
+  <p>
+    This method is robust, computationally efficient, and works without explicitly matching star pairs
+    across frames. It is particularly reliable when images contain many stars.
+  </p>
+
+  <h3>Combination Modes</h3>
+  <table>
+    <thead><tr><th>Mode</th><th>Operation</th><th>Best Used When</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Add</strong></td>
+        <td>Sums all pixel values: S = ΣIₙ</td>
+        <td>All frames are clean and you want to maximise total counts (useful before PSF fitting)</td>
+      </tr>
+      <tr>
+        <td><strong>Average</strong></td>
+        <td>Pixel-wise arithmetic mean: S = (ΣIₙ)/N</td>
+        <td>General use; keeps pixel values in the same ADU scale as individual frames</td>
+      </tr>
+      <tr>
+        <td><strong>Median</strong></td>
+        <td>Pixel-wise median of all frames</td>
+        <td>Frames contain cosmic-ray hits, satellite trails, or hot pixels; requires ≥ 3 frames</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <div class="ct">Tip — Median vs Average</div>
+    Use <strong>Median</strong> whenever your frames are likely to contain transient artefacts
+    (cosmic rays, satellite streaks). The median naturally rejects any pixel that is an outlier in
+    the stack and does not appear in the majority of frames.
+    For clean, artefact-free frames, <strong>Average</strong> is marginally more noise-efficient
+    (preserves a slightly higher SNR than median for Gaussian noise).
+  </div>
+
+  <h3>Track &amp; Stack</h3>
+  <p>
+    Standard stellar-aligned stacking smears a moving asteroid into a streak, reducing its peak SNR.
+    <strong>Track &amp; Stack</strong> instead shifts each frame by the predicted position of the moving
+    object before combining, keeping the object sharp and point-like in the result while stars appear
+    as short streaks.
+  </p>
+  <ol>
+    <li>Measure the moving object in at least two frames to derive its apparent motion vector
+        (dRA/dt and dDec/dt in arcsec/hour).</li>
+    <li>Open <em>Processing → Track &amp; Stack…</em></li>
+    <li>Enter or confirm the motion vector. AstroFind pre-fills this from existing measurements.</li>
+    <li>Select a combination mode and click <strong>Stack</strong>.</li>
+  </ol>
+  <p>
+    Track &amp; Stack is especially powerful for faint fast-moving objects (near-Earth asteroids,
+    Centaurs) where individual frame detections are marginal.
+  </p>
+</section>
+
+<!-- ─────────────────────── DETECTION ────────────────────────────── -->
+<section id="detection">
+  <h2>Automated Moving Object Detection</h2>
+  <p>
+    AstroFind can automatically search all loaded frames for moving sources without requiring
+    manual blinking. This is especially useful for busy star fields where visual blinking is tedious.
+  </p>
+
+  <h3>Detection Algorithm</h3>
+  <ol>
+    <li><strong>Prerequisite:</strong> all frames must be plate-solved (valid WCS in each header).</li>
+    <li>Stars detected in each frame are matched to a common reference catalog using the WCS to compute
+        sky-plane positions.</li>
+    <li>A residual image is formed: sources that match known catalog stars are subtracted, leaving only
+        unmatched sources and noise.</li>
+    <li>Unmatched sources found in at least 2 frames are cross-matched across frames. A source that
+        moves linearly between frames (constant RA/Dec rate) is promoted to a candidate.</li>
+    <li>Candidates are scored by motion linearity, SNR consistency across frames, and morphology
+        (point-like vs extended).</li>
+  </ol>
+
+  <h3>Running the Detector</h3>
+  <ol>
+    <li>Load and plate-solve 3–4 FITS frames of the same sky field.</li>
+    <li>Open <em>Processing → Moving Object Detection…</em></li>
+    <li>Set the minimum detection SNR (default 5) and the maximum search radius for cross-matching.</li>
+    <li>Click <strong>Detect</strong>. Results are listed in the Candidates panel.</li>
+    <li>Click any candidate to view it blinking in the image panels.</li>
+    <li>If you confirm it is real, click <strong>Measure</strong> to add it to the Observations list.</li>
+  </ol>
+
+  <div class="callout warning">
+    <div class="ct">Warning — Always Visually Confirm</div>
+    Automated detection returns <em>candidates</em>, not confirmed detections. Always visually blink
+    each candidate before adding it to your report. Hot pixels, cosmic rays, internal reflections,
+    and satellite/aircraft trails can all mimic a moving object if not carefully inspected.
+  </div>
+</section>
+
+<!-- ─────────────────────── KOO ──────────────────────────────────── -->
+<section id="koo">
+  <h2>Known Object Overlay (KOO)</h2>
+  <p>
+    The <strong>Known Object Overlay</strong> cross-references your imaged field with the
+    <strong>MPCORB.DAT</strong> catalog from the Minor Planet Center, highlighting any known
+    asteroids or comets that fall within your image at the time of observation.
+  </p>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>The image must be plate-solved (WCS required to compute field boundaries).</li>
+    <li>A valid <code>DATE-OBS</code> timestamp is required for ephemeris propagation.</li>
+    <li>A current <code>MPCORB.DAT</code> file must be available (set path in Settings).</li>
+  </ul>
+
+  <h3>How It Works</h3>
+  <p>
+    For each object in MPCORB.DAT whose orbital elements are within search range, AstroFind integrates
+    the orbit (using a simplified two-body or N-body propagator) to the observation epoch and computes
+    the predicted RA/Dec. Objects whose predicted position falls within the image field-of-view are
+    displayed as labelled cyan markers with their MPC designation.
+  </p>
+  <p>
+    Toggle the overlay with <kbd>Ctrl</kbd>+<kbd>K</kbd> or from the View menu. On hover, a tooltip
+    shows the object's designation, predicted magnitude, and angular distance from the image centre.
+  </p>
+
+  <div class="callout tip">
+    <div class="ct">Tip — Check Before Reporting</div>
+    Always run the KOO before submitting measurements. If your candidate matches a known object,
+    you can report it as a recovery (valuable for orbit improvement), or add the designation to
+    your ADES report. If it does not match any known object, it may be a new discovery — consult
+    the MPC guidelines for reporting unknowns.
+  </div>
+
+  <div class="callout info">
+    <div class="ct">Updating MPCORB.DAT</div>
+    The MPC publishes an updated MPCORB.DAT weekly. Download it from the MPC website and place it in
+    the data directory shown in <em>Settings → Data Paths → MPCORB.DAT Path</em>. Stale catalog files
+    may miss recently discovered objects.
+  </div>
+</section>
+
+<!-- ─────────────────────── TOOLS REFERENCE ─────────────────────── -->
+<section id="tools">
+  <h2>Tools Reference</h2>
+  <p>The toolbar presents three interactive tools. Only one tool is active at a time. The active tool
+  is highlighted in the toolbar and shown in the status bar.</p>
+
+  <table>
+    <thead><tr><th>Tool</th><th>Shortcut</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Select</strong></td>
+        <td><kbd>S</kbd></td>
+        <td>Default pointer tool. <strong>Click and drag</strong> to pan the image. <strong>Scroll wheel</strong> to zoom.
+        Click an existing measurement marker to select and inspect it. Press <kbd>Delete</kbd> to remove the selected measurement.</td>
+      </tr>
+      <tr>
+        <td><strong>Aperture</strong></td>
+        <td><kbd>A</kbd></td>
+        <td>Click on any point source (star or moving object) to fit a PSF centroid and measure its RA/Dec and magnitude.
+        Opens the Verification dialog before recording. The aperture radius is configurable in Settings.</td>
+      </tr>
+      <tr>
+        <td><strong>Annotate</strong></td>
+        <td><kbd>N</kbd></td>
+        <td>Click anywhere in the image to place a text annotation label. Type the annotation text in the popup.
+        Annotations are displayed in yellow and saved with the session file, but are <em>not</em> exported to ADES.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Blink Mode</h3>
+  <p>
+    Blink mode cycles through all loaded frames in a single panel at a configurable interval
+    (default 500 ms, adjustable in Settings). Stars remain stationary while a moving object
+    appears to jump between frames. Toggle with <kbd>B</kbd> or the Blink button in the toolbar.
+    Press <kbd>Space</kbd> to manually step one frame at a time.
+  </p>
+
+  <h3>Zoom and Pan</h3>
+  <ul>
+    <li><strong>Scroll wheel</strong> — zoom in or out, centred on the cursor</li>
+    <li><strong>Click + drag</strong> (Select tool) — pan the image</li>
+    <li><kbd>Ctrl</kbd>+<kbd>0</kbd> — fit the entire image to the window</li>
+    <li><kbd>Ctrl</kbd>+<kbd>+</kbd> — zoom in by one step</li>
+    <li><kbd>Ctrl</kbd>+<kbd>−</kbd> — zoom out by one step</li>
+    <li>Keys <kbd>1</kbd>–<kbd>4</kbd> — switch focus to panel 1–4</li>
+  </ul>
+</section>
+
+<!-- ─────────────────────── SHORTCUTS ────────────────────────────── -->
+<section id="shortcuts">
+  <h2>Keyboard Shortcuts</h2>
+  <table>
+    <thead><tr><th style="width:220px">Shortcut</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>S</kbd></td><td>Activate Select tool</td></tr>
+      <tr><td><kbd>A</kbd></td><td>Activate Aperture tool</td></tr>
+      <tr><td><kbd>N</kbd></td><td>Activate Annotate tool</td></tr>
+      <tr><td><kbd>B</kbd></td><td>Toggle blink mode on/off</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>Step to next frame (manual blink)</td></tr>
+      <tr><td><kbd>1</kbd> – <kbd>4</kbd></td><td>Switch active panel to frame 1–4</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Open FITS file(s)</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Close current image</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Save session</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo last measurement</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo measurement</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Export ADES XML report</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Open Data Reduction dialog</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Toggle Known Object Overlay</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td><td>Fit image to window</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>+</kbd></td><td>Zoom in</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>−</kbd></td><td>Zoom out</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>,</kbd></td><td>Open Settings / Preferences</td></tr>
+      <tr><td><kbd>Delete</kbd></td><td>Delete selected measurement marker</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Cancel current action; revert to Select tool</td></tr>
+      <tr><td><kbd>F1</kbd></td><td>Open this Help document</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─────────────────────── SETTINGS ─────────────────────────────── -->
+<section id="settings">
+  <h2>Settings</h2>
+  <p>Open Settings via <em>Edit → Preferences…</em> or <kbd>Ctrl</kbd>+<kbd>,</kbd>.</p>
+
+  <h3>Observer Tab</h3>
+  <ul>
+    <li><strong>Observatory Code</strong> — Your MPC-assigned three-character code (e.g., <code>T05</code>,
+    <code>W96</code>). Apply for a code at the MPC website. If you do not have a code, use <code>500</code>
+    (geocentre) as a placeholder, but note that geocentric observations have lower positional accuracy.</li>
+    <li><strong>Observer Names</strong> — Full names of all observers, as they will appear in the ADES report
+    (last name, initials format, e.g., "Smith, J. K.").</li>
+    <li><strong>Measurer Names</strong> — Person(s) performing the astrometric reduction. May differ from
+    the observer (e.g., when using a remote observatory).</li>
+    <li><strong>Telescope</strong> — A brief description: "0.4-m f/8 Ritchey-Chrétien + monochrome CMOS"</li>
+    <li><strong>Contact Email</strong> — Used only for MPC correspondence; not published.</li>
+  </ul>
+
+  <h3>Astrometry Tab</h3>
+  <ul>
+    <li><strong>API Key</strong> — Your astrometry.net API key. Required for plate solving.</li>
+    <li><strong>Search Radius (deg)</strong> — Hint for the plate solver on how far from the initial
+    RA/Dec to search. Set to 0 for a fully blind solve (slower).</li>
+    <li><strong>Scale Hint (arcsec/px)</strong> — Approximate plate scale. Computing this from
+    focal length and pixel size before observing speeds up the solve significantly.</li>
+    <li><strong>Scale Tolerance (%)</strong> — Allowed deviation from the scale hint.</li>
+  </ul>
+
+  <h3>Detection Tab</h3>
+  <ul>
+    <li><strong>Detection Threshold (σ)</strong> — SNR above the local background required for a source
+    detection. Default: 5. Lower values detect fainter sources but increase false positives.</li>
+    <li><strong>Minimum FWHM (pixels)</strong> — Sources narrower than this are treated as hot pixels or
+    cosmic rays and excluded. Set to roughly 1.5 × the nominal stellar FWHM.</li>
+    <li><strong>Aperture Radius (pixels)</strong> — Radius of the photometry aperture used by the
+    Aperture tool. Should be ~2 × FWHM for optimal SNR.</li>
+    <li><strong>Sky Annulus Inner/Outer (pixels)</strong> — Inner and outer radii of the sky background
+    estimation annulus.</li>
+  </ul>
+
+  <h3>Display Tab</h3>
+  <ul>
+    <li><strong>Blink Interval (ms)</strong> — Time each frame is displayed during blink mode. Default: 500 ms.</li>
+    <li><strong>Default Stretch</strong> — Linear, sqrt, log, or histogram equalization.</li>
+    <li><strong>Overlay Opacity</strong> — Transparency of star markers and overlay annotations (0–100%).</li>
+  </ul>
+
+  <h3>Data Paths Tab</h3>
+  <ul>
+    <li><strong>MPCORB.DAT Path</strong> — Full path to the downloaded MPC orbit catalog file.</li>
+    <li><strong>Session Directory</strong> — Default folder for saving/loading session files (<code>.astrofind</code>).</li>
+    <li><strong>Export Directory</strong> — Default folder for ADES XML exports.</li>
+  </ul>
+</section>
+
+<!-- ─────────────────────── GLOSSARY ─────────────────────────────── -->
+<section id="glossary">
+  <h2>Glossary</h2>
+
+  <p class="gt">ADES — Astrometry Data Exchange Standard</p>
+  <p class="gd">XML-based format required by the Minor Planet Center for all new observation submissions since 2017. It supersedes the older 80-column fixed-width format and carries richer metadata: position uncertainties, filter identifiers, structured instrument descriptions, and optional ORCID IDs for observers.</p>
+
+  <p class="gt">Dark Frame</p>
+  <p class="gd">A calibration exposure taken with the camera shutter closed at the same temperature and integration time as the science images. Records thermal noise (dark current) and the electronic bias offset so they can be subtracted from science exposures.</p>
+
+  <p class="gt">FITS — Flexible Image Transport System</p>
+  <p class="gd">The standard file format for astronomical images and data tables since 1981, defined by the IAU. Stores pixel data together with ASCII metadata headers. Extension variants include <code>.fits</code>, <code>.fit</code>, and <code>.fts</code>.</p>
+
+  <p class="gt">Flat Field</p>
+  <p class="gd">A calibration image of a uniformly illuminated source (twilight sky or illuminated panel). Records pixel-to-pixel quantum efficiency variations, vignetting, and dust shadows. Dividing science images by the normalised flat field corrects these non-uniformities.</p>
+
+  <p class="gt">FWHM — Full Width at Half Maximum</p>
+  <p class="gd">A measure of the angular or pixel size of a stellar image. Equals the diameter of the stellar profile at half its peak intensity value. Reflects atmospheric seeing, telescope aberrations, and detector sampling. Expressed in pixels or arcseconds; typical values for ground-based astronomy are 1–4 arcseconds.</p>
+
+  <p class="gt">JD — Julian Date</p>
+  <p class="gd">A continuous count of days and fractional days since noon Universal Time on 1 January 4713 BCE (proleptic Julian calendar). Widely used in astronomy to avoid calendar ambiguities. J2000.0 = JD 2451545.0. The MPC records all observation epochs in JD. Modified Julian Date (MJD) = JD − 2400000.5.</p>
+
+  <p class="gt">MPC — Minor Planet Center</p>
+  <p class="gd">The official IAU-sanctioned body for collecting, computing, and disseminating astrometric observations and orbits of minor planets and comets. Based at the Harvard-Smithsonian Center for Astrophysics. All asteroid discovery and recovery reports must be submitted to the MPC.</p>
+
+  <p class="gt">Phase Correlation</p>
+  <p class="gd">A Fourier-domain technique for measuring the translational offset between two images. The cross-power spectrum of the two images is computed; its inverse FFT produces a sharp peak at the shift vector. Used by AstroFind for sub-pixel image registration before stacking.</p>
+
+  <p class="gt">Plate Scale</p>
+  <p class="gd">The angular size of one detector pixel projected on the sky, in arcseconds per pixel. Calculated as: plate_scale = 206265 × (pixel_size_μm / focal_length_mm). A 0.5-arcsec/px plate scale is typical for an f/8 telescope with 9-μm pixels.</p>
+
+  <p class="gt">PSF — Point Spread Function</p>
+  <p class="gd">The 2-D intensity distribution produced by a point source (star) on the detector, resulting from diffraction, aberrations, and atmospheric seeing. In practice approximated by a 2-D Gaussian. Fitting a PSF to a source yields its centroid position to sub-pixel accuracy and its total flux.</p>
+
+  <p class="gt">SNR — Signal-to-Noise Ratio</p>
+  <p class="gd">The ratio of source signal to background noise. Composed of Poisson photon noise from the sky background, readout noise, and dark current noise. A detection is generally considered reliable at SNR ≥ 5. Stacking N frames improves SNR by roughly √N.</p>
+
+  <p class="gt">WCS — World Coordinate System</p>
+  <p class="gd">The FITS standard (Paper I–IV, Calabretta &amp; Greisen 2002) for encoding the mathematical mapping between pixel coordinates and physical sky coordinates (RA, Dec). Plate solving produces the WCS keywords written into the FITS header, allowing any pixel to be converted to a precise celestial position.</p>
+</section>
+
+<!-- ─────────────────────── FAQ ──────────────────────────────────── -->
+<section id="faq">
+  <h2>Frequently Asked Questions</h2>
+
+  <h3>My images don't have a plate solution — what do I do?</h3>
+  <p>Go to <strong>File → Settings → Connections</strong> and make sure your astrometry.net API key is set. Then select your images, open <strong>Astrometry → Data Reduction</strong> and click <em>▶ Do it</em>. AstroFind will submit each image and download the WCS solution automatically.</p>
+  <p>If you have no internet connection, install <a href="https://www.hnsky.org/astap.htm" target="_blank">ASTAP</a>, set its path in Settings → Connections → ASTAP, and switch the <em>Backend</em> selector to <em>ASTAP (local, offline)</em>.</p>
+
+  <h3>The astrometry.net solver keeps timing out — help?</h3>
+  <p>Two common causes:</p>
+  <ul>
+    <li><strong>The API key is wrong or expired</strong> — verify it at <a href="https://nova.astrometry.net" target="_blank">nova.astrometry.net</a> → Account.</li>
+    <li><strong>The image has too few stars</strong> — the solver needs at least 10–15 stars. Try lowering <em>Detection → Sigma limit</em> in Settings, or use a longer exposure.</li>
+  </ul>
+  <p>You can increase the timeout in <em>Settings → Connections → Timeout</em> (default 300 s).</p>
+
+  <h3>I don't have an internet connection — can I still use AstroFind?</h3>
+  <p>Yes, with some limitations. FITS images that already contain WCS headers (from a dedicated plate solver or observatory software) can be loaded and used immediately — AstroFind detects the WCS automatically and skips the solver. For images without WCS, use ASTAP offline (see above).</p>
+
+  <h3>What is an MPC station code and do I need one?</h3>
+  <p>An MPC station code is a 3-character identifier assigned by the <a href="https://www.minorplanetcenter.net" target="_blank">Minor Planet Center</a> to your observatory location. It is required in the ADES report header for official observation submission. If you are a student doing a school project you can leave it blank for practice — the report will be generated but cannot be submitted formally until a code is obtained.</p>
+  <div class="callout info"><div class="ct">Info</div>Applying for an MPC code is free. See the <em>How to submit</em> guide at minorplanetcenter.net.</div>
+
+  <h3>Blink mode doesn't show anything moving — is that normal?</h3>
+  <p>Yes — most asteroid fields show no moving objects. A real asteroid will appear as a tiny dot that shifts position between images while background stars stay fixed. Blink at least 3 images taken 30–60 minutes apart. The shift should be 3–15 pixels for a typical main-belt asteroid.</p>
+
+  <h3>How do I submit my observations to the MPC?</h3>
+  <p>After measuring your object, go to <strong>File → View ADES Report File</strong>. In the preview dialog, click <em>Submit to MPC (HTTP)</em> to post directly, or <em>Submit to MPC (Email)</em> to open your email client pre-addressed to the MPC. You must have a valid MPC station code set in Settings first.</p>
+
+  <h3>Why does the Log Panel show a DATE-OBS warning?</h3>
+  <p>Your FITS file has a <code>DATE-OBS</code> header without timezone information and without a <code>TIMESYS</code> keyword. AstroFind assumes UTC in this case. If your camera records local time, add the timezone offset in <em>Settings → Observer → Time Zone</em>, or reconfigure your camera to record UTC.</p>
+
+  <h3>Can I use AstroFind without a telescope — just with downloaded images?</h3>
+  <p>Yes. AstroFind works with any FITS file. Many observatories and sky surveys publish data in FITS format freely online (SDSS, PanSTARRS, CFHT, iTelescope.Net, etc.). If the images already have a WCS solution in their headers, you can skip the plate-solving step entirely and go straight to blinking and measuring.</p>
+</section>
+
+<!-- ─────────────────────── FOR STUDENTS ────────────────────────── -->
+<section id="students">
+  <h2>For Students — Step-by-Step Guide</h2>
+  <p class="hero-sub">This guide walks you through the complete workflow of detecting a moving asteroid using FITS images downloaded from the internet, without needing a telescope.</p>
+
+  <div class="callout tip"><div class="ct">Before you start</div>
+    Make sure your teacher has provided a settings file (<code>.ini</code>) or has configured AstroFind for you. If not, ask your teacher to go to <em>File → Export School Configuration</em> and send you the file. Then open AstroFind and use <em>File → Import School Configuration</em> to load it.
+  </div>
+
+  <h3>Step 1 — Load your FITS images</h3>
+  <ol class="steps">
+    <li>Go to <strong>File → Load Images…</strong> (or press <kbd>Ctrl</kbd>+<kbd>L</kbd>).</li>
+    <li>Select all your FITS files (hold <kbd>Shift</kbd> or <kbd>Ctrl</kbd> to select multiple files).</li>
+    <li>AstroFind opens each image as a separate sub-window. You should see star fields in each one.</li>
+    <li>If the images already have a WCS solution (step 2 in the left panel shows a checkmark), you can skip to Step 3 immediately.</li>
+  </ol>
+  <div class="callout info"><div class="ct">Tip</div>You need at least 2 images of the same field taken at different times (ideally 3 or more, spaced 30–60 minutes apart) to detect a moving object.</div>
+
+  <h3>Step 2 — Prepare the images (plate solving)</h3>
+  <ol class="steps">
+    <li>In the <em>Workflow</em> panel on the left, click <em>▶ Do it</em> next to <strong>Data Reduction</strong>.</li>
+    <li>AstroFind detects the stars in each image and sends them to a plate solver (astrometry.net or ASTAP) to find out exactly where on the sky each image is pointing.</li>
+    <li>Wait for all images to show a green checkmark (✓) in the Workflow panel. This may take 1–5 minutes per image.</li>
+    <li>If your images already had a WCS solution (from the telescope or download site), this step completes instantly.</li>
+  </ol>
+
+  <h3>Step 3 — Blink the images</h3>
+  <ol class="steps">
+    <li>In the <em>Workflow</em> panel, click <em>▶ Do it</em> next to <strong>Blink Images</strong>.</li>
+    <li>AstroFind displays all images in rapid succession. Stars are fixed; a moving asteroid will appear to jump back and forth.</li>
+    <li>Use the blink speed slider to slow down or speed up the animation.</li>
+    <li>Look carefully for a tiny dot that <em>moves</em> between frames while everything else stays still.</li>
+  </ol>
+  <div class="callout warning"><div class="ct">What to look for</div>The moving object will appear as a faint dot that shifts by a few pixels between images. It won't look like a shooting star — it moves very slowly. Compare the position of every faint star to find the one that moves.</div>
+
+  <h3>Step 4 — Measure the object</h3>
+  <ol class="steps">
+    <li>Press <kbd>M</kbd> to activate the <em>Measure</em> tool (or click the aperture icon in the toolbar).</li>
+    <li>Click on the moving object in each image. A circle appears around it and AstroFind records the position and brightness.</li>
+    <li>Repeat for every image where you can see the object.</li>
+    <li>Check the <em>Measurement Table</em> at the bottom to confirm your observations were recorded (RA, Dec, magnitude, and time for each click).</li>
+  </ol>
+
+  <h3>Step 5 — Generate the report and send to your teacher</h3>
+  <ol class="steps">
+    <li>Go to <strong>File → View ADES Report File</strong>.</li>
+    <li>The report preview shows your observations in XML and PSV format.</li>
+    <li>Click <strong>Enviar para Professor</strong> — your email client will open, pre-filled with your teacher's address and the report in the body.</li>
+    <li>Review the email and click Send.</li>
+  </ol>
+  <div class="callout tip"><div class="ct">No "Enviar para Professor" button?</div>Ask your teacher to add their email address in <em>File → Settings → Observer → E-mail do Professor</em> and re-export the configuration for you.</div>
+
+  <h3>Troubleshooting for students</h3>
+  <table>
+    <tr><th>Problem</th><th>Solution</th></tr>
+    <tr><td>Images appear black or very dark</td><td>Use <em>Images → Background and Range…</em> to adjust the display stretch. The pixel values may be in a narrow range.</td></tr>
+    <tr><td>Step 2 (plate solving) fails with an error</td><td>Ask your teacher — the internet connection or API key may need to be reconfigured.</td></tr>
+    <tr><td>I can't find anything moving in the blink</td><td>The object may be too faint, or the time between images may be too short. Try widening the blink interval. Also try the Known Object Overlay (step 3 in the Workflow) to see if any known asteroids are in the field.</td></tr>
+    <tr><td>The "Enviar para Professor" button does not appear</td><td>The school email is not configured. See the tip above.</td></tr>
+    <tr><td>My measurement table is empty</td><td>Make sure the <em>Measure</em> tool (<kbd>M</kbd>) is active before clicking on the object.</td></tr>
+  </table>
+</section>
+
+
+<!-- ─────────────────────── CREDITS & LICENSE ──────────────────────── -->
+<section id="credits">
+  <h2>Credits &amp; License</h2>
+
+  <h3>License</h3>
+  <p>AstroFind is released under the <strong>PolyForm Noncommercial License 1.0.0</strong>.</p>
+  <ul>
+    <li>Free for personal, educational, and non-commercial use.</li>
+    <li>You may distribute and modify it with attribution.</li>
+    <li>Commercial use and selling are prohibited.</li>
+    <li>Full text: <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/" target="_blank">polyformproject.org/licenses/noncommercial/1.0.0</a></li>
+  </ul>
+  <p>Copyright &copy; 2024&ndash;2026 <strong>Petrus Silva Costa</strong>. All rights reserved.</p>
+
+  <h3>Inspiration &amp; Reference Implementations</h3>
+  <p>AstroFind learned from and was inspired by these excellent open-source projects:</p>
+  <table>
+    <thead><tr><th>Project</th><th>Author(s)</th><th>What we learned</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a href="http://www.astrometrica.at/" target="_blank">Astrometrica</a></td>
+        <td>Herbert Raab</td>
+        <td>Primary UX inspiration — the standard Windows tool for IASC/MPC work. AstroFind is the Linux alternative.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/Bill-Gray/find_orb" target="_blank">find_orb</a></td>
+        <td>Bill Gray (Project Pluto)</td>
+        <td>ADES output format, MPC report structure, orbit determination concepts.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/mostanes/umbrella2" target="_blank">umbrella2</a></td>
+        <td>CSCF</td>
+        <td>Moving object detection pipeline and tracklet linking algorithms.</td>
+      </tr>
+      <tr>
+        <td><a href="https://gitlab.com/free-astro/siril" target="_blank">Siril</a></td>
+        <td>Free-Astro team</td>
+        <td>PSF fitting, background extraction, and photometry pipeline design.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/dstndstn/astrometry.net" target="_blank">astrometry.net</a></td>
+        <td>Dustin Lang et al.</td>
+        <td>Plate-solving REST API — used directly by AstroFind for online solving.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/iraf-community/iraf" target="_blank">IRAF</a></td>
+        <td>NOAO / community</td>
+        <td>Aperture photometry concepts and measurement methodology.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Libraries Used</h3>
+  <table>
+    <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://github.com/qt/qtbase" target="_blank">Qt6</a></td><td>UI framework</td></tr>
+      <tr><td><a href="https://github.com/HEASARC/cfitsio" target="_blank">cfitsio</a></td><td>FITS file reading/writing</td></tr>
+      <tr><td><a href="https://gitlab.com/libeigen/eigen" target="_blank">Eigen3</a></td><td>Linear algebra for astrometry</td></tr>
+      <tr><td><a href="https://github.com/FFTW/fftw3" target="_blank">FFTW3</a></td><td>Fast Fourier transforms</td></tr>
+      <tr><td><a href="https://github.com/kbarbary/sep" target="_blank">SEP</a></td><td>Source extraction and photometry</td></tr>
+      <tr><td><a href="https://github.com/gabime/spdlog" target="_blank">spdlog</a></td><td>Logging</td></tr>
+      <tr><td><a href="https://github.com/catchorg/Catch2" target="_blank">Catch2</a></td><td>Unit testing</td></tr>
+      <tr><td><a href="https://github.com/stachenov/quazip" target="_blank">QuaZip</a></td><td>ZIP archive support</td></tr>
+      <tr><td><a href="https://github.com/frankosterfeld/qtkeychain" target="_blank">qt-keychain</a></td><td>Secure API key storage</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<script>
+// ── Active sidebar link on scroll ──────────────────────────────────
+const secs  = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('#sidebar nav a');
+
+function updateActive() {
+  let active = '';
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 90) active = s.id; });
+  links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + active));
+}
+window.addEventListener('scroll', updateActive, { passive: true });
+updateActive();
+</script>
+</body>
+</html>

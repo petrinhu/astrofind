@@ -156,6 +156,17 @@ void BlinkWidget::setImages(const QVector<core::FitsImage>& images)
     if (!images_.isEmpty()) showImage(0);
 }
 
+void BlinkWidget::updateImageMetadata(const QVector<core::FitsImage>& images)
+{
+    // Update only the metadata (overlays, WCS) without recomputing pixel data.
+    const int n = static_cast<int>(std::min(images.size(), images_.size()));
+    for (int i = 0; i < n; ++i)
+        images_[i] = images[i];
+    // Refresh the currently displayed frame so overlays update immediately.
+    if (currentIdx_ < images_.size())
+        view_->setPrecomputedImage(precomputed_[currentIdx_], images_[currentIdx_]);
+}
+
 void BlinkWidget::clearImages()
 {
     stopBlink();
@@ -183,12 +194,22 @@ void BlinkWidget::stopBlink()
 void BlinkWidget::showImage(int index)
 {
     if (images_.isEmpty()) return;
-    currentIdx_ = ((index % images_.size()) + images_.size()) % images_.size();
+    currentIdx_ = ((index % static_cast<int>(images_.size())) + static_cast<int>(images_.size())) % static_cast<int>(images_.size());
+
+    // Preserve zoom/pan across blink ticks so the user can zoom in and blink stays zoomed
+    const bool  wasZoomed = view_->isUserZoomed();
+    const double savedZ   = view_->zoom();
+    const QPointF savedP  = view_->panOffset();
 
     if (currentIdx_ < precomputed_.size())
         view_->setPrecomputedImage(precomputed_[currentIdx_], images_[currentIdx_]);
     else
         view_->setFitsImage(images_[currentIdx_]);
+
+    if (wasZoomed)
+        view_->restoreView(savedZ, savedP);
+    else if (view_->width() > 0 && view_->height() > 0)
+        view_->fitToWidget();
 
     updateInfoBar();
     updateThumbnailHighlight();
@@ -261,9 +282,24 @@ void BlinkWidget::keyPressEvent(QKeyEvent* e)
     case Qt::Key_Space:
         if (isBlinking()) stopBlink(); else startBlink();
         break;
-    case Qt::Key_Right: showNext();     break;
-    case Qt::Key_Left:  showPrevious(); break;
+    case Qt::Key_Right:
+        if (view_->isUserZoomed()) view_->processKey(e);
+        else showNext();
+        break;
+    case Qt::Key_Left:
+        if (view_->isUserZoomed()) view_->processKey(e);
+        else showPrevious();
+        break;
     case Qt::Key_Escape: emit stopRequested(); break;
+    // Zoom and pan: forward to the image view
+    case Qt::Key_Plus:
+    case Qt::Key_Equal:
+    case Qt::Key_Minus:
+    case Qt::Key_0:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+        view_->processKey(e);
+        break;
     default: QWidget::keyPressEvent(e);
     }
 }
@@ -272,6 +308,9 @@ void BlinkWidget::showEvent(QShowEvent* e)
 {
     QWidget::showEvent(e);
     setFocus();
+    // fitToWidget() may have been called when size was 0 (before first show).
+    // Defer to the next event loop tick so layout has been applied.
+    QTimer::singleShot(0, view_, &FitsImageView::fitToWidget);
 }
 
 bool BlinkWidget::eventFilter(QObject* obj, QEvent* ev)

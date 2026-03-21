@@ -19,7 +19,9 @@ public:
     explicit BlinkWidget(QWidget* parent = nullptr);
 
     void setImages(const QVector<core::FitsImage>& images);
+    void updateImageMetadata(const QVector<core::FitsImage>& images);
     void clearImages();
+    FitsImageView* imageView() noexcept { return view_; }
 
     void startBlink();
     void stopBlink();

@@ -6,6 +6,13 @@
 #include <QImage>
 #include <QPoint>
 #include <QPointF>
+#include <QCursor>
+
+/// A text annotation pinned to an image-coordinate position.
+struct ImageAnnotation {
+    QPointF pos;    ///< Image pixel coordinate
+    QString text;
+};
 
 /// Widget that displays a single FITS image with zoom, pan, and invert support.
 class FitsImageView : public QWidget {
@@ -30,6 +37,9 @@ public:
     void setFlipV(bool on);
     void toggleFlipH() { setFlipH(!flipH_); }
     void toggleFlipV() { setFlipV(!flipV_); }
+
+    /// Pan so that the given image pixel coordinate is centred in the widget.
+    void centerOnPixel(QPointF imagePt);
 
     /// Update display stretch and redraw (does NOT reload FITS from disk).
     void setStretch(float displayMin, float displayMax);
@@ -57,9 +67,45 @@ public:
     bool showOverlay() const noexcept { return showOverlay_; }
     void toggleOverlay()              { setShowOverlay(!showOverlay_); }
 
+    void setShowDetectedStars(bool on) { showDetected_ = on; update(); }
+    void setShowCatalogStars (bool on) { showCatalog_  = on; update(); }
+    void setShowKooObjects   (bool on) { showKoo_      = on; update(); }
+    void setShowLabels       (bool on) { showLabels_   = on; update(); }
+
+    // ── Catalog highlight ─────────────────────────────────────────────────
+    /// Highlight the overlay marker nearest to imgPx (image pixel coords).
+    void setHighlight(QPointF imgPx);
+    void clearHighlight();
+
+    // ── Annotations ───────────────────────────────────────────────────────
+    void addAnnotation(const QPointF& imgPos, const QString& text);
+    void clearAnnotations();
+    const QVector<ImageAnnotation>& annotations() const noexcept { return annotations_; }
+
+    /// Handle pan/zoom keys — callable from a parent widget (avoids event-system recursion).
+    void processKey(QKeyEvent* e);
+
+    // ── View-state accessors (for blink zoom preservation) ────────────────────
+    bool    isUserZoomed() const noexcept { return userZoomed_; }
+    QPointF panOffset()    const noexcept { return panOff_; }
+    /// Restore a saved zoom+pan without triggering fitToWidget.
+    void restoreView(double z, QPointF pan) {
+        zoom_ = z; panOff_ = pan; userZoomed_ = true; update();
+    }
+
+    // ── Tool cursor ───────────────────────────────────────────────────────
+    /// Sets the active tool cursor. CrossCursor adapts color to invert state.
+    void setToolCursor(Qt::CursorShape shape);
+
+    // ── Magnifying glass ──────────────────────────────────────────────────
+    void setShowMagnifier(bool on) { showMagnifier_ = on; update(); }
+    bool showMagnifier() const noexcept { return showMagnifier_; }
+    void toggleMagnifier() { setShowMagnifier(!showMagnifier_); }
+
 signals:
     void cursorMoved(double ra, double dec, float pixelValue);
     void pixelClicked(QPointF imagePixel, double ra, double dec, float pixelValue);
+    void escapePressed();  ///< Emitted on Escape key — request to clear selection
 
 protected:
     void paintEvent(QPaintEvent*) override;
@@ -68,6 +114,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
     void wheelEvent(QWheelEvent*) override;
     void resizeEvent(QResizeEvent*) override;
+    void keyPressEvent(QKeyEvent*) override;
 
 private:
     QImage makeDisplayImage() const;
@@ -78,7 +125,8 @@ private:
     core::FitsImage fitsImg_;
     QImage          displayImg_;
 
-    double  zoom_   = 1.0;
+    double  zoom_      = 1.0;
+    bool    userZoomed_ = false; ///< true after explicit wheel/setZoom — suppresses auto-refit on resize
     QPointF panOff_;        ///< Pan offset in widget pixels
     bool    invert_ = false;
     bool    flipH_  = false;
@@ -88,9 +136,26 @@ private:
     QPoint  panStart_;
     QPointF panOffStart_;
 
-    bool    showOverlay_ = true;
+    // Left-button drag-to-pan state
+    bool    leftDragPanning_ = false;
+    QPoint  leftPressPos_;
+
+    bool    showOverlay_  = true;
+    bool    showDetected_ = true;
+    bool    showCatalog_  = true;
+    bool    showKoo_      = true;
+    bool    showLabels_   = true;
 
     void drawDetectedStars(QPainter& p) const;
     void drawCatalogStars(QPainter& p) const;
     void drawKooObjects(QPainter& p) const;
+    void drawAnnotations(QPainter& p) const;
+    void drawMagnifier(QPainter& p) const;
+
+    QVector<ImageAnnotation> annotations_;
+    QPointF                  highlightPx_ = {-1e9, -1e9};  ///< Image-pixel coords of highlighted object
+    QCursor                  defaultCursor_;
+
+    bool    showMagnifier_   = false;
+    QPointF magnifierCursor_;   ///< Last known cursor position in widget coords
 };

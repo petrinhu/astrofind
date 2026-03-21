@@ -81,7 +81,7 @@ detectStars(const FitsImage& img, const StarDetectorConfig& cfg)
     exIm.gain        = img.gain;
 
     // ── 5. Extract sources ────────────────────────────────────────────────
-    const float  thresh    = cfg.threshold;    // SEP_THRESH_REL = in sigma
+    const float  thresh    = static_cast<float>(cfg.threshold);    // SEP_THRESH_REL = in sigma
     const float* conv      = cfg.filterKernel ? kConv3x3 : nullptr;
     const int    convw     = cfg.filterKernel ? 3 : 0;
     const int    convh     = cfg.filterKernel ? 3 : 0;

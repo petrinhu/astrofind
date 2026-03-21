@@ -5,10 +5,11 @@
 
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QTimeZone>
 
 #include <algorithm>
 #include <cmath>
-#include <numeric>
+#include <limits>
 
 namespace core {
 
@@ -97,8 +98,20 @@ void readHeader(fitsfile* fptr, FitsImage& img)
     img.observer   = getStr("OBSERVER");
     img.expTime    = getDbl("EXPTIME");
     img.gain       = getDbl("GAIN", 1.0);
-    img.saturation = getDbl("SATURATE", 65535.0);
+    // SATURATE (common), SATLEVEL (PS1/MaxIm), DATAMAX (CFITSIO default)
+    {
+        double sat = getDbl("SATURATE", 0.0);
+        if (sat == 0.0) sat = getDbl("SATLEVEL", 0.0);
+        if (sat == 0.0) sat = getDbl("DATAMAX",  0.0);
+        img.saturation = sat > 0.0 ? sat : 65535.0;
+    }
     img.jd         = getDbl("JD");
+
+    // Binning factor — affects pixel scale if present in header
+    const int binX = std::max(1, static_cast<int>(getDbl("XBINNING", 1.0)));
+    const int binY = std::max(1, static_cast<int>(getDbl("YBINNING", 1.0)));
+    img.binningX = binX;
+    img.binningY = binY;
 
     // RA/Dec: try decimal first, then HMS/DMS strings
     const QString raStr  = getStr("OBJCTRA");
@@ -108,20 +121,68 @@ void readHeader(fitsfile* fptr, FitsImage& img)
     if (img.ra == 0.0)  img.ra  = getDbl("RA");
     if (img.dec == 0.0) img.dec = getDbl("DEC");
 
-    // DATE-OBS
+    // DATE-OBS + TIMESYS
+    // FITS standard mandates UTC, but amateur cameras sometimes omit the 'Z'
+    // suffix or even write local time.  Strategy:
+    //   1. Parse the string — Qt::ISODate sets timeSpec to UTC if 'Z' or
+    //      OffsetFromUTC if '+HH:MM' is present, LocalTime otherwise.
+    //   2. If TIMESYS='UTC'/'UT'  → treat LocalTime result as UTC.
+    //   3. If TIMESYS is absent and result is LocalTime → assume UTC but flag.
+    //   4. Any OffsetFromUTC → convert to UTC.
+    // In all cases dateObs is stored as UTC so JD is correct.
     const QString dateStr = getStr("DATE-OBS");
+    const QString timesys = getStr("TIMESYS").trimmed().toUpper();
     if (!dateStr.isEmpty()) {
         img.dateObs = QDateTime::fromString(dateStr, Qt::ISODate);
         if (!img.dateObs.isValid())
             img.dateObs = QDateTime::fromString(dateStr, "yyyy-MM-dd'T'HH:mm:ss.zzz");
+        if (!img.dateObs.isValid())
+            img.dateObs = QDateTime::fromString(dateStr, "yyyy-MM-dd");
+
+        if (img.dateObs.isValid()) {
+            switch (img.dateObs.timeSpec()) {
+            case Qt::UTC:
+                // String had explicit 'Z' — already UTC, nothing to do
+                break;
+            case Qt::OffsetFromUTC:
+                // String had explicit +HH:MM / -HH:MM — convert to UTC
+                img.dateObs = img.dateObs.toUTC();
+                break;
+            case Qt::LocalTime:
+            default:
+                // No timezone designator in the string
+                if (timesys == "UTC" || timesys == "UT") {
+                    // TIMESYS confirms UTC — safe to interpret as such
+                    img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(),
+                                            QTimeZone::utc());
+                } else if (!timesys.isEmpty()) {
+                    // TIMESYS present but non-UTC (TT, TAI, etc.)
+                    // Treat as UTC for JD but warn
+                    img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(),
+                                            QTimeZone::utc());
+                    img.dateObsAmbiguous = true;
+                    spdlog::warn("DATE-OBS TIMESYS='{}' is not UTC in {} — assumed UTC",
+                                 timesys.toStdString(), img.fileName.toStdString());
+                } else {
+                    // No timezone marker AND no TIMESYS — could be local time
+                    img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(),
+                                            QTimeZone::utc());
+                    img.dateObsAmbiguous = true;
+                    spdlog::warn("DATE-OBS has no timezone marker and TIMESYS is absent in {}"
+                                 " — assumed UTC", img.fileName.toStdString());
+                }
+                break;
+            }
+        }
     }
 
-    // Pixel scale from WCS CD matrix
+    // Pixel scale — try CD matrix first, then CDELT1/CDELT2 (older FITS convention)
     const double cd1_1 = getDbl("CD1_1");
     const double cd1_2 = getDbl("CD1_2");
     const double cd2_1 = getDbl("CD2_1");
     const double cd2_2 = getDbl("CD2_2");
     if (cd1_1 != 0.0 || cd2_2 != 0.0) {
+        // WCS already encodes the binned scale; no correction needed here
         img.pixScaleX = std::abs(std::hypot(cd1_1, cd2_1)) * 3600.0;
         img.pixScaleY = std::abs(std::hypot(cd1_2, cd2_2)) * 3600.0;
 
@@ -135,12 +196,56 @@ void readHeader(fitsfile* fptr, FitsImage& img)
         wcs.crpix1 = getDbl("CRPIX1");
         wcs.crpix2 = getDbl("CRPIX2");
         wcs.solved = true;
+    } else {
+        // CDELT convention (deg/px); PIXSCALE key (arcsec/px) used by some software
+        const double cdelt1 = getDbl("CDELT1", 0.0);
+        const double cdelt2 = getDbl("CDELT2", 0.0);
+        const double pixscale = getDbl("PIXSCALE", 0.0);
+        if (pixscale > 0.0) {
+            img.pixScaleX = img.pixScaleY = pixscale;
+        } else if (cdelt1 != 0.0 || cdelt2 != 0.0) {
+            img.pixScaleX = std::abs(cdelt1) * 3600.0;
+            img.pixScaleY = std::abs(cdelt2) * 3600.0;
+        }
+        // WCS from CDELT/CROTA — populate if present so overlay works
+        const double crval1 = getDbl("CRVAL1", 0.0);
+        const double crval2 = getDbl("CRVAL2", 0.0);
+        if (crval1 != 0.0 || crval2 != 0.0) {
+            const double crota = getDbl("CROTA2", getDbl("CROTA1", 0.0));
+            const double cosR  = std::cos(crota * M_PI / 180.0);
+            const double sinR  = std::sin(crota * M_PI / 180.0);
+            auto& wcs  = img.wcs;
+            wcs.crval1 = crval1;
+            wcs.crval2 = crval2;
+            wcs.crpix1 = getDbl("CRPIX1");
+            wcs.crpix2 = getDbl("CRPIX2");
+            if (cdelt1 != 0.0 || cdelt2 != 0.0) {
+                wcs.cd1_1  =  cdelt1 * cosR;
+                wcs.cd1_2  = -cdelt2 * sinR;
+                wcs.cd2_1  =  cdelt1 * sinR;
+                wcs.cd2_2  =  cdelt2 * cosR;
+            }
+            wcs.solved = (wcs.cd1_1 != 0.0 || wcs.cd2_2 != 0.0);
+        }
     }
+
+    // Observer site location — try several common keyword conventions
+    // Priority: SITELAT/SITELONG → LAT-OBS/LONG-OBS → OBSGEO-B/OBSGEO-L
+    auto tryDbl = [&](std::initializer_list<const char*> keys) -> double {
+        for (const char* k : keys) {
+            const double v = getDbl(k, std::numeric_limits<double>::quiet_NaN());
+            if (!std::isnan(v)) return v;
+        }
+        return std::numeric_limits<double>::quiet_NaN();
+    };
+    img.siteLat = tryDbl({"SITELAT",  "LAT-OBS",  "OBSGEO-B", "LATITUDE"});
+    img.siteLon = tryDbl({"SITELONG", "LONG-OBS",  "OBSGEO-L", "LONGITUD"});
+    img.siteAlt = tryDbl({"SITEELEV", "ALT-OBS",  "OBSGEO-H", "ALTITUDE"});
 
     if (img.jd == 0.0 && img.dateObs.isValid()) {
         // Approximate JD from datetime
-        const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), QTimeZone::UTC);
-        img.jd = 2451545.0 + j2000.secsTo(img.dateObs) / 86400.0 + img.expTime / 172800.0;
+        const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), QTimeZone::utc());
+        img.jd = 2451545.0 + static_cast<double>(j2000.secsTo(img.dateObs)) / 86400.0 + img.expTime / 172800.0;
     }
 }
 
@@ -218,7 +323,7 @@ void computeAutoStretch(FitsImage& img, float sigmaLow, float sigmaHigh)
 
     // Median (background estimate)
     const size_t mid = sample.size() / 2;
-    std::nth_element(sample.begin(), sample.begin() + mid, sample.end());
+    std::nth_element(sample.begin(), sample.begin() + static_cast<std::ptrdiff_t>(mid), sample.end());
     const float median = sample[mid];
 
     // Sigma (MAD * 1.4826)
@@ -226,7 +331,7 @@ void computeAutoStretch(FitsImage& img, float sigmaLow, float sigmaHigh)
     std::transform(sample.begin(), sample.end(), absDev.begin(),
         [median](float v) { return std::abs(v - median); });
     const size_t mid2 = absDev.size() / 2;
-    std::nth_element(absDev.begin(), absDev.begin() + mid2, absDev.end());
+    std::nth_element(absDev.begin(), absDev.begin() + static_cast<std::ptrdiff_t>(mid2), absDev.end());
     const float sigma = absDev[mid2] * 1.4826f;
 
     img.displayMin = median - sigmaLow  * sigma;
@@ -234,6 +339,38 @@ void computeAutoStretch(FitsImage& img, float sigmaLow, float sigmaHigh)
 
     spdlog::debug("AutoStretch: median={:.1f} sigma={:.1f} min={:.1f} max={:.1f}",
         median, sigma, img.displayMin, img.displayMax);
+}
+
+QString saveWcsToFits(const QString& filePath, const PlateSolution& wcs)
+{
+    if (!wcs.solved) return QStringLiteral("WCS not solved");
+
+    fitsfile* fptr = nullptr;
+    int status = 0;
+
+    if (fits_open_file(&fptr, filePath.toLocal8Bit().constData(), READWRITE, &status)) {
+        return cfitsioError(status);
+    }
+
+    auto writeD = [&](const char* key, double val, const char* comment) {
+        fits_update_key(fptr, TDOUBLE, key, &val, comment, &status);
+    };
+
+    writeD("CRVAL1", wcs.crval1, "RA at reference pixel [deg]");
+    writeD("CRVAL2", wcs.crval2, "Dec at reference pixel [deg]");
+    writeD("CRPIX1", wcs.crpix1, "Reference pixel X");
+    writeD("CRPIX2", wcs.crpix2, "Reference pixel Y");
+    writeD("CD1_1",  wcs.cd1_1,  "CD matrix element");
+    writeD("CD1_2",  wcs.cd1_2,  "CD matrix element");
+    writeD("CD2_1",  wcs.cd2_1,  "CD matrix element");
+    writeD("CD2_2",  wcs.cd2_2,  "CD matrix element");
+    fits_update_key(fptr, TSTRING, "CTYPE1", const_cast<char*>("RA---TAN"),  "WCS type", &status);
+    fits_update_key(fptr, TSTRING, "CTYPE2", const_cast<char*>("DEC--TAN"),  "WCS type", &status);
+
+    const int saveStatus = status;
+    fits_close_file(fptr, &status);
+    if (saveStatus) return cfitsioError(saveStatus);
+    return {};
 }
 
 } // namespace core

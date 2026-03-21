@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+
+    <!-- Deep space background gradient -->
+    <radialGradient id="bg" cx="38%" cy="34%" r="68%" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#1b2c52"/>
+      <stop offset="55%"  stop-color="#0c1328"/>
+      <stop offset="100%" stop-color="#040810"/>
+    </radialGradient>
+
+    <!-- Motion trail gradient along the diagonal -->
+    <linearGradient id="trail" gradientUnits="userSpaceOnUse"
+                    x1="105" y1="362" x2="284" y2="224">
+      <stop offset="0%"   stop-color="#ff6200" stop-opacity="0"/>
+      <stop offset="45%"  stop-color="#ff7a00" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffcc44" stop-opacity="1"/>
+    </linearGradient>
+
+    <!-- Soft glow for the moving object -->
+    <filter id="obj-glow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle glow for stars -->
+    <filter id="star-glow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Finder box corner glow -->
+    <filter id="box-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip to rounded square -->
+    <clipPath id="icon-clip">
+      <rect x="0" y="0" width="512" height="512" rx="100" ry="100"/>
+    </clipPath>
+
+  </defs>
+
+  <!-- ── Background ─────────────────────────────────────────────────── -->
+  <rect x="0" y="0" width="512" height="512" rx="100" ry="100" fill="url(#bg)"/>
+
+  <g clip-path="url(#icon-clip)">
+
+    <!-- ── Stars (field background) ──────────────────────────────────── -->
+    <g fill="white" filter="url(#star-glow)">
+      <!-- bright stars -->
+      <circle cx="78"  cy="88"  r="2.8" opacity="0.95"/>
+      <circle cx="424" cy="68"  r="2.3" opacity="0.90"/>
+      <circle cx="462" cy="205" r="1.8" opacity="0.80"/>
+      <circle cx="58"  cy="372" r="2.4" opacity="0.88"/>
+      <circle cx="408" cy="432" r="2.6" opacity="0.92"/>
+      <!-- dim stars -->
+      <circle cx="172" cy="58"  r="1.5" opacity="0.65"/>
+      <circle cx="362" cy="148" r="1.6" opacity="0.60"/>
+      <circle cx="108" cy="295" r="1.8" opacity="0.70"/>
+      <circle cx="446" cy="318" r="1.5" opacity="0.55"/>
+      <circle cx="298" cy="460" r="1.9" opacity="0.68"/>
+      <circle cx="138" cy="145" r="1.2" opacity="0.45"/>
+      <circle cx="480" cy="138" r="1.3" opacity="0.50"/>
+      <circle cx="44"  cy="218" r="1.1" opacity="0.42"/>
+      <circle cx="340" cy="478" r="1.4" opacity="0.48"/>
+    </g>
+
+    <!-- ── Motion trail ───────────────────────────────────────────────── -->
+    <line x1="105" y1="362" x2="288" y2="222"
+          stroke="url(#trail)" stroke-width="9"
+          stroke-linecap="round"/>
+
+    <!-- secondary highlight on trail tip -->
+    <line x1="228" y1="270" x2="288" y2="222"
+          stroke="#ffe070" stroke-width="4"
+          stroke-linecap="round" opacity="0.5"/>
+
+    <!-- ── Moving object (bright dot) ────────────────────────────────── -->
+    <circle cx="292" cy="218" r="14" fill="#fffbe8" filter="url(#obj-glow)"/>
+    <circle cx="292" cy="218" r="6"  fill="white"/>
+
+    <!-- ── Finder box — 4-corner viewfinder brackets ─────────────────── -->
+    <!--  Box bounds: (208,134) → (376,302), 168×168, centered on (292,218)  -->
+    <!--  Corner arm length: 38px                                            -->
+    <g stroke="#00e8ff" stroke-width="7" fill="none"
+       stroke-linecap="square" filter="url(#box-glow)">
+
+      <!-- Top-left -->
+      <polyline points="208,172 208,134 246,134"/>
+      <!-- Top-right -->
+      <polyline points="338,134 376,134 376,172"/>
+      <!-- Bottom-left -->
+      <polyline points="208,264 208,302 246,302"/>
+      <!-- Bottom-right -->
+      <polyline points="338,302 376,302 376,264"/>
+
+    </g>
+
+    <!-- ── Inner crosshair (subtle, inside box) ──────────────────────── -->
+    <g stroke="#00e8ff" stroke-width="2.5" opacity="0.45" stroke-linecap="round">
+      <line x1="277" y1="218" x2="264" y2="218"/>
+      <line x1="307" y1="218" x2="320" y2="218"/>
+      <line x1="292" y1="203" x2="292" y2="190"/>
+      <line x1="292" y1="233" x2="292" y2="246"/>
+    </g>
+
+    <!-- ── Subtle vignette ring at edges ─────────────────────────────── -->
+    <rect x="0" y="0" width="512" height="512" rx="100" ry="100"
+          fill="none"
+          stroke="#000000" stroke-width="28" opacity="0.45"/>
+
+  </g>
+</svg>

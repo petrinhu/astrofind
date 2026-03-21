@@ -18,6 +18,10 @@ class CatalogClient : public QObject {
 public:
     explicit CatalogClient(QNetworkAccessManager* nam, QObject* parent = nullptr);
 
+    void setVizierUrl(const QString& url)    { vizierUrl_    = url; }
+    /// Set the astrometric catalog to query. Supported: "UCAC4" (default), "GaiaDR3".
+    void setCatalogType(const QString& type) { catalogType_   = type; }
+
     /// Query stars in a circle around (ra, dec) with given radius (degrees).
     /// Uses SQLite cache if available; downloads from VizieR otherwise.
     void queryRegion(double ra, double dec, double radiusDeg, double limitMag = 16.0);
@@ -42,6 +46,8 @@ private:
     QNetworkAccessManager* nam_;
     bool    busy_        = false;
     QString dbPath_;
+    QString vizierUrl_   = QStringLiteral("https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync");
+    QString catalogType_ = QStringLiteral("UCAC4");
     double  queryRa_     = 0.0;
     double  queryDec_    = 0.0;
     double  queryRadius_ = 0.0;

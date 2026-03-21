@@ -1,10 +1,12 @@
 #include "KooEngine.h"
+#include "Ephemeris.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QUrlQuery>
+#include <QtConcurrent/QtConcurrent>
 
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
@@ -23,6 +25,12 @@ KooEngine::KooEngine(QNetworkAccessManager* nam, QObject* parent)
 void KooEngine::queryField(double ra, double dec, double radiusDeg, double jd)
 {
     if (busy_) return;
+
+    // Save params in case we need offline fallback
+    savedRa_  = ra;
+    savedDec_ = dec;
+    savedRad_ = radiusDeg;
+    savedJd_  = jd;
 
     // SkyBoT expects radius in arcminutes
     const double radiusArcmin = radiusDeg * 60.0;
@@ -56,7 +64,13 @@ void KooEngine::onReply()
 
     if (reply->error() != QNetworkReply::NoError) {
         spdlog::warn("KooEngine: network error: {}", reply->errorString().toStdString());
-        emit failed(reply->errorString());
+        if (offlineFallback_ && !mpcOrbPath_.isEmpty()) {
+            spdlog::info("KooEngine: SkyBoT unavailable — falling back to local MPCORB scan");
+            startOfflineScan();
+        } else {
+            busy_ = false;
+            emit failed(reply->errorString());
+        }
         return;
     }
 
@@ -121,6 +135,58 @@ QVector<KooObject> KooEngine::parseSkyBot(const QByteArray& data) const
             result.append(obj);
     }
     return result;
+}
+
+// ─── Offline MPCORB fallback ──────────────────────────────────────────────────
+
+void KooEngine::startOfflineScan()
+{
+    cancelled_ = false;
+
+    // Capture everything the lambda needs (avoid capturing `this` for Qt thread safety)
+    const QString path   = mpcOrbPath_;
+    const double  ra     = savedRa_;
+    const double  dec    = savedDec_;
+    const double  radius = savedRad_;
+    const double  jd     = savedJd_;
+    const double  lat    = obsLat_;
+    const double  lon    = obsLon_;
+    const double  alt    = obsAlt_;
+    bool*         pCanc  = &cancelled_;
+
+    // Progress is emitted via queued connection — safe from thread
+    auto progressCb = [this](int done, int total) {
+        emit scanProgress(done, total);
+    };
+
+    watcher_ = new QFutureWatcher<QVector<KooObject>>(this);
+    connect(watcher_, &QFutureWatcher<QVector<KooObject>>::finished,
+            this,     &KooEngine::onOfflineScanDone);
+
+    auto future = QtConcurrent::run([=]() -> QVector<KooObject> {
+        const auto matches = queryFieldMpcOrb(
+            path, ra, dec, radius, jd, lat, lon, alt, progressCb, pCanc);
+
+        QVector<KooObject> koos;
+        koos.reserve(matches.size());
+        for (const auto& m : matches)
+            koos.append(ephemerisMatchToKoo(m));
+        return koos;
+    });
+
+    watcher_->setFuture(future);
+}
+
+void KooEngine::onOfflineScanDone()
+{
+    if (!watcher_) return;
+    const auto result = watcher_->result();
+    watcher_->deleteLater();
+    watcher_ = nullptr;
+    busy_    = false;
+
+    spdlog::info("KooEngine: offline MPCORB scan found {} objects", result.size());
+    emit objectsReady(result);
 }
 
 } // namespace core

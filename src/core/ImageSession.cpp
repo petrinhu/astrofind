@@ -10,8 +10,9 @@ ImageSession::ImageSession(QObject* parent)
 
 bool ImageSession::addImage(FitsImage img)
 {
-    if (images_.size() >= 4) {
-        spdlog::warn("Session already has 4 images");
+    if (images_.size() >= maxImages_) {
+        spdlog::warn("ImageSession::addImage: limit of {} reached, image '{}' rejected",
+                     maxImages_, img.fileName.toUtf8().constData());
         return false;
     }
     images_.append(std::move(img));

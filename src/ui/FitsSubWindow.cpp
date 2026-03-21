@@ -6,6 +6,9 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QDateTime>
+#include <QMenu>
+#include <QContextMenuEvent>
+#include <QKeyEvent>
 #include <fitsio.h>
 
 FitsSubWindow::FitsSubWindow(const core::FitsImage& img, QWidget* parent)
@@ -18,15 +21,20 @@ FitsSubWindow::FitsSubWindow(const core::FitsImage& img, QWidget* parent)
 
     view_ = new FitsImageView(this);
     view_->setFitsImage(img_);
+    setFocusProxy(view_);   // keyboard events reach view_ when subwindow is active
 
     infoBar_ = new QLabel(this);
     infoBar_->setObjectName("imageInfoBar");
     infoBar_->setStyleSheet("QLabel#imageInfoBar { background:#1a1a2e; color:#88aadd; "
-                            "padding:2px 6px; font-size:10px; }");
-    infoBar_->setText(QString("%1   %2×%3   JD %4   %5 s")
-        .arg(img_.objectName.isEmpty() ? img_.fileName : img_.objectName)
+                            "padding:1px 6px; font-size:9px; }");
+    infoBar_->setFixedHeight(16);
+    infoBar_->setWordWrap(false);
+    infoBar_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    const QString name = img_.objectName.isEmpty() ? img_.fileName : img_.objectName;
+    infoBar_->setText(QString("%1  |  %2×%3  |  JD %4  |  %5 s")
+        .arg(name)
         .arg(img_.width).arg(img_.height)
-        .arg(img_.jd, 0, 'f', 5)
+        .arg(img_.jd, 0, 'f', 4)
         .arg(img_.expTime, 0, 'f', 1));
 
     lay->addWidget(view_);
@@ -48,6 +56,31 @@ void FitsSubWindow::updateImage(const core::FitsImage& img)
     img_.pixScaleX     = img.pixScaleX;
     img_.pixScaleY     = img.pixScaleY;
     view_->setFitsImage(img_);
+}
+
+void FitsSubWindow::keyPressEvent(QKeyEvent* e)
+{
+    // Call processKey directly — avoids routing through QApplication::notify,
+    // which would traverse the parent chain and cause infinite recursion.
+    view_->processKey(e);
+    if (!e->isAccepted()) QWidget::keyPressEvent(e);
+}
+
+void FitsSubWindow::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu(this);
+
+    menu.addAction(tr("Export as JPEG/PNG…"),    this, &FitsSubWindow::exportImageRequested);
+    menu.addSeparator();
+    menu.addAction(tr("Apply Dark Frame…"),      this, &FitsSubWindow::applyDarkRequested);
+    menu.addAction(tr("Apply Flat Field…"),      this, &FitsSubWindow::applyFlatRequested);
+    menu.addSeparator();
+    menu.addAction(tr("Show Histogram"),         this, &FitsSubWindow::showHistogramRequested);
+    menu.addAction(tr("Show Image Catalog"),     this, &FitsSubWindow::showImageCatalogRequested);
+    menu.addSeparator();
+    menu.addAction(tr("FITS Header…"),           this, &FitsSubWindow::showFitsHeader);
+
+    menu.exec(event->globalPos());
 }
 
 void FitsSubWindow::showFitsHeader()

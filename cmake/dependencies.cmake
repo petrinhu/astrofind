@@ -103,3 +103,44 @@ FetchContent_Declare(
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(Catch2)
+
+# ─── FFTW3 (FFT for image alignment / stacking) — Sprint E ────────────────
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(FFTW3 REQUIRED fftw3)
+    add_library(fftw3_iface INTERFACE)
+    target_include_directories(fftw3_iface INTERFACE ${FFTW3_INCLUDE_DIRS})
+    target_link_libraries(fftw3_iface INTERFACE ${FFTW3_LIBRARIES})
+    add_library(fftw3::fftw3 ALIAS fftw3_iface)
+    message(STATUS "Found fftw3: ${FFTW3_VERSION}")
+endif()
+
+# ─── Qt6Keychain (secure API key storage) — Task #13 ──────────────────────
+# Requires: sudo dnf install qtkeychain-qt6-devel libsecret-devel
+# Falls back to QSettings plain-text with a UI warning when not found.
+set(ASTROFIND_HAS_KEYCHAIN FALSE)
+
+find_package(Qt6Keychain QUIET)
+if(Qt6Keychain_FOUND)
+    set(ASTROFIND_HAS_KEYCHAIN TRUE)
+    message(STATUS "Qt6Keychain found — secure API key storage enabled")
+else()
+    # Try pkg-config name used by some distros
+    if(PkgConfig_FOUND)
+        pkg_check_modules(QT6KEYCHAIN QUIET qt6keychain)
+        if(QT6KEYCHAIN_FOUND)
+            add_library(qt6keychain_iface INTERFACE)
+            target_include_directories(qt6keychain_iface INTERFACE ${QT6KEYCHAIN_INCLUDE_DIRS})
+            target_link_libraries(qt6keychain_iface INTERFACE ${QT6KEYCHAIN_LIBRARIES})
+            add_library(Qt6Keychain::Qt6Keychain ALIAS qt6keychain_iface)
+            set(ASTROFIND_HAS_KEYCHAIN TRUE)
+            message(STATUS "Qt6Keychain (pkg-config) found — secure API key storage enabled")
+        endif()
+    endif()
+endif()
+
+if(NOT ASTROFIND_HAS_KEYCHAIN)
+    message(STATUS
+        "Qt6Keychain NOT found — API key stored in QSettings (plain-text).\n"
+        "   To enable secure storage: sudo dnf install qtkeychain-qt6-devel libsecret-devel")
+endif()

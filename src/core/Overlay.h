@@ -25,14 +25,15 @@ struct DetectedStar {
     double fwhm() const noexcept { return 2.355 * (a + b) * 0.5; }
 };
 
-/// A reference star from an astrometric catalog (UCAC4)
+/// A reference star from an astrometric catalog (UCAC4 / Gaia DR3)
 struct CatalogStar {
     QString id;
-    double  ra    = 0.0;   ///< Right Ascension (degrees J2000)
-    double  dec   = 0.0;   ///< Declination (degrees J2000)
-    double  mag   = 99.0;  ///< Visual magnitude
-    double  pmRA  = 0.0;   ///< Proper motion RA (mas/yr)
-    double  pmDec = 0.0;   ///< Proper motion Dec (mas/yr)
+    double  ra           = 0.0;        ///< Right Ascension (degrees) at refEpochJd
+    double  dec          = 0.0;        ///< Declination (degrees) at refEpochJd
+    double  mag          = 99.0;       ///< Visual magnitude
+    double  pmRA         = 0.0;        ///< Proper motion in RA·cos(Dec) (mas/yr)
+    double  pmDec        = 0.0;        ///< Proper motion in Dec (mas/yr)
+    double  refEpochJd   = 2451545.0;  ///< Catalog reference epoch (J2000.0 default)
 };
 
 /// A known solar system object (from IMCCE SkyBoT)

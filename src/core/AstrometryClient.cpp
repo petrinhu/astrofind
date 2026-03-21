@@ -29,7 +29,7 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
                 if (reply->error() != QNetworkReply::NoError) {
-                    if (++pollCount_ > 60) fail(tr("Timeout waiting for astrometry job"));
+                    if (++pollCount_ > maxPollCount_) fail(tr("Timeout waiting for astrometry job"));
                     return;
                 }
                 const auto body = reply->readAll().toStdString();
@@ -46,7 +46,7 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
                         return;
                     }
                 }
-                if (++pollCount_ > 60) fail(tr("Timeout: no job started after 5 min"));
+                if (++pollCount_ > maxPollCount_) fail(tr("Timeout: no job started after 5 min"));
             });
         } else if (state_ == State::PollingJob) {
             // Poll job info → check status
@@ -55,7 +55,7 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
                 if (reply->error() != QNetworkReply::NoError) {
-                    if (++pollCount_ > 60) fail(tr("Timeout polling job status"));
+                    if (++pollCount_ > maxPollCount_) fail(tr("Timeout polling job status"));
                     return;
                 }
                 const auto json = nlohmann::json::parse(
@@ -71,7 +71,7 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
                     fail(tr("Astrometry.net: no plate solution found"));
                 } else {
                     emit progress(tr("Solving... (processing)"), 60 + std::min(pollCount_, 20));
-                    if (++pollCount_ > 72) fail(tr("Timeout: plate solving took too long"));
+                    if (++pollCount_ > maxPollCount_) fail(tr("Timeout: plate solving took too long"));
                 }
             });
         }
@@ -234,7 +234,7 @@ void AstrometryClient::doDownloadWcs()
     state_ = State::DownloadingWcs;
     emit progress(tr("Downloading WCS solution..."), 90);
 
-    const QUrl url(baseUrl_ + "/wcs-file/" + QString::number(jobId_));
+    const QUrl url(baseUrl_ + "/wcs_file/" + QString::number(jobId_));
     auto* reply  = nam_->get(QNetworkRequest(url));
     currentReply_ = reply;
 

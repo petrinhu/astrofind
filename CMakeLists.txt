@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22)
 
 project(AstroFind
-    VERSION 0.1.0
+    VERSION 0.2.0
     DESCRIPTION "Modern asteroid detection software for citizen science"
     LANGUAGES CXX C
 )
@@ -9,6 +9,18 @@ project(AstroFind
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# ── Binary hardening ──────────────────────────────────────────────────────────
+# CMAKE_POSITION_INDEPENDENT_CODE: adds -fPIC to shared libs, -fPIE to static
+# libs/executables — the CMake-idiomatic way to enable PIE across all targets.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# Stack protector on all targets; FORTIFY_SOURCE only with optimisation enabled
+add_compile_options(-fstack-protector-strong)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-D_FORTIFY_SOURCE=2)
+endif()
+# Linker hardening for the executable — stored for use in src/CMakeLists.txt
+set(ASTROFIND_HARDEN_LINK -pie -Wl,-z,relro,-z,now,-z,noexecstack)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
@@ -41,4 +53,5 @@ qt_standard_project_setup()
 include(cmake/dependencies.cmake)
 
 add_subdirectory(src)
+enable_testing()
 add_subdirectory(tests)
