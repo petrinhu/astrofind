@@ -95,7 +95,69 @@ void readHeader(fitsfile* fptr, FitsImage& img)
     img.objectName = getStr("OBJECT");
     img.filter     = getStr("FILTER");
     img.telescope  = getStr("TELESCOP");
+    img.origin     = getStr("ORIGIN");
     img.observer   = getStr("OBSERVER");
+
+    // MPC observatory code: explicit header first, then derive from TELESCOP/ORIGIN
+    img.mpcCode = getStr("MPCCODE");
+    if (img.mpcCode.isEmpty()) img.mpcCode = getStr("OBSCODE");
+    if (img.mpcCode.isEmpty()) img.mpcCode = getStr("OBSERVAT");
+    if (img.mpcCode.isEmpty()) {
+        // Known telescope→MPC mappings for professional surveys
+        const QString tel = img.telescope.toUpper();
+        const QString ori = img.origin.toUpper();
+        if (tel == "PS1" || tel == "GPC1" || ori == "PS1")      img.mpcCode = "F51";
+        else if (tel == "PS2" || tel == "GPC2")                  img.mpcCode = "F52";
+        else if (ori.contains("CFHT"))                           img.mpcCode = "568";
+        else if (ori.contains("ESO") && tel.contains("VLT"))     img.mpcCode = "309";
+    }
+
+    // ── Space telescope detection ─────────────────────────────────────────────
+    // Check TELESCOP (and ORIGIN as fallback) for known space missions.
+    // mpcCode is only set here when we have a confirmed MPC code for that mission.
+    {
+        struct SpacecraftEntry { const char* keyword; const char* mpcCode; };
+        static const SpacecraftEntry kSpacecraft[] = {
+            { "HST",        "250" },   // Hubble Space Telescope
+            { "HUBBLE",     "250" },
+            { "JWST",       "C57" },   // James Webb Space Telescope
+            { "JAMES WEBB", "C57" },
+            { "SOHO",       "249" },   // Solar and Heliospheric Observatory
+            { "SPITZER",    ""    },   // Spitzer Space Telescope
+            { "SIRTF",      ""    },   // Spitzer pre-launch name
+            { "CHANDRA",    ""    },   // Chandra X-ray Observatory
+            { "XMM",        ""    },   // XMM-Newton
+            { "KEPLER",     ""    },   // Kepler Space Telescope
+            { "TESS",       ""    },   // Transiting Exoplanet Survey Satellite
+            { "WISE",       ""    },   // Wide-field Infrared Survey Explorer
+            { "NEOWISE",    ""    },
+            { "GALEX",      ""    },   // Galaxy Evolution Explorer
+            { "EUCLID",     ""    },   // Euclid (ESA)
+            { "HERSCHEL",   ""    },   // Herschel Space Observatory
+            { "PLANCK",     ""    },   // Planck
+            { "FERMI",      ""    },   // Fermi Gamma-ray Space Telescope
+        };
+
+        const QString tel = img.telescope.toUpper();
+        const QString ori = img.origin.toUpper();
+
+        for (const auto& sc : kSpacecraft) {
+            if (tel.contains(QLatin1String(sc.keyword))) {
+                img.isSpaceTelescope = true;
+                if (img.mpcCode.isEmpty() && sc.mpcCode[0] != '\0')
+                    img.mpcCode = QLatin1String(sc.mpcCode);
+                break;
+            }
+        }
+
+        // Fallback: recognise STScI (operates HST and JWST) and ESA/ESAC
+        if (!img.isSpaceTelescope) {
+            if (ori.contains("STSCI") || ori.contains("SPACE TELESCOPE SCIENCE"))
+                img.isSpaceTelescope = true;
+            else if (ori.contains("ESAC") || ori == "ESA")
+                img.isSpaceTelescope = true;
+        }
+    }
     img.expTime    = getDbl("EXPTIME");
     img.gain       = getDbl("GAIN", 1.0);
     // SATURATE (common), SATLEVEL (PS1/MaxIm), DATAMAX (CFITSIO default)

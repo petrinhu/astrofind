@@ -57,13 +57,19 @@ struct FitsImage {
     double   jd       = 0.0;   ///< Julian Date (mid-exposure)
     QString  filter;
     QString  telescope;
+    QString  origin;      ///< ORIGIN header (observatory/instrument origin)
     QString  observer;
+    QString  mpcCode;     ///< MPC observatory code: from MPCCODE/OBSCODE header, or derived from TELESCOP/ORIGIN
     double   gain     = 1.0;
     double   pixScaleX  = 0.0;   ///< arcsec/pixel X (from WCS or config)
     double   pixScaleY  = 0.0;   ///< arcsec/pixel Y
     double   saturation = 65535.0;
     int      binningX   = 1;     ///< CCD binning factor X (from XBINNING header)
     int      binningY   = 1;     ///< CCD binning factor Y (from YBINNING header)
+
+    /// True when the telescope is identified as space-based (HST, JWST, etc.).
+    /// When true, siteLat/siteLon are irrelevant; use mpcCode for reporting.
+    bool     isSpaceTelescope = false;
 
     /// Observer site location from FITS headers (NaN = not present in file).
     /// Keys tried: SITELAT/SITELONG, LAT-OBS/LONG-OBS, OBSGEO-B/OBSGEO-L.

@@ -85,6 +85,8 @@ void MainWindow::setupMenus()
     actSaveProjectAs_->setStatusTip(tr("Save the current session to a new .gus project file"));
     actOpenProject_ = fileMenu_->addAction(tr("&Open Project..."), QKeySequence("Ctrl+O"), this, &MainWindow::onOpenProject);
     actOpenProject_->setStatusTip(tr("Open a previously saved .gus project file"));
+    recentProjectsMenu_ = fileMenu_->addMenu(tr("Projetos &Recentes"));
+    updateRecentProjectsMenu();
     actCloseProject_ = fileMenu_->addAction(tr("&Close Project"), this, &MainWindow::onCloseProject);
     actCloseProject_->setStatusTip(tr("Close the current project and reset the session"));
 
@@ -230,12 +232,17 @@ void MainWindow::setupMenus()
 
     imagesMenu_->addSeparator();
     imagesMenu_->addAction(tr("Select &Markings..."), this, &MainWindow::onSelectMarkings);
-    imagesMenu_->addAction(tr("&Invert Display"),     QKeySequence("Ctrl+I"), this, &MainWindow::onInvertDisplay);
+    actInvertDisplay_ = new QAction(tr("&Invert Display"), this);
+    actInvertDisplay_->setShortcut(QKeySequence("Ctrl+I"));
+    actInvertDisplay_->setCheckable(true);
+    connect(actInvertDisplay_, &QAction::triggered, this, &MainWindow::onInvertDisplay);
+    imagesMenu_->addAction(actInvertDisplay_);
     imagesMenu_->addAction(tr("Flip &Horizontal"),    this, &MainWindow::onFlipHorizontal);
     imagesMenu_->addAction(tr("Flip &Vertical"),      this, &MainWindow::onFlipVertical);
 
     imagesMenu_->addSeparator();
     imagesMenu_->addAction(tr("&Magnifying Glass"), QKeySequence("Ctrl+G"), this, &MainWindow::onMagnifyingGlass);
+    imagesMenu_->addAction(tr("Region &Statistics"), QKeySequence("Ctrl+Shift+R"), this, &MainWindow::onRegionStatsTool);
 
     // ── Tools ─────────────────────────────────────────────────────────────────
     toolsMenu_ = menuBar()->addMenu(tr("&Tools"));
@@ -411,10 +418,9 @@ void MainWindow::setupToolBar()
     connect(actSelMarkings, &QAction::triggered, this, &MainWindow::onSelectMarkings);
     dispTb->addAction(actSelMarkings);
 
-    auto* actInvert = new QAction(AppIcons::invertDisplay(), tr("Invert Display"), this);
-    actInvert->setToolTip(tr("Invert display (Ctrl+I)"));
-    connect(actInvert, &QAction::triggered, this, &MainWindow::onInvertDisplay);
-    dispTb->addAction(actInvert);
+    actInvertDisplay_->setIcon(AppIcons::invertDisplay());
+    actInvertDisplay_->setToolTip(tr("Invert display (Ctrl+I)"));
+    dispTb->addAction(actInvertDisplay_);
 
     actKOO_->setIcon(AppIcons::knownObjectOverlay());
     actKOO_->setToolTip(tr("Known Object Overlay (Ctrl+K)"));
@@ -515,35 +521,7 @@ void MainWindow::setupStatusBar()
     statusBar()->addPermanentWidget(sbImages_);
 }
 
-// ─── Custom dock title bar ─────────────────────────────────────────────────────
-// Replaces the native title bar with a fixed-height widget so the dock height
-// is identical in both day and night themes (native Breeze/Adwaita would
-// otherwise render taller title bars in the system theme).
-static QWidget* makeDockTitleBar(const QString& title, QDockWidget* dock)
-{
-    auto* bar = new QWidget(dock);
-    bar->setObjectName(QStringLiteral("dockTitleBar"));
-    bar->setFixedHeight(28);
-
-    auto* lbl = new QLabel(title, bar);
-    lbl->setObjectName(QStringLiteral("dockTitleLabel"));
-
-    auto* closeBtn = new QToolButton(bar);
-    closeBtn->setObjectName(QStringLiteral("dockCloseButton"));
-    closeBtn->setIcon(dock->style()->standardIcon(QStyle::SP_DockWidgetCloseButton, nullptr, dock));
-    closeBtn->setFixedSize(16, 16);
-    closeBtn->setAutoRaise(true);
-    QObject::connect(closeBtn, &QToolButton::clicked, dock, &QDockWidget::close);
-
-    auto* lay = new QHBoxLayout(bar);
-    lay->setContentsMargins(6, 0, 4, 0);
-    lay->setSpacing(4);
-    lay->addWidget(lbl);
-    lay->addStretch();
-    lay->addWidget(closeBtn);
-
-    return bar;
-}
+#include "DockTitleBar.h"
 
 void MainWindow::setupDockWidgets()
 {
@@ -607,8 +585,9 @@ void MainWindow::setupDockWidgets()
     logDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     logDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
     addDockWidget(Qt::BottomDockWidgetArea, logDock);
-    logPanel_->setMinimumHeight(86);    // dock min = 86+28 = 114px, matches ThumbnailBar
-    logPanel_->setMaximumHeight(140);   // cap the content, not the dock title
+    logPanel_->setMinimumHeight(115);
+    logPanel_->setMaximumHeight(300);
+    logDock->setMinimumHeight(148);     // 23 (title bar) + 115 (content) + 10 (top margin)
 
     // ── Thumbnail bar (bottom, above log) ─────────────────────────────────────
     thumbnailBar_ = new ThumbnailBar(this);
@@ -621,6 +600,7 @@ void MainWindow::setupDockWidgets()
     // ThumbnailBar has setFixedHeight(86) — no maxHeight needed on the dock itself
     // (setting it on the dock includes the title bar and causes height shifts on theme toggle)
     addDockWidget(Qt::BottomDockWidgetArea, thumbDock);
+    thumbDock->setMinimumHeight(114);   // 28 (title bar) + 86 (ThumbnailBar fixed)
 
     connect(thumbnailBar_, &ThumbnailBar::imageActivated, this, [this](int idx) {
         thumbnailBar_->setActiveIndex(idx);
@@ -813,8 +793,9 @@ void MainWindow::resizeEvent(QResizeEvent* event)
             auto* thumbDock = findChild<QDockWidget*>(QStringLiteral("ThumbnailDock"));
             QList<QDockWidget*> btm;
             QList<int>          hts;
-            if (logDock)   { btm << logDock;   hts << 120; }
-            if (thumbDock) { btm << thumbDock; hts << 120; }
+            // Heights = title bar (28) + content minimum
+            if (logDock)   { btm << logDock;   hts << 148; }  // 23 + 115 + 10
+            if (thumbDock) { btm << thumbDock; hts << 114; }  // 28 + 86
             if (!btm.isEmpty())
                 resizeDocks(btm, hts, Qt::Vertical);
         });
@@ -949,6 +930,7 @@ void MainWindow::dropEvent(QDropEvent* event)
             imageCatalogTable_->clearSelection();
         });
         applyToolCursor();
+        connect(sw, &FitsSubWindow::regionSelected,           this, &MainWindow::onRegionSelected);
         connect(sw, &FitsSubWindow::exportImageRequested,     this, [this, sw]() { onExportImage(sw); });
         connect(sw, &FitsSubWindow::applyDarkRequested,       this, [this, sw]() { onApplyDarkToWindow(sw); });
         connect(sw, &FitsSubWindow::applyFlatRequested,       this, [this, sw]() { onApplyFlatToWindow(sw); });
@@ -1110,6 +1092,14 @@ void MainWindow::onUpdateMenuState()
     actKOO_->setEnabled(hasImages);
     actZoomIn_->setEnabled(hasActive || blinkActive_);
     actZoomOut_->setEnabled(hasActive || blinkActive_);
+
+    // Sync invert checked state from the currently active view
+    {
+        FitsImageView* v = nullptr;
+        if (auto* fw = activeFitsWindow()) v = fw->imageView();
+        else if (blinkActive_ && blinkWidget_) v = blinkWidget_->imageView();
+        actInvertDisplay_->setChecked(v && v->inverted());
+    }
 
     // ── WorkflowPanel step 2 label — reflect WCS status ─────────────────────
     if (hasImages) {

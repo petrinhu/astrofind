@@ -29,6 +29,7 @@ public:
 
 signals:
     void cursorMoved(double ra, double dec, float value);
+    void regionSelected(QRect imageRect);  ///< Forwarded from FitsImageView
 
     // ── Context menu actions — connected in MainWindow ────────────────────
     void exportImageRequested();

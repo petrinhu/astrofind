@@ -102,10 +102,15 @@ public:
     bool showMagnifier() const noexcept { return showMagnifier_; }
     void toggleMagnifier() { setShowMagnifier(!showMagnifier_); }
 
+    // ── Region statistics mode ────────────────────────────────────────────
+    void setRegionMode(bool on);
+    bool regionMode() const noexcept { return regionMode_; }
+
 signals:
     void cursorMoved(double ra, double dec, float pixelValue);
     void pixelClicked(QPointF imagePixel, double ra, double dec, float pixelValue);
-    void escapePressed();  ///< Emitted on Escape key — request to clear selection
+    void escapePressed();       ///< Emitted on Escape key — request to clear selection
+    void regionSelected(QRect imageRect); ///< Emitted when user finishes rubber-band selection
 
 protected:
     void paintEvent(QPaintEvent*) override;
@@ -151,11 +156,18 @@ private:
     void drawKooObjects(QPainter& p) const;
     void drawAnnotations(QPainter& p) const;
     void drawMagnifier(QPainter& p) const;
+    void drawRubberBand(QPainter& p) const;
 
     QVector<ImageAnnotation> annotations_;
-    QPointF                  highlightPx_ = {-1e9, -1e9};  ///< Image-pixel coords of highlighted object
+    QPointF                  highlightPx_ = {-1e9, -1e9};
     QCursor                  defaultCursor_;
 
     bool    showMagnifier_   = false;
-    QPointF magnifierCursor_;   ///< Last known cursor position in widget coords
+    QPointF magnifierCursor_;
+
+    // ── Region selection rubber band ──────────────────────────────────────
+    bool    regionMode_     = false;
+    bool    drawingRegion_  = false;
+    QPointF rubberAnchor_;   ///< Image-coord anchor
+    QPointF rubberCurrent_;  ///< Image-coord current end
 };

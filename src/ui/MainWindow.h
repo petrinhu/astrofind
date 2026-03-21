@@ -38,6 +38,7 @@ class LogPanel;
 class SessionInfoBar;
 class FitsSubWindow;
 class BackgroundRangeDialog;
+class RegionStatsPanel;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -114,6 +115,8 @@ private slots:
     void onFlipHorizontal();
     void onFlipVertical();
     void onMagnifyingGlass();
+    void onRegionStatsTool();
+    void onRegionSelected(QRect imageRect);
 
     // ── Tools menu ────────────────────────────────────────────────────────────
     void onBlinkImages();
@@ -166,6 +169,8 @@ private:
 
     void addToRecentDirs(const QString& dirPath);
     void updateRecentMenu();
+    void addToRecentProjects(const QString& projectPath);
+    void updateRecentProjectsMenu();
     void loadFromDir(const QString& dirPath);
     void applySettingsToSubsystems();
 
@@ -194,7 +199,8 @@ private:
 
     // ── Menus (kept for enable/disable) ──────────────────────────────────────
     QMenu* fileMenu_       = nullptr;
-    QMenu* recentMenu_     = nullptr;
+    QMenu* recentMenu_         = nullptr;
+    QMenu* recentProjectsMenu_ = nullptr;
     QMenu* editMenu_       = nullptr;
     QMenu* astrometryMenu_ = nullptr;
     QMenu* imagesMenu_     = nullptr;
@@ -227,8 +233,9 @@ private:
     QAction* actSelectTool_    = nullptr;
     QAction* actApertureTool_  = nullptr;
     QAction* actAnnotateTool_  = nullptr;
-    QAction* actBgRange_       = nullptr;
-    QAction* actZoom1to1_      = nullptr;
+    QAction* actBgRange_          = nullptr;
+    QAction* actInvertDisplay_    = nullptr;
+    QAction* actZoom1to1_         = nullptr;
     QAction* actFitAllWin_     = nullptr;
 
     // ── Blink delay spinbox ───────────────────────────────────────────────────
@@ -296,6 +303,7 @@ private:
     VerificationDialog*  verifyDlg_          = nullptr;  ///< Reused non-modal dialog
     HelpDialog*          helpDialog_         = nullptr;  ///< Reused help window
     LightCurveDialog*    lightCurveDlg_      = nullptr;  ///< Reused non-modal light curve
+    RegionStatsPanel*    regionStatsPanel_   = nullptr;  ///< Floating stats overlay (active view)
     MarkingsState        markingsState_;                 ///< Current overlay visibility
     QUndoStack*          undoStack_          = nullptr;
     core::FitsImage      darkFrame_;          ///< Loaded dark frame (empty if none)

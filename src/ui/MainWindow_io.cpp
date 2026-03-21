@@ -33,10 +33,13 @@ void MainWindow::onLoadImages()
         const LoadChoice choice = askLoadChoice(session_->imageCount());
         if (choice == LoadChoice::Cancel) return;
         if (choice == LoadChoice::NewProject) {
+            logPanel_->appendInfo(tr("Novo Projeto: limpando sessão anterior..."));
             onResetFiles();
             resetSessionSettings();
+            QCoreApplication::processEvents();  // flush pending Qt deletions
+        } else {
+            logPanel_->appendInfo(tr("Acréscimo: adicionando à sessão existente."));
         }
-        // LoadChoice::Add → fall through and append
     }
 
     QProgressDialog progress(tr("Loading FITS images..."), tr("Cancel"), 0, static_cast<int>(expandedFiles.size()), this);
@@ -84,6 +87,7 @@ void MainWindow::onLoadImages()
             imageCatalogTable_->clearSelection();
         });
         applyToolCursor();
+        connect(sw, &FitsSubWindow::regionSelected, this, &MainWindow::onRegionSelected);
 
         // ── Context menu signals ──────────────────────────────────────────
         connect(sw, &FitsSubWindow::exportImageRequested, this, [this, sw]() {
@@ -140,7 +144,9 @@ void MainWindow::onLoadImages()
         imgs.reserve(session_->imageCount());
         for (int i = 0; i < session_->imageCount(); ++i)
             imgs.append(session_->image(i));
+        logPanel_->appendInfo(tr("[DBG] setImages(%1 imgs) — session=%2").arg(imgs.size()).arg(session_->imageCount()));
         thumbnailBar_->setImages(imgs);
+        logPanel_->appendInfo(tr("[DBG] setImages done"));
         autoFillSettingsFromSession();  // persist detected values to QSettings
         applySettingsToSubsystems();    // update status bar with FITS location info
         updateInfoBar();
@@ -529,17 +535,48 @@ void MainWindow::autoFillSettingsFromSession()
         logPanel_->appendInfo(tr("  Auto-fill: saturação = %1 ADU (FITS)").arg(static_cast<int>(img0.saturation)));
     }
 
-    // ── Localização — salva no modo manual se FITS tem coordenadas ────────────
+    // ── Telescópio espacial — tem prioridade sobre lat/lon do site ────────────
+    if (img0.isSpaceTelescope &&
+            settings_.value(QStringLiteral("observer/locationMode")).toString() != QStringLiteral("spacecraft")) {
+        settings_.setValue(QStringLiteral("observer/locationMode"),     QStringLiteral("spacecraft"));
+        settings_.setValue(QStringLiteral("observer/spacecraftName"),   img0.telescope);
+        settings_.setValue(QStringLiteral("observer/spacecraftMpcCode"),img0.mpcCode);
+        if (!img0.mpcCode.isEmpty())
+            settings_.setValue(QStringLiteral("observer/mpcCode"), img0.mpcCode);
+        logPanel_->appendInfo(tr("  Telescópio espacial detectado: %1%2")
+            .arg(img0.telescope,
+                 img0.mpcCode.isEmpty()
+                     ? tr(" (código MPC não identificado — configure manualmente)")
+                     : tr(" — código MPC: %1").arg(img0.mpcCode)));
+        showToast(tr("Telescópio espacial: %1 — lat/lon não aplicável").arg(img0.telescope),
+                  Toast::Type::Info);
+        return;   // skip ground-based location auto-fill
+    }
+
+    // ── Localização — FITS site coords → configurações ────────────────────────
     if (!std::isnan(img0.siteLat) && !std::isnan(img0.siteLon)) {
-        if (settings_.value(QStringLiteral("observer/latitude"),  0.0).toDouble() == 0.0
-         && settings_.value(QStringLiteral("observer/longitude"), 0.0).toDouble() == 0.0) {
-            settings_.setValue(QStringLiteral("observer/latitude"),  img0.siteLat);
-            settings_.setValue(QStringLiteral("observer/longitude"), img0.siteLon);
-            if (!std::isnan(img0.siteAlt))
-                settings_.setValue(QStringLiteral("observer/altitude"), img0.siteAlt);
-            settings_.setValue(QStringLiteral("observer/locationMode"), QStringLiteral("fits"));
-            logPanel_->appendInfo(tr("  Auto-fill: localização = %1°, %2° (FITS)")
-                .arg(img0.siteLat, 0, 'f', 4).arg(img0.siteLon, 0, 'f', 4));
+        // FITS tem coordenadas do site diretamente
+        settings_.setValue(QStringLiteral("observer/latitude"),  img0.siteLat);
+        settings_.setValue(QStringLiteral("observer/longitude"), img0.siteLon);
+        if (!std::isnan(img0.siteAlt))
+            settings_.setValue(QStringLiteral("observer/altitude"), img0.siteAlt);
+        settings_.setValue(QStringLiteral("observer/locationMode"), QStringLiteral("fits"));
+        logPanel_->appendInfo(tr("  Auto-fill: localização = %1°, %2° (FITS)")
+            .arg(img0.siteLat, 0, 'f', 4).arg(img0.siteLon, 0, 'f', 4));
+    } else if (!img0.mpcCode.isEmpty()) {
+        // Sem coordenadas diretas — tentar via código MPC derivado do TELESCOP/ORIGIN
+        const QByteArray codeBA = img0.mpcCode.toLatin1();
+        if (const Observatory* o = ObservatoryDatabase::byCode(codeBA.constData())) {
+            settings_.setValue(QStringLiteral("observer/latitude"),      o->lat);
+            settings_.setValue(QStringLiteral("observer/longitude"),     o->lon);
+            settings_.setValue(QStringLiteral("observer/altitude"),      o->alt);
+            settings_.setValue(QStringLiteral("observer/presetMpcCode"), img0.mpcCode);
+            settings_.setValue(QStringLiteral("observer/locationMode"),  QStringLiteral("preset"));
+            logPanel_->appendInfo(tr("  Auto-fill: observatório %1 — %2 (%3°, %4°) do FITS")
+                .arg(img0.mpcCode,
+                     QString::fromLatin1(o->name),
+                     QString::number(o->lat, 'f', 4),
+                     QString::number(o->lon, 'f', 4)));
         }
     }
 
@@ -632,11 +669,7 @@ MainWindow::LoadChoice MainWindow::askLoadChoice(int currentCount)
 void MainWindow::onResetFiles()
 {
     if (blinkActive_) onStopBlinking();
-    const auto subWins = mdiArea_->subWindowList();
-    for (auto* sw : subWins) {
-        mdiArea_->removeSubWindow(sw);
-        sw->deleteLater();
-    }
+    qDeleteAll(mdiArea_->subWindowList());  // destroys and removes from MDI area immediately
     session_->clear();
     thumbnailBar_->clear();
     blinkMdiWin_ = nullptr;
@@ -781,6 +814,7 @@ void MainWindow::doSaveProject(const QString& path)
 
     currentProjectPath_ = path;
     setProjectModified(false);
+    addToRecentProjects(path);
     logPanel_->appendInfo(tr("Projeto salvo: %1").arg(path));
     statusBar()->showMessage(tr("Projeto salvo."), 2000);
 }
@@ -944,6 +978,7 @@ void MainWindow::doLoadProject(const QString& path)
     currentProjectPath_ = path;
     projectModified_ = false;
     updateWindowTitle();
+    addToRecentProjects(path);
 
     logPanel_->appendInfo(tr("Projeto aberto: %1  (%2 imagens, %3 medições)")
         .arg(path).arg(loaded).arg(gus.observations.size()));
@@ -979,10 +1014,12 @@ void MainWindow::onSettings()
 
     SettingsDialog dlg(settings_, this);
 
-    // Pass FITS location hint if available
+    // Pass location hint (spacecraft takes priority over FITS coords)
     if (!session_->isEmpty()) {
         const auto& img0 = session_->image(0);
-        if (!std::isnan(img0.siteLat) && !std::isnan(img0.siteLon)) {
+        if (img0.isSpaceTelescope) {
+            dlg.setSpacecraftHint(true, img0.telescope, img0.mpcCode);
+        } else if (!std::isnan(img0.siteLat) && !std::isnan(img0.siteLon)) {
             dlg.setFitsLocationHint(img0.siteLat, img0.siteLon,
                 std::isnan(img0.siteAlt) ? 0.0 : img0.siteAlt);
         }
@@ -1048,6 +1085,46 @@ void MainWindow::updateRecentMenu()
     });
 }
 
+void MainWindow::addToRecentProjects(const QString& path)
+{
+    QStringList list = settings_.value(QStringLiteral("files/recentProjects")).toStringList();
+    list.removeAll(path);
+    list.prepend(path);
+    if (list.size() > 5)
+        list.resize(5);
+    settings_.setValue(QStringLiteral("files/recentProjects"), list);
+    updateRecentProjectsMenu();
+}
+
+void MainWindow::updateRecentProjectsMenu()
+{
+    recentProjectsMenu_->clear();
+    const QStringList list = settings_.value(QStringLiteral("files/recentProjects")).toStringList();
+    if (list.isEmpty()) {
+        auto* empty = recentProjectsMenu_->addAction(tr("(nenhum projeto recente)"));
+        empty->setEnabled(false);
+        return;
+    }
+    for (const QString& p : list) {
+        const QString label = QFileInfo(p).fileName() +
+                              QStringLiteral("  [") + QDir::toNativeSeparators(p) + QStringLiteral("]");
+        recentProjectsMenu_->addAction(label, this, [this, p]() {
+            if (!QFile::exists(p)) {
+                QMessageBox::warning(this, tr("Projetos Recentes"),
+                    tr("Arquivo não encontrado:\n%1").arg(p));
+                return;
+            }
+            if (!maybeSaveProject()) return;
+            doLoadProject(p);
+        });
+    }
+    recentProjectsMenu_->addSeparator();
+    recentProjectsMenu_->addAction(tr("Limpar Recentes"), this, [this]() {
+        settings_.remove(QStringLiteral("files/recentProjects"));
+        updateRecentProjectsMenu();
+    });
+}
+
 void MainWindow::loadFromDir(const QString& dirPath)
 {
     if (!QDir(dirPath).exists()) {
@@ -1075,10 +1152,13 @@ void MainWindow::loadFromDir(const QString& dirPath)
         const LoadChoice choice = askLoadChoice(session_->imageCount());
         if (choice == LoadChoice::Cancel) return;
         if (choice == LoadChoice::NewProject) {
+            logPanel_->appendInfo(tr("Novo Projeto: limpando sessão anterior..."));
             onResetFiles();
             resetSessionSettings();
+            QCoreApplication::processEvents();
+        } else {
+            logPanel_->appendInfo(tr("Acréscimo: adicionando à sessão existente."));
         }
-        // LoadChoice::Add → fall through and append
     }
 
     settings_.setValue(QStringLiteral("paths/lastImageDir"), dirPath);
@@ -1122,6 +1202,7 @@ void MainWindow::loadFromDir(const QString& dirPath)
             imageCatalogTable_->clearSelection();
         });
         applyToolCursor();
+        connect(sw, &FitsSubWindow::regionSelected,        this, &MainWindow::onRegionSelected);
         connect(sw, &FitsSubWindow::exportImageRequested,  this, [this, sw]() { onExportImage(sw); });
         connect(sw, &FitsSubWindow::applyDarkRequested,    this, [this, sw]() { onApplyDarkToWindow(sw); });
         connect(sw, &FitsSubWindow::applyFlatRequested,    this, [this, sw]() { onApplyFlatToWindow(sw); });
@@ -1163,12 +1244,19 @@ QStringList MainWindow::expandZip(const QString& zipPath)
         return result;
     }
 
+    // Each ZIP gets its own unique subdirectory so that scanning one ZIP
+    // never picks up files extracted from a previous ZIP.
+    const QString extractDir = tempDir_->path() + QDir::separator()
+        + QFileInfo(zipPath).baseName().left(32)
+        + QStringLiteral("_") + QString::number(QDateTime::currentMSecsSinceEpoch());
+    QDir().mkpath(extractDir);
+
     // Extract only FITS files from the ZIP using system unzip
     QProcess proc;
     proc.start("unzip", {
         "-o", zipPath,
         "*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
-        "-d", tempDir_->path()
+        "-d", extractDir
     });
 
     if (!proc.waitForFinished(30000)) {
@@ -1176,8 +1264,8 @@ QStringList MainWindow::expandZip(const QString& zipPath)
         return result;
     }
 
-    // Search recursively — ZIPs often contain a subdirectory (e.g. XY42_p11/)
-    QDirIterator it(tempDir_->path(),
+    // Search only inside this ZIP's own subdirectory
+    QDirIterator it(extractDir,
                     {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT"},
                     QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())

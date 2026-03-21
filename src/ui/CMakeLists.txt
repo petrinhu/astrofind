@@ -32,6 +32,8 @@ set(UI_SOURCES
     MasterFrameDialog.cpp
     GrowthCurveDialog.cpp
     Toast.cpp
+    DockTitleBar.cpp
+    RegionStatsPanel.cpp
 )
 
 set(UI_HEADERS
@@ -64,6 +66,8 @@ set(UI_HEADERS
     MasterFrameDialog.h
     GrowthCurveDialog.h
     Toast.h
+    DockTitleBar.h
+    RegionStatsPanel.h
 )
 
 add_library(astrofind_ui STATIC

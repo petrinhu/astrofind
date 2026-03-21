@@ -40,7 +40,8 @@ FitsSubWindow::FitsSubWindow(const core::FitsImage& img, QWidget* parent)
     lay->addWidget(view_);
     lay->addWidget(infoBar_);
 
-    connect(view_, &FitsImageView::cursorMoved, this, &FitsSubWindow::cursorMoved);
+    connect(view_, &FitsImageView::cursorMoved,    this, &FitsSubWindow::cursorMoved);
+    connect(view_, &FitsImageView::regionSelected, this, &FitsSubWindow::regionSelected);
 
     setWindowTitle(img_.fileName);
     setAttribute(Qt::WA_DeleteOnClose);

@@ -226,6 +226,13 @@ MainWindow::SiteLocation MainWindow::effectiveSiteLocation() const
         // Preset not configured — fall back to manual
     }
 
+    if (mode == QStringLiteral("spacecraft")) {
+        // Space telescope: geocentric position (lat=0, lon=0, alt=0).
+        // Topocentric correction is not applied; the spacecraft MPC code
+        // in the report tells the MPC to use their own ephemeris.
+        return SiteLocation{ 0.0, 0.0, 0.0 };
+    }
+
     // manual (or fallback from preset)
     return manualSite();
 }

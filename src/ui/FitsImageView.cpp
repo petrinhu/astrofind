@@ -175,10 +175,25 @@ void FitsImageView::paintEvent(QPaintEvent* /*e*/)
     }
     drawAnnotations(p);
     drawMagnifier(p);
+    drawRubberBand(p);
+}
+
+void FitsImageView::setRegionMode(bool on)
+{
+    regionMode_    = on;
+    drawingRegion_ = false;
+    update();
 }
 
 void FitsImageView::mouseMoveEvent(QMouseEvent* e)
 {
+    // Region rubber band takes priority over pan
+    if (drawingRegion_) {
+        rubberCurrent_ = widgetToImage(e->position());
+        update();
+        return;
+    }
+
     const QPointF imgPos = widgetToImage(e->position());
 
     // Middle-button drag pan
@@ -216,6 +231,13 @@ void FitsImageView::mouseMoveEvent(QMouseEvent* e)
 
 void FitsImageView::mousePressEvent(QMouseEvent* e)
 {
+    if (regionMode_ && e->button() == Qt::LeftButton) {
+        drawingRegion_ = true;
+        rubberAnchor_  = widgetToImage(e->position());
+        rubberCurrent_ = rubberAnchor_;
+        update();
+        return;
+    }
     if (e->button() == Qt::LeftButton) {
         // Start tracking — drag > 4px becomes a pan, otherwise it's a click
         leftPressPos_    = e->pos();
@@ -233,6 +255,13 @@ void FitsImageView::mousePressEvent(QMouseEvent* e)
 
 void FitsImageView::mouseReleaseEvent(QMouseEvent* e)
 {
+    if (regionMode_ && drawingRegion_ && e->button() == Qt::LeftButton) {
+        drawingRegion_ = false;
+        const QRectF rf = QRectF(rubberAnchor_, rubberCurrent_).normalized();
+        emit regionSelected(rf.toAlignedRect());
+        update();
+        return;
+    }
     if (e->button() == Qt::LeftButton) {
         if (!leftDragPanning_ && fitsImg_.isValid()) {
             // Tap (no drag) → emit click
@@ -286,7 +315,10 @@ void FitsImageView::processKey(QKeyEvent* e)
     case Qt::Key_Equal: userZoomed_ = true; zoomIn();  break;
     case Qt::Key_Minus: userZoomed_ = true; zoomOut(); break;
     case Qt::Key_0:      userZoomed_ = false; fitToWidget(); update(); break;
-    case Qt::Key_Escape: emit escapePressed(); break;
+    case Qt::Key_Escape:
+        if (regionMode_) { drawingRegion_ = false; regionMode_ = false; update(); }
+        emit escapePressed();
+        break;
     default: handled = false; break;
     }
     if (handled) e->accept();
@@ -355,6 +387,39 @@ void FitsImageView::setPrecomputedImage(const QImage& displayImg, const core::Fi
     // Do NOT call fitToWidget() here — blink switches images on every tick and
     // the caller (BlinkWidget) manages fit/zoom state explicitly.
     update();
+}
+
+// ─── Rubber band ──────────────────────────────────────────────────────────────
+
+void FitsImageView::drawRubberBand(QPainter& p) const
+{
+    if (!regionMode_ || !drawingRegion_) return;
+
+    const QPointF wA = imageToWidget(rubberAnchor_);
+    const QPointF wC = imageToWidget(rubberCurrent_);
+    const QRectF  wr = QRectF(wA, wC).normalized();
+
+    // Semi-transparent fill
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(80, 180, 255, 28));
+    p.drawRect(wr);
+
+    // Dashed cyan border
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(QColor(0, 200, 255, 200), 1.0, Qt::DashLine));
+    p.drawRect(wr);
+
+    // Size readout
+    const int iw = qAbs(qRound(rubberCurrent_.x() - rubberAnchor_.x()));
+    const int ih = qAbs(qRound(rubberCurrent_.y() - rubberAnchor_.y()));
+    if (iw < 2 || ih < 2) return;
+    const QString sz = QStringLiteral("%1 × %2 px").arg(iw).arg(ih);
+    p.setFont(QFont(QStringLiteral("Monospace"), 8));
+    const QPointF tl = wr.topLeft() + QPointF(4, 14);
+    p.setPen(QColor(0, 0, 0, 160));
+    p.drawText(tl + QPointF(1, 1), sz);
+    p.setPen(QColor(200, 230, 255, 220));
+    p.drawText(tl, sz);
 }
 
 // ─── Static utilities ─────────────────────────────────────────────────────────

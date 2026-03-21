@@ -18,7 +18,7 @@ ImageCatalogTable::ImageCatalogTable(QWidget* parent)
     : QWidget(parent)
 {
     auto* lay = new QVBoxLayout(this);
-    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setContentsMargins(0, 10, 0, 0);
 
     table_ = new QTableWidget(0, ColCount, this);
     for (int c = 0; c < ColCount; ++c)
@@ -28,7 +28,7 @@ ImageCatalogTable::ImageCatalogTable(QWidget* parent)
     table_->setSelectionBehavior(QAbstractItemView::SelectRows);
     table_->setAlternatingRowColors(true);
     table_->verticalHeader()->setVisible(false);
-    table_->horizontalHeader()->setStretchLastSection(true);
+    table_->horizontalHeader()->setStretchLastSection(false);
     table_->setFont(QFont(QStringLiteral("Monospace"), 8));
 
     lay->addWidget(table_);

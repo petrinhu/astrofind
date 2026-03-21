@@ -26,6 +26,10 @@ public:
     /// Pass NaN values (or don't call) to indicate no FITS location is available.
     void setFitsLocationHint(double lat, double lon, double alt);
 
+    /// Indicate that the loaded images come from a space telescope.
+    /// Call before exec(). Enables the "Telescópio Espacial" mode and pre-fills info.
+    void setSpacecraftHint(bool isSpacecraft, const QString& name, const QString& mpcCode);
+
 private slots:
     void onAccept();
     void onResetDefaults();
@@ -66,6 +70,11 @@ private:
     double fitsLon_ = std::numeric_limits<double>::quiet_NaN();
     double fitsAlt_ = std::numeric_limits<double>::quiet_NaN();
 
+    // ── Spacecraft hint ────────────────────────────────────────────────────────
+    bool    spacecraftHint_    = false;
+    QString spacecraftName_;
+    QString spacecraftMpcCode_;
+
     // ── Observer ──────────────────────────────────────────────────────────────
     QLineEdit*      mpcCodeEdit_     = nullptr;
     QLineEdit*      observerEdit_    = nullptr;
@@ -73,10 +82,11 @@ private:
     QLineEdit*      telescopeEdit_   = nullptr;
 
     // Location mode widgets
-    QButtonGroup*   locationBtnGroup_  = nullptr;
-    QRadioButton*   locFitsRad_        = nullptr;
-    QRadioButton*   locPresetRad_      = nullptr;
-    QRadioButton*   locManualRad_      = nullptr;
+    QButtonGroup*   locationBtnGroup_     = nullptr;
+    QRadioButton*   locFitsRad_           = nullptr;
+    QRadioButton*   locPresetRad_         = nullptr;
+    QRadioButton*   locManualRad_         = nullptr;
+    QRadioButton*   locSpacecraftRad_     = nullptr;
 
     // FITS sub-row
     QWidget*        fitsBadge_         = nullptr;   ///< "FITS não fornece localização"
@@ -96,6 +106,10 @@ private:
     QSpinBox*       altitudeSpin_    = nullptr;
     QWidget*        manualWarning_   = nullptr;     ///< "Localização FITS disponível"
     QWidget*        manualSubWidget_ = nullptr;
+
+    // Spacecraft sub-row
+    QLabel*         spacecraftInfoLabel_  = nullptr;
+    QWidget*        spacecraftSubWidget_  = nullptr;
 
     QDoubleSpinBox* timeZoneSpin_    = nullptr;
     QDoubleSpinBox* timeOffsetSpin_  = nullptr;

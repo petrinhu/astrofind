@@ -144,6 +144,14 @@ void SettingsDialog::setFitsLocationHint(double lat, double lon, double alt)
     updateLocationWidgets();
 }
 
+void SettingsDialog::setSpacecraftHint(bool isSpacecraft, const QString& name, const QString& mpcCode)
+{
+    spacecraftHint_    = isSpacecraft;
+    spacecraftName_    = name;
+    spacecraftMpcCode_ = mpcCode;
+    updateLocationWidgets();
+}
+
 // ─── Tab helpers ─────────────────────────────────────────────────────────────
 
 static QWidget* scrolled(QWidget* inner)
@@ -202,16 +210,31 @@ void SettingsDialog::updateLocationWidgets()
     const bool fitsAvailable = !std::isnan(fitsLat_) && !std::isnan(fitsLon_);
 
     // Enable/disable FITS radio
-    locFitsRad_->setEnabled(fitsAvailable);
+    locFitsRad_->setEnabled(fitsAvailable && !spacecraftHint_);
+
+    // Enable spacecraft radio only when a spacecraft was detected
+    locSpacecraftRad_->setEnabled(spacecraftHint_);
 
     // FITS sub-widget: badge (shown when FITS mode is unavailable)
     fitsBadge_->setVisible(!fitsAvailable);
     fitsCoordLabel_->setText(fitsLocationLabel());
     fitsCoordLabel_->setVisible(fitsAvailable);
 
-    // Preset/manual warnings (shown when FITS location IS available)
-    if (presetWarning_) presetWarning_->setVisible(fitsAvailable);
-    if (manualWarning_) manualWarning_->setVisible(fitsAvailable);
+    // Preset/manual warnings (shown when FITS location IS available and not spacecraft)
+    if (presetWarning_) presetWarning_->setVisible(fitsAvailable && !spacecraftHint_);
+    if (manualWarning_) manualWarning_->setVisible(fitsAvailable && !spacecraftHint_);
+
+    // Update spacecraft info label
+    if (spacecraftHint_) {
+        const QString mpcStr = spacecraftMpcCode_.isEmpty()
+            ? tr("Código MPC: não identificado — configure manualmente no campo acima")
+            : tr("Código MPC: %1").arg(spacecraftMpcCode_);
+        spacecraftInfoLabel_->setText(
+            QStringLiteral("%1\n%2\nLat/Lon: não aplicável (órbita terrestre)")
+                .arg(spacecraftName_, mpcStr));
+    } else {
+        spacecraftInfoLabel_->setText(tr("Nenhum telescópio espacial detectado nas imagens."));
+    }
 
     // Update preset coord label
     if (obsCombo_->currentIndex() >= 0 && obsCombo_->count() > 0) {
@@ -231,6 +254,7 @@ void SettingsDialog::updateLocationWidgets()
     fitsSubWidget_->setVisible(mode == 0);
     presetSubWidget_->setVisible(mode == 1);
     manualSubWidget_->setVisible(mode == 2);
+    spacecraftSubWidget_->setVisible(mode == 3);
 }
 
 void SettingsDialog::buildLocationGroup(QWidget* page)
@@ -363,6 +387,28 @@ void SettingsDialog::buildLocationGroup(QWidget* page)
 
     vlay->addWidget(locManualRad_);
     vlay->addWidget(manualSubWidget_);
+
+    // ── Radio 3: Telescópio Espacial ─────────────────────────────────────────
+    locSpacecraftRad_ = new QRadioButton(tr("Telescópio Espacial"), grp);
+    locSpacecraftRad_->setToolTip(tr(
+        "Imagens de um telescópio em órbita (HST, JWST, etc.).\n"
+        "Lat/Lon não se aplicam — o código MPC do telescópio é usado nos relatórios.\n"
+        "Este modo é habilitado automaticamente quando detectado no cabeçalho FITS."));
+    locSpacecraftRad_->setEnabled(false);  // enabled only when spacecraft is detected
+    locationBtnGroup_->addButton(locSpacecraftRad_, 3);
+
+    spacecraftSubWidget_ = new QWidget(grp);
+    auto* scSub = new QVBoxLayout(spacecraftSubWidget_);
+    scSub->setContentsMargins(20,2,0,4); scSub->setSpacing(3);
+
+    spacecraftInfoLabel_ = new QLabel(spacecraftSubWidget_);
+    spacecraftInfoLabel_->setStyleSheet(QStringLiteral("color:#8899aa;font-size:10px;"));
+    spacecraftInfoLabel_->setWordWrap(true);
+    spacecraftInfoLabel_->setText(tr("Nenhum telescópio espacial detectado nas imagens."));
+    scSub->addWidget(spacecraftInfoLabel_);
+
+    vlay->addWidget(locSpacecraftRad_);
+    vlay->addWidget(spacecraftSubWidget_);
 
     connect(locationBtnGroup_, &QButtonGroup::idToggled,
             this, [this](int, bool checked) { if (checked) onLocationModeChanged(); });
@@ -903,6 +949,8 @@ void SettingsDialog::loadFromSettings()
         locFitsRad_->setChecked(true);
     else if (mode == QStringLiteral("preset"))
         locPresetRad_->setChecked(true);
+    else if (mode == QStringLiteral("spacecraft"))
+        locSpacecraftRad_->setChecked(true);
     else
         locManualRad_->setChecked(true);
 
@@ -1047,8 +1095,13 @@ void SettingsDialog::saveToSettings()
     const int modeId = locationBtnGroup_->checkedId();
     const QString modeStr = (modeId == 0) ? QStringLiteral("fits")
                           : (modeId == 1) ? QStringLiteral("preset")
+                          : (modeId == 3) ? QStringLiteral("spacecraft")
                                           : QStringLiteral("manual");
     settings_.setValue(QStringLiteral("observer/locationMode"), modeStr);
+
+    // When in spacecraft mode, ensure the spacecraft MPC code is propagated
+    if (modeId == 3 && !spacecraftMpcCode_.isEmpty())
+        settings_.setValue(QStringLiteral("observer/mpcCode"), spacecraftMpcCode_);
 
     // Manual coordinates (always saved — used as fallback)
     settings_.setValue(QStringLiteral("observer/latitude"),      latitudeSpin_->value());
@@ -1223,6 +1276,7 @@ void SettingsDialog::onLocationModeChanged()
     fitsSubWidget_->setVisible(mode == 0);
     presetSubWidget_->setVisible(mode == 1);
     manualSubWidget_->setVisible(mode == 2);
+    spacecraftSubWidget_->setVisible(mode == 3);
 
     // If "fits" mode is selected but FITS location is not available, switch to manual
     if (mode == 0 && (std::isnan(fitsLat_) || std::isnan(fitsLon_))) {

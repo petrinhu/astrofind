@@ -71,6 +71,7 @@
 #include "GrowthCurveDialog.h"
 #include "LightCurveDialog.h"
 #include "SessionCompareDialog.h"
+#include "RegionStatsPanel.h"
 
 #include <QPainter>
 #include <QUndoCommand>

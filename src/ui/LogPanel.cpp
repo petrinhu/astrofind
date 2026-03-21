@@ -11,7 +11,7 @@ LogPanel::LogPanel(QWidget* parent)
     : QWidget(parent)
 {
     auto* lay = new QVBoxLayout(this);
-    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setContentsMargins(0, 15, 0, 0);
     lay->setSpacing(0);
 
     log_ = new QTextEdit(this);
@@ -20,12 +20,12 @@ LogPanel::LogPanel(QWidget* parent)
     log_->setStyleSheet(
         "QTextEdit { background:#0d1117; color:#aabbcc; border:none; }");
     log_->document()->setMaximumBlockCount(2000);
-    // Fixed size hint so the dock height is identical across themes.
     log_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+    log_->setContentsMargins(0, 0, 0, 30);  // 30px de área escura na borda inferior
 
     auto* btnBar  = new QWidget(this);
     auto* btnLay  = new QHBoxLayout(btnBar);
-    btnLay->setContentsMargins(4, 2, 4, 2);
+    btnLay->setContentsMargins(4, 17, 4, 6);
     btnLay->setSpacing(4);
 
     auto* copyBtn  = new QPushButton(tr("Copy all"), btnBar);

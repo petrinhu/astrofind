@@ -55,6 +55,8 @@ static const Observatory kObservatories[] = {
     // ── United States ─────────────────────────────────────────────────────────
     { "675", "Palomar Observatory",                  "San Diego",             "US",  33.356389,-116.863056, 1706.0 },
     { "568", "Mauna Kea Obs. (Keck/IRTF/CFHT)",     "Mauna Kea",             "US",  19.826667,-155.473333, 4145.0 },
+    { "F51", "Pan-STARRS 1 (PS1)",                  "Haleakala",             "US",  20.707500,-156.258100, 3055.0 },
+    { "F52", "Pan-STARRS 2 (PS2)",                  "Haleakala",             "US",  20.707500,-156.258100, 3055.0 },
     { "G96", "Mt. Lemmon Survey (MLS)",              "Tucson",                "US",  32.442778,-110.788611, 2791.0 },
     { "703", "Catalina Sky Survey (CSS)",            "Tucson",                "US",  32.416944,-110.732778, 2510.0 },
     { "695", "Kitt Peak National Obs.",              "Tucson",                "US",  31.963056,-111.599722, 1916.0 },

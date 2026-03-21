@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QScrollBar>
+#include <spdlog/spdlog.h>
 
 ThumbnailBar::ThumbnailBar(QWidget* parent)
     : QWidget(parent)
@@ -48,11 +49,21 @@ void ThumbnailBar::setImages(const QVector<core::FitsImage>& images)
     while (layout_->count())
         layout_->takeAt(0);
 
+    spdlog::info("ThumbnailBar::setImages: {} images", images.size());
     for (int i = 0; i < images.size(); ++i)
         buildSlot(i, images[i]);
 
     layout_->addStretch();
-    content_->adjustSize();
+    spdlog::info("ThumbnailBar: layout count={} sizeHint={}x{}",
+        layout_->count(), layout_->sizeHint().width(), layout_->sizeHint().height());
+    // adjustSize() uses sizeHint() but can misbehave inside a QScrollArea;
+    // force the correct size directly.
+    const int n = slots_.size();
+    const int cw = 8 + n * 68 + (n > 1 ? (n - 1) * 8 : 0) + 8;
+    const int ch = 4 + 76 + 4;
+    content_->resize(cw, ch);
+    content_->update();
+    spdlog::info("ThumbnailBar: content resized to {}x{}", cw, ch);
 
     activeIdx_ = -1;
     setActiveIndex(images.isEmpty() ? -1 : 0);
@@ -77,6 +88,7 @@ void ThumbnailBar::buildSlot(int i, const core::FitsImage& img)
 {
     Slot s;
     s.frame = new QWidget(content_);
+    s.frame->setObjectName(QStringLiteral("thumbSlot"));
     s.frame->setFixedSize(68, 76);
     s.frame->setCursor(Qt::PointingHandCursor);
     s.frame->setProperty("slotIndex", i);
@@ -87,12 +99,18 @@ void ThumbnailBar::buildSlot(int i, const core::FitsImage& img)
     vl->setSpacing(2);
 
     s.thumb = new QLabel(s.frame);
+    s.thumb->setObjectName(QStringLiteral("thumbImage"));
     s.thumb->setFixedSize(62, 52);
     s.thumb->setAlignment(Qt::AlignCenter);
+    s.thumb->setStyleSheet(night_
+        ? "QLabel#thumbImage { background:#0d1117; border:none; }"
+        : "QLabel#thumbImage { background:#e8eef8; border:none; }");
     s.thumb->setProperty("slotIndex", i);
     s.thumb->installEventFilter(this);
 
     const QImage th = FitsImageView::toThumbnail(img, 62);
+    spdlog::info("buildSlot {}: imgValid={} thNull={} thSize={}x{}",
+        i, img.isValid(), th.isNull(), th.width(), th.height());
     s.thumb->setPixmap(QPixmap::fromImage(th));
 
     s.label = new QLabel(s.frame);
@@ -121,12 +139,12 @@ void ThumbnailBar::applyFrameBorder(int i, bool active)
     if (i < 0 || i >= slots_.size()) return;
     if (night_) {
         slots_[i].frame->setStyleSheet(active
-            ? "QWidget { background:#0d1117; border:2px solid #58a6ff; border-radius:4px; }"
-            : "QWidget { background:#0d1117; border:1px solid #21262d; border-radius:4px; }");
+            ? "QWidget#thumbSlot { background:#0d1117; border:2px solid #58a6ff; border-radius:4px; }"
+            : "QWidget#thumbSlot { background:#0d1117; border:1px solid #21262d; border-radius:4px; }");
     } else {
         slots_[i].frame->setStyleSheet(active
-            ? "QWidget { background:#ffffff; border:2px solid #3060a0; border-radius:4px; }"
-            : "QWidget { background:#ffffff; border:1px solid #b0b8c8; border-radius:4px; }");
+            ? "QWidget#thumbSlot { background:#ffffff; border:2px solid #3060a0; border-radius:4px; }"
+            : "QWidget#thumbSlot { background:#ffffff; border:1px solid #b0b8c8; border-radius:4px; }");
     }
 }
 
@@ -136,15 +154,15 @@ void ThumbnailBar::applyTheme(bool night)
     if (night) {
         setStyleSheet("ThumbnailBar { background:#161b22; border-top:1px solid #21262d; }");
         scrollArea_->setStyleSheet("QScrollArea { background:#161b22; }");
-        content_->setStyleSheet("QWidget { background:#161b22; }");
+        content_->setStyleSheet("background:#161b22;");
         for (auto& s : slots_)
-            s.thumb->setStyleSheet("background:#0d1117; color:#30363d;");
+            s.thumb->setStyleSheet("QLabel#thumbImage { background:#0d1117; border:none; }");
     } else {
         setStyleSheet("ThumbnailBar { background:#dde3ed; border-top:1px solid #b0b8c8; }");
         scrollArea_->setStyleSheet("QScrollArea { background:#dde3ed; }");
-        content_->setStyleSheet("QWidget { background:#dde3ed; }");
+        content_->setStyleSheet("background:#dde3ed;");
         for (auto& s : slots_)
-            s.thumb->setStyleSheet("background:#f0f4f8; color:#b0b8c8;");
+            s.thumb->setStyleSheet("QLabel#thumbImage { background:#e8eef8; border:none; }");
     }
     setActiveIndex(activeIdx_);
     for (int i = 0; i < slots_.size(); ++i) {

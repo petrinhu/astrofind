@@ -661,7 +661,10 @@ void MainWindow::onInvertDisplay()
     FitsImageView* v = nullptr;
     if (auto* fw = activeFitsWindow()) v = fw->imageView();
     else if (blinkActive_ && blinkWidget_) v = blinkWidget_->imageView();
-    if (v) v->toggleInvert();
+    if (v) {
+        v->toggleInvert();
+        actInvertDisplay_->setChecked(v->inverted());
+    }
 }
 void MainWindow::onFlipHorizontal()
 {
@@ -692,6 +695,62 @@ void MainWindow::onMagnifyingGlass()
     statusBar()->showMessage(
         newState ? tr("Magnifying glass ON — move cursor over image  (Ctrl+G to toggle)")
                  : tr("Magnifying glass OFF"), 3000);
+}
+
+// ─── Region statistics ────────────────────────────────────────────────────────
+
+void MainWindow::onRegionStatsTool()
+{
+    auto* fw = activeFitsWindow();
+    if (!fw) return;
+
+    auto* view = fw->imageView();
+    const bool newState = !view->regionMode();
+
+    // Disable region mode on all windows, then enable only on the active one
+    for (auto* w : allFitsWindows())
+        w->imageView()->setRegionMode(false);
+
+    if (newState) {
+        view->setRegionMode(true);
+        view->setToolCursor(Qt::CrossCursor);
+        statusBar()->showMessage(
+            tr("Estatísticas de Região: arraste um retângulo na imagem  (Esc para cancelar)"),
+            5000);
+    } else {
+        view->setToolCursor(Qt::ArrowCursor);
+        if (regionStatsPanel_) regionStatsPanel_->clear();
+    }
+}
+
+void MainWindow::onRegionSelected(QRect imageRect)
+{
+    auto* fw = activeFitsWindow();
+    if (!fw || !fw->fitsImage().isValid()) return;
+
+    auto*                   view = fw->imageView();
+    const core::FitsImage&  img  = fw->fitsImage();
+
+    // Create panel lazily, parented to the FitsImageView so it stays inside the image
+    if (!regionStatsPanel_) {
+        regionStatsPanel_ = new RegionStatsPanel(view);
+        // Auto-null when panel is destroyed (e.g. when the subwindow closes)
+        connect(regionStatsPanel_, &QObject::destroyed, this, [this]() {
+            regionStatsPanel_ = nullptr;
+        });
+        connect(regionStatsPanel_, &RegionStatsPanel::closeRequested, this, [this, view]() {
+            if (regionStatsPanel_) regionStatsPanel_->clear();
+            view->setRegionMode(false);
+            view->setToolCursor(Qt::ArrowCursor);
+        });
+    }
+
+    regionStatsPanel_->showStats(img.data, img.width, img.height, imageRect);
+
+    // Position in bottom-left of the view
+    constexpr int kMargin = 8;
+    regionStatsPanel_->move(kMargin,
+        view->height() - regionStatsPanel_->height() - kMargin);
 }
 
 // ─── Tools slots ──────────────────────────────────────────────────────────────
