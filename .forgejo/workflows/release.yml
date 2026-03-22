@@ -154,35 +154,10 @@ jobs:
           cp -r staging/usr/share/applications "${PKGDIR}/usr/share/"
           cp -r staging/usr/share/icons "${PKGDIR}/usr/share/"
 
-          # Build DEBIAN/control: binary stanza only, Version field, no debhelper vars
-          cat > "${PKGDIR}/DEBIAN/control" << CTLEOF
-Package: astrofind
-Version: ${DEBVER}
-Architecture: ${ARCH}
-Maintainer: Petrus Silva Costa <petrinhu@yahoo.com.br>
-Installed-Size: $(du -sk "${PKGDIR}/usr" | cut -f1)
-Depends: libqt6core6t64 (>= 6.4) | libqt6core6 (>= 6.4),
- libqt6charts6 (>= 6.4),
- libqt6widgets6t64 (>= 6.4) | libqt6widgets6 (>= 6.4),
- libqt6opengl6 (>= 6.4),
- libqt6openglwidgets6 (>= 6.4),
- libcfitsio10t64 | libcfitsio10 | libcfitsio9,
- libfftw3-double3,
- libarchive13t64 | libarchive13
-Description: Modern asteroid detection software for citizen science
- AstroFind is asteroid detection software for citizen science and
- educational use. Compatible with the IASC / MPC workflow.
- Outputs ADES 2022 format (XML and PSV) for submission to the MPC.
- .
- Features: FITS viewer (SER/XISF/TIFF/PNG), plate solving via
- astrometry.net and ASTAP, star detection (SEP), aperture photometry,
- blink comparison, Moving Object Detection across 3+ images,
- calibration (dark/flat/bias), and full bilingual EN/PT-BR interface.
- .
- NOTE: This is a beta release. All features are implemented but
- end-to-end validation with real telescope FITS files has not yet
- been performed.
-CTLEOF
+          # Build DEBIAN/control from template (avoids YAML parsing of colon-containing lines)
+          SIZE=$(du -sk "${PKGDIR}/usr" | cut -f1)
+          sed "s/DEBVER_PLACEHOLDER/${DEBVER}/; s/ARCH_PLACEHOLDER/${ARCH}/; s/SIZE_PLACEHOLDER/${SIZE}/; s/\r//" \
+              packaging/debian/control-binary > "${PKGDIR}/DEBIAN/control"
 
           mkdir -p "${PKGDIR}/usr/share/doc/astrofind"
           sed 's/\r//' packaging/debian/changelog > "${PKGDIR}/usr/share/doc/astrofind/changelog.Debian"
