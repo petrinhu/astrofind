@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName("AstroFind");
-    app.setApplicationVersion("0.1.0");
+    app.setApplicationVersion("0.5.0");
     app.setOrganizationName("AstroFind");
     app.setOrganizationDomain("astrofind.app");
     // Wayland: links this process to the installed .desktop file so the

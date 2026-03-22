@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget* parent)
     , blinkTimer_(new QTimer(this))
     , session_(std::make_unique<core::ImageSession>(this))
 {
-    setWindowTitle(tr("AstroFind"));
+    setWindowTitle(QStringLiteral("AstroFind %1").arg(QApplication::applicationVersion()));
     setMinimumSize(900, 650);
     setAcceptDrops(true);
 
