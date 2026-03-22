@@ -376,6 +376,19 @@ astrometrica/
 
 ---
 
+### Installation
+
+Download **`install.sh`** from the [latest release](https://codeberg.org/petrinhu/astrofind/releases) and run:
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+The installer automatically detects your distribution, downloads the correct package (RPM/DEB/PKGBUILD), checks for optional dependencies, and handles desktop integration — with a bilingual (EN/PT-BR) interactive interface.
+
+For per-distro manual installation commands see **[INSTALL.md](INSTALL.md)**.
+
 ### Building
 
 For per-distro installation commands see **[INSTALL.md](INSTALL.md)**.
@@ -608,6 +621,19 @@ Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
 | ASTAP | Plate solver offline; baixar em [hnsky.org](https://www.hnsky.org/astap.htm) |
 
 ---
+
+### Instalação
+
+Baixe o **`install.sh`** da [última versão](https://codeberg.org/petrinhu/astrofind/releases) e execute:
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+O instalador detecta automaticamente sua distribuição, baixa o pacote correto (RPM/DEB/PKGBUILD), verifica dependências opcionais e configura a integração com o desktop — com interface interativa bilíngue (EN/PT-BR).
+
+Para comandos de instalação manual por distribuição, veja **[INSTALL.md](INSTALL.md)**.
 
 ### Compilação
 

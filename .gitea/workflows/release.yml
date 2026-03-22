@@ -206,11 +206,26 @@ jobs:
           name: arch-pkgbuild
           path: '*.tar.gz'
 
+  # ── Package install.sh ────────────────────────────────────────────────────
+  package-installer:
+    name: Package install.sh
+    runs-on: codeberg-tiny
+
+    steps:
+      - name: "📥  Checkout"
+        uses: actions/checkout@v4
+
+      - name: "⬆️   Upload install.sh artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: packaging/install.sh
+
   # ── Create Codeberg Release ────────────────────────────────────────────────
   create-release:
     name: Create Codeberg Release
     runs-on: codeberg-tiny
-    needs: [build-rpm, build-deb, package-arch]
+    needs: [build-rpm, build-deb, package-arch, package-installer]
 
     steps:
       - name: "📥  Checkout (for CHANGELOG)"
@@ -263,7 +278,7 @@ jobs:
           echo "Created release ID: ${RELEASE_ID}"
 
           # Upload all artifacts
-          find artifacts/ -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.tar.gz' \) | \
+          find artifacts/ -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.tar.gz' -o -name 'install.sh' \) | \
           while read f; do
             FNAME=$(basename "$f")
             echo "Uploading ${FNAME}..."
