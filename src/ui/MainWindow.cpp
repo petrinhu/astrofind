@@ -214,6 +214,12 @@ void MainWindow::setupMenus()
     actTrackStack_ = astrometryMenu_->addAction(tr("Stack &Images..."), QKeySequence("Ctrl+T"), this, &MainWindow::onTrackAndStack);
     actTrackStack_->setStatusTip(tr("Stack images with asteroid tracking to reveal faint objects"));
 
+    astrometryMenu_->addSeparator();
+    astrometryMenu_->addAction(tr("Import Detected Stars (DAOPHOT/SExtractor)…"),
+                               this, &MainWindow::onImportDaophotTable);
+    astrometryMenu_->addAction(tr("Import Reduction Table (IRAF/Astropy)…"),
+                               this, &MainWindow::onImportReductionTable);
+
     // ── Images ────────────────────────────────────────────────────────────────
     imagesMenu_ = menuBar()->addMenu(tr("&Images"));
 
@@ -257,6 +263,14 @@ void MainWindow::setupMenus()
     toolsMenu_->addSeparator();
     actKOO_ = toolsMenu_->addAction(tr("&Known Object Overlay"), QKeySequence("Ctrl+K"), this, &MainWindow::onKnownObjectOverlay);
     actKOO_->setStatusTip(tr("Mark known solar system objects on the images"));
+
+    actEcliptic_ = toolsMenu_->addAction(tr("&Ecliptic / Galactic Overlay"), QKeySequence("Ctrl+E"),
+        this, [this]() {
+            for (auto* fsw : allFitsWindows())
+                fsw->imageView()->setShowEcliptic(actEcliptic_->isChecked());
+        });
+    actEcliptic_->setCheckable(true);
+    actEcliptic_->setStatusTip(tr("Show ecliptic and galactic plane overlays; warns when field is near the galactic plane (high dust extinction)"));
 
     toolsMenu_->addSeparator();
     toolsMenu_->addAction(tr("&Light Curve…"), QKeySequence("Ctrl+L"), this, &MainWindow::onLightCurve)
@@ -821,7 +835,8 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
         for (const auto& url : urls) {
             if (url.isLocalFile()) {
                 const QString f = url.toLocalFile().toLower();
-                if (f.endsWith(".fits") || f.endsWith(".fit") || f.endsWith(".fts") || f.endsWith(".zip")) {
+                if (f.endsWith(".fits") || f.endsWith(".fit") || f.endsWith(".fts")
+                        || f.endsWith(".zip") || isLibArchiveFormat(f)) {
                     event->acceptProposedAction();
                     return;
                 }
@@ -839,7 +854,8 @@ void MainWindow::dropEvent(QDropEvent* event)
         if (url.isLocalFile()) {
             const QString f = url.toLocalFile();
             const QString fl = f.toLower();
-            if (fl.endsWith(".fits") || fl.endsWith(".fit") || fl.endsWith(".fts") || fl.endsWith(".zip"))
+            if (fl.endsWith(".fits") || fl.endsWith(".fit") || fl.endsWith(".fts")
+                    || fl.endsWith(".zip") || isLibArchiveFormat(f))
                 fitsPaths << f;
         }
     }
@@ -891,6 +907,10 @@ void MainWindow::dropEvent(QDropEvent* event)
     for (const auto& p : fitsPaths) {
         if (p.endsWith(".zip", Qt::CaseInsensitive)) {
             const auto extracted = expandZip(p);
+            for (const auto& ep : extracted) fitsToZip[ep] = p;
+            expanded.append(extracted);
+        } else if (isLibArchiveFormat(p)) {
+            const auto extracted = expandArchive(p);
             for (const auto& ep : extracted) fitsToZip[ep] = p;
             expanded.append(extracted);
         } else {

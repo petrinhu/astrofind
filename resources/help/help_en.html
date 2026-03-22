@@ -206,6 +206,7 @@ kbd {
     <a href="#introduction">Introduction</a>
     <a href="#quickstart">Quick Start</a>
     <a href="#loading">Loading FITS Images</a>
+    <a href="#display">Display &amp; Rendering</a>
 
     <div class="nav-group">Processing Pipeline</div>
     <a href="#calibration">Calibration</a>
@@ -215,7 +216,11 @@ kbd {
     <div class="nav-group">Detection &amp; Reporting</div>
     <a href="#measuring">Measuring Objects</a>
     <a href="#detection">Moving Object Detection</a>
+    <a href="#advdetection">Advanced Detection</a>
     <a href="#koo">Known Object Overlay</a>
+
+    <div class="nav-group">Import &amp; Export</div>
+    <a href="#importexport">Import / Export</a>
 
     <div class="nav-group">Reference</div>
     <a href="#tools">Tools Reference</a>
@@ -267,16 +272,22 @@ kbd {
   <h3>Key Features at a Glance</h3>
   <ul>
     <li>Load up to <strong>4 FITS frames</strong> per session — drag &amp; drop or File menu</li>
-    <li>ZIP archive support: drop a <code>.zip</code> containing FITS files</li>
+    <li>Archive support: ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR</li>
+    <li>Formats: FITS (all variants), SER, XISF, TIFF, PNG; 1-D spectra; temporal data cubes</li>
     <li><strong>Calibration</strong> with master dark frame and/or flat field</li>
     <li><strong>Star detection</strong> via the SEP / Source Extractor algorithm</li>
-    <li><strong>Plate solving</strong> via the astrometry.net online API</li>
+    <li><strong>Plate solving</strong> via the astrometry.net online API or ASTAP offline</li>
+    <li><strong>WCS projections</strong>: TAN, SIN, ARC, GLS, MER, AIT, STG (full Calabretta &amp; Greisen 2002)</li>
+    <li><strong>Atmospheric refraction correction</strong> and full ICRS→CIRS→topocentric coordinate chain</li>
     <li><strong>Known Object Overlay (KOO)</strong> — MPCORB.DAT asteroids and comets overlaid on your field</li>
-    <li><strong>Aperture tool</strong> — PSF centroid fitting for precise position and magnitude</li>
+    <li><strong>Aperture tool</strong> — elliptical PSF centroid fitting (Levenberg-Marquardt) for precise position and magnitude</li>
     <li><strong>Image stacking</strong> with FFT phase-correlation alignment (Add / Average / Median)</li>
     <li><strong>Track &amp; Stack</strong> — compensate for a moving object's motion before stacking</li>
     <li><strong>Automated moving object detection</strong> across multiple frames</li>
-    <li><strong>ADES XML export</strong> for direct MPC submission</li>
+    <li><strong>Advanced detection</strong>: bad pixel mask, streak/trail detection, blended source separation (ClumpFind)</li>
+    <li><strong>Display tools</strong>: 5 transfer functions, 7 false-color LUTs, NaN highlight, histogram, 2-D power spectrum</li>
+    <li><strong>Import catalogs</strong>: DAOPHOT/SExtractor, IRAF/Astropy reduction tables, local FITS BINTABLE catalogs</li>
+    <li><strong>ADES XML export</strong> for direct MPC submission; full ICRF coordinate tagging</li>
     <li>Full undo/redo for measurements, dark/night theme, blink mode</li>
   </ul>
 
@@ -392,13 +403,22 @@ kbd {
     </li>
   </ul>
 
-  <h3>Supported FITS Variants</h3>
+  <h3>Supported File Formats</h3>
   <ul>
-    <li>Standard 2-D images — 8, 16, 32-bit integer; 32 and 64-bit floating-point</li>
-    <li>Compressed FITS — tile-compressed with Rice, HCOMPRESS, or gzip algorithms</li>
-    <li>Multi-Extension FITS (MEF) — first image extension is used</li>
-    <li>Monochrome (grayscale) images only — Bayer-mosaic or RGB FITS are not currently supported</li>
+    <li><strong>FITS 2-D images</strong> — 8, 16, 32-bit integer; 32 and 64-bit floating-point</li>
+    <li><strong>Compressed FITS</strong> — tile-compressed with Rice, HCOMPRESS, or gzip algorithms</li>
+    <li><strong>Color FITS</strong> — NAXIS3=3 (RGB planes) or three separate image extensions (HDU navigator)</li>
+    <li><strong>Multi-Extension FITS (MEF)</strong> — HDU navigator lets you browse and select any extension</li>
+    <li><strong>FITS data cube</strong> — NAXIS3&gt;3 loads each plane; right-click → <em>Animate Cube (N frames)…</em></li>
+    <li><strong>FITS 1-D spectrum</strong> — NAXIS=1 files open in the Spectrum dialog (wavelength/flux plot)</li>
+    <li><strong>SER</strong> — planetary video format (monochrome and color)</li>
+    <li><strong>XISF</strong> — PixInsight native format</li>
+    <li><strong>TIFF / PNG</strong> — 8 and 16-bit grayscale or RGB</li>
+    <li><strong>Archives</strong> — ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR: drop the archive, AstroFind extracts and loads all images inside</li>
   </ul>
+  <div class="callout info">
+    <div class="ct">RAW camera files (CR2/NEF/ARW) and PDS planetary format are not supported in this version.</div>
+  </div>
 
   <h3>Image Display and Stretch</h3>
   <p>
@@ -429,6 +449,89 @@ kbd {
     (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>, <code>CD1_1</code>, <code>CD1_2</code>, etc.)
     after plate solving.
   </div>
+</section>
+
+<!-- ─────────────────────── DISPLAY & RENDERING ──────────────────── -->
+<section id="display">
+  <h2>Display &amp; Rendering</h2>
+  <p>
+    AstroFind separates the <em>scientific pixel data</em> (always preserved intact) from the
+    <em>visual rendering</em> (transfer function, colour map, stretch points). All display controls
+    affect only what you see, never what is measured.
+  </p>
+
+  <h3>Transfer Functions</h3>
+  <p>Open <em>View → Background and Range…</em> (or right-click an image) to choose a transfer function and adjust the black/white points.</p>
+  <table>
+    <thead><tr><th>Function</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Linear</strong></td><td>General use; preserves relative brightness faithfully</td></tr>
+      <tr><td><strong>Square Root</strong></td><td>Faint nebulosity with bright stars in the same field</td></tr>
+      <tr><td><strong>Asinh</strong></td><td>Wide dynamic range — gentle compression of bright cores</td></tr>
+      <tr><td><strong>Logarithmic</strong></td><td>Maximum compression — ideal for galaxy cores or very bright stars</td></tr>
+      <tr><td><strong>Histogram Equalization</strong></td><td>Maximises local contrast; useful for finding faint extended sources</td></tr>
+    </tbody>
+  </table>
+
+  <h3>False Colour / LUT</h3>
+  <p>
+    Select a colour look-up table (LUT) from the same dialog. Available presets:
+    <strong>Gray</strong>, <strong>Hot</strong>, <strong>Viridis</strong>, <strong>Plasma</strong>,
+    <strong>Inferno</strong>, <strong>Cividis</strong>, <strong>Turbo</strong>.
+    Colour maps do not alter astrometry or photometry.
+  </p>
+
+  <h3>NaN Pixel Highlight</h3>
+  <p>
+    Pixels with IEEE NaN values (from bad-pixel masking or division errors) are rendered in a distinct
+    orange colour so affected regions are immediately visible. They are excluded from all statistical
+    calculations and photometry.
+  </p>
+
+  <h3>Pixel Histogram</h3>
+  <p>
+    Right-click an image → <em>Show Histogram…</em>. The dialog shows the pixel value distribution
+    with a Gaussian fit overlay giving the estimated sky background mean and σ. Use it to diagnose
+    saturation, sky background level, and non-Gaussian artefacts.
+  </p>
+
+  <h3>2-D Power Spectrum</h3>
+  <p>
+    Right-click an image → <em>Show Power Spectrum…</em>. A Hann-windowed 2-D FFT is computed
+    (log₁₊|F|² scale, quadrant-shifted). Hover over any point to read the spatial frequency in
+    cycles/pixel and the period in arcseconds. Useful for diagnosing column noise, periodic fringing,
+    or guiding errors.
+  </p>
+
+  <h3>Blink Sharpening</h3>
+  <p>
+    In the Blink window, click <strong>Sharpen</strong> to cycle through:
+    <strong>Off → USM</strong> (Unsharp Mask) <strong>→ LoG</strong> (Laplacian of Gaussian).
+    Sharpening is applied only to the displayed frame — raw data is never modified.
+    Helps reveal faint moving objects near bright stars.
+  </p>
+
+  <h3>FITS Data Cube Animation</h3>
+  <p>
+    FITS files with NAXIS3&gt;3 (temporal or spectral cubes) show an extra context-menu entry:
+    <em>Animate Cube (N frames)…</em>. All planes are loaded and played in a BlinkWidget
+    MDI sub-window. The speed slider controls the animation rate.
+  </p>
+
+  <h3>1-D Spectrum Viewer</h3>
+  <p>
+    FITS files with NAXIS=1 open automatically in the <strong>Spectrum</strong> dialog — a
+    Qt Charts plot of flux vs. wavelength. The x-axis is computed from the WCS keywords
+    <code>CRVAL1</code>, <code>CDELT1</code>, <code>CRPIX1</code>. Units come from
+    <code>CUNIT1</code>; the info bar shows object name, instrument, and date.
+  </p>
+
+  <h3>Ecliptic &amp; Galactic Plane Overlays</h3>
+  <p>
+    Enable via <em>View → Overlays → Ecliptic Plane</em>. When the field lies within 10° of the
+    Galactic plane a warning banner appears — dense stellar fields increase the false-positive
+    rate of moving-object detection.
+  </p>
 </section>
 
 <!-- ─────────────────────── CALIBRATION ─────────────────────────── -->
@@ -858,6 +961,114 @@ kbd {
   </div>
 </section>
 
+<!-- ─────────────────────── ADVANCED DETECTION ───────────────────── -->
+<section id="advdetection">
+  <h2>Advanced Detection</h2>
+
+  <h3>Elliptical PSF Fitting</h3>
+  <p>
+    By default AstroFind fits a circular 2-D Gaussian to each detected source. When
+    <em>Settings → Detection → Elliptical PSF</em> is enabled, a full 6-parameter elliptical Gaussian
+    model (amplitude, x₀, y₀, σ<sub>x</sub>, σ<sub>y</sub>, rotation θ) is fitted using the
+    Levenberg-Marquardt non-linear least-squares solver. This improves centroid accuracy under
+    poor seeing or coma, and the fitted ellipticity is stored in the measurement record.
+  </p>
+
+  <h3>Bad Pixel Mask &amp; Interpolation</h3>
+  <p>
+    Enable via <em>Processing → Bad Pixel Mask…</em>. AstroFind identifies hot pixels, cold pixels,
+    and cosmic-ray hits using a sigma-clipping threshold applied to each pixel across the frame stack.
+    Flagged pixels are replaced by bilinear interpolation from their nearest valid neighbours.
+    The mask is saved per-session and can be edited manually by clicking individual pixels with the
+    Aperture tool while holding <kbd>Shift</kbd>.
+  </p>
+
+  <h3>Streak / Trail Detection</h3>
+  <p>
+    When <em>Settings → Detection → Detect Streaks</em> is enabled, the blob detector additionally
+    analyses each source's axis ratio (a/b). Sources with a/b &gt; 4 are flagged as streaks and
+    shown with a dashed-line overlay rather than a circle. This is useful for separating satellite
+    and meteor trails from round point sources before moving-object detection.
+  </p>
+
+  <h3>Blended Sources — ClumpFind</h3>
+  <p>
+    When two or more sources overlap (blended), SEP marks them with the <em>blended</em> flag.
+    AstroFind's ClumpFind pass re-analyses each blended island with a multi-peak scan to
+    estimate the number and positions of sub-sources. Blended detections are displayed with a
+    <strong>double-circle magenta overlay</strong>. Photometry on blended sources is less reliable;
+    the Verification dialog shows a blended-source warning.
+  </p>
+
+  <h3>Median Sliding Background</h3>
+  <p>
+    The background estimator uses a sliding median filter (box size configurable in
+    <em>Settings → Detection → Background Box</em>) to compute a spatially-varying sky map.
+    This handles gradients from sky glow, moonlight, or vignetting more accurately than a
+    flat global sky value.
+  </p>
+</section>
+
+<!-- ─────────────────────── IMPORT / EXPORT ──────────────────────── -->
+<section id="importexport">
+  <h2>Import / Export</h2>
+
+  <h3>Import DAOPHOT / SExtractor Catalog (FITS BINTABLE)</h3>
+  <p>
+    Use <em>Astrometry → Import Detected Stars…</em> to load a star list produced by DAOPHOT,
+    SExtractor, or any tool that writes a FITS BINTABLE with pixel coordinates. AstroFind
+    recognises the column name aliases <code>X_IMAGE</code>, <code>XPOS</code>, <code>X_CENTER</code>
+    (and Y equivalents). The imported stars replace the internally-detected star list for the
+    selected image and are used for all subsequent plate-solving and photometry.
+  </p>
+
+  <h3>Import IRAF / Astropy Reduction Table</h3>
+  <p>
+    Use <em>Astrometry → Import Reduction Table (IRAF/Astropy)…</em> to load the output of
+    <code>phot</code>, <code>allstar</code>, <code>photutils.aperture_photometry</code>, or
+    <code>photutils.centroids</code>. Column aliases recognised:
+  </p>
+  <table>
+    <thead><tr><th>Tool</th><th>Pixel columns</th><th>Sky columns</th></tr></thead>
+    <tbody>
+      <tr><td>IRAF phot / allstar</td><td><code>XCENTER</code>, <code>YCENTER</code></td><td>—</td></tr>
+      <tr><td>Astropy photutils</td><td><code>xcentroid</code>, <code>ycentroid</code></td><td><code>sky_centroid_ra</code>, <code>sky_centroid_dec</code></td></tr>
+      <tr><td>SExtractor</td><td><code>X_IMAGE</code>, <code>Y_IMAGE</code></td><td><code>ALPHA_J2000</code>, <code>DELTA_J2000</code></td></tr>
+    </tbody>
+  </table>
+  <p>
+    When sky coordinate columns are present, AstroFind fills the RA/Dec fields of each imported
+    source and marks them as <em>catalog-matched</em>. If only sky coordinates exist (no pixel
+    columns), the sources are placed off-canvas with placeholder pixel values of −1 and are
+    shown only in the Measurement Table.
+  </p>
+
+  <h3>Local Offline Catalog (FITS BINTABLE)</h3>
+  <p>
+    In <em>Settings → Connections → Catalog Source</em>, switch from <em>VizieR (online)</em> to
+    <em>Local FITS</em> and browse to a FITS BINTABLE containing a reference star catalog
+    (e.g., a Gaia DR3 cone extract, UCAC5, or USNO-B1.0 subset). The required columns are
+    <code>RA</code> (or <code>RAJ2000</code> / <code>RA_ICRS</code>) and
+    <code>DEC</code> (or <code>DEJ2000</code> / <code>DE_ICRS</code>), plus an optional
+    magnitude column. AstroFind applies a cone filter automatically using the plate-solved
+    field centre and radius.
+  </p>
+
+  <h3>Export Image</h3>
+  <p>
+    Right-click any image → <em>Export as JPEG / PNG…</em>. The exported image uses the current
+    transfer function and LUT so that it matches the on-screen rendering.
+  </p>
+
+  <h3>ADES XML / PSV Export</h3>
+  <p>
+    <em>File → Export ADES XML…</em> writes a fully-tagged ADES 2017 XML file with ICRF
+    coordinate tagging (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>), atmospheric refraction
+    applied, and the full observer/measurer/telescope block. PSV format is also available
+    from the Report Preview dialog.
+  </p>
+</section>
+
 <!-- ─────────────────────── KOO ──────────────────────────────────── -->
 <section id="koo">
   <h2>Known Object Overlay (KOO)</h2>
@@ -1035,6 +1246,16 @@ kbd {
     <li><strong>Session Directory</strong> — Default folder for saving/loading session files (<code>.astrofind</code>).</li>
     <li><strong>Export Directory</strong> — Default folder for ADES XML exports.</li>
   </ul>
+
+  <h3>Connections Tab</h3>
+  <ul>
+    <li><strong>Plate Solver Backend</strong> — <em>astrometry.net (online)</em> or <em>ASTAP (local, offline)</em>.</li>
+    <li><strong>astrometry.net API Key</strong> — Required for online plate solving. Stored securely via the system keychain.</li>
+    <li><strong>ASTAP Path</strong> — Path to the <code>astap</code> executable if using offline solving.</li>
+    <li><strong>Catalog Source</strong> — <em>VizieR (online)</em> or <em>Local FITS</em>. When set to Local FITS, the path field and browse button become active.</li>
+    <li><strong>Local Catalog Path</strong> — Path to a FITS BINTABLE file containing a reference star catalog for offline KOO overlay. See <a href="#importexport">Import / Export → Local Offline Catalog</a>.</li>
+    <li><strong>Solver Timeout (s)</strong> — Maximum wait time for a plate-solve response (default: 300 s).</li>
+  </ul>
 </section>
 
 <!-- ─────────────────────── GLOSSARY ─────────────────────────────── -->
@@ -1075,7 +1296,19 @@ kbd {
   <p class="gd">The ratio of source signal to background noise. Composed of Poisson photon noise from the sky background, readout noise, and dark current noise. A detection is generally considered reliable at SNR ≥ 5. Stacking N frames improves SNR by roughly √N.</p>
 
   <p class="gt">WCS — World Coordinate System</p>
-  <p class="gd">The FITS standard (Paper I–IV, Calabretta &amp; Greisen 2002) for encoding the mathematical mapping between pixel coordinates and physical sky coordinates (RA, Dec). Plate solving produces the WCS keywords written into the FITS header, allowing any pixel to be converted to a precise celestial position.</p>
+  <p class="gd">The FITS standard (Paper I–IV, Calabretta &amp; Greisen 2002) for encoding the mathematical mapping between pixel coordinates and physical sky coordinates (RA, Dec). Plate solving produces the WCS keywords written into the FITS header, allowing any pixel to be converted to a precise celestial position. AstroFind implements eight projections: TAN, SIN, ARC, GLS, MER, AIT, STG, plus TAN (the default).</p>
+
+  <p class="gt">CIRS — Celestial Intermediate Reference System</p>
+  <p class="gd">An intermediate coordinate frame defined by the Earth's equator and the Celestial Intermediate Origin at a given epoch. Used in the coordinate chain ICRS → CIRS → Topocentric when computing precise apparent positions, including annual aberration and nutation corrections, as required by the ADES standard.</p>
+
+  <p class="gt">ICRS — International Celestial Reference System</p>
+  <p class="gd">The current IAU standard celestial reference frame, aligned to extragalactic radio sources (quasars). Essentially equivalent to FK5/J2000 for ground-based astrometry but rigorously defined without a reference epoch. All AstroFind ADES outputs are tagged <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>.</p>
+
+  <p class="gt">LUT — Look-Up Table</p>
+  <p class="gd">A mapping from scalar pixel intensity to an RGB colour. Used to render grayscale astronomical images in false colour. Common LUTs: Hot (black–red–yellow–white), Viridis, Plasma, Inferno (perceptually-uniform sequential), Cividis (colour-blind-safe), Turbo (rainbow-style).</p>
+
+  <p class="gt">ClumpFind</p>
+  <p class="gd">A source-detection algorithm that identifies distinct peaks within a connected blob of pixels above a threshold. Used in AstroFind to separate blended (overlapping) sources. Originally described by Williams et al. (1994) for molecular cloud clump identification.</p>
 </section>
 
 <!-- ─────────────────────── FAQ ──────────────────────────────────── -->
@@ -1215,7 +1448,7 @@ kbd {
       <tr>
         <td><a href="https://gitlab.com/free-astro/siril" target="_blank">Siril</a></td>
         <td>Free-Astro team</td>
-        <td>PSF fitting, background extraction, and photometry pipeline design.</td>
+        <td>PSF fitting, background extraction, FFT image registration, and photometry pipeline design.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/dstndstn/astrometry.net" target="_blank">astrometry.net</a></td>
@@ -1225,7 +1458,22 @@ kbd {
       <tr>
         <td><a href="https://github.com/iraf-community/iraf" target="_blank">IRAF</a></td>
         <td>NOAO / community</td>
-        <td>Aperture photometry concepts and measurement methodology.</td>
+        <td>Aperture photometry concepts, XCENTER/YCENTER reduction table format.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/gnudatalanguage/gdl" target="_blank">GDL</a></td>
+        <td>Marc Schellens et al.</td>
+        <td>Elliptical PSF / MPFIT solver, median sliding background filter, FFT power spectrum.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/teuben/nemo" target="_blank">NEMO</a></td>
+        <td>Peter Teuben et al.</td>
+        <td>Bad pixel mask algorithm, blob/streak detection, ClumpFind, histogram Gaussian fit, Laplacian filter, WCS projections.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/BoostGSoC19/astronomy" target="_blank">Boost.Astronomy</a></td>
+        <td>GSoC 2019 contributors</td>
+        <td>Atmospheric refraction correction, ICRS/CIRS coordinate chain, ecliptic/galactic plane overlays.</td>
       </tr>
     </tbody>
   </table>
@@ -1234,8 +1482,9 @@ kbd {
   <table>
     <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
     <tbody>
-      <tr><td><a href="https://github.com/qt/qtbase" target="_blank">Qt6</a></td><td>UI framework</td></tr>
+      <tr><td><a href="https://github.com/qt/qtbase" target="_blank">Qt6</a></td><td>UI framework (Core, Widgets, Concurrent, Charts, Network)</td></tr>
       <tr><td><a href="https://github.com/HEASARC/cfitsio" target="_blank">cfitsio</a></td><td>FITS file reading/writing</td></tr>
+      <tr><td><a href="https://heasarc.gsfc.nasa.gov/docs/software/fitsio/ccfits/" target="_blank">CCfits</a></td><td>C++ FITS BINTABLE access (bundled)</td></tr>
       <tr><td><a href="https://gitlab.com/libeigen/eigen" target="_blank">Eigen3</a></td><td>Linear algebra for astrometry</td></tr>
       <tr><td><a href="https://github.com/FFTW/fftw3" target="_blank">FFTW3</a></td><td>Fast Fourier transforms</td></tr>
       <tr><td><a href="https://github.com/kbarbary/sep" target="_blank">SEP</a></td><td>Source extraction and photometry</td></tr>
@@ -1243,6 +1492,7 @@ kbd {
       <tr><td><a href="https://github.com/catchorg/Catch2" target="_blank">Catch2</a></td><td>Unit testing</td></tr>
       <tr><td><a href="https://github.com/stachenov/quazip" target="_blank">QuaZip</a></td><td>ZIP archive support</td></tr>
       <tr><td><a href="https://github.com/frankosterfeld/qtkeychain" target="_blank">qt-keychain</a></td><td>Secure API key storage</td></tr>
+      <tr><td><a href="https://github.com/libarchive/libarchive" target="_blank">libarchive</a> <em>(optional)</em></td><td>TAR.GZ/BZ2/XZ, 7Z, RAR archive support</td></tr>
     </tbody>
   </table>
 </section>

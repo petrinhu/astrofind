@@ -1,4 +1,5 @@
 #include "FitsImageView.h"
+#include "core/Astronomy.h"
 
 #include <QPainter>
 #include <QPainterPath>
@@ -8,6 +9,12 @@
 #include <QResizeEvent>
 #include <QCursor>
 #include <QKeyEvent>
+#include <QFontMetrics>
+#include <cmath>
+
+/// Distinct colour used to mark NaN / undefined pixels (IEEE 754 float NaN).
+/// Magenta is the convention in DS9, siril, and other astronomical tools.
+static constexpr QRgb kNanColor = 0xFFFF00FF;   // #FF00FF — magenta, full opacity
 
 /// Builds a crosshair cursor with the given line color and outline color.
 /// Normal (dark image): white line + black outline.
@@ -172,6 +179,8 @@ void FitsImageView::paintEvent(QPaintEvent* /*e*/)
         drawCatalogStars(p);
         drawDetectedStars(p);
         drawKooObjects(p);
+        if (showEcliptic_)
+            drawEclipticOverlay(p);
     }
     drawAnnotations(p);
     drawMagnifier(p);
@@ -362,6 +371,19 @@ void FitsImageView::clampPan()
 
 // ─── New public stretch / precomputed-image methods ───────────────────────────
 
+void FitsImageView::setStretchMode(core::StretchMode mode)
+{
+    fitsImg_.stretchMode = mode;
+    update();
+}
+
+void FitsImageView::setColorLut(core::ColorLut lut)
+{
+    fitsImg_.colorLut = lut;
+    displayImg_ = makeDisplayImage();
+    update();
+}
+
 void FitsImageView::setStretch(float displayMin, float displayMax)
 {
     fitsImg_.displayMin = displayMin;
@@ -424,23 +446,229 @@ void FitsImageView::drawRubberBand(QPainter& p) const
 
 // ─── Static utilities ─────────────────────────────────────────────────────────
 
+/// Map a stretched 8-bit greyscale value to an RGB colour via a false-colour LUT.
+/// Viridis uses 8 sampled keypoints with linear interpolation (≈matplotlib viridis).
+static QRgb applyColorLut(uint8_t v, core::ColorLut lut) noexcept
+{
+    switch (lut) {
+    case core::ColorLut::Hot: {
+        // black → red (0-84) → yellow (85-169) → white (170-255)
+        const int r = std::min(255, v * 3);
+        const int g = std::clamp(v * 3 - 255, 0, 255);
+        const int b = std::clamp(v * 3 - 510, 0, 255);
+        return qRgb(r, g, b);
+    }
+    case core::ColorLut::Cool: {
+        // black → dark blue → cyan → white
+        const int b = std::min(255, v * 2);
+        const int g = std::clamp(v * 2 - 255, 0, 255);
+        const int r = std::clamp((v - 192) * 4, 0, 255);
+        return qRgb(r, g, b);
+    }
+    case core::ColorLut::Viridis: {
+        // 8 control points from matplotlib viridis, linear interpolation
+        static constexpr uint8_t kR[] = { 68,  72,  62,  49,  53, 104, 180, 253};
+        static constexpr uint8_t kG[] = {  1,  40,  83, 120, 152, 180, 207, 231};
+        static constexpr uint8_t kB[] = { 84, 120, 140, 139, 121,  98,  70,  37};
+        const float t = static_cast<float>(v) / 255.0f * 7.0f;
+        const int   i = std::clamp(static_cast<int>(t), 0, 6);
+        const float f = t - static_cast<float>(i);
+        return qRgb(static_cast<int>(kR[i] + f * (kR[i+1] - kR[i])),
+                    static_cast<int>(kG[i] + f * (kG[i+1] - kG[i])),
+                    static_cast<int>(kB[i] + f * (kB[i+1] - kB[i])));
+    }
+    case core::ColorLut::Grayscale:
+    default:
+        return qRgb(v, v, v);
+    }
+}
+
 QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
                                       bool invert, bool flipH, bool flipV)
 {
     if (!img.isValid()) return {};
 
-    const int w = img.width;
-    const int h = img.height;
-    QImage out(w, h, QImage::Format_Grayscale8);
-
+    const int   w    = img.width;
+    const int   h    = img.height;
     const float dmin = img.displayMin;
     const float dmax = img.displayMax;
 
+    // ── NaN detection ─────────────────────────────────────────────────────────
+    // Scan the primary channel for any NaN / undefined float values.
+    // When present, the output must be RGB32 so we can render them in a
+    // distinct colour (magenta, kNanColor).  The check is O(N) but avoids the
+    // ~3× memory overhead of RGB32 for the typical NaN-free case.
+    // A non-Grayscale LUT also forces RGB32 for greyscale images.
+    const auto& scanData = (img.isColor && !img.dataR.empty()) ? img.dataR : img.data;
+    const bool hasNan    = std::any_of(scanData.begin(), scanData.end(),
+                                       [](float v){ return std::isnan(v); });
+    const bool needsLut  = !img.isColor && img.colorLut != core::ColorLut::Grayscale;
+
+    // ── Color image (NAXIS3=3) — render RGB ──────────────────────────────────
+    if (img.isColor && !img.dataR.empty()) {
+        QImage colorOut(w, h, QImage::Format_RGB32);
+
+        if (img.stretchMode == core::StretchMode::HistEq) {
+            // Build LUT from luminance channel, excluding NaN from histogram
+            const float range = dmax - dmin;
+            constexpr int kBins = 4096;
+            std::vector<uint8_t> lut(kBins, 0);
+            if (range > 0.0f) {
+                std::vector<int> hist(kBins, 0);
+                for (float v : img.data) {
+                    if (std::isnan(v)) continue;
+                    const int bin = std::clamp(
+                        static_cast<int>((v - dmin) / range * static_cast<float>(kBins - 1)),
+                        0, kBins - 1);
+                    ++hist[bin];
+                }
+                long cdf = 0, cdfMin = 0;
+                const long total = static_cast<long>(img.data.size());
+                for (int i = 0; i < kBins; ++i) if (hist[i] > 0) { cdfMin = hist[i]; break; }
+                for (int i = 0; i < kBins; ++i) {
+                    cdf += hist[i];
+                    const long den = total - cdfMin;
+                    lut[i] = den > 0 ? static_cast<uint8_t>((cdf - cdfMin) * 255 / den) : 0;
+                }
+            }
+            auto applyLut = [&](float v) -> uint8_t {
+                if (dmax <= dmin || std::isnan(v)) return 0;
+                const int bin = std::clamp(
+                    static_cast<int>((v - dmin) / (dmax - dmin) * static_cast<float>(kBins - 1)),
+                    0, kBins - 1);
+                return lut[bin];
+            };
+            for (int y = 0; y < h; ++y) {
+                auto* line = reinterpret_cast<QRgb*>(colorOut.scanLine(y));
+                const size_t off = static_cast<size_t>(y) * w;
+                for (int x = 0; x < w; ++x) {
+                    if (hasNan && (std::isnan(img.dataR[off + x]) ||
+                                   std::isnan(img.dataG[off + x]) ||
+                                   std::isnan(img.dataB[off + x])))
+                        line[x] = kNanColor;
+                    else
+                        line[x] = qRgb(applyLut(img.dataR[off + x]),
+                                       applyLut(img.dataG[off + x]),
+                                       applyLut(img.dataB[off + x]));
+                }
+            }
+        } else {
+            for (int y = 0; y < h; ++y) {
+                auto* line = reinterpret_cast<QRgb*>(colorOut.scanLine(y));
+                const size_t off = static_cast<size_t>(y) * w;
+                for (int x = 0; x < w; ++x) {
+                    if (hasNan && (std::isnan(img.dataR[off + x]) ||
+                                   std::isnan(img.dataG[off + x]) ||
+                                   std::isnan(img.dataB[off + x])))
+                        line[x] = kNanColor;
+                    else
+                        line[x] = qRgb(
+                            core::stretchPixel(img.dataR[off + x], dmin, dmax, img.stretchMode),
+                            core::stretchPixel(img.dataG[off + x], dmin, dmax, img.stretchMode),
+                            core::stretchPixel(img.dataB[off + x], dmin, dmax, img.stretchMode));
+                }
+            }
+        }
+
+        if (invert) colorOut.invertPixels();
+        if (flipH)  colorOut = colorOut.flipped(Qt::Horizontal);
+        if (flipV)  colorOut = colorOut.flipped(Qt::Vertical);
+        return colorOut;
+    }
+
+    // ── Grayscale — choose output format based on NaN presence ───────────────
+    // NaN-free path uses Grayscale8 (fast, 1 byte/pixel).
+    // NaN path upgrades to RGB32 so NaN pixels can be shown in kNanColor.
+
+    // ── Histogram equalization ────────────────────────────────────────────────
+    if (img.stretchMode == core::StretchMode::HistEq) {
+        const float range = dmax - dmin;
+
+        constexpr int kBins = 4096;
+        std::vector<int> hist(kBins, 0);
+        // Exclude NaN from histogram so they don't skew the CDF
+        for (float v : img.data) {
+            if (std::isnan(v)) continue;
+            if (range <= 0.0f) continue;
+            const int bin = std::clamp(
+                static_cast<int>((v - dmin) / range * static_cast<float>(kBins - 1)),
+                0, kBins - 1);
+            ++hist[bin];
+        }
+        std::vector<uint8_t> lut(kBins);
+        long cdf = 0, cdfMin = 0;
+        for (int i = 0; i < kBins; ++i) if (hist[i] > 0) { cdfMin = hist[i]; break; }
+        const long total = static_cast<long>(img.data.size());
+        for (int i = 0; i < kBins; ++i) {
+            cdf += hist[i];
+            const long num = cdf - cdfMin;
+            const long den = total - cdfMin;
+            lut[i] = den > 0 ? static_cast<uint8_t>(num * 255 / den) : 0;
+        }
+
+        if (hasNan || needsLut) {
+            QImage outRgb(w, h, QImage::Format_RGB32);
+            for (int y = 0; y < h; ++y) {
+                auto* line = reinterpret_cast<QRgb*>(outRgb.scanLine(y));
+                const float* src = img.data.data() + static_cast<size_t>(y) * w;
+                for (int x = 0; x < w; ++x) {
+                    if (std::isnan(src[x])) { line[x] = kNanColor; continue; }
+                    if (range <= 0.0f)      { line[x] = applyColorLut(0, img.colorLut); continue; }
+                    const int bin = std::clamp(
+                        static_cast<int>((src[x] - dmin) / range * static_cast<float>(kBins - 1)),
+                        0, kBins - 1);
+                    line[x] = applyColorLut(lut[bin], img.colorLut);
+                }
+            }
+            if (invert) outRgb.invertPixels();
+            if (flipH)  outRgb = outRgb.flipped(Qt::Horizontal);
+            if (flipV)  outRgb = outRgb.flipped(Qt::Vertical);
+            return outRgb;
+        }
+
+        if (range <= 0.0f) { QImage out(w, h, QImage::Format_Grayscale8); out.fill(0); return out; }
+        QImage out(w, h, QImage::Format_Grayscale8);
+        for (int y = 0; y < h; ++y) {
+            auto* line = out.scanLine(y);
+            const float* src = img.data.data() + static_cast<size_t>(y) * w;
+            for (int x = 0; x < w; ++x) {
+                const int bin = std::clamp(
+                    static_cast<int>((src[x] - dmin) / range * static_cast<float>(kBins - 1)),
+                    0, kBins - 1);
+                line[x] = lut[bin];
+            }
+        }
+        if (invert) out.invertPixels();
+        if (flipH)  out = out.flipped(Qt::Horizontal);
+        if (flipV)  out = out.flipped(Qt::Vertical);
+        return out;
+    }
+
+    // ── All other modes — per-pixel stretchPixel ─────────────────────────────
+    if (hasNan || needsLut) {
+        QImage outRgb(w, h, QImage::Format_RGB32);
+        for (int y = 0; y < h; ++y) {
+            auto* line = reinterpret_cast<QRgb*>(outRgb.scanLine(y));
+            const float* src = img.data.data() + static_cast<size_t>(y) * w;
+            for (int x = 0; x < w; ++x) {
+                if (std::isnan(src[x])) { line[x] = kNanColor; continue; }
+                line[x] = applyColorLut(
+                    core::stretchPixel(src[x], dmin, dmax, img.stretchMode),
+                    img.colorLut);
+            }
+        }
+        if (invert) outRgb.invertPixels();
+        if (flipH)  outRgb = outRgb.flipped(Qt::Horizontal);
+        if (flipV)  outRgb = outRgb.flipped(Qt::Vertical);
+        return outRgb;
+    }
+
+    QImage out(w, h, QImage::Format_Grayscale8);
     for (int y = 0; y < h; ++y) {
         auto* line = out.scanLine(y);
         const float* src = img.data.data() + static_cast<size_t>(y) * w;
         for (int x = 0; x < w; ++x)
-            line[x] = core::stretchPixel(src[x], dmin, dmax);
+            line[x] = core::stretchPixel(src[x], dmin, dmax, img.stretchMode);
     }
 
     if (invert) out.invertPixels();
@@ -485,10 +713,40 @@ void FitsImageView::drawDetectedStars(QPainter& p) const
     for (const auto& star : fitsImg_.detectedStars) {
         const QPointF imgPt(star.x, star.y);
         const QPointF w = imageToWidget(imgPt);
-        const double  r = std::max(4.0, star.a * zoom_);
         const bool    hi = isHighlighted(imgPt, highlightPx_);
-        p.setPen(QPen(hi ? QColor(255, 60, 60) : QColor(0, 220, 255), hi ? 2.5 : 1.5));
-        p.drawEllipse(w, hi ? r + 3.0 : r, hi ? r + 3.0 : r);
+
+        if (star.streak) {
+            // ── Streak / trail: rotated ellipse + direction tick ──────────────
+            // Colour: orange for normal, red when highlighted
+            const QColor streakCol = hi ? QColor(255, 80, 40) : QColor(255, 160, 0);
+            p.setPen(QPen(streakCol, hi ? 2.5 : 1.5));
+
+            const double ra = std::max(4.0, star.a * zoom_);
+            const double rb = std::max(2.0, star.b * zoom_);
+            // SEP theta: CCW from +x in image coords; QPainter rotate: CW in widget coords
+            const double thetaDeg = star.theta * (180.0 / M_PI);
+
+            p.save();
+            p.translate(w);
+            p.rotate(-thetaDeg);          // convert CCW → CW for QPainter (y-down)
+            p.drawEllipse(QPointF(0, 0), ra, rb);
+            // Tick along major axis to show trail direction
+            p.drawLine(QPointF(-ra, 0.0), QPointF(ra, 0.0));
+            p.restore();
+        } else if (star.blended) {
+            // ── Blended source: double circle (inner + outer ring) ─────────────
+            // Colour: magenta for normal, red when highlighted
+            const QColor blendCol = hi ? QColor(255, 60, 60) : QColor(220, 80, 255);
+            const double r = std::max(4.0, star.a * zoom_);
+            p.setPen(QPen(blendCol, hi ? 2.5 : 1.5));
+            p.drawEllipse(w, r,           r);
+            p.drawEllipse(w, r + 4.0,     r + 4.0);
+        } else {
+            // ── Normal point source: circle ───────────────────────────────────
+            const double r = std::max(4.0, star.a * zoom_);
+            p.setPen(QPen(hi ? QColor(255, 60, 60) : QColor(0, 220, 255), hi ? 2.5 : 1.5));
+            p.drawEllipse(w, hi ? r + 3.0 : r, hi ? r + 3.0 : r);
+        }
     }
 }
 
@@ -661,5 +919,158 @@ void FitsImageView::drawKooObjects(QPainter& p) const
                 : obj.name;
             p.drawText(w + QPointF(r + 2.0, 4.0), label);
         }
+    }
+}
+
+// ─── drawEclipticOverlay ──────────────────────────────────────────────────────
+
+void FitsImageView::drawEclipticOverlay(QPainter& p) const
+{
+    if (!fitsImg_.wcs.solved) return;
+
+    const double margin = 50.0;   // widget-pixel margin for clipping extended segments
+    const QRectF visible(-margin, -margin,
+                          width()  + 2 * margin,
+                          height() + 2 * margin);
+
+    // Helper: ecliptic/galactic longitude (degrees) → widget point via WCS
+    auto toWidget = [&](double ra, double dec) -> QPointF {
+        double px, py;
+        fitsImg_.wcs.skyToPix(ra, dec, px, py);
+        return imageToWidget(QPointF(px - 1.0, py - 1.0));  // WCS is 1-based
+    };
+
+    // Build a polyline for a great-circle sampled at kSteps points.
+    // Breaks the path when consecutive points jump > kMaxJump px (wrap-around).
+    auto buildPath = [&](auto coordFn) -> QPainterPath {
+        constexpr int    kSteps   = 360;
+        constexpr double kMaxJump = 200.0;   // px — larger than the image diagonal is impossible
+        QPainterPath path;
+        bool started = false;
+        QPointF prev;
+        for (int i = 0; i <= kSteps; ++i) {
+            const double lon = static_cast<double>(i);   // 0–360 degrees
+            auto [ra, dec] = coordFn(lon);
+            const QPointF w = toWidget(ra, dec);
+            if (!visible.contains(w)) { started = false; continue; }
+            if (started && QLineF(prev, w).length() > kMaxJump) { started = false; }
+            if (!started) { path.moveTo(w); started = true; }
+            else            path.lineTo(w);
+            prev = w;
+        }
+        return path;
+    };
+
+    // ── Ecliptic plane (β = 0) ────────────────────────────────────────────────
+    const QPainterPath eclPath = buildPath([](double lon) -> std::pair<double,double> {
+        double ra, dec;
+        core::eclipticToEquatorial(lon, 0.0, ra, dec);
+        return { ra, dec };
+    });
+
+    p.setPen(QPen(QColor(200, 230, 60, 220), 1.5, Qt::DotLine));
+    p.setBrush(Qt::NoBrush);
+    p.drawPath(eclPath);
+
+    // Label "Eclíptica" at the first visible point
+    if (!eclPath.isEmpty()) {
+        p.setPen(QColor(200, 230, 60, 200));
+        p.setFont(QFont(QStringLiteral("sans"), 8));
+        p.drawText(eclPath.elementAt(0).x + 4, eclPath.elementAt(0).y - 4,
+                   tr("Eclíptica"));
+    }
+
+    // ── Galactic plane (b = 0) ────────────────────────────────────────────────
+    // Pre-build equatorial coordinates of b=0 band
+    const QPainterPath galPath = buildPath([](double lon) -> std::pair<double,double> {
+        // Invert equatorialToGalactic: galactic plane at b=0, l=lon → equatorial
+        // Use the standard rotation: RA = αNGP + atan2(cos(b)*sin(l-lSun), ...)
+        // Numerically: solve back from the galactic definition.
+        // Galactic north pole in equatorial J2000:
+        constexpr double kAlphaGP = 192.859508 * M_PI / 180.0;
+        constexpr double kDeltaGP =  27.128336 * M_PI / 180.0;
+        constexpr double kLcp     = 122.932    * M_PI / 180.0;
+        const double l = lon * M_PI / 180.0;    // b = 0, so sin(b)=0, cos(b)=1
+        // Forward from galactic (l, b=0): unit vector in equatorial
+        // x_G = (cos(b)cos(l), cos(b)sin(l), sin(b))  in galactic frame
+        // Rotation from equatorial to galactic:
+        //   b = asin(sin(d)*sin(dGP) + cos(d)*cos(dGP)*cos(a - aGP))
+        //   l = lCP - atan2(cos(d)*sin(a-aGP), sin(d)*cos(dGP) - cos(d)*sin(dGP)*cos(a-aGP))
+        // Inverse (b=0):
+        //   sin(d)*sin(dGP) + cos(d)*cos(dGP)*cos(a-aGP) = 0   [sin b = 0]
+        //   lCP - atan2(...) = l
+        // (psi = kLcp - l not needed in the matrix path below)
+        // ψ = atan2(cos(d)*sin(a-aGP),  sin(d)*cos(dGP) - cos(d)*sin(dGP)*cos(a-aGP))
+        // From sin(b)=0: sin(d) = -cos(d)*cos(dGP)/sin(dGP) * cos(a-aGP)
+        // => tan(d) = -cos(dGP)*cos(a-aGP) / sin(dGP)
+        // let u = a - aGP, then:
+        //   sin(d) = -cos(dGP)*cos(u) / sqrt(1 + (cos(dGP)*cos(u)/sin(dGP))^2 ) ... complex
+        // Simplest: use the rotation matrix directly.
+        // Unit vector in galactic frame at (l, b=0):
+        const double gx =  std::cos(l);
+        const double gy =  std::sin(l);
+        const double gz =  0.0;        // sin(b) = 0
+        // Galactic → equatorial rotation matrix (transposed of eq→gal):
+        // This is the standard IAU matrix M^T where:
+        // M = {{-sin(aGP)*sin(lCP)-cos(aGP)*cos(lCP)*sin(dGP),
+        //        sin(aGP)*cos(lCP)-cos(aGP)*sin(lCP)*sin(dGP),
+        //        cos(aGP)*cos(dGP)},
+        //      { cos(aGP)*sin(lCP)-sin(aGP)*cos(lCP)*sin(dGP),
+        //       -cos(aGP)*cos(lCP)-sin(aGP)*sin(lCP)*sin(dGP),
+        //        sin(aGP)*cos(dGP)},
+        //      { cos(lCP)*cos(dGP),
+        //        sin(lCP)*cos(dGP),
+        //        sin(dGP)}}
+        // ex in equatorial = M^T * (gx,gy,gz)
+        const double saGP = std::sin(kAlphaGP), caGP = std::cos(kAlphaGP);
+        const double sdGP = std::sin(kDeltaGP), cdGP = std::cos(kDeltaGP);
+        const double slCP = std::sin(kLcp),     clCP = std::cos(kLcp);
+        const double ex = (-saGP*slCP - caGP*clCP*sdGP)*gx
+                        + ( caGP*slCP - saGP*clCP*sdGP)*gy
+                        + ( clCP*cdGP                 )*gz;
+        const double ey = ( saGP*clCP - caGP*slCP*sdGP)*gx
+                        + (-caGP*clCP - saGP*slCP*sdGP)*gy
+                        + ( slCP*cdGP                 )*gz;
+        const double ez = ( caGP*cdGP                 )*gx
+                        + ( saGP*cdGP                 )*gy
+                        + ( sdGP                      )*gz;
+        double ra  = std::fmod(std::atan2(ey, ex) * 180.0 / M_PI + 360.0, 360.0);
+        double dec = std::asin(std::clamp(ez, -1.0, 1.0)) * 180.0 / M_PI;
+        return { ra, dec };
+    });
+
+    p.setPen(QPen(QColor(100, 180, 255, 200), 1.5, Qt::DashDotLine));
+    p.drawPath(galPath);
+
+    if (!galPath.isEmpty()) {
+        p.setPen(QColor(100, 180, 255, 200));
+        p.drawText(galPath.elementAt(0).x + 4, galPath.elementAt(0).y - 4,
+                   tr("Via Láctea"));
+    }
+
+    // ── Galactic-plane proximity warning ─────────────────────────────────────
+    // Compute galactic latitude of the field centre.
+    double l_ctr, b_ctr;
+    core::equatorialToGalactic(fitsImg_.ra, fitsImg_.dec, l_ctr, b_ctr);
+
+    constexpr double kWarnBDeg = 15.0;   // |b| < 15° → high extinction
+    if (std::abs(b_ctr) < kWarnBDeg) {
+        const QString msg = tr("⚠  Plano galáctico — alta extinção interestelar  (b = %1°)")
+                            .arg(b_ctr, 0, 'f', 1);
+
+        QFont f(QStringLiteral("sans"), 9);
+        f.setBold(true);
+        const QFontMetrics fm(f);
+        const QRect tr2 = fm.boundingRect(msg);
+        const int pad = 6;
+        const QRect badge(12, height() - tr2.height() - pad * 2 - 12,
+                          tr2.width() + pad * 2, tr2.height() + pad * 2);
+
+        p.setFont(f);
+        p.setBrush(QColor(0, 0, 0, 160));
+        p.setPen(QPen(QColor(255, 180, 0, 220), 1));
+        p.drawRoundedRect(badge, 4, 4);
+        p.setPen(QColor(255, 200, 60, 230));
+        p.drawText(badge.adjusted(pad, pad, -pad, -pad), Qt::AlignVCenter, msg);
     }
 }

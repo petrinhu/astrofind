@@ -38,6 +38,12 @@ add_library(astrofind_core STATIC
     ApiKeyStore.h
     SessionComparator.cpp
     SessionComparator.h
+    ImageLoader.cpp
+    ImageLoader.h
+    FitsTableReader.cpp
+    FitsTableReader.h
+    Spectrum1D.cpp
+    Spectrum1D.h
 )
 
 target_include_directories(astrofind_core
@@ -52,11 +58,13 @@ target_link_libraries(astrofind_core
         Qt6::Network
         Qt6::Concurrent
         Qt6::Sql
+        Qt6::Xml
         cfitsio::cfitsio
         spdlog::spdlog
         nlohmann_json::nlohmann_json
         sep::sep
         fftw3::fftw3
+        CCfits::CCfits
 )
 
 if(ASTROFIND_HAS_KEYCHAIN)

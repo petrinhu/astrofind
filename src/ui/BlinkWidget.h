@@ -11,6 +11,9 @@
 #include <QVector>
 #include <QImage>
 
+/// Image sharpening modes available in the blink view.
+enum class BlinkSharpenMode { None, UnsharpMask, Laplacian };
+
 /// Full-screen blink view — cycles through session images to reveal moving objects.
 /// Keyboard: Space = pause/resume, Left/Right = step, Escape = stop.
 class BlinkWidget : public QWidget {
@@ -55,6 +58,10 @@ private:
     void buildUi();
     void updateInfoBar();
     void updateThumbnailHighlight();
+    void reapplySharpen();
+
+    /// Apply Laplacian or unsharp-mask sharpening to a display QImage.
+    static QImage applySharpening(const QImage& src, BlinkSharpenMode mode);
 
     QVector<core::FitsImage> images_;
     QVector<QImage>          precomputed_;
@@ -70,9 +77,11 @@ private:
     QPushButton*     btnPlay_    = nullptr;
     QPushButton*     btnNext_    = nullptr;
     QPushButton*     btnStop_    = nullptr;
+    QPushButton*     btnSharpen_ = nullptr;
     QSlider*         sldSpeed_   = nullptr;
     QLabel*          lblSpeed_   = nullptr;
     QVector<QLabel*> thumbLabels_;
 
-    QTimer* blinkTimer_ = nullptr;
+    QTimer*          blinkTimer_   = nullptr;
+    BlinkSharpenMode sharpenMode_  = BlinkSharpenMode::None;
 };

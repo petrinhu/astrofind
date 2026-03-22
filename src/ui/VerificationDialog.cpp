@@ -37,27 +37,31 @@ VerificationDialog::VerificationDialog(QWidget* parent)
     auto* infoBox = new QGroupBox(tr("Measurement"), this);
     auto* form    = new QFormLayout(infoBox);
     form->setSpacing(4);
-    raLabel_   = new QLabel(this);
-    decLabel_  = new QLabel(this);
-    magLabel_  = new QLabel(this);
-    fwhmLabel_ = new QLabel(this);
-    snrLabel_  = new QLabel(this);
+    raLabel_   = new QLabel(infoBox);
+    decLabel_  = new QLabel(infoBox);
+    magLabel_  = new QLabel(infoBox);
+    fwhmLabel_ = new QLabel(infoBox);
+    snrLabel_  = new QLabel(infoBox);
     form->addRow(tr("RA:"),   raLabel_);
     form->addRow(tr("Dec:"),  decLabel_);
     form->addRow(tr("Mag:"),  magLabel_);
     form->addRow(tr("FWHM:"), fwhmLabel_);
     form->addRow(tr("SNR:"),  snrLabel_);
 
-    nameEdit_ = new QLineEdit(this);
+    nameEdit_ = new QLineEdit(infoBox);
     nameEdit_->setPlaceholderText(tr("Object designation (optional)"));
     form->addRow(tr("Object:"), nameEdit_);
     rightLay->addWidget(infoBox);
 
-    auto* kooBox = new QGroupBox(tr("Nearby Known Objects"), this);
+    auto* kooBox = new QGroupBox(this);
     auto* kooLay = new QVBoxLayout(kooBox);
-    kooList_ = new QListWidget(this);
-    kooList_->setMaximumHeight(120);
-    kooList_->setToolTip(tr("Double-click to use as object designation"));
+    kooLay->setSpacing(4);
+    auto* kooLabel = new QLabel(tr("Objetos conhecidos próximos:"), kooBox);
+    kooLabel->setStyleSheet(QStringLiteral("font-size:10px; color:#8ab4cc;"));
+    kooLay->addWidget(kooLabel);
+    kooList_ = new QListWidget(kooBox);
+    kooList_->setMaximumHeight(110);
+    kooList_->setToolTip(tr("Clique duplo para usar como designação do objeto"));
     kooLay->addWidget(kooList_);
     rightLay->addWidget(kooBox);
 
@@ -118,14 +122,20 @@ void VerificationDialog::setMeasurement(const core::FitsImage& img,
 
     // Populate KOO list
     kooList_->clear();
-    for (const auto& k : nearbyKoo) {
-        const double dra  = (k.ra  - obs.ra)  * std::cos(obs.dec * M_PI / 180.0) * 3600.0;
-        const double ddec = (k.dec - obs.dec) * 3600.0;
-        const double sep  = std::hypot(dra, ddec);
-        kooList_->addItem(tr("%1  (sep %2\")  mag %3")
-            .arg(k.name)
-            .arg(sep,  0, 'f', 1)
-            .arg(k.mag, 0, 'f', 1));
+    if (nearbyKoo.isEmpty()) {
+        auto* placeholder = new QListWidgetItem(tr("Nenhum objeto conhecido próximo"), kooList_);
+        placeholder->setFlags(Qt::NoItemFlags);  // not selectable / not double-clickable
+        placeholder->setForeground(kooList_->palette().color(QPalette::Disabled, QPalette::Text));
+    } else {
+        for (const auto& k : nearbyKoo) {
+            const double dra  = (k.ra  - obs.ra)  * std::cos(obs.dec * M_PI / 180.0) * 3600.0;
+            const double ddec = (k.dec - obs.dec) * 3600.0;
+            const double sep  = std::hypot(dra, ddec);
+            kooList_->addItem(tr("%1  (sep %2\")  mag %3")
+                .arg(k.name)
+                .arg(sep,  0, 'f', 1)
+                .arg(k.mag, 0, 'f', 1));
+        }
     }
 
     updateZoom();
@@ -155,13 +165,20 @@ void VerificationDialog::updateZoom()
         for (int dx = -r; dx < r; ++dx) {
             const int sx = cx + dx;
             const int sy = cy + dy;
-            const uint8_t v = (sx >= 0 && sx < img_->width && sy >= 0 && sy < img_->height)
-                ? core::stretchPixel(img_->pixelAt(sx, sy), img_->displayMin, img_->displayMax)
-                : 0;
+            QRgb pix = qRgb(0, 0, 0);
+            if (sx >= 0 && sx < img_->width && sy >= 0 && sy < img_->height) {
+                const float raw = img_->pixelAt(sx, sy);
+                if (std::isnan(raw))
+                    pix = 0xFFFF00FF;  // magenta — NaN pixel
+                else {
+                    const uint8_t v = core::stretchPixel(raw, img_->displayMin, img_->displayMax);
+                    pix = qRgb(v, v, v);
+                }
+            }
             const QRect dst((dx + r) * Z, (dy + r) * Z, Z, Z);
             for (int py = dst.top(); py < dst.bottom(); ++py)
                 for (int px = dst.left(); px < dst.right(); ++px)
-                    out.setPixel(px, py, qRgb(v, v, v));
+                    out.setPixel(px, py, pix);
         }
     }
 

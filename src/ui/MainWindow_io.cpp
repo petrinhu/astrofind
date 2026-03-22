@@ -7,8 +7,15 @@ void MainWindow::onLoadImages()
         ccdDir.isEmpty() ? QDir::homePath() : ccdDir).toString();
 
     const QStringList files = QFileDialog::getOpenFileNames(this,
-        tr("Load FITS Images"), lastDir,
-        tr("FITS & ZIP (*.fits *.fit *.fts *.FITS *.FIT *.zip *.ZIP);;FITS Images (*.fits *.fit *.fts);;ZIP archives (*.zip);;All files (*)"));
+        tr("Load Astronomical Images"), lastDir,
+        tr("Astronomical Images (*.fits *.fit *.fts *.ser *.xisf *.tiff *.tif *.png *.bmp *.jpg *.jpeg *.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
+           ";;FITS (*.fits *.fit *.fts)"
+           ";;SER video (*.ser)"
+           ";;XISF — PixInsight (*.xisf)"
+           ";;TIFF / PNG / BMP / JPEG (*.tiff *.tif *.png *.bmp *.jpg *.jpeg)"
+           ";;ZIP archives (*.zip)"
+           ";;Compressed archives (*.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
+           ";;All files (*)"));
 
     if (files.isEmpty()) return;
 
@@ -18,6 +25,10 @@ void MainWindow::onLoadImages()
     for (const auto& path : files) {
         if (path.endsWith(".zip", Qt::CaseInsensitive)) {
             const auto extracted = expandZip(path);
+            for (const auto& ep : extracted) fitsToZip[ep] = path;
+            expandedFiles.append(extracted);
+        } else if (isLibArchiveFormat(path)) {
+            const auto extracted = expandArchive(path);
             for (const auto& ep : extracted) fitsToZip[ep] = path;
             expandedFiles.append(extracted);
         } else {
@@ -53,8 +64,19 @@ void MainWindow::onLoadImages()
         progress.setLabelText(tr("Loading %1…").arg(QFileInfo(path).fileName()));
         if (progress.wasCanceled()) break;
 
-        auto result = core::loadFits(path);
+        auto result = core::loadImage(path);
         if (!result) {
+            // Try as 1-D FITS spectrum
+            const QString ext = QFileInfo(path).suffix().toLower();
+            if (ext == "fits" || ext == "fit" || ext == "fts") {
+                auto specResult = core::loadSpectrum1D(path);
+                if (specResult) {
+                    auto* dlg = new SpectrumDialog(*specResult, this);
+                    dlg->show();
+                    ++loaded;
+                    continue;
+                }
+            }
             logPanel_->appendError(tr("Failed to load %1: %2").arg(path, result.error()));
             QMessageBox::warning(this, tr("Load Error"),
                 tr("Could not load:\n%1\n\n%2").arg(path, result.error()));
@@ -102,6 +124,12 @@ void MainWindow::onLoadImages()
         connect(sw, &FitsSubWindow::showHistogramRequested, this, [this, sw]() {
             onShowHistogram(sw);
         });
+        connect(sw, &FitsSubWindow::showPowerSpectrumRequested, this, [this, sw]() {
+            onShowPowerSpectrum(sw);
+        });
+        connect(sw, &FitsSubWindow::showCubeAnimationRequested, this, [this, sw]() {
+            onAnimateCube(sw);
+        });
         connect(sw, &FitsSubWindow::showImageCatalogRequested, this, [this]() {
             if (auto* dock = qobject_cast<QDockWidget*>(imageCatalogTable_->parent()))
                 dock->show();
@@ -144,12 +172,11 @@ void MainWindow::onLoadImages()
         imgs.reserve(session_->imageCount());
         for (int i = 0; i < session_->imageCount(); ++i)
             imgs.append(session_->image(i));
-        logPanel_->appendInfo(tr("[DBG] setImages(%1 imgs) — session=%2").arg(imgs.size()).arg(session_->imageCount()));
         thumbnailBar_->setImages(imgs);
-        logPanel_->appendInfo(tr("[DBG] setImages done"));
         autoFillSettingsFromSession();  // persist detected values to QSettings
         applySettingsToSubsystems();    // update status bar with FITS location info
         updateInfoBar();
+        maybeShowImageTypeWarning();
 
         if (workflowPanel_->autoWorkflow())
             QTimer::singleShot(0, this, &MainWindow::onDataReduction);
@@ -448,68 +475,125 @@ void MainWindow::onShowHistogram(FitsSubWindow* sw)
     const core::FitsImage& img = sw->fitsImage();
     if (!img.isValid()) return;
 
-    // Build a 256-bin histogram from a sampled subset of pixels
-    constexpr int kBins = 256;
-    std::array<int, kBins> bins{};
-    bins.fill(0);
-    const float mn = img.displayMin;
-    const float mx = img.displayMax > mn ? img.displayMax : mn + 1.0f;
-    const size_t step = std::max<size_t>(1, img.data.size() / 200000);
-    for (size_t i = 0; i < img.data.size(); i += step) {
-        const int bin = static_cast<int>((img.data[i] - mn) / (mx - mn) * (kBins - 1));
-        if (bin >= 0 && bin < kBins) ++bins[bin];
-    }
-
-    // Simple histogram dialog — custom paint widget
-    auto* dlg   = new QDialog(this, Qt::Tool);
-    dlg->setWindowTitle(tr("Histogram — %1").arg(img.fileName));
-    dlg->resize(400, 200);
-    auto* lay   = new QVBoxLayout(dlg);
-    lay->setContentsMargins(4, 4, 4, 4);
-
-    auto* canvas = new QWidget(dlg);
-    canvas->setMinimumSize(380, 160);
-    const auto capturedBins = bins;   // capture by value for the lambda
-    canvas->installEventFilter(dlg);  // paint via eventFilter below
-    canvas->setProperty("histBins", QVariant::fromValue<QByteArray>(
-        QByteArray(reinterpret_cast<const char*>(capturedBins.data()),
-                   static_cast<qsizetype>(capturedBins.size() * sizeof(int)))));
-
-    // Paint the histogram on the canvas
-    connect(dlg, &QObject::destroyed, canvas, &QWidget::deleteLater);
-    canvas->setAutoFillBackground(true);
-
-    // Use a simple label-based approach: render to QPixmap
-    const int W = 380, H = 150;
-    QPixmap pm(W, H);
-    pm.fill(QColor(20, 20, 30));
-    {
-        QPainter p(&pm);
-        p.setPen(Qt::NoPen);
-        const int maxVal = *std::max_element(bins.begin(), bins.end());
-        if (maxVal > 0) {
-            for (int b = 0; b < kBins; ++b) {
-                const int barH = static_cast<int>(static_cast<double>(bins[b]) / maxVal * H);
-                const int x = b * W / kBins;
-                const int w = std::max(1, W / kBins);
-                p.fillRect(x, H - barH, w, barH, QColor(80, 160, 220));
-            }
-        }
-        // Draw displayMin/Max markers
-        p.setPen(QPen(QColor(255, 80, 80), 1));
-        p.drawLine(0, 0, 0, H);       // left = displayMin
-        p.setPen(QPen(QColor(80, 255, 80), 1));
-        p.drawLine(W - 1, 0, W - 1, H); // right = displayMax
-    }
-    auto* imgLabel = new QLabel(dlg);
-    imgLabel->setPixmap(pm);
-    lay->addWidget(imgLabel);
-
-    auto* bb = new QDialogButtonBox(QDialogButtonBox::Close, dlg);
-    lay->addWidget(bb);
-    connect(bb, &QDialogButtonBox::rejected, dlg, &QDialog::accept);
-    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    auto* dlg = new HistogramDialog(img, this);
     dlg->show();
+}
+
+void MainWindow::onShowPowerSpectrum(FitsSubWindow* sw)
+{
+    if (!sw) return;
+    const core::FitsImage& img = sw->fitsImage();
+    if (!img.isValid()) return;
+
+    auto* dlg = new PowerSpectrumDialog(img, this);
+    dlg->show();
+}
+
+void MainWindow::onAnimateCube(FitsSubWindow* sw)
+{
+    if (!sw) return;
+    const core::FitsImage& img = sw->fitsImage();
+    if (!img.isValid() || img.cubeDepth <= 3) return;
+
+    auto result = core::loadFitsCube(img.filePath);
+    if (!result) {
+        QMessageBox::warning(this, tr("Cube Animation"), result.error());
+        return;
+    }
+
+    auto* bw = new BlinkWidget(mdiArea_);
+    bw->setImages(*result);
+    auto* mdiWin = mdiArea_->addSubWindow(bw);
+    mdiWin->setWindowTitle(tr("Cube: %1").arg(img.fileName));
+    mdiWin->setAttribute(Qt::WA_DeleteOnClose);
+    mdiWin->resize(mdiArea_->size() * 0.8);
+    mdiWin->show();
+    bw->startBlink();
+    connect(bw, &BlinkWidget::stopRequested, mdiWin, &QMdiSubWindow::close);
+}
+
+void MainWindow::onImportDaophotTable()
+{
+    auto* sw = activeFitsWindow();
+    if (!sw) {
+        QMessageBox::information(this, tr("Import DAOPHOT"),
+            tr("No image is active. Load an image first."));
+        return;
+    }
+
+    const QString path = QFileDialog::getOpenFileName(this,
+        tr("Import DAOPHOT / SExtractor Table"),
+        settings_.value(QStringLiteral("paths/lastImageDir"), QDir::homePath()).toString(),
+        tr("FITS BINTABLE (*.fits *.fit *.fts *.cat);;All files (*)"));
+    if (path.isEmpty()) return;
+
+    auto result = core::importDaophotTable(path);
+    if (!result) {
+        QMessageBox::warning(this, tr("Import DAOPHOT"), result.error());
+        return;
+    }
+
+    const int n = result->size();
+    // Merge into the active image overlay
+    core::FitsImage img = sw->fitsImage();
+    img.detectedStars = std::move(*result);
+    sw->updateImage(img);
+
+    // Update session if image is tracked
+    for (int i = 0; i < session_->imageCount(); ++i) {
+        if (session_->image(i).filePath == img.filePath) {
+            session_->image(i).detectedStars = img.detectedStars;
+            break;
+        }
+    }
+
+    logPanel_->appendInfo(tr("Imported %1 stars from '%2'")
+        .arg(n).arg(QFileInfo(path).fileName()));
+    showToast(tr("Imported %1 stars").arg(n));
+}
+
+void MainWindow::onImportReductionTable()
+{
+    auto* sw = activeFitsWindow();
+    if (!sw) {
+        QMessageBox::information(this, tr("Import Reduction Table"),
+            tr("No image is active. Load an image first."));
+        return;
+    }
+
+    const QString path = QFileDialog::getOpenFileName(this,
+        tr("Import IRAF / Astropy Reduction Table"),
+        settings_.value(QStringLiteral("paths/lastImageDir"), QDir::homePath()).toString(),
+        tr("FITS BINTABLE (*.fits *.fit *.fts *.cat);;All files (*)"));
+    if (path.isEmpty()) return;
+
+    auto result = core::importReductionTable(path);
+    if (!result) {
+        QMessageBox::warning(this, tr("Import Reduction Table"), result.error());
+        return;
+    }
+
+    const int n = result->size();
+    const int withSky = static_cast<int>(
+        std::count_if(result->begin(), result->end(),
+                      [](const core::DetectedStar& s) { return s.matched; }));
+
+    core::FitsImage img = sw->fitsImage();
+    img.detectedStars = std::move(*result);
+    sw->updateImage(img);
+
+    for (int i = 0; i < session_->imageCount(); ++i) {
+        if (session_->image(i).filePath == img.filePath) {
+            session_->image(i).detectedStars = img.detectedStars;
+            break;
+        }
+    }
+
+    QString msg = tr("Imported %1 entries from '%2'").arg(n).arg(QFileInfo(path).fileName());
+    if (withSky > 0)
+        msg += tr(" (%1 with RA/Dec)").arg(withSky);
+    logPanel_->appendInfo(msg);
+    showToast(tr("Imported %1 entries").arg(n));
 }
 
 // ─── Session settings reset ────────────────────────────────────────────────────
@@ -848,9 +932,11 @@ void MainWindow::doLoadProject(const QString& path)
         // ── Resolve file path ─────────────────────────────────────────────────
         QString resolvedPath = savedImg.filePath;
         if (!QFile::exists(resolvedPath)) {
-            // Try re-extracting from the original ZIP if we know where it came from
+            // Try re-extracting from the original archive if we know where it came from
             if (!savedImg.sourceZipPath.isEmpty() && QFile::exists(savedImg.sourceZipPath)) {
-                const QStringList extracted = expandZip(savedImg.sourceZipPath);
+                const QStringList extracted = isLibArchiveFormat(savedImg.sourceZipPath)
+                    ? expandArchive(savedImg.sourceZipPath)
+                    : expandZip(savedImg.sourceZipPath);
                 for (const auto& ep : extracted) {
                     if (QFileInfo(ep).fileName() == savedImg.fileName) {
                         resolvedPath = ep;
@@ -879,10 +965,13 @@ void MainWindow::doLoadProject(const QString& path)
                     const QString picked = QFileDialog::getOpenFileName(this,
                         tr("Localizar %1").arg(savedImg.fileName),
                         QFileInfo(savedImg.filePath).absolutePath(),
-                        tr("FITS & ZIP (*.fits *.fit *.fts *.zip);;FITS (*.fits *.fit *.fts);;ZIP (*.zip);;All files (*)"));
+                        tr("FITS & Archives (*.fits *.fit *.fts *.zip *.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;FITS (*.fits *.fit *.fts);;ZIP (*.zip);;Compressed archives (*.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;All files (*)"));
                     if (picked.isEmpty()) { continue; }
-                    if (picked.endsWith(".zip", Qt::CaseInsensitive)) {
-                        const QStringList extracted = expandZip(picked);
+                    if (picked.endsWith(".zip", Qt::CaseInsensitive)
+                            || isLibArchiveFormat(picked)) {
+                        const QStringList extracted = isLibArchiveFormat(picked)
+                            ? expandArchive(picked)
+                            : expandZip(picked);
                         for (const auto& ep : extracted) {
                             if (QFileInfo(ep).fileName() == savedImg.fileName) {
                                 resolvedPath = ep; break;
@@ -902,7 +991,7 @@ void MainWindow::doLoadProject(const QString& path)
             }
         }
 
-        auto result = core::loadFits(resolvedPath);
+        auto result = core::loadImage(resolvedPath);
         if (!result) {
             logPanel_->appendError(tr("Projeto: falha ao carregar %1: %2")
                 .arg(savedImg.fileName, result.error()));
@@ -940,7 +1029,9 @@ void MainWindow::doLoadProject(const QString& path)
         connect(sw, &FitsSubWindow::exportImageRequested,      this, [this, sw]() { onExportImage(sw); });
         connect(sw, &FitsSubWindow::applyDarkRequested,        this, [this, sw]() { onApplyDarkToWindow(sw); });
         connect(sw, &FitsSubWindow::applyFlatRequested,        this, [this, sw]() { onApplyFlatToWindow(sw); });
-        connect(sw, &FitsSubWindow::showHistogramRequested,    this, [this, sw]() { onShowHistogram(sw); });
+        connect(sw, &FitsSubWindow::showHistogramRequested,       this, [this, sw]() { onShowHistogram(sw); });
+        connect(sw, &FitsSubWindow::showPowerSpectrumRequested,   this, [this, sw]() { onShowPowerSpectrum(sw); });
+        connect(sw, &FitsSubWindow::showCubeAnimationRequested,   this, [this, sw]() { onAnimateCube(sw); });
         connect(sw, &FitsSubWindow::showImageCatalogRequested, this, [this]() {
             if (auto* dock = qobject_cast<QDockWidget*>(imageCatalogTable_->parent())) dock->show();
         });
@@ -1085,6 +1176,58 @@ void MainWindow::updateRecentMenu()
     });
 }
 
+void MainWindow::maybeShowImageTypeWarning()
+{
+    if (!settings_.value(QStringLiteral("display/showColorTypeWarning"), true).toBool())
+        return;
+    if (session_->isEmpty())
+        return;
+
+    int colorCount = 0;
+    int bwCount    = 0;
+    for (int i = 0; i < session_->imageCount(); ++i) {
+        if (session_->image(i).isColor) ++colorCount;
+        else                            ++bwCount;
+    }
+
+    const int total = colorCount + bwCount;
+    QString typeText;
+    if (colorCount == total)
+        typeText = tr("🎨 Coloridas (NAXIS3 = 3)");
+    else if (bwCount == total)
+        typeText = tr("⬛ Preto e Branco (escala de cinza)");
+    else
+        typeText = tr("⬛ %1 PB  +  🎨 %2 coloridas").arg(bwCount).arg(colorCount);
+
+    auto* dlg = new QDialog(this);
+    dlg->setWindowTitle(tr("Imagens carregadas"));
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    auto* vlay = new QVBoxLayout(dlg);
+    vlay->setSpacing(14);
+    vlay->setContentsMargins(20, 18, 20, 14);
+
+    auto* lbl = new QLabel(
+        tr("<b>%1 imagem(ns) carregada(s)</b><br><br>Tipo: %2")
+            .arg(total).arg(typeText), dlg);
+    lbl->setTextFormat(Qt::RichText);
+    vlay->addWidget(lbl);
+
+    auto* chk = new QCheckBox(tr("Mostrar sempre este aviso"), dlg);
+    chk->setChecked(true);
+    vlay->addWidget(chk);
+
+    auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok, dlg);
+    connect(bb, &QDialogButtonBox::accepted, dlg, &QDialog::accept);
+    vlay->addWidget(bb);
+
+    connect(dlg, &QDialog::finished, this, [this, chk](int) {
+        if (!chk->isChecked())
+            settings_.setValue(QStringLiteral("display/showColorTypeWarning"), false);
+    });
+
+    dlg->exec();
+}
+
 void MainWindow::addToRecentProjects(const QString& path)
 {
     QStringList list = settings_.value(QStringLiteral("files/recentProjects")).toStringList();
@@ -1134,12 +1277,16 @@ void MainWindow::loadFromDir(const QString& dirPath)
     }
 
     static const QStringList kFitsFilters = {
-        "*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT", "*.FTS"
+        "*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT", "*.FTS",
+        "*.ser", "*.SER",
+        "*.xisf", "*.XISF",
+        "*.tiff", "*.tif", "*.TIFF", "*.TIF",
+        "*.png", "*.PNG"
     };
     const QStringList fitsFiles = QDir(dirPath).entryList(kFitsFilters, QDir::Files, QDir::Name);
     if (fitsFiles.isEmpty()) {
         QMessageBox::information(this, tr("Recent Files"),
-            tr("No FITS files found in:\n%1").arg(dirPath));
+            tr("No image files found in:\n%1").arg(dirPath));
         return;
     }
 
@@ -1176,7 +1323,7 @@ void MainWindow::loadFromDir(const QString& dirPath)
         progress.setLabelText(tr("Loading %1…").arg(QFileInfo(path).fileName()));
         if (progress.wasCanceled()) break;
 
-        auto result = core::loadFits(path);
+        auto result = core::loadImage(path);
         if (!result) {
             logPanel_->appendError(tr("Failed to load %1: %2").arg(path, result.error()));
             continue;
@@ -1206,7 +1353,9 @@ void MainWindow::loadFromDir(const QString& dirPath)
         connect(sw, &FitsSubWindow::exportImageRequested,  this, [this, sw]() { onExportImage(sw); });
         connect(sw, &FitsSubWindow::applyDarkRequested,    this, [this, sw]() { onApplyDarkToWindow(sw); });
         connect(sw, &FitsSubWindow::applyFlatRequested,    this, [this, sw]() { onApplyFlatToWindow(sw); });
-        connect(sw, &FitsSubWindow::showHistogramRequested,this, [this, sw]() { onShowHistogram(sw); });
+        connect(sw, &FitsSubWindow::showHistogramRequested,     this, [this, sw]() { onShowHistogram(sw); });
+        connect(sw, &FitsSubWindow::showPowerSpectrumRequested, this, [this, sw]() { onShowPowerSpectrum(sw); });
+        connect(sw, &FitsSubWindow::showCubeAnimationRequested, this, [this, sw]() { onAnimateCube(sw); });
 
         ++loaded;
     }
@@ -1232,6 +1381,107 @@ void MainWindow::loadFromDir(const QString& dirPath)
 // ─── Astrometry slots ─────────────────────────────────────────────────────────
 
 
+// ─── isLibArchiveFormat ───────────────────────────────────────────────────────
+
+bool MainWindow::isLibArchiveFormat(const QString& path) noexcept
+{
+    const QString l = path.toLower();
+    return l.endsWith(".tar.gz")  || l.endsWith(".tgz")
+        || l.endsWith(".tar.bz2") || l.endsWith(".tbz2")
+        || l.endsWith(".tar.xz")  || l.endsWith(".txz")
+        || l.endsWith(".7z")      || l.endsWith(".rar");
+}
+
+// ─── expandArchive (libarchive) ───────────────────────────────────────────────
+
+QStringList MainWindow::expandArchive(const QString& archivePath)
+{
+    QStringList result;
+
+#ifndef ASTROFIND_HAS_LIBARCHIVE
+    logPanel_->appendWarning(
+        tr("Cannot extract '%1': libarchive not available. "
+           "Install libarchive-devel and recompile.")
+            .arg(QFileInfo(archivePath).fileName()));
+    return result;
+#else
+    // Image file extensions we want to extract
+    static const QStringList kExts = {
+        ".fits", ".fit", ".fts", ".ser", ".xisf",
+        ".tiff", ".tif", ".png"
+    };
+    auto isImageFile = [&](const char* name) -> bool {
+        const QString n = QString::fromUtf8(name).toLower();
+        for (const auto& ext : kExts)
+            if (n.endsWith(ext)) return true;
+        return false;
+    };
+
+    if (!tempDir_) tempDir_ = std::make_unique<QTemporaryDir>();
+    if (!tempDir_->isValid()) {
+        logPanel_->appendError(tr("Could not create temp directory for archive extraction"));
+        return result;
+    }
+
+    const QString extractDir = tempDir_->path() + QDir::separator()
+        + QFileInfo(archivePath).baseName().left(32)
+        + QStringLiteral("_") + QString::number(QDateTime::currentMSecsSinceEpoch());
+    QDir().mkpath(extractDir);
+
+    struct archive* ar = archive_read_new();
+    archive_read_support_filter_all(ar);
+    archive_read_support_format_all(ar);
+
+    if (archive_read_open_filename(ar, archivePath.toLocal8Bit().constData(), 65536) != ARCHIVE_OK) {
+        logPanel_->appendError(tr("Cannot open archive: %1 — %2")
+            .arg(QFileInfo(archivePath).fileName(),
+                 QString::fromLocal8Bit(archive_error_string(ar))));
+        archive_read_free(ar);
+        return result;
+    }
+
+    struct archive_entry* entry = nullptr;
+    while (archive_read_next_header(ar, &entry) == ARCHIVE_OK) {
+        const char* pathname = archive_entry_pathname(entry);
+        if (!pathname || !isImageFile(pathname)) {
+            archive_read_data_skip(ar);
+            continue;
+        }
+
+        // Flatten to basename — avoids recreating the archive's directory tree
+        const QString baseName = QFileInfo(QString::fromUtf8(pathname)).fileName();
+        const QString destPath = extractDir + QDir::separator() + baseName;
+        archive_entry_set_pathname(entry, destPath.toLocal8Bit().constData());
+
+        struct archive* wr = archive_write_disk_new();
+        archive_write_disk_set_options(wr,
+            ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_SECURE_NODOTDOT);
+        archive_write_disk_set_standard_lookup(wr);
+
+        if (archive_write_header(wr, entry) == ARCHIVE_OK) {
+            const void* buf; size_t size; la_int64_t offset;
+            while (archive_read_data_block(ar, &buf, &size, &offset) == ARCHIVE_OK)
+                archive_write_data_block(wr, buf, size, offset);
+            archive_write_finish_entry(wr);
+            result.append(destPath);
+        }
+        archive_write_free(wr);
+    }
+    archive_read_free(ar);
+
+    result.sort();
+    if (result.isEmpty())
+        logPanel_->appendWarning(
+            tr("No image files found in archive: %1").arg(QFileInfo(archivePath).fileName()));
+    else
+        logPanel_->appendInfo(tr("Extracted %1 image file(s) from %2")
+            .arg(result.size()).arg(QFileInfo(archivePath).fileName()));
+    return result;
+#endif
+}
+
+// ─── expandZip ────────────────────────────────────────────────────────────────
+
 QStringList MainWindow::expandZip(const QString& zipPath)
 {
     QStringList result;
@@ -1251,11 +1501,15 @@ QStringList MainWindow::expandZip(const QString& zipPath)
         + QStringLiteral("_") + QString::number(QDateTime::currentMSecsSinceEpoch());
     QDir().mkpath(extractDir);
 
-    // Extract only FITS files from the ZIP using system unzip
+    // Extract supported image files from the ZIP using system unzip
     QProcess proc;
     proc.start("unzip", {
         "-o", zipPath,
         "*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
+        "*.ser", "*.SER",
+        "*.xisf", "*.XISF",
+        "*.tiff", "*.tif", "*.TIFF", "*.TIF",
+        "*.png", "*.PNG",
         "-d", extractDir
     });
 
@@ -1266,16 +1520,18 @@ QStringList MainWindow::expandZip(const QString& zipPath)
 
     // Search only inside this ZIP's own subdirectory
     QDirIterator it(extractDir,
-                    {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT"},
+                    {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
+                     "*.ser", "*.SER", "*.xisf", "*.XISF",
+                     "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG"},
                     QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())
         result.append(it.next());
     result.sort();
 
     if (result.isEmpty())
-        logPanel_->appendWarning(tr("No FITS files found in ZIP: %1").arg(QFileInfo(zipPath).fileName()));
+        logPanel_->appendWarning(tr("No image files found in ZIP: %1").arg(QFileInfo(zipPath).fileName()));
     else
-        logPanel_->appendInfo(tr("Extracted %1 FITS file(s) from %2")
+        logPanel_->appendInfo(tr("Extracted %1 image file(s) from %2")
             .arg(result.size()).arg(QFileInfo(zipPath).fileName()));
 
     return result;

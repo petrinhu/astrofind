@@ -6,6 +6,10 @@
 #include <QShowEvent>
 #include <QMouseEvent>
 
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
 BlinkWidget::BlinkWidget(QWidget* parent)
     : QWidget(parent)
     , blinkTimer_(new QTimer(this))
@@ -70,6 +74,11 @@ void BlinkWidget::buildUi()
     btnStop_ = new QPushButton(tr("■ Stop"), ctrlBar); btnStop_->setFixedSize(72, 32);
     btnStop_->setStyleSheet(btnStyle + "QPushButton { color:#f85149; border-color:#f85149; }");
 
+    btnSharpen_ = new QPushButton(tr("Sharpen: Off"), ctrlBar);
+    btnSharpen_->setFixedHeight(32);
+    btnSharpen_->setStyleSheet(btnStyle);
+    btnSharpen_->setToolTip(tr("Cycle: Off → Unsharp Mask → Laplacian → Off"));
+
     lblSpeed_ = new QLabel(tr("Speed: 500ms"), ctrlBar);
     lblSpeed_->setStyleSheet("color:#8b949e; min-width:100px;");
 
@@ -106,6 +115,8 @@ void BlinkWidget::buildUi()
     ctrlLay->addWidget(btnPlay_);
     ctrlLay->addWidget(btnNext_);
     ctrlLay->addWidget(btnStop_);
+    ctrlLay->addSpacing(8);
+    ctrlLay->addWidget(btnSharpen_);
     ctrlLay->addSpacing(16);
     ctrlLay->addWidget(lblSpeed_);
     ctrlLay->addWidget(sldSpeed_);
@@ -124,6 +135,24 @@ void BlinkWidget::buildUi()
         if (isBlinking()) stopBlink(); else startBlink();
     });
     connect(sldSpeed_, &QSlider::valueChanged, this, &BlinkWidget::onSpeedChanged);
+    connect(btnSharpen_, &QPushButton::clicked, this, [this] {
+        // Cycle: None → UnsharpMask → Laplacian → None
+        switch (sharpenMode_) {
+        case BlinkSharpenMode::None:
+            sharpenMode_ = BlinkSharpenMode::UnsharpMask;
+            btnSharpen_->setText(tr("Sharpen: USM"));
+            break;
+        case BlinkSharpenMode::UnsharpMask:
+            sharpenMode_ = BlinkSharpenMode::Laplacian;
+            btnSharpen_->setText(tr("Sharpen: LoG"));
+            break;
+        case BlinkSharpenMode::Laplacian:
+            sharpenMode_ = BlinkSharpenMode::None;
+            btnSharpen_->setText(tr("Sharpen: Off"));
+            break;
+        }
+        reapplySharpen();
+    });
 }
 
 // ── Image management ──────────────────────────────────────────────────────────
@@ -136,7 +165,7 @@ void BlinkWidget::setImages(const QVector<core::FitsImage>& images)
     precomputed_.reserve(images_.size());
 
     for (const auto& img : images_) {
-        precomputed_.append(FitsImageView::toDisplayImage(img));
+        precomputed_.append(applySharpening(FitsImageView::toDisplayImage(img), sharpenMode_));
     }
 
     for (int i = 0; i < thumbLabels_.size(); ++i) {
@@ -272,6 +301,135 @@ void BlinkWidget::onCursorMoved(double ra, double dec, float /*value*/)
         lblRADec_->clear();
     else
         lblRADec_->setText(QString("RA %1  Dec %2").arg(ra, 0, 'f', 5).arg(dec, 0, 'f', 5));
+}
+
+// ── Sharpening ────────────────────────────────────────────────────────────────
+
+void BlinkWidget::reapplySharpen()
+{
+    precomputed_.clear();
+    precomputed_.reserve(images_.size());
+    for (const auto& img : images_)
+        precomputed_.append(applySharpening(FitsImageView::toDisplayImage(img), sharpenMode_));
+    if (currentIdx_ < precomputed_.size())
+        view_->setPrecomputedImage(precomputed_[currentIdx_], images_[currentIdx_]);
+}
+
+// Applies sharpening to a display QImage.
+// Works on both Grayscale8 and RGB32 formats via per-channel float arrays.
+QImage BlinkWidget::applySharpening(const QImage& src, BlinkSharpenMode mode)
+{
+    if (mode == BlinkSharpenMode::None || src.isNull()) return src;
+
+    const int w = src.width();
+    const int h = src.height();
+    if (w < 3 || h < 3) return src;
+
+    const bool isGray = (src.format() == QImage::Format_Grayscale8);
+    const int  nch    = isGray ? 1 : 3;
+
+    // Extract pixel values into float channels [nch × (h*w)]
+    std::vector<std::vector<float>> chan(static_cast<size_t>(nch),
+                                        std::vector<float>(static_cast<size_t>(w * h)));
+    if (isGray) {
+        for (int y = 0; y < h; ++y) {
+            const uchar* row = src.constScanLine(y);
+            for (int x = 0; x < w; ++x)
+                chan[0][static_cast<size_t>(y * w + x)] = static_cast<float>(row[x]);
+        }
+    } else {
+        const QImage rgb = src.convertToFormat(QImage::Format_RGB32);
+        for (int y = 0; y < h; ++y) {
+            const QRgb* row = reinterpret_cast<const QRgb*>(rgb.constScanLine(y));
+            for (int x = 0; x < w; ++x) {
+                const size_t i = static_cast<size_t>(y * w + x);
+                chan[0][i] = static_cast<float>(qRed(row[x]));
+                chan[1][i] = static_cast<float>(qGreen(row[x]));
+                chan[2][i] = static_cast<float>(qBlue(row[x]));
+            }
+        }
+    }
+
+    std::vector<std::vector<float>> out(static_cast<size_t>(nch),
+                                        std::vector<float>(static_cast<size_t>(w * h)));
+
+    if (mode == BlinkSharpenMode::UnsharpMask) {
+        // 3×3 box blur, then: v + 1.5*(v – blurred)
+        constexpr float kStrength = 1.5f;
+        for (int c = 0; c < nch; ++c) {
+            std::vector<float> blurred(static_cast<size_t>(w * h));
+            for (int y = 1; y < h - 1; ++y)
+                for (int x = 1; x < w - 1; ++x) {
+                    float sum = 0.0f;
+                    for (int dy = -1; dy <= 1; ++dy)
+                        for (int dx = -1; dx <= 1; ++dx)
+                            sum += chan[static_cast<size_t>(c)]
+                                       [static_cast<size_t>((y + dy) * w + (x + dx))];
+                    blurred[static_cast<size_t>(y * w + x)] = sum / 9.0f;
+                }
+            // Border pixels: copy unchanged
+            for (int y = 0; y < h; ++y) {
+                blurred[static_cast<size_t>(y * w)]         = chan[static_cast<size_t>(c)][static_cast<size_t>(y * w)];
+                blurred[static_cast<size_t>(y * w + w - 1)] = chan[static_cast<size_t>(c)][static_cast<size_t>(y * w + w - 1)];
+            }
+            for (int x = 0; x < w; ++x) {
+                blurred[static_cast<size_t>(x)]               = chan[static_cast<size_t>(c)][static_cast<size_t>(x)];
+                blurred[static_cast<size_t>((h - 1) * w + x)] = chan[static_cast<size_t>(c)][static_cast<size_t>((h - 1) * w + x)];
+            }
+            const size_t n = static_cast<size_t>(w * h);
+            for (size_t i = 0; i < n; ++i)
+                out[static_cast<size_t>(c)][i] = std::clamp(
+                    chan[static_cast<size_t>(c)][i] + kStrength * (chan[static_cast<size_t>(c)][i] - blurred[i]),
+                    0.0f, 255.0f);
+        }
+    } else { // Laplacian: v + 0.5 * (4v – N – S – E – W)
+        constexpr float kScale = 0.5f;
+        for (int c = 0; c < nch; ++c) {
+            // Interior pixels
+            for (int y = 1; y < h - 1; ++y)
+                for (int x = 1; x < w - 1; ++x) {
+                    const float v  = chan[static_cast<size_t>(c)][static_cast<size_t>(y * w + x)];
+                    const float lap = 4.0f * v
+                                    - chan[static_cast<size_t>(c)][static_cast<size_t>((y - 1) * w + x)]
+                                    - chan[static_cast<size_t>(c)][static_cast<size_t>((y + 1) * w + x)]
+                                    - chan[static_cast<size_t>(c)][static_cast<size_t>(y * w + x - 1)]
+                                    - chan[static_cast<size_t>(c)][static_cast<size_t>(y * w + x + 1)];
+                    out[static_cast<size_t>(c)][static_cast<size_t>(y * w + x)] =
+                        std::clamp(v + kScale * lap, 0.0f, 255.0f);
+                }
+            // Border pixels: copy unchanged
+            for (int y = 0; y < h; ++y) {
+                out[static_cast<size_t>(c)][static_cast<size_t>(y * w)]         = chan[static_cast<size_t>(c)][static_cast<size_t>(y * w)];
+                out[static_cast<size_t>(c)][static_cast<size_t>(y * w + w - 1)] = chan[static_cast<size_t>(c)][static_cast<size_t>(y * w + w - 1)];
+            }
+            for (int x = 0; x < w; ++x) {
+                out[static_cast<size_t>(c)][static_cast<size_t>(x)]               = chan[static_cast<size_t>(c)][static_cast<size_t>(x)];
+                out[static_cast<size_t>(c)][static_cast<size_t>((h - 1) * w + x)] = chan[static_cast<size_t>(c)][static_cast<size_t>((h - 1) * w + x)];
+            }
+        }
+    }
+
+    // Write back into a copy of src
+    QImage result = src.copy();
+    if (isGray) {
+        for (int y = 0; y < h; ++y) {
+            uchar* row = result.scanLine(y);
+            for (int x = 0; x < w; ++x)
+                row[x] = static_cast<uchar>(out[0][static_cast<size_t>(y * w + x)]);
+        }
+    } else {
+        result = result.convertToFormat(QImage::Format_RGB32);
+        for (int y = 0; y < h; ++y) {
+            QRgb* row = reinterpret_cast<QRgb*>(result.scanLine(y));
+            for (int x = 0; x < w; ++x) {
+                const size_t i = static_cast<size_t>(y * w + x);
+                row[x] = qRgb(static_cast<int>(out[0][i]),
+                               static_cast<int>(out[1][i]),
+                               static_cast<int>(out[2][i]));
+            }
+        }
+    }
+    return result;
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────

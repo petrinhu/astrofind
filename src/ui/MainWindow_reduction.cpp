@@ -131,6 +131,17 @@ void MainWindow::onDataReduction()
             else
                 logPanel_->appendWarning(tr("Image %1: flat field size mismatch — skipped").arg(i+1));
         }
+        if (settings_.value(QStringLiteral("camera/badPixelCorrection"), true).toBool()) {
+            const double bpSigma = settings_.value(QStringLiteral("camera/badPixelSigma"), 5.0).toDouble();
+            const int nFixed = core::applyBadPixelCorrection(img, bpSigma);
+            if (nFixed > 0)
+                logPanel_->appendInfo(tr("  Image %1: %2 bad pixel(s) corrected (σ=%3)")
+                    .arg(i+1).arg(nFixed).arg(bpSigma, 0, 'f', 1));
+        }
+        if (settings_.value(QStringLiteral("detection/backgroundSubtraction"), false).toBool()) {
+            const int tileSize = settings_.value(QStringLiteral("detection/backgroundTileSize"), 64).toInt();
+            core::subtractBackground(img, tileSize);
+        }
     }
 
     // ── Step 2: star detection on all images in parallel ─────────────────────
@@ -138,8 +149,9 @@ void MainWindow::onDataReduction()
     statusBar()->showMessage(tr("Detecting stars..."));
 
     core::StarDetectorConfig cfg;
-    cfg.threshold = settings_.value(QStringLiteral("detection/sigmaLimit"), 4.0).toDouble();
-    const double minFwhm   = settings_.value(QStringLiteral("detection/minFwhm"), 0.70).toDouble();
+    cfg.threshold           = settings_.value(QStringLiteral("detection/sigmaLimit"),      4.0).toDouble();
+    cfg.streakMinElongation = settings_.value(QStringLiteral("detection/streakElongation"), 3.0).toDouble();
+    const double minFwhm    = settings_.value(QStringLiteral("detection/minFwhm"),          0.70).toDouble();
 
     QVector<int> indices(N);
     std::iota(indices.begin(), indices.end(), 0);
@@ -176,8 +188,18 @@ void MainWindow::onAllStarsDetected()
     const auto results = starWatcher_->future().results();
     for (int i = 0; i < results.size(); ++i) {
         session_->image(i).detectedStars = results[i];
-        logPanel_->appendInfo(tr("Image %1: %2 stars found")
-                              .arg(i + 1).arg(results[i].size()));
+
+        const int nStreaks = static_cast<int>(std::count_if(
+            results[i].begin(), results[i].end(),
+            [](const core::DetectedStar& s){ return s.streak; }));
+
+        if (nStreaks > 0)
+            logPanel_->appendInfo(tr("Image %1: %2 stars found (%3 streak/trail candidate(s) — shown in orange)")
+                .arg(i + 1).arg(results[i].size()).arg(nStreaks));
+        else
+            logPanel_->appendInfo(tr("Image %1: %2 stars found")
+                .arg(i + 1).arg(results[i].size()));
+
         updateImageOverlay(i);
     }
     statusBar()->clearMessage();
@@ -541,13 +563,17 @@ void MainWindow::onBackgroundAndRange()
 
     auto* dlg = new BackgroundRangeDialog(fw->imageView(), imgPtr, this);
     connect(dlg, &BackgroundRangeDialog::stretchChanged,
-        this, [this](float mn, float mx, bool all) {
+        this, [this](float mn, float mx, core::StretchMode mode, core::ColorLut lut, bool all) {
             if (!all) return;
             for (auto* fsw : allFitsWindows()) {
                 for (int i = 0; i < session_->imageCount(); ++i) {
                     if (session_->image(i).filePath == fsw->fitsImage().filePath) {
-                        session_->image(i).displayMin = mn;
-                        session_->image(i).displayMax = mx;
+                        session_->image(i).displayMin  = mn;
+                        session_->image(i).displayMax  = mx;
+                        session_->image(i).stretchMode = mode;
+                        session_->image(i).colorLut    = lut;
+                        fsw->imageView()->setStretchMode(mode);
+                        fsw->imageView()->setColorLut(lut);
                         fsw->imageView()->setStretch(mn, mx);
                         break;
                     }
@@ -879,12 +905,36 @@ void MainWindow::onKnownObjectOverlay()
                                              QStringLiteral("UCAC4")).toString();
     catalogClient_->setCatalogType(catType);
 
+    workflowPanel_->setStepStatus(2, WorkflowPanel::Status::InProgress);
+    const double magLim = settings_.value(QStringLiteral("catalog/magLimit"), 16.0).toDouble();
+
+    const QString catSource = settings_.value(QStringLiteral("catalog/source"),
+                                              QStringLiteral("vizier")).toString();
+    if (catSource == QStringLiteral("local")) {
+        const QString localPath = settings_.value(QStringLiteral("catalog/localPath")).toString();
+        if (localPath.isEmpty()) {
+            QMessageBox::warning(this, tr("Local Catalog"),
+                tr("No local catalog file configured. Set it in Settings → Connections."));
+        } else {
+            auto localResult = core::readLocalCatalogTable(localPath, ra, dec, fovDeg);
+            if (!localResult) {
+                logPanel_->appendWarning(tr("Local catalog error: %1").arg(localResult.error()));
+                workflowPanel_->setStepStatus(2, WorkflowPanel::Status::Error);
+            } else {
+                logPanel_->appendInfo(tr("Local catalog: %1 stars from '%2'")
+                    .arg(localResult->size()).arg(QFileInfo(localPath).fileName()));
+                onCatalogReady(*localResult);
+            }
+        }
+        if (jd > 2400000.0)
+            kooEngine_->queryField(ra, dec, fovDeg, jd);
+        return;
+    }
+    // original VizieR path follows...
     logPanel_->appendInfo(tr("Querying VizieR (%1) and SkyBoT at RA=%2 Dec=%3 r=%4°...")
         .arg(catType)
         .arg(ra, 0, 'f', 4).arg(dec, 0, 'f', 4).arg(fovDeg, 0, 'f', 2));
 
-    workflowPanel_->setStepStatus(2, WorkflowPanel::Status::InProgress);
-    const double magLim = settings_.value(QStringLiteral("catalog/magLimit"), 16.0).toDouble();
     catalogClient_->queryRegion(ra, dec, fovDeg, magLim);
     if (jd > 2400000.0)
         kooEngine_->queryField(ra, dec, fovDeg, jd);

@@ -13,16 +13,25 @@ struct DetectedStar {
     double flux     = 0.0;   ///< Isophotal flux (ADU)
     double a        = 0.0;   ///< Semi-major axis (pixels)
     double b        = 0.0;   ///< Semi-minor axis (pixels)
-    double theta    = 0.0;   ///< Position angle (radians, E of N)
+    double theta    = 0.0;   ///< Position angle (radians, CCW from +x axis in image coords)
     double snr      = 0.0;   ///< Signal-to-noise ratio
     int    flag     = 0;     ///< SEP extraction flags
+
+    /// True when elongation (a/b) exceeds the configured streak threshold.
+    /// Indicates a trailed source: fast asteroid, satellite, or tracking smear.
+    bool   streak   = false;
+
+    /// True when the source contains ≥2 distinct flux peaks within its isophote,
+    /// indicating two or more overlapping objects that were not fully deblended.
+    bool   blended  = false;
 
     // Filled after plate solve:
     double ra       = 0.0;   ///< RA (degrees J2000)
     double dec      = 0.0;   ///< Dec (degrees J2000)
     bool   matched  = false; ///< Matched to a catalog star?
 
-    double fwhm() const noexcept { return 2.355 * (a + b) * 0.5; }
+    double fwhm()       const noexcept { return 2.355 * (a + b) * 0.5; }
+    double elongation() const noexcept { return (b > 0.1) ? a / b : 1.0; }
 };
 
 /// A reference star from an astrometric catalog (UCAC4 / Gaia DR3)

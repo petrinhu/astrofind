@@ -115,6 +115,35 @@ if(PkgConfig_FOUND)
     message(STATUS "Found fftw3: ${FFTW3_VERSION}")
 endif()
 
+# ─── CCfits 2.7 (bundled C++ wrapper around cfitsio) ──────────────────────
+# Source: originals/CCfits.tar.gz (CCfits-2.7)
+# We build inline, bypassing CCfits's own CMakeLists.txt, to reuse the
+# cfitsio target already set up above (either system pkg-config or FetchContent).
+if(NOT TARGET CCfits::CCfits)
+    set(_ccfits_srcdir "${CMAKE_BINARY_DIR}/_deps/ccfits-src")
+    if(NOT EXISTS "${_ccfits_srcdir}/CCfits-2.7/CCfits.h")
+        message(STATUS "Extracting bundled CCfits 2.7 ...")
+        file(ARCHIVE_EXTRACT
+            INPUT       "${CMAKE_SOURCE_DIR}/originals/CCfits.tar.gz"
+            DESTINATION "${_ccfits_srcdir}"
+        )
+    endif()
+    set(_ccfits_dir "${_ccfits_srcdir}/CCfits-2.7")
+    file(GLOB _ccfits_srcs "${_ccfits_dir}/*.cxx")
+    # Exclude the cookbook demo program
+    list(FILTER _ccfits_srcs EXCLUDE REGEX "cookbook\\.cxx$")
+    add_library(ccfits_lib STATIC ${_ccfits_srcs})
+    # Include dir = CCfits-2.7/ so that "CCfits.h", "FITS.h", etc. resolve correctly.
+    # Consumer code uses: #include "CCfits.h"  (or through core/FitsTableReader.h)
+    target_include_directories(ccfits_lib PUBLIC "${_ccfits_dir}")
+    target_link_libraries(ccfits_lib PUBLIC cfitsio::cfitsio)
+    target_compile_features(ccfits_lib PRIVATE cxx_std_11)
+    # Suppress all warnings from third-party code
+    target_compile_options(ccfits_lib PRIVATE -w)
+    add_library(CCfits::CCfits ALIAS ccfits_lib)
+    message(STATUS "CCfits 2.7 built from bundled source (${_ccfits_dir})")
+endif()
+
 # ─── Qt6Keychain (secure API key storage) — Task #13 ──────────────────────
 # Requires: sudo dnf install qtkeychain-qt6-devel libsecret-devel
 # Falls back to QSettings plain-text with a UI warning when not found.
@@ -143,4 +172,39 @@ if(NOT ASTROFIND_HAS_KEYCHAIN)
     message(STATUS
         "Qt6Keychain NOT found — API key stored in QSettings (plain-text).\n"
         "   To enable secure storage: sudo dnf install qtkeychain-qt6-devel libsecret-devel")
+endif()
+
+# ─── libarchive (TAR.GZ/BZ2/XZ, 7Z, RAR extraction) ──────────────────────────
+# Requires: sudo dnf install libarchive-devel
+set(ASTROFIND_HAS_LIBARCHIVE FALSE)
+
+if(PkgConfig_FOUND)
+    pkg_check_modules(LIBARCHIVE QUIET libarchive)
+    if(LIBARCHIVE_FOUND)
+        add_library(libarchive_iface INTERFACE)
+        target_include_directories(libarchive_iface INTERFACE ${LIBARCHIVE_INCLUDE_DIRS})
+        target_link_libraries(libarchive_iface INTERFACE ${LIBARCHIVE_LIBRARIES})
+        add_library(libarchive::libarchive ALIAS libarchive_iface)
+        set(ASTROFIND_HAS_LIBARCHIVE TRUE)
+        message(STATUS "Found libarchive ${LIBARCHIVE_VERSION} — TAR/7Z/RAR extraction enabled")
+    endif()
+endif()
+
+if(NOT ASTROFIND_HAS_LIBARCHIVE)
+    find_library(LIBARCHIVE_LIB NAMES archive)
+    find_path(LIBARCHIVE_INCLUDE NAMES archive.h)
+    if(LIBARCHIVE_LIB AND LIBARCHIVE_INCLUDE)
+        add_library(libarchive_iface INTERFACE)
+        target_include_directories(libarchive_iface INTERFACE ${LIBARCHIVE_INCLUDE})
+        target_link_libraries(libarchive_iface INTERFACE ${LIBARCHIVE_LIB})
+        add_library(libarchive::libarchive ALIAS libarchive_iface)
+        set(ASTROFIND_HAS_LIBARCHIVE TRUE)
+        message(STATUS "Found libarchive (find_library) — TAR/7Z/RAR extraction enabled")
+    endif()
+endif()
+
+if(NOT ASTROFIND_HAS_LIBARCHIVE)
+    message(STATUS
+        "libarchive NOT found — TAR.GZ/BZ2/XZ/7Z/RAR extraction disabled.\n"
+        "   To enable: sudo dnf install libarchive-devel")
 endif()

@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   push:
@@ -7,34 +7,63 @@ on:
     branches: [ main ]
 
 jobs:
-  build-linux:
-    name: Linux (Qt6 + GCC)
+  build-and-test:
+    name: Ubuntu 24.04 · Qt 6 · GCC-14
     runs-on: ubuntu-24.04
 
     steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
       - uses: actions/checkout@v4
 
-      - name: Install Qt6 and system deps
+      # ── System packages ───────────────────────────────────────────────────────
+      # FetchContent handles: spdlog, nlohmann_json, SEP, Catch2, CCfits (bundled)
+      # cfitsio: prefer system pkg; FetchContent fallback also available
+      - name: Install system dependencies
         run: |
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y \
-            qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
-            libqt6opengl6-dev libqt6sql6 \
+            cmake ninja-build \
+            gcc-14 g++-14 \
+            pkg-config \
+            qt6-base-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libqt6opengl6-dev \
+            libqt6charts6-dev \
             libcfitsio-dev \
-            cmake ninja-build gcc-14 g++-14 \
-            libgl1-mesa-dev libglu1-mesa-dev \
-            zlib1g-dev
+            libfftw3-dev \
+            libarchive-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxkbcommon-dev
 
+      # ── FetchContent cache ────────────────────────────────────────────────────
+      # Caches downloaded sources so repeated runs avoid hitting the network.
+      - name: Cache FetchContent downloads
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-${{ runner.os }}-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-${{ runner.os }}-
+
+      # ── CMake configure ───────────────────────────────────────────────────────
       - name: Configure
         run: |
           cmake -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DCMAKE_C_COMPILER=gcc-14 \
             -DCMAKE_CXX_COMPILER=g++-14
 
+      # ── Build ─────────────────────────────────────────────────────────────────
       - name: Build
         run: cmake --build build --parallel
 
-      - name: Test
-        working-directory: build
-        run: ctest --output-on-failure
+      # ── Core unit tests (no display needed) ──────────────────────────────────
+      - name: Core tests (116 cases)
+        run: build/bin/astrofind_tests --reporter console
+
+      # ── UI integration tests (offscreen, no X server needed) ─────────────────
+      - name: UI tests (23 cases)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: build/bin/astrofind_ui_tests --reporter console

@@ -19,6 +19,8 @@ BackgroundRangeDialog::BackgroundRangeDialog(FitsImageView* view,
     , image_(image)
     , origMin_(image->displayMin)
     , origMax_(image->displayMax)
+    , origMode_(image->stretchMode)
+    , origLut_(image->colorLut)
 {
     setWindowTitle(tr("Background and Range \xe2\x80\x94 %1").arg(image_->fileName));
     setModal(false);
@@ -74,6 +76,62 @@ BackgroundRangeDialog::BackgroundRangeDialog(FitsImageView* view,
     grid->addWidget(sldMax_, 1, 1);
     grid->addWidget(lblMax_, 1, 2);
 
+    // ── Transfer function ──────────────────────────────────────────────────
+    modeCombo_ = new QComboBox(this);
+    modeCombo_->addItem(tr("Linear"),                  static_cast<int>(core::StretchMode::Linear));
+    modeCombo_->addItem(tr("Logarítmica"),             static_cast<int>(core::StretchMode::Log));
+    modeCombo_->addItem(tr("Raiz Quadrada (Sqrt)"),    static_cast<int>(core::StretchMode::Sqrt));
+    modeCombo_->addItem(tr("Asinh"),                   static_cast<int>(core::StretchMode::Asinh));
+    modeCombo_->addItem(tr("Equalização de Histograma"), static_cast<int>(core::StretchMode::HistEq));
+    modeCombo_->setToolTip(tr(
+        "Transfer function applied to pixel values before display.\n"
+        "Linear: direct mapping.\n"
+        "Log / Sqrt / Asinh: compress bright highlights, reveal faint detail.\n"
+        "HistEq: maximises local contrast (slow on large images)."));
+    // Initialise combo from current image mode
+    {
+        const int idx = modeCombo_->findData(static_cast<int>(image_->stretchMode));
+        modeCombo_->setCurrentIndex(idx >= 0 ? idx : 0);
+    }
+    connect(modeCombo_, qOverload<int>(&QComboBox::currentIndexChanged), this,
+        [this](int) {
+            const auto mode = static_cast<core::StretchMode>(modeCombo_->currentData().toInt());
+            image_->stretchMode = mode;
+            view_->setStretchMode(mode);
+        });
+
+    auto* modeRow = new QHBoxLayout;
+    modeRow->addWidget(new QLabel(tr("Função de transferência:"), this));
+    modeRow->addWidget(modeCombo_, 1);
+
+    // ── False-colour LUT ───────────────────────────────────────────────────
+    lutCombo_ = new QComboBox(this);
+    lutCombo_->addItem(tr("Cinza (Grayscale)"),  static_cast<int>(core::ColorLut::Grayscale));
+    lutCombo_->addItem(tr("Quente (Hot)"),        static_cast<int>(core::ColorLut::Hot));
+    lutCombo_->addItem(tr("Frio (Cool)"),         static_cast<int>(core::ColorLut::Cool));
+    lutCombo_->addItem(tr("Viridis"),              static_cast<int>(core::ColorLut::Viridis));
+    lutCombo_->setToolTip(tr(
+        "False-colour look-up table applied after the transfer function.\n"
+        "Grayscale: standard black-to-white.\n"
+        "Quente: black → red → yellow → white (thermal).\n"
+        "Frio: black → dark blue → cyan → white.\n"
+        "Viridis: perceptually uniform purple → teal → yellow."));
+    lutCombo_->setEnabled(!image_->isColor);   // LUT is meaningless for RGB images
+    {
+        const int idx = lutCombo_->findData(static_cast<int>(image_->colorLut));
+        lutCombo_->setCurrentIndex(idx >= 0 ? idx : 0);
+    }
+    connect(lutCombo_, qOverload<int>(&QComboBox::currentIndexChanged), this,
+        [this](int) {
+            const auto lut = static_cast<core::ColorLut>(lutCombo_->currentData().toInt());
+            image_->colorLut = lut;
+            view_->setColorLut(lut);
+        });
+
+    auto* lutRow = new QHBoxLayout;
+    lutRow->addWidget(new QLabel(tr("Cor falsa (LUT):"), this));
+    lutRow->addWidget(lutCombo_, 1);
+
     auto* autoBtn = new QPushButton(tr("\xe2\x9f\xb3 Auto"), this);
     autoBtn->setFixedWidth(80);
     connect(autoBtn, &QPushButton::clicked, this, &BackgroundRangeDialog::onAutoClicked);
@@ -91,6 +149,8 @@ BackgroundRangeDialog::BackgroundRangeDialog(FitsImageView* view,
     root->addWidget(new QLabel(tr("<b>Histogram</b>"), this));
     root->addWidget(histWidget_);
     root->addLayout(grid);
+    root->addLayout(modeRow);
+    root->addLayout(lutRow);
     root->addLayout(hRow);
     root->addWidget(chkApplyAll_);
     root->addWidget(bb);
@@ -211,15 +271,22 @@ void BackgroundRangeDialog::onAutoClicked()
 
 void BackgroundRangeDialog::onApplyClicked()
 {
-    emit stretchChanged(image_->displayMin, image_->displayMax, chkApplyAll_->isChecked());
+    const auto mode = static_cast<core::StretchMode>(modeCombo_->currentData().toInt());
+    const auto lut  = static_cast<core::ColorLut>(lutCombo_->currentData().toInt());
+    emit stretchChanged(image_->displayMin, image_->displayMax, mode, lut,
+                        chkApplyAll_->isChecked());
     accept();
 }
 
 void BackgroundRangeDialog::onRejectClicked()
 {
     // Revert to original values
-    image_->displayMin = origMin_;
-    image_->displayMax = origMax_;
+    image_->displayMin  = origMin_;
+    image_->displayMax  = origMax_;
+    image_->stretchMode = origMode_;
+    image_->colorLut    = origLut_;
+    view_->setStretchMode(origMode_);
+    view_->setColorLut(origLut_);
     view_->setStretch(origMin_, origMax_);
     reject();
 }

@@ -43,6 +43,10 @@ public:
 
     /// Update display stretch and redraw (does NOT reload FITS from disk).
     void setStretch(float displayMin, float displayMax);
+    void setStretchMode(core::StretchMode mode);  ///< Change transfer function + repaint
+    core::StretchMode stretchMode() const noexcept { return fitsImg_.stretchMode; }
+    void setColorLut(core::ColorLut lut);   ///< Change false-colour LUT + repaint
+    core::ColorLut colorLut() const noexcept { return fitsImg_.colorLut; }
     void resetStretch();  ///< Recompute sigma-clipped auto-stretch
 
     /// Set a precomputed display image (for fast blink switching).
@@ -71,6 +75,9 @@ public:
     void setShowCatalogStars (bool on) { showCatalog_  = on; update(); }
     void setShowKooObjects   (bool on) { showKoo_      = on; update(); }
     void setShowLabels       (bool on) { showLabels_   = on; update(); }
+    void setShowEcliptic     (bool on) { showEcliptic_ = on; update(); }
+    bool showEcliptic() const noexcept { return showEcliptic_; }
+    void toggleEcliptic()              { setShowEcliptic(!showEcliptic_); }
 
     // ── Catalog highlight ─────────────────────────────────────────────────
     /// Highlight the overlay marker nearest to imgPx (image pixel coords).
@@ -150,10 +157,12 @@ private:
     bool    showCatalog_  = true;
     bool    showKoo_      = true;
     bool    showLabels_   = true;
+    bool    showEcliptic_ = false;
 
     void drawDetectedStars(QPainter& p) const;
     void drawCatalogStars(QPainter& p) const;
     void drawKooObjects(QPainter& p) const;
+    void drawEclipticOverlay(QPainter& p) const;
     void drawAnnotations(QPainter& p) const;
     void drawMagnifier(QPainter& p) const;
     void drawRubberBand(QPainter& p) const;

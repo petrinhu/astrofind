@@ -34,6 +34,9 @@ set(UI_SOURCES
     Toast.cpp
     DockTitleBar.cpp
     RegionStatsPanel.cpp
+    HistogramDialog.cpp
+    PowerSpectrumDialog.cpp
+    SpectrumDialog.cpp
 )
 
 set(UI_HEADERS
@@ -68,6 +71,9 @@ set(UI_HEADERS
     Toast.h
     DockTitleBar.h
     RegionStatsPanel.h
+    HistogramDialog.h
+    PowerSpectrumDialog.h
+    SpectrumDialog.h
 )
 
 add_library(astrofind_ui STATIC
@@ -88,8 +94,14 @@ target_link_libraries(astrofind_ui
         Qt6::Concurrent
         Qt6::OpenGL
         Qt6::OpenGLWidgets
+        Qt6::Charts
         spdlog::spdlog
 )
+
+if(ASTROFIND_HAS_LIBARCHIVE)
+    target_link_libraries(astrofind_ui PUBLIC libarchive::libarchive)
+    target_compile_definitions(astrofind_ui PUBLIC ASTROFIND_HAS_LIBARCHIVE)
+endif()
 
 target_compile_options(astrofind_ui PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>

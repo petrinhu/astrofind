@@ -225,6 +225,7 @@ private:
     QAction* actBlink_         = nullptr;
     QAction* actStopBlink_     = nullptr;
     QAction* actKOO_           = nullptr;
+    QAction* actEcliptic_      = nullptr;
     QAction* actZoomIn_        = nullptr;
     QAction* actZoomOut_       = nullptr;
     QAction* actUndo_          = nullptr;
@@ -296,6 +297,7 @@ private:
     ToolMode             toolMode_           = ToolMode::Select;
 
     void applyToolCursor();
+    void maybeShowImageTypeWarning();  ///< Show B&W vs color notice if setting enabled
 
     // ── Sprint A/B: Image Catalog + Calibration ───────────────────────────────
     ImageCatalogTable*   imageCatalogTable_  = nullptr;
@@ -317,6 +319,10 @@ private:
     void onApplyDarkToWindow(FitsSubWindow* sw);
     void onApplyFlatToWindow(FitsSubWindow* sw);
     void onShowHistogram(FitsSubWindow* sw);
+    void onShowPowerSpectrum(FitsSubWindow* sw);
+    void onAnimateCube(FitsSubWindow* sw);
+    void onImportDaophotTable();
+    void onImportReductionTable();
 
     // ── Project state ─────────────────────────────────────────────────────────
     QString currentProjectPath_;      ///< Empty when no project file is associated
@@ -336,4 +342,11 @@ private:
 
     /// Extract FITS files from a ZIP archive into a temp directory.
     QStringList expandZip(const QString& zipPath);
+
+    /// Extract image files from a TAR.GZ/BZ2/XZ, 7Z, or RAR archive (libarchive).
+    /// Returns empty list and logs a warning when libarchive is not available.
+    QStringList expandArchive(const QString& archivePath);
+
+    /// True when path has a libarchive-handled extension (tar.gz/bz2/xz, tgz, 7z, rar).
+    static bool isLibArchiveFormat(const QString& path) noexcept;
 };

@@ -11,6 +11,12 @@
 #include "BlinkWidget.h"
 #include "ThumbnailBar.h"
 #include "BackgroundRangeDialog.h"
+#include "HistogramDialog.h"
+#include "PowerSpectrumDialog.h"
+#include "SpectrumDialog.h"
+#include "core/ImageLoader.h"
+#include "core/FitsTableReader.h"
+#include "core/Spectrum1D.h"
 
 #include <QApplication>
 #include <QStyleHints>
@@ -92,6 +98,11 @@
 
 #include <spdlog/spdlog.h>
 #include <QtConcurrent/QtConcurrent>
+
+#ifdef ASTROFIND_HAS_LIBARCHIVE
+#  include <archive.h>
+#  include <archive_entry.h>
+#endif
 
 // ─── Shared file-scope constants ─────────────────────────────────────────────
 

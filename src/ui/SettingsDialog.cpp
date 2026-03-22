@@ -578,6 +578,40 @@ void SettingsDialog::buildCameraTab(QTabWidget* tabs)
     form->addRow(tr("ΔT (TT − UTC):"), deltaTSpin_);
 
     vlay->addLayout(form);
+
+    // ── Bad pixel correction ──────────────────────────────────────────────────
+    auto* bpGroup = new QGroupBox(tr("Bad Pixel Correction"), page);
+    auto* bpVlay  = new QVBoxLayout(bpGroup);
+    bpVlay->setSpacing(8);
+
+    badPixelChk_ = new QCheckBox(tr("Corrigir pixels ruins automaticamente (ativado por padrão)"), bpGroup);
+    badPixelChk_->setToolTip(tr("Detecta e interpola hot pixels, bad columns e raios cósmicos "
+        "usando estatísticas locais (mediana 3×3). Aplicado após dark/flat, antes da detecção de estrelas."));
+    bpVlay->addWidget(badPixelChk_);
+
+    auto* bpSigmaRow = new QHBoxLayout;
+    bpSigmaRow->addWidget(new QLabel(tr("Limiar (σ):"), bpGroup));
+    badPixelSigmaSpin_ = new QDoubleSpinBox(bpGroup);
+    badPixelSigmaSpin_->setRange(2.0, 15.0); badPixelSigmaSpin_->setDecimals(1); badPixelSigmaSpin_->setSingleStep(0.5);
+    badPixelSigmaSpin_->setToolTip(tr("Pixels com desvio > N σ da mediana local são corrigidos. "
+        "Valores menores corrigem mais pixels (mais agressivo); maior = mais conservador."));
+    bpSigmaRow->addWidget(badPixelSigmaSpin_);
+    bpSigmaRow->addStretch();
+    bpVlay->addLayout(bpSigmaRow);
+
+    badPixelWarnWidget_ = makeWarningBadge(
+        tr("ATENÇÃO: desativar a correção de pixels ruins pode gerar falsas detecções "
+           "de estrelas, comprometer a astrometria e introduzir erros fotométricos. "
+           "Desative apenas se usar uma máscara BPM externa."), bpGroup);
+    badPixelWarnWidget_->setVisible(false);
+    bpVlay->addWidget(badPixelWarnWidget_);
+
+    connect(badPixelChk_, &QCheckBox::toggled, this, [this](bool checked){
+        badPixelSigmaSpin_->setEnabled(checked);
+        badPixelWarnWidget_->setVisible(!checked);
+    });
+
+    vlay->addWidget(bpGroup);
     vlay->addStretch();
 
     tabs->addTab(page, tr("Camera"));
@@ -708,6 +742,28 @@ void SettingsDialog::buildConnectionsTab(QTabWidget* tabs)
         "Change only if the default server is unreachable from your location."));
     vizForm->addRow(tr("VizieR mirror:"), vizierEdit_);
 
+    catalogSourceCombo_ = new QComboBox(vizGroup);
+    catalogSourceCombo_->addItem(tr("VizieR (online, recommended)"), QStringLiteral("vizier"));
+    catalogSourceCombo_->addItem(tr("Local FITS BINTABLE"),           QStringLiteral("local"));
+    catalogSourceCombo_->setToolTip(tr("Where to fetch astrometric reference stars.\n"
+        "Local FITS: use a pre-downloaded FITS BINTABLE file (USNO-B, UCAC, Gaia)."));
+    vizForm->addRow(tr("Source:"), catalogSourceCombo_);
+
+    auto* localRow = new QHBoxLayout;
+    localCatalogPathEdit_ = new QLineEdit(vizGroup);
+    localCatalogPathEdit_->setPlaceholderText(tr("/path/to/catalog.fits"));
+    localCatalogBrowse_ = new QPushButton(tr("Browse…"), vizGroup);
+    localRow->addWidget(localCatalogPathEdit_);
+    localRow->addWidget(localCatalogBrowse_);
+    vizForm->addRow(tr("Local catalog:"), localRow);
+    connect(localCatalogBrowse_, &QPushButton::clicked, this, &SettingsDialog::onBrowseLocalCatalog);
+    connect(catalogSourceCombo_, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, [this](int) {
+        const bool isLocal = (catalogSourceCombo_->currentData().toString() == "local");
+        localCatalogPathEdit_->setEnabled(isLocal);
+        localCatalogBrowse_->setEnabled(isLocal);
+    });
+
     vlay->addWidget(vizGroup);
 
     // MPC Submission — advanced
@@ -736,6 +792,34 @@ void SettingsDialog::buildDetectionTab(QTabWidget* tabs)
     auto* vlay = new QVBoxLayout(page);
     vlay->setContentsMargins(16,14,16,14); vlay->setSpacing(10);
 
+    // Background subtraction
+    auto* bgGroup = new QGroupBox(tr("Sky Background"), page);
+    auto* bgVlay  = new QVBoxLayout(bgGroup);
+    bgVlay->setContentsMargins(12,12,12,12); bgVlay->setSpacing(8);
+
+    bgSubtractChk_ = new QCheckBox(tr("Subtrair modelo de fundo antes da detecção"), bgGroup);
+    bgSubtractChk_->setToolTip(tr("Estima o céu de fundo por mediana deslizante (grade de tiles com\n"
+        "sigma-clipping 3σ) e o subtrai dos dados antes de detectar estrelas.\n"
+        "Útil para imagens com gradientes de brilho de céu, vinheta ou nebulosidade difusa."));
+    bgVlay->addWidget(bgSubtractChk_);
+
+    auto* tileRow = new QHBoxLayout;
+    tileRow->setContentsMargins(20,0,0,0);
+    auto* tileLbl = new QLabel(tr("Tamanho do tile:"), bgGroup);
+    bgTileSizeSpin_ = new QSpinBox(bgGroup);
+    bgTileSizeSpin_->setRange(16, 512); bgTileSizeSpin_->setSingleStep(16);
+    bgTileSizeSpin_->setSuffix(QStringLiteral("  px"));
+    bgTileSizeSpin_->setToolTip(tr("Lado do tile em pixels. Tiles menores seguem gradientes mais finos\n"
+        "mas podem confundir nebulosidades com céu. 64–128 px é um bom ponto de partida."));
+    tileRow->addWidget(tileLbl); tileRow->addWidget(bgTileSizeSpin_); tileRow->addStretch();
+    bgVlay->addLayout(tileRow);
+
+    connect(bgSubtractChk_, &QCheckBox::toggled, this, [this](bool on){
+        bgTileSizeSpin_->setEnabled(on);
+    });
+
+    vlay->addWidget(bgGroup);
+
     // Star detection (advanced)
     auto* detGroup = new QGroupBox(tr("Star Detection"), page);
     auto* detForm  = new QFormLayout(detGroup);
@@ -763,6 +847,14 @@ void SettingsDialog::buildDetectionTab(QTabWidget* tabs)
     minSnrSpin_->setToolTip(tr("Minimum signal-to-noise ratio for moving object detection (MOD). "
         "Higher values reduce false positives but may miss faint asteroids."));
     detForm->addRow(tr("MOD min. SNR:"), minSnrSpin_);
+
+    streakElongSpin_ = new QDoubleSpinBox(detGroup);
+    streakElongSpin_->setRange(1.5, 20.0); streakElongSpin_->setDecimals(1); streakElongSpin_->setSingleStep(0.5);
+    streakElongSpin_->setToolTip(tr("Elongation threshold (a/b) above which a detected source is "
+        "classified as a streak or trail (fast asteroid, satellite, tracking smear). "
+        "Streaks are shown in orange in the overlay. Set to 1.5 to catch mild tracking drift; "
+        "3.0 catches only clear trails. Higher values = fewer, more obvious streaks only."));
+    detForm->addRow(tr("Streak threshold (a/b):"), streakElongSpin_);
 
     vlay->addWidget(detGroup);
 
@@ -871,6 +963,12 @@ void SettingsDialog::buildDisplayTab(QTabWidget* tabs)
         tr("Uncheck this once the initial configuration is complete.\n"
            "The wizard is always available via Help → Setup Wizard."));
     form->addRow(showWizardCheck_);
+
+    showColorWarningCheck_ = new QCheckBox(tr("Avisar ao carregar se imagens são PB ou coloridas"), page);
+    showColorWarningCheck_->setToolTip(
+        tr("Exibe um aviso informando se as imagens carregadas são em preto e branco\n"
+           "ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso."));
+    form->addRow(showColorWarningCheck_);
 
     langCombo_ = new QComboBox(page);
     langCombo_->addItem(QStringLiteral("English"),        QStringLiteral("en"));
@@ -1001,6 +1099,13 @@ void SettingsDialog::loadFromSettings()
     focalLenSpin_->setValue(settings_.value(QStringLiteral("camera/focalLength"),  0.0).toDouble());
     saturationSpin_->setValue(settings_.value(QStringLiteral("camera/saturation"), 60000).toInt());
     deltaTSpin_->setValue(settings_.value(QStringLiteral("camera/deltaT"),          68.0).toDouble());
+    {
+        const bool bpOn = settings_.value(QStringLiteral("camera/badPixelCorrection"), true).toBool();
+        badPixelChk_->setChecked(bpOn);
+        badPixelSigmaSpin_->setValue(settings_.value(QStringLiteral("camera/badPixelSigma"), 5.0).toDouble());
+        badPixelSigmaSpin_->setEnabled(bpOn);
+        badPixelWarnWidget_->setVisible(!bpOn);
+    }
 
     // Connections — plate solving
     {
@@ -1036,11 +1141,29 @@ void SettingsDialog::loadFromSettings()
         QStringLiteral("vizier.cfa.harvard.edu")).toString());
     mpcSubmitEdit_->setText(settings_.value(QStringLiteral("mpc/submitUrl"),
         QStringLiteral("https://www.minorplanetcenter.net/report_ades")).toString());
+    {
+        const QString src = settings_.value(QStringLiteral("catalog/source"),
+                                            QStringLiteral("vizier")).toString();
+        const int idx = catalogSourceCombo_->findData(src);
+        catalogSourceCombo_->setCurrentIndex(idx >= 0 ? idx : 0);
+        const bool isLocal = (src == "local");
+        localCatalogPathEdit_->setEnabled(isLocal);
+        if (localCatalogBrowse_) localCatalogBrowse_->setEnabled(isLocal);
+    }
+    localCatalogPathEdit_->setText(
+        settings_.value(QStringLiteral("catalog/localPath")).toString());
 
     // Detection
+    {
+        const bool bgOn = settings_.value(QStringLiteral("detection/backgroundSubtraction"), false).toBool();
+        bgSubtractChk_->setChecked(bgOn);
+        bgTileSizeSpin_->setValue(settings_.value(QStringLiteral("detection/backgroundTileSize"), 64).toInt());
+        bgTileSizeSpin_->setEnabled(bgOn);
+    }
     sigmaLimitSpin_->setValue(settings_.value(QStringLiteral("detection/sigmaLimit"), 4.0).toDouble());
     minFwhmSpin_->setValue(settings_.value(QStringLiteral("detection/minFwhm"), 0.70).toDouble());
     minSnrSpin_->setValue(settings_.value(QStringLiteral("detection/minSnr"), 5.0).toDouble());
+    streakElongSpin_->setValue(settings_.value(QStringLiteral("detection/streakElongation"), 3.0).toDouble());
 
     const QString band = settings_.value(QStringLiteral("photometry/defaultBand"),
                                           QStringLiteral("C")).toString();
@@ -1067,6 +1190,7 @@ void SettingsDialog::loadFromSettings()
         themeCombo_->setCurrentIndex(tidx >= 0 ? tidx : 0);
     }
     showWizardCheck_->setChecked(settings_.value(QStringLiteral("display/showWizardOnStartup"), true).toBool());
+    showColorWarningCheck_->setChecked(settings_.value(QStringLiteral("display/showColorTypeWarning"), true).toBool());
     {
         const QString lang = settings_.value(QStringLiteral("ui/language"),
                                              QLocale::system().name()).toString();
@@ -1127,8 +1251,10 @@ void SettingsDialog::saveToSettings()
     settings_.setValue(QStringLiteral("camera/pixelScaleX"), pixScaleXSpin_->value());
     settings_.setValue(QStringLiteral("camera/pixelScaleY"), pixScaleYSpin_->value());
     settings_.setValue(QStringLiteral("camera/focalLength"), focalLenSpin_->value());
-    settings_.setValue(QStringLiteral("camera/saturation"),  saturationSpin_->value());
-    settings_.setValue(QStringLiteral("camera/deltaT"),       deltaTSpin_->value());
+    settings_.setValue(QStringLiteral("camera/saturation"),         saturationSpin_->value());
+    settings_.setValue(QStringLiteral("camera/deltaT"),             deltaTSpin_->value());
+    settings_.setValue(QStringLiteral("camera/badPixelCorrection"), badPixelChk_->isChecked());
+    settings_.setValue(QStringLiteral("camera/badPixelSigma"),      badPixelSigmaSpin_->value());
 
     // Connections
     settings_.setValue(QStringLiteral("astrometry/backend"),    solverBackendCombo_->currentData().toString());
@@ -1144,11 +1270,18 @@ void SettingsDialog::saveToSettings()
                        catalogTypeCombo_->currentData().toString());
     settings_.setValue(QStringLiteral("catalog/vizierServer"),  vizierEdit_->text().trimmed());
     settings_.setValue(QStringLiteral("mpc/submitUrl"),         mpcSubmitEdit_->text().trimmed());
+    settings_.setValue(QStringLiteral("catalog/source"),
+        catalogSourceCombo_->currentData().toString());
+    settings_.setValue(QStringLiteral("catalog/localPath"),
+        localCatalogPathEdit_->text().trimmed());
 
     // Detection
+    settings_.setValue(QStringLiteral("detection/backgroundSubtraction"), bgSubtractChk_->isChecked());
+    settings_.setValue(QStringLiteral("detection/backgroundTileSize"),    bgTileSizeSpin_->value());
     settings_.setValue(QStringLiteral("detection/sigmaLimit"),      sigmaLimitSpin_->value());
     settings_.setValue(QStringLiteral("detection/minFwhm"),         minFwhmSpin_->value());
     settings_.setValue(QStringLiteral("detection/minSnr"),          minSnrSpin_->value());
+    settings_.setValue(QStringLiteral("detection/streakElongation"), streakElongSpin_->value());
 
     static const QStringList kBands = {"C","V","R","B","g","r","i","w"};
     const int bi = bandCombo_->currentIndex();
@@ -1165,6 +1298,7 @@ void SettingsDialog::saveToSettings()
     settings_.setValue(QStringLiteral("display/blinkIntervalMs"),     blinkIntervalSpin_->value());
     settings_.setValue(QStringLiteral("ui/theme"),                     themeCombo_->currentData().toString());
     settings_.setValue(QStringLiteral("display/showWizardOnStartup"),  showWizardCheck_->isChecked());
+    settings_.setValue(QStringLiteral("display/showColorTypeWarning"), showColorWarningCheck_->isChecked());
     settings_.setValue(QStringLiteral("ui/language"),                  langCombo_->currentData().toString());
 
     // Legacy
@@ -1193,6 +1327,8 @@ void SettingsDialog::resetToDefaults()
     // Camera
     pixScaleXSpin_->setValue(0.0); pixScaleYSpin_->setValue(0.0);
     focalLenSpin_->setValue(0.0); saturationSpin_->setValue(60000); deltaTSpin_->setValue(68.0);
+    badPixelChk_->setChecked(true); badPixelSigmaSpin_->setValue(5.0);
+    badPixelSigmaSpin_->setEnabled(true); badPixelWarnWidget_->setVisible(false);
 
     // Connections
     serverUrlEdit_->setText(QStringLiteral("https://nova.astrometry.net"));
@@ -1207,7 +1343,9 @@ void SettingsDialog::resetToDefaults()
     mpcSubmitEdit_->setText(QStringLiteral("https://www.minorplanetcenter.net/report_ades"));
 
     // Detection
+    bgSubtractChk_->setChecked(false); bgTileSizeSpin_->setValue(64); bgTileSizeSpin_->setEnabled(false);
     sigmaLimitSpin_->setValue(4.0); minFwhmSpin_->setValue(0.70); minSnrSpin_->setValue(5.0);
+    streakElongSpin_->setValue(3.0);
     bandCombo_->setCurrentIndex(0); magLimitSpin_->setValue(16.0); maxMagSpin_->setValue(10.0);
     includeMagChk_->setChecked(true);
     apertureAutoRad_->setChecked(true); apertureManSpin_->setValue(8.0); apertureManSpin_->setEnabled(false);
@@ -1217,6 +1355,7 @@ void SettingsDialog::resetToDefaults()
     blinkIntervalSpin_->setValue(500);
     themeCombo_->setCurrentIndex(0);  // Night
     showWizardCheck_->setChecked(true);
+    showColorWarningCheck_->setChecked(true);
 
     // School
     schoolEmailEdit_->clear();
@@ -1263,6 +1402,14 @@ void SettingsDialog::onBrowseLegacyDir(QLineEdit* target)
     const QString p = QFileDialog::getExistingDirectory(this,
         tr("Select catalog directory"), target->text());
     if (!p.isEmpty()) target->setText(p);
+}
+
+void SettingsDialog::onBrowseLocalCatalog()
+{
+    const QString path = QFileDialog::getOpenFileName(this,
+        tr("Select Local Star Catalog"), QDir::homePath(),
+        tr("FITS BINTABLE (*.fits *.fit *.fts);;All files (*)"));
+    if (!path.isEmpty()) localCatalogPathEdit_->setText(path);
 }
 
 void SettingsDialog::onApertureToggled()

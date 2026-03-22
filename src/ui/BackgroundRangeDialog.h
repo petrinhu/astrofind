@@ -4,6 +4,7 @@
 #include <QSlider>
 #include <QLabel>
 #include <QCheckBox>
+#include <QComboBox>
 #include <vector>
 
 #include "FitsImageView.h"
@@ -20,7 +21,9 @@ public:
 
 signals:
     /// Emitted on OK. applyAll = true means caller should replicate stretch to all images.
-    void stretchChanged(float min, float max, bool applyAll);
+    void stretchChanged(float min, float max,
+                        core::StretchMode mode, core::ColorLut lut,
+                        bool applyAll);
 
 protected:
     bool eventFilter(QObject* obj, QEvent* ev) override;
@@ -41,15 +44,19 @@ private:
     FitsImageView*   view_   = nullptr;
     core::FitsImage* image_  = nullptr;
 
-    float origMin_ = 0.0f;
-    float origMax_ = 1.0f;
-    float dataMin_ = 0.0f;
-    float dataMax_ = 1.0f;
+    float             origMin_  = 0.0f;
+    float             origMax_  = 1.0f;
+    core::StretchMode origMode_ = core::StretchMode::Linear;
+    core::ColorLut    origLut_  = core::ColorLut::Grayscale;
+    float             dataMin_  = 0.0f;
+    float             dataMax_  = 1.0f;
 
     QSlider*   sldMin_      = nullptr;
     QSlider*   sldMax_      = nullptr;
     QLabel*    lblMin_      = nullptr;
     QLabel*    lblMax_      = nullptr;
+    QComboBox* modeCombo_   = nullptr;
+    QComboBox* lutCombo_    = nullptr;
     QCheckBox* chkApplyAll_ = nullptr;
     QWidget*   histWidget_  = nullptr;
 

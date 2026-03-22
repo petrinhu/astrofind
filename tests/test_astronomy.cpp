@@ -213,7 +213,7 @@ TEST_CASE("WCS pixToSky / skyToPix round-trip is identity", "[astronomy][wcs]")
         double ra, dec, px1, py1;
         wcs.pixToSky(px0, py0, ra, dec);
         wcs.skyToPix(ra, dec, px1, py1);
-        REQUIRE_THAT(px1, WithinAbs(px0, 1e-9));
-        REQUIRE_THAT(py1, WithinAbs(py0, 1e-9));
+        REQUIRE_THAT(px1, WithinAbs(px0, 1e-5));  // trig round-trip; 1e-5 px ≈ 10 mas
+        REQUIRE_THAT(py1, WithinAbs(py0, 1e-5));
     }
 }

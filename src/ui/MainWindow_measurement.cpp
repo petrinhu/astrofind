@@ -61,8 +61,8 @@ void MainWindow::runMeasurePipeline(int sessionIdx, QPointF imgPx, double ra, do
 {
     const core::FitsImage& img = session_->image(sessionIdx);
 
-    // ── 1. Subpixel centroid ──────────────────────────────────────────────────
-    const auto centroid = core::findCentroidPsf(img, imgPx.x(), imgPx.y());
+    // ── 1. Subpixel centroid (elliptical PSF fit) ─────────────────────────────
+    const auto centroid = core::findCentroidElliptical(img, imgPx.x(), imgPx.y());
     if (!centroid) {
         logPanel_->appendWarning(tr("Centroid failed — no source found at click position"));
         return;
@@ -73,8 +73,57 @@ void MainWindow::runMeasurePipeline(int sessionIdx, QPointF imgPx, double ra, do
     if (img.wcs.solved)
         img.wcs.pixToSky(centroid->x, centroid->y, raFinal, decFinal);
 
-    // ── 3. Aperture photometry ────────────────────────────────────────────────
+    // ── 2a. Atmospheric refraction correction ─────────────────────────────────
+    // Space telescopes have no atmosphere; ground-based sites need the correction
+    // to convert apparent (refracted) coordinates to ICRS catalog frame.
+    if (!img.isSpaceTelescope && img.jd > 2400000.0) {
+        const SiteLocation site = effectiveSiteLocation();
+        const double R = core::applyRefractionCorrection(
+            raFinal, decFinal, img.jd, site.lat, site.lon);
+        if (R > 0.0)
+            logPanel_->appendInfo(tr("  Refraction correction: %1\" (R=%2')")
+                .arg(R * 60.0, 0, 'f', 1).arg(R, 0, 'f', 3));
+    }
+
+    // ── 2b. ICRS frame — log annual aberration magnitude ─────────────────────
+    // The plate solution (calibrated against Gaia/UCAC4/2MASS) already absorbs
+    // annual aberration as a systematic field shift; coordinates are already in
+    // ICRS.  We compute the magnitude here for diagnostics only — applying it
+    // again would double-correct.  See Astronomy.h: annualAberrationComponents().
+    if (img.jd > 2400000.0) {
+        double dRa_as = 0.0, dDec_as = 0.0;
+        const double aberr = core::annualAberrationComponents(
+            raFinal, decFinal, img.jd, dRa_as, dDec_as);
+        logPanel_->appendInfo(tr("  Frame: ICRF — annual aberration at epoch: "
+                                 "%1\" (Δα=%2\", Δδ=%3\")")
+            .arg(aberr,   0, 'f', 2)
+            .arg(dRa_as,  0, 'f', 2)
+            .arg(dDec_as, 0, 'f', 2));
+    }
+
+    // ── 2b. Log elliptical PSF shape ──────────────────────────────────────────
     const double fwhmPx = 0.5 * (centroid->fwhmX + centroid->fwhmY);
+    {
+        const double pixScale = (img.pixScaleX > 0.0) ? img.pixScaleX : 1.0;
+        const double elong    = (centroid->fwhmY > 0.0)
+                                ? centroid->fwhmX / centroid->fwhmY : 1.0;
+        if (elong > 1.15) {
+            // Noticeably elliptical — report full detail
+            logPanel_->appendInfo(tr("  PSF: FWHM_a=%1\" FWHM_b=%2\" θ=%3° elongation=%4")
+                .arg(centroid->fwhmX * pixScale, 0, 'f', 2)
+                .arg(centroid->fwhmY * pixScale, 0, 'f', 2)
+                .arg(centroid->theta,            0, 'f', 1)
+                .arg(elong,                      0, 'f', 2));
+            if (elong > 1.5)
+                logPanel_->appendWarning(tr("  PSF elongation=%1 — check tracking, focus, or coma")
+                    .arg(elong, 0, 'f', 2));
+        } else {
+            logPanel_->appendInfo(tr("  PSF: FWHM=%1\"")
+                .arg(fwhmPx * pixScale, 0, 'f', 2));
+        }
+    }
+
+    // ── 3. Aperture photometry ────────────────────────────────────────────────
     const bool apAuto = settings_.value(QStringLiteral("photometry/apertureAuto"), true).toBool();
     const double rAp = apAuto
         ? std::max(3.0, 2.0 * fwhmPx)

@@ -218,6 +218,9 @@ static void writeOptical(QXmlStreamWriter& xml,
     writeElement(xml, QStringLiteral("obsTime"), jdToIso8601(obs.jd, ctx.timePrecision));
     writeElement(xml, QStringLiteral("ra"),      QString::number(obs.ra,  'f', 9));
     writeElement(xml, QStringLiteral("dec"),     QString::number(obs.dec, 'f', 9));
+    // ADES 2022 §4.2: declare reference frame explicitly.
+    // All coordinates are topocentric apparent place in the ICRF (= ICRS).
+    writeElement(xml, QStringLiteral("sys"),     QStringLiteral("ICRF"));
 
     // Positional uncertainty — use measured value or conservative default
     const double rmsRA  = obs.raErr  > 0.0 ? obs.raErr  : 0.5;
@@ -284,9 +287,9 @@ QString generateAdesPsv(const QVector<Observation>& obs, const AdesContext& ctx)
     QString out;
     out.reserve(obs.size() * 120);
 
-    // Header
+    // Header — ADES 2022 PSV; sys=ICRF is included per §4.2
     out += QStringLiteral("# version=2022\n");
-    out += QStringLiteral("permID|provID|trkSub|mode|stn|obsTime|ra|dec|"
+    out += QStringLiteral("permID|provID|trkSub|mode|stn|obsTime|ra|dec|sys|"
                           "rmsRA|rmsDec|astCat|mag|rmsMag|band|photCat|"
                           "notes|observers|measurers|telescope\n");
 
@@ -315,6 +318,7 @@ QString generateAdesPsv(const QVector<Observation>& obs, const AdesContext& ctx)
              + jdToIso8601(o.jd, ctx.timePrecision) + QLatin1Char('|')
              + QString::number(o.ra,  'f', 9) + QLatin1Char('|')
              + QString::number(o.dec, 'f', 9) + QLatin1Char('|')
+             + QStringLiteral("ICRF") + QLatin1Char('|')  // ADES 2022 §4.2 frame declaration
              + rmsRA  + QLatin1Char('|')
              + rmsDec + QLatin1Char('|')
              + catalog + QLatin1Char('|')

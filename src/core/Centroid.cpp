@@ -93,7 +93,7 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
         ? peak / std::sqrt(peak + bkg)
         : std::sqrt(peak);
 
-    return CentroidResult{ cx, cy, fwhmX, fwhmY, peak, snr };
+    return CentroidResult{ cx, cy, fwhmX, fwhmY, /*theta=*/0.0, peak, snr };
 }
 
 // ─── PSF-fit centroid (symmetric 2-D Gaussian, gradient descent) ─────────────
@@ -181,7 +181,193 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
     const double fwhm = 2.355 * sigma;
     const double snr  = (bkg > 0.0) ? amp / std::sqrt(amp + bkg) : std::sqrt(amp);
 
-    return CentroidResult{ cx, cy, fwhm, fwhm, amp, snr };
+    return CentroidResult{ cx, cy, fwhm, fwhm, /*theta=*/0.0, amp, snr };
+}
+
+// ─── findCentroidElliptical (Levenberg-Marquardt, 6-parameter elliptic Gaussian) ──
+
+/// In-place 6×6 Gaussian elimination with partial pivoting. Returns false if singular.
+static bool solve6(std::array<double,36>& A, std::array<double,6>& b) noexcept
+{
+    for (int col = 0; col < 6; ++col) {
+        // Find pivot row
+        int    pivRow = col;
+        double pivMax = std::abs(A[static_cast<size_t>(col*6+col)]);
+        for (int row = col+1; row < 6; ++row) {
+            const double v = std::abs(A[static_cast<size_t>(row*6+col)]);
+            if (v > pivMax) { pivMax = v; pivRow = row; }
+        }
+        if (pivMax < 1e-14) return false;
+        if (pivRow != col) {
+            for (int k = 0; k < 6; ++k)
+                std::swap(A[static_cast<size_t>(col*6+k)], A[static_cast<size_t>(pivRow*6+k)]);
+            std::swap(b[static_cast<size_t>(col)], b[static_cast<size_t>(pivRow)]);
+        }
+        // Eliminate below pivot
+        for (int row = col+1; row < 6; ++row) {
+            const double f = A[static_cast<size_t>(row*6+col)] / A[static_cast<size_t>(col*6+col)];
+            for (int k = col; k < 6; ++k)
+                A[static_cast<size_t>(row*6+k)] -= f * A[static_cast<size_t>(col*6+k)];
+            b[static_cast<size_t>(row)] -= f * b[static_cast<size_t>(col)];
+        }
+    }
+    // Back-substitution
+    for (int row = 5; row >= 0; --row) {
+        double s = b[static_cast<size_t>(row)];
+        for (int k = row+1; k < 6; ++k)
+            s -= A[static_cast<size_t>(row*6+k)] * b[static_cast<size_t>(k)];
+        b[static_cast<size_t>(row)] = s / A[static_cast<size_t>(row*6+row)];
+    }
+    return true;
+}
+
+std::optional<CentroidResult> findCentroidElliptical(const FitsImage& img,
+                                                     double clickX,
+                                                     double clickY,
+                                                     int    boxRadius)
+{
+    // Seed from symmetric fit
+    auto seed = findCentroidPsf(img, clickX, clickY, boxRadius);
+    if (!seed) return std::nullopt;
+
+    // Build pixel sample in tight box around seed
+    const int r  = std::max(4, boxRadius / 2);
+    const int x0 = std::max(0,            static_cast<int>(std::round(seed->x)) - r);
+    const int y0 = std::max(0,            static_cast<int>(std::round(seed->y)) - r);
+    const int x1 = std::min(img.width-1,  static_cast<int>(std::round(seed->x)) + r);
+    const int y1 = std::min(img.height-1, static_cast<int>(std::round(seed->y)) + r);
+    if (x1 <= x0 || y1 <= y0) return seed;
+
+    // Background: median of border pixels
+    std::vector<float> border;
+    for (int x = x0; x <= x1; ++x) { border.push_back(img.pixelAt(x,y0)); border.push_back(img.pixelAt(x,y1)); }
+    for (int y = y0+1; y < y1; ++y) { border.push_back(img.pixelAt(x0,y)); border.push_back(img.pixelAt(x1,y)); }
+    const auto bkgMid = static_cast<std::ptrdiff_t>(border.size() / 2);
+    std::nth_element(border.begin(), border.begin() + bkgMid, border.end());
+    const double bkg = static_cast<double>(border[static_cast<size_t>(bkgMid)]);
+
+    struct Pix { double x, y, val; };
+    std::vector<Pix> pixels;
+    pixels.reserve(static_cast<size_t>((x1-x0+1) * (y1-y0+1)));
+    for (int y = y0; y <= y1; ++y)
+        for (int x = x0; x <= x1; ++x)
+            pixels.push_back({static_cast<double>(x), static_cast<double>(y),
+                              std::max(0.0, static_cast<double>(img.pixelAt(x,y)) - bkg)});
+    if (pixels.size() < 7) return seed;   // under-determined
+
+    // Parameters p[0..5] = {cx, cy, sigma_a, sigma_b, theta_rad, amplitude}
+    const double sig0 = std::max(0.5, seed->fwhmX / 2.355);
+    std::array<double,6> p = { seed->x, seed->y, sig0, sig0 * 0.9, 0.0, seed->peak };
+
+    // ── Levenberg-Marquardt ────────────────────────────────────────────────────
+    // Model: g = p5 * exp(-0.5*(u²/p2² + v²/p3²))
+    //        u =  (x-p0)*cos(p4) + (y-p1)*sin(p4)
+    //        v = -(x-p0)*sin(p4) + (y-p1)*cos(p4)
+
+    auto chi2fn = [&](const std::array<double,6>& q) -> double {
+        double s = 0.0;
+        const double cosT = std::cos(q[4]), sinT = std::sin(q[4]);
+        const double sa2 = q[2]*q[2], sb2 = q[3]*q[3];
+        for (const auto& px : pixels) {
+            const double dx = px.x - q[0], dy = px.y - q[1];
+            const double u  =  dx*cosT + dy*sinT;
+            const double v  = -dx*sinT + dy*cosT;
+            const double g  = q[5] * std::exp(-0.5*(u*u/sa2 + v*v/sb2));
+            const double res = px.val - g;
+            s += res * res;
+        }
+        return s;
+    };
+
+    double lambda  = 1e-3;
+    double curChi2 = chi2fn(p);
+    constexpr int kMaxIter = 60;
+
+    for (int iter = 0; iter < kMaxIter; ++iter) {
+        const double cosT = std::cos(p[4]), sinT = std::sin(p[4]);
+        const double sa2  = p[2]*p[2], sb2 = p[3]*p[3];
+        const double sa3  = p[2]*sa2,  sb3 = p[3]*sb2;
+
+        // Accumulate J^T J (6×6) and J^T r (6)
+        std::array<double,36> JtJ = {};
+        std::array<double,6>  Jtr = {};
+
+        for (const auto& px : pixels) {
+            const double dx = px.x - p[0], dy = px.y - p[1];
+            const double u  =  dx*cosT + dy*sinT;
+            const double v  = -dx*sinT + dy*cosT;
+            const double e  = std::exp(-0.5*(u*u/sa2 + v*v/sb2));
+            const double g  = p[5] * e;
+            const double res = px.val - g;
+
+            // ∂g/∂p[k] — see derivation in Astronomy.cpp header comment
+            std::array<double,6> J;
+            J[0] = g * ( u*cosT/sa2 - v*sinT/sb2);   // ∂g/∂cx
+            J[1] = g * ( u*sinT/sa2 + v*cosT/sb2);   // ∂g/∂cy
+            J[2] = g * u*u / sa3;                     // ∂g/∂σ_a
+            J[3] = g * v*v / sb3;                     // ∂g/∂σ_b
+            J[4] = g * u*v * (1.0/sb2 - 1.0/sa2);    // ∂g/∂θ
+            J[5] = e;                                  // ∂g/∂A
+
+            for (int j = 0; j < 6; ++j) {
+                for (int k = 0; k < 6; ++k)
+                    JtJ[static_cast<size_t>(j*6+k)] += J[static_cast<size_t>(j)] * J[static_cast<size_t>(k)];
+                Jtr[static_cast<size_t>(j)] += J[static_cast<size_t>(j)] * res;
+            }
+        }
+
+        // LM damping: (J^T J + λ · diag(J^T J)) · Δp = J^T r
+        std::array<double,36> JtJdamp = JtJ;
+        for (int j = 0; j < 6; ++j)
+            JtJdamp[static_cast<size_t>(j*6+j)] *= (1.0 + lambda);
+
+        std::array<double,6> dp = Jtr;
+        if (!solve6(JtJdamp, dp)) break;   // singular — stop
+
+        // Trial step
+        std::array<double,6> pTrial = p;
+        for (int j = 0; j < 6; ++j)
+            pTrial[static_cast<size_t>(j)] += dp[static_cast<size_t>(j)];
+
+        // Enforce constraints
+        pTrial[2] = std::max(0.3, pTrial[2]);  // sigma_a >= 0.3
+        pTrial[3] = std::max(0.3, pTrial[3]);  // sigma_b >= 0.3
+        pTrial[5] = std::max(0.0, pTrial[5]);  // amplitude >= 0
+
+        const double trialChi2 = chi2fn(pTrial);
+        if (trialChi2 < curChi2) {
+            p        = pTrial;
+            curChi2  = trialChi2;
+            lambda  *= 0.2;
+            if (lambda < 1e-10) lambda = 1e-10;
+        } else {
+            lambda *= 5.0;
+            if (lambda > 1e8) break;   // diverged
+        }
+    }
+
+    // Ensure sigma_a is the major axis
+    if (p[3] > p[2]) {
+        std::swap(p[2], p[3]);
+        p[4] += M_PI * 0.5;  // rotate major axis by 90°
+    }
+
+    // Normalise theta to (-90°, +90°]
+    double thetaDeg = p[4] * (180.0 / M_PI);
+    thetaDeg = std::fmod(thetaDeg + 360.0, 180.0);
+    if (thetaDeg > 90.0) thetaDeg -= 180.0;
+
+    // Sanity check: centroid within search box, sigma plausible
+    if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) return seed;
+    if (p[2] > boxRadius || p[3] > boxRadius)               return seed;
+
+    const double fwhmA = 2.355 * p[2];
+    const double fwhmB = 2.355 * p[3];
+    const double snr   = (bkg > 0.0)
+        ? p[5] / std::sqrt(p[5] + bkg)
+        : std::sqrt(p[5]);
+
+    return CentroidResult{ p[0], p[1], fwhmA, fwhmB, thetaDeg, p[5], snr };
 }
 
 } // namespace core

@@ -5,6 +5,8 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QComboBox>
+#include <QPushButton>
 
 /// MDI child widget that wraps FitsImageView and shows image info.
 class FitsSubWindow : public QWidget {
@@ -36,14 +38,29 @@ signals:
     void applyDarkRequested();
     void applyFlatRequested();
     void showHistogramRequested();
+    void showPowerSpectrumRequested();
+    void showCubeAnimationRequested();
     void showImageCatalogRequested();
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
     void keyPressEvent(QKeyEvent* e) override;
 
+private slots:
+    void onHduSelected(int comboIndex);
+
 private:
-    core::FitsImage img_;
-    FitsImageView*  view_    = nullptr;
-    QLabel*         infoBar_ = nullptr;
+    void buildHduBar();
+    void refreshInfoBar();
+
+    core::FitsImage         img_;
+    FitsImageView*          view_     = nullptr;
+    QLabel*                 infoBar_  = nullptr;
+
+    // ── HDU navigation bar (hidden when file has only one image HDU) ──────────
+    QWidget*                hduBar_   = nullptr;
+    QComboBox*              hduCombo_ = nullptr;
+    QPushButton*            hduPrev_  = nullptr;
+    QPushButton*            hduNext_  = nullptr;
+    QVector<core::HduInfo>  hduList_;   ///< All image HDUs in the file (empty = single-HDU)
 };

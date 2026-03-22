@@ -206,6 +206,7 @@ kbd {
     <a href="#introducao">Introdução</a>
     <a href="#inicio-rapido">Início Rápido</a>
     <a href="#carregar">Carregar Imagens FITS</a>
+    <a href="#exibicao">Exibição e Renderização</a>
 
     <div class="nav-group">Pipeline de Processamento</div>
     <a href="#calibracao">Calibração</a>
@@ -215,7 +216,11 @@ kbd {
     <div class="nav-group">Detecção e Relatórios</div>
     <a href="#medicao">Medir Objetos</a>
     <a href="#deteccao">Detecção Automática</a>
+    <a href="#deteccao-avancada">Detecção Avançada</a>
     <a href="#koo">Sobreposição de Objetos</a>
+
+    <div class="nav-group">Importar e Exportar</div>
+    <a href="#importar-exportar">Importar / Exportar</a>
 
     <div class="nav-group">Referência</div>
     <a href="#ferramentas">Ferramentas</a>
@@ -269,18 +274,22 @@ kbd {
   <h3>Funcionalidades Principais</h3>
   <ul>
     <li>Carregar até <strong>4 quadros FITS</strong> por sessão — arrastar e soltar ou menu Arquivo</li>
-    <li>Suporte a arquivos ZIP: solte um <code>.zip</code> contendo arquivos FITS</li>
+    <li>Suporte a arquivos: ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR</li>
+    <li>Formatos: FITS (todos os variantes), SER, XISF, TIFF, PNG; espectros 1D; cubos de dados temporais</li>
     <li><strong>Calibração</strong> com dark frame e/ou flat field mestre</li>
     <li><strong>Detecção de estrelas</strong> via algoritmo SEP / Source Extractor</li>
-    <li><strong>Solução de placa</strong> (<em>plate solving</em>) via API do astrometry.net</li>
-    <li><strong>Sobreposição de Objetos Conhecidos (KOO)</strong> — asteroides e cometas do catálogo
-    MPCORB.DAT sobrepostos ao campo observado</li>
-    <li><strong>Ferramenta de abertura</strong> — ajuste de centróide PSF para posição e magnitude precisas</li>
-    <li><strong>Empilhamento de imagens</strong> com alinhamento por correlação de fase FFT
-    (modos Somar / Média / Mediana)</li>
+    <li><strong>Solução de placa</strong> via API do astrometry.net ou ASTAP offline</li>
+    <li><strong>Projeções WCS</strong>: TAN, SIN, ARC, GLS, MER, AIT, STG (Calabretta &amp; Greisen 2002)</li>
+    <li><strong>Correção de refração atmosférica</strong> e cadeia completa ICRS→CIRS→topocêntrico</li>
+    <li><strong>Sobreposição de Objetos Conhecidos (KOO)</strong> — asteroides e cometas MPCORB.DAT</li>
+    <li><strong>Ferramenta de abertura</strong> — ajuste PSF elíptico (Levenberg-Marquardt) para posição e magnitude precisas</li>
+    <li><strong>Empilhamento de imagens</strong> com alinhamento FFT (Somar / Média / Mediana)</li>
     <li><strong>Track &amp; Stack</strong> — compensar o movimento do objeto antes do empilhamento</li>
     <li><strong>Detecção automática de objetos em movimento</strong></li>
-    <li><strong>Exportação ADES XML</strong> para envio direto ao MPC</li>
+    <li><strong>Detecção avançada</strong>: máscara de pixels ruins, detecção de traços, separação de fontes blendadas (ClumpFind)</li>
+    <li><strong>Ferramentas de exibição</strong>: 5 funções de transferência, 7 LUTs de cor falsa, destaque NaN, histograma, espectro de potência 2D</li>
+    <li><strong>Importar catálogos</strong>: DAOPHOT/SExtractor, tabelas IRAF/Astropy, catálogos FITS BINTABLE locais</li>
+    <li><strong>Exportação ADES XML</strong> para envio direto ao MPC; marcação de coordenadas ICRF</li>
     <li>Desfazer/Refazer medições, tema escuro/noturno, modo piscar</li>
   </ul>
 
@@ -398,13 +407,22 @@ kbd {
     </li>
   </ul>
 
-  <h3>Variantes FITS Suportadas</h3>
+  <h3>Formatos de Arquivo Suportados</h3>
   <ul>
-    <li>Imagens 2D padrão — inteiros de 8, 16 e 32 bits; ponto flutuante de 32 e 64 bits</li>
-    <li>FITS comprimido — compressão por blocos Rice, HCOMPRESS ou gzip</li>
-    <li>FITS multi-extensão (MEF) — a primeira extensão de imagem é utilizada</li>
-    <li>Apenas imagens monocromáticas (escala de cinza) — FITS com mosaico Bayer ou RGB não são suportados atualmente</li>
+    <li><strong>FITS 2D</strong> — inteiros de 8, 16 e 32 bits; ponto flutuante de 32 e 64 bits</li>
+    <li><strong>FITS comprimido</strong> — compressão por blocos Rice, HCOMPRESS ou gzip</li>
+    <li><strong>FITS colorido</strong> — NAXIS3=3 (planos RGB) ou três extensões de imagem separadas (navegador HDU)</li>
+    <li><strong>FITS multi-extensão (MEF)</strong> — navegador HDU para selecionar qualquer extensão</li>
+    <li><strong>Cubo de dados FITS</strong> — NAXIS3&gt;3 carrega cada plano; clique direito → <em>Animar Cubo (N quadros)…</em></li>
+    <li><strong>Espectro FITS 1D</strong> — arquivos NAXIS=1 abrem no diálogo Espectro (gráfico comprimento de onda/fluxo)</li>
+    <li><strong>SER</strong> — formato de vídeo planetário (monocromático e colorido)</li>
+    <li><strong>XISF</strong> — formato nativo do PixInsight</li>
+    <li><strong>TIFF / PNG</strong> — escala de cinza ou RGB de 8 e 16 bits</li>
+    <li><strong>Arquivos compactados</strong> — ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR: solte o arquivo, o AstroFind extrai e carrega todas as imagens</li>
   </ul>
+  <div class="callout info">
+    <div class="ct">Arquivos RAW de câmera (CR2/NEF/ARW) e formato planetário PDS não são suportados nesta versão.</div>
+  </div>
 
   <h3>Exibição da Imagem e Ajuste de Escala</h3>
   <p>
@@ -435,6 +453,90 @@ kbd {
     WCS (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>, <code>CD1_1</code>, <code>CD1_2</code>, etc.)
     após a solução astrométrica.
   </div>
+</section>
+
+<!-- ─────────────────────── EXIBIÇÃO E RENDERIZAÇÃO ─────────────── -->
+<section id="exibicao">
+  <h2>Exibição e Renderização</h2>
+  <p>
+    O AstroFind separa os <em>dados científicos de pixel</em> (sempre preservados intactos) da
+    <em>renderização visual</em> (função de transferência, mapa de cor, pontos de estiramento).
+    Todos os controles de exibição afetam apenas o que você vê, nunca o que é medido.
+  </p>
+
+  <h3>Funções de Transferência</h3>
+  <p>Abra <em>Visualizar → Fundo e Alcance…</em> (ou clique com o botão direito em uma imagem) para escolher uma função de transferência e ajustar os pontos de preto/branco.</p>
+  <table>
+    <thead><tr><th>Função</th><th>Melhor para</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Linear</strong></td><td>Uso geral; preserva fielmente o brilho relativo</td></tr>
+      <tr><td><strong>Raiz Quadrada</strong></td><td>Nebulosidade fraca com estrelas brilhantes no mesmo campo</td></tr>
+      <tr><td><strong>Asinh</strong></td><td>Grande alcance dinâmico — compressão suave dos núcleos brilhantes</td></tr>
+      <tr><td><strong>Logarítmica</strong></td><td>Máxima compressão — ideal para núcleos de galáxias ou estrelas muito brilhantes</td></tr>
+      <tr><td><strong>Equalização de Histograma</strong></td><td>Maximiza o contraste local; útil para fontes estendidas fracas</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cor Falsa / LUT</h3>
+  <p>
+    Selecione uma tabela de cores (LUT) no mesmo diálogo. Presets disponíveis:
+    <strong>Gray</strong>, <strong>Hot</strong>, <strong>Viridis</strong>, <strong>Plasma</strong>,
+    <strong>Inferno</strong>, <strong>Cividis</strong>, <strong>Turbo</strong>.
+    Os mapas de cor não alteram astrometria nem fotometria.
+  </p>
+
+  <h3>Destaque de Pixels NaN</h3>
+  <p>
+    Pixels com valores IEEE NaN (de mascaramento de pixels ruins ou erros de divisão) são
+    renderizados em uma cor laranja distinta para que as regiões afetadas sejam imediatamente
+    visíveis. São excluídos de todos os cálculos estatísticos e fotometria.
+  </p>
+
+  <h3>Histograma de Pixels</h3>
+  <p>
+    Clique com o botão direito em uma imagem → <em>Mostrar Histograma…</em>. O diálogo exibe a
+    distribuição de valores de pixel com sobreposição de ajuste gaussiano mostrando a média e σ
+    estimados do fundo do céu. Use-o para diagnosticar saturação, nível do fundo e artefatos
+    não-gaussianos.
+  </p>
+
+  <h3>Espectro de Potência 2D</h3>
+  <p>
+    Clique com o botão direito em uma imagem → <em>Mostrar Espectro de Potência…</em>. Uma FFT 2D
+    com janela Hann é calculada (escala log₁₊|F|², deslocamento de quadrante). Passe o cursor sobre
+    qualquer ponto para ler a frequência espacial em ciclos/pixel e o período em arcsegundos.
+    Útil para diagnosticar ruído de coluna, franjas periódicas ou erros de guiagem.
+  </p>
+
+  <h3>Nitidez no Piscar</h3>
+  <p>
+    Na janela Blink, clique em <strong>Nitidez</strong> para ciclar entre:
+    <strong>Desativado → USM</strong> (Unsharp Mask) <strong>→ LoG</strong> (Laplaciano de Gaussiana).
+    A nitidez é aplicada apenas ao quadro exibido — os dados brutos não são jamais modificados.
+    Ajuda a revelar objetos em movimento fracos perto de estrelas brilhantes.
+  </p>
+
+  <h3>Animação de Cubo de Dados FITS</h3>
+  <p>
+    Arquivos FITS com NAXIS3&gt;3 (cubos temporais ou espectrais) exibem uma entrada extra no menu de
+    contexto: <em>Animar Cubo (N quadros)…</em>. Todos os planos são carregados e reproduzidos em uma
+    sub-janela MDI BlinkWidget. O controle deslizante de velocidade controla a taxa de animação.
+  </p>
+
+  <h3>Visualizador de Espectro 1D</h3>
+  <p>
+    Arquivos FITS com NAXIS=1 abrem automaticamente no diálogo <strong>Espectro</strong> — um gráfico
+    Qt Charts de fluxo vs. comprimento de onda. O eixo X é calculado a partir das palavras-chave WCS
+    <code>CRVAL1</code>, <code>CDELT1</code>, <code>CRPIX1</code>. As unidades vêm de
+    <code>CUNIT1</code>; a barra de informações exibe nome do objeto, instrumento e data.
+  </p>
+
+  <h3>Sobreposições dos Planos Eclíptico e Galáctico</h3>
+  <p>
+    Ative via <em>Visualizar → Sobreposições → Plano Eclíptico</em>. Quando o campo está a menos de
+    10° do plano galáctico, um banner de aviso é exibido — alta densidade estelar perto do plano
+    galáctico aumenta a taxa de falsos positivos na detecção de objetos em movimento.
+  </p>
 </section>
 
 <!-- ─────────────────────── CALIBRAÇÃO ───────────────────────────── -->
@@ -871,6 +973,115 @@ kbd {
   </div>
 </section>
 
+<!-- ─────────────────────── DETECÇÃO AVANÇADA ────────────────────── -->
+<section id="deteccao-avancada">
+  <h2>Detecção Avançada</h2>
+
+  <h3>Ajuste de PSF Elíptica</h3>
+  <p>
+    Por padrão, o AstroFind ajusta uma Gaussiana 2D circular a cada fonte detectada. Quando
+    <em>Configurações → Detecção → PSF Elíptica</em> está ativado, um modelo elíptico completo com
+    6 parâmetros (amplitude, x₀, y₀, σ<sub>x</sub>, σ<sub>y</sub>, rotação θ) é ajustado usando o
+    solver não-linear de mínimos quadrados Levenberg-Marquardt. Melhora a precisão do centróide em
+    condições de seeing ruim ou coma, e a elipticidade ajustada é armazenada no registro de medição.
+  </p>
+
+  <h3>Máscara de Pixels Ruins e Interpolação</h3>
+  <p>
+    Ative via <em>Processamento → Máscara de Pixels Ruins…</em>. O AstroFind identifica pixels quentes,
+    frios e acertos de raios cósmicos usando um limiar de sigma-clipping aplicado a cada pixel no
+    conjunto de quadros. Pixels marcados são substituídos por interpolação bilinear a partir dos
+    vizinhos válidos mais próximos. A máscara é salva por sessão e pode ser editada manualmente
+    clicando em pixels individuais com a ferramenta de abertura enquanto segura <kbd>Shift</kbd>.
+  </p>
+
+  <h3>Detecção de Traços / Rastros</h3>
+  <p>
+    Quando <em>Configurações → Detecção → Detectar Traços</em> está ativado, o detector de blob
+    também analisa a razão de eixos (a/b) de cada fonte. Fontes com a/b &gt; 4 são marcadas como
+    traços e mostradas com uma sobreposição de linha tracejada em vez de um círculo. Útil para
+    separar rastros de satélites e meteoros de fontes pontiformes redondas antes da detecção de
+    objetos em movimento.
+  </p>
+
+  <h3>Fontes Blendadas — ClumpFind</h3>
+  <p>
+    Quando duas ou mais fontes se sobrepõem (blendadas), o SEP as marca com o sinalizador
+    <em>blended</em>. O passo ClumpFind do AstroFind re-analisa cada ilha blendada com uma varredura
+    de múltiplos picos para estimar o número e posições das sub-fontes. Detecções blendadas são
+    exibidas com uma <strong>sobreposição de círculo duplo magenta</strong>. A fotometria em fontes
+    blendadas é menos confiável; o diálogo de Verificação exibe um aviso.
+  </p>
+
+  <h3>Fundo por Mediana Deslizante</h3>
+  <p>
+    O estimador de fundo usa um filtro mediano deslizante (tamanho de caixa configurável em
+    <em>Configurações → Detecção → Caixa de Fundo</em>) para calcular um mapa de céu variável
+    espacialmente. Trata gradientes de brilho do céu, luz da lua ou vinheta com mais precisão
+    do que um valor global plano de céu.
+  </p>
+</section>
+
+<!-- ─────────────────────── IMPORTAR / EXPORTAR ──────────────────── -->
+<section id="importar-exportar">
+  <h2>Importar / Exportar</h2>
+
+  <h3>Importar Catálogo DAOPHOT / SExtractor (FITS BINTABLE)</h3>
+  <p>
+    Use <em>Astrometria → Importar Estrelas Detectadas…</em> para carregar uma lista de estrelas
+    produzida pelo DAOPHOT, SExtractor ou qualquer ferramenta que escreva uma FITS BINTABLE com
+    coordenadas de pixel. O AstroFind reconhece os aliases de nome de coluna
+    <code>X_IMAGE</code>, <code>XPOS</code>, <code>X_CENTER</code> (e equivalentes Y). As estrelas
+    importadas substituem a lista de estrelas detectadas internamente para a imagem selecionada.
+  </p>
+
+  <h3>Importar Tabela de Redução IRAF / Astropy</h3>
+  <p>
+    Use <em>Astrometria → Importar Tabela de Redução (IRAF/Astropy)…</em> para carregar a saída de
+    <code>phot</code>, <code>allstar</code>, <code>photutils.aperture_photometry</code> ou
+    <code>photutils.centroids</code>. Aliases de colunas reconhecidos:
+  </p>
+  <table>
+    <thead><tr><th>Ferramenta</th><th>Colunas de pixel</th><th>Colunas de céu</th></tr></thead>
+    <tbody>
+      <tr><td>IRAF phot / allstar</td><td><code>XCENTER</code>, <code>YCENTER</code></td><td>—</td></tr>
+      <tr><td>Astropy photutils</td><td><code>xcentroid</code>, <code>ycentroid</code></td><td><code>sky_centroid_ra</code>, <code>sky_centroid_dec</code></td></tr>
+      <tr><td>SExtractor</td><td><code>X_IMAGE</code>, <code>Y_IMAGE</code></td><td><code>ALPHA_J2000</code>, <code>DELTA_J2000</code></td></tr>
+    </tbody>
+  </table>
+  <p>
+    Quando colunas de coordenadas de céu estão presentes, o AstroFind preenche os campos AR/Dec
+    de cada fonte importada e as marca como <em>combinadas com catálogo</em>. Se apenas coordenadas
+    de céu existirem (sem colunas de pixel), as fontes são colocadas fora do canvas com valores de
+    pixel placeholder −1 e são mostradas apenas na Tabela de Medições.
+  </p>
+
+  <h3>Catálogo Local Offline (FITS BINTABLE)</h3>
+  <p>
+    Em <em>Configurações → Conexões → Fonte do Catálogo</em>, mude de <em>VizieR (online)</em> para
+    <em>FITS Local</em> e navegue até um arquivo FITS BINTABLE contendo um catálogo de estrelas de
+    referência (ex.: um extrato cônico do Gaia DR3, UCAC5 ou USNO-B1.0). As colunas necessárias são
+    <code>RA</code> (ou <code>RAJ2000</code> / <code>RA_ICRS</code>) e
+    <code>DEC</code> (ou <code>DEJ2000</code> / <code>DE_ICRS</code>), mais uma coluna de magnitude
+    opcional. O AstroFind aplica um filtro cônico automaticamente usando o centro e raio do campo
+    resolvido.
+  </p>
+
+  <h3>Exportar Imagem</h3>
+  <p>
+    Clique com o botão direito em qualquer imagem → <em>Exportar como JPEG / PNG…</em>. A imagem
+    exportada usa a função de transferência e LUT atuais para corresponder à renderização na tela.
+  </p>
+
+  <h3>Exportação ADES XML / PSV</h3>
+  <p>
+    <em>Arquivo → Exportar ADES XML…</em> escreve um arquivo XML ADES 2017 completo com marcação
+    de coordenadas ICRF (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>), refração atmosférica aplicada e
+    o bloco completo de observador/medidor/telescópio. O formato PSV também está disponível no
+    diálogo de Pré-visualização do Relatório.
+  </p>
+</section>
+
 <!-- ─────────────────────── KOO ──────────────────────────────────── -->
 <section id="koo">
   <h2>Sobreposição de Objetos Conhecidos (KOO)</h2>
@@ -1052,11 +1263,19 @@ kbd {
 
   <h3>Aba Caminhos de Dados</h3>
   <ul>
-    <li><strong>Caminho do MPCORB.DAT</strong> — Caminho completo para o arquivo de catálogo orbital
-    baixado do MPC.</li>
-    <li><strong>Diretório de Sessão</strong> — Pasta padrão para salvar/carregar arquivos de sessão
-    (<code>.astrofind</code>).</li>
+    <li><strong>Caminho do MPCORB.DAT</strong> — Caminho completo para o arquivo de catálogo orbital baixado do MPC.</li>
+    <li><strong>Diretório de Sessão</strong> — Pasta padrão para salvar/carregar arquivos de sessão (<code>.astrofind</code>).</li>
     <li><strong>Diretório de Exportação</strong> — Pasta padrão para exportações ADES XML.</li>
+  </ul>
+
+  <h3>Aba Conexões</h3>
+  <ul>
+    <li><strong>Backend do Plate Solver</strong> — <em>astrometry.net (online)</em> ou <em>ASTAP (local, offline)</em>.</li>
+    <li><strong>Chave de API astrometry.net</strong> — Necessária para resolução de placa online. Armazenada com segurança via keychain do sistema.</li>
+    <li><strong>Caminho do ASTAP</strong> — Caminho para o executável <code>astap</code> se usar resolução offline.</li>
+    <li><strong>Fonte do Catálogo</strong> — <em>VizieR (online)</em> ou <em>FITS Local</em>. Quando definido como FITS Local, o campo de caminho e o botão de navegação ficam ativos.</li>
+    <li><strong>Caminho do Catálogo Local</strong> — Caminho para um arquivo FITS BINTABLE contendo um catálogo de estrelas de referência para sobreposição KOO offline. Consulte <a href="#importar-exportar">Importar / Exportar → Catálogo Local Offline</a>.</li>
+    <li><strong>Timeout do Solver (s)</strong> — Tempo máximo de espera por uma resposta de resolução de placa (padrão: 300 s).</li>
   </ul>
 </section>
 
@@ -1098,7 +1317,19 @@ kbd {
   <p class="gd">A razão entre o sinal da fonte e o ruído de fundo. Composto por ruído de fótons do fundo do céu (Poisson), ruído de leitura e ruído de corrente escura. Uma detecção é geralmente considerada confiável com SNR ≥ 5. Empilhar N quadros melhora o SNR em aproximadamente √N.</p>
 
   <p class="gt">WCS — World Coordinate System (Sistema de Coordenadas Mundiais)</p>
-  <p class="gd">Padrão FITS (Papers I–IV, Calabretta &amp; Greisen 2002) para codificar o mapeamento matemático entre coordenadas de pixel e coordenadas físicas do céu (RA, Dec). A solução de placa produz as palavras-chave WCS gravadas no cabeçalho FITS, permitindo converter qualquer pixel em uma posição celeste precisa.</p>
+  <p class="gd">Padrão FITS (Papers I–IV, Calabretta &amp; Greisen 2002) para codificar o mapeamento matemático entre coordenadas de pixel e coordenadas físicas do céu (RA, Dec). O AstroFind implementa oito projeções: TAN, SIN, ARC, GLS, MER, AIT, STG, além do padrão TAN.</p>
+
+  <p class="gt">CIRS — Celestial Intermediate Reference System (Sistema de Referência Celeste Intermediário)</p>
+  <p class="gd">Referencial intermediário definido pelo equador terrestre e a Origem Celeste Intermediária em uma dada época. Usado na cadeia ICRS → CIRS → Topocêntrico ao calcular posições aparentes precisas, incluindo aberração anual e nutação, conforme exigido pelo padrão ADES.</p>
+
+  <p class="gt">ICRS — International Celestial Reference System (Sistema Internacional de Referência Celeste)</p>
+  <p class="gd">O referencial celeste padrão da UAI atual, alinhado a fontes rádio extragalácticas (quasares). Essencialmente equivalente ao FK5/J2000 para astrometria terrestre, mas rigorosamente definido sem época de referência. Todas as saídas ADES do AstroFind são marcadas com <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>.</p>
+
+  <p class="gt">LUT — Look-Up Table (Tabela de Consulta)</p>
+  <p class="gd">Um mapeamento de intensidade de pixel escalar para uma cor RGB. Usado para renderizar imagens astronômicas em tons de cinza com cores falsas. LUTs comuns: Hot (preto-vermelho-amarelo-branco), Viridis, Plasma, Inferno (sequenciais perceptualmente uniformes), Cividis (seguro para daltônicos), Turbo (estilo arco-íris).</p>
+
+  <p class="gt">ClumpFind</p>
+  <p class="gd">Algoritmo de detecção de fontes que identifica picos distintos dentro de um blob conectado de pixels acima de um limiar. Usado no AstroFind para separar fontes blendadas (sobrepostas). Originalmente descrito por Williams et al. (1994) para identificação de aglomerados em nuvens moleculares.</p>
 </section>
 
 <!-- ─────────────────────── FAQ ──────────────────────────────────── -->
@@ -1248,7 +1479,22 @@ kbd {
       <tr>
         <td><a href="https://github.com/iraf-community/iraf" target="_blank">IRAF</a></td>
         <td>NOAO / comunidade</td>
-        <td>Conceitos de fotometria de abertura e metodologia de medição.</td>
+        <td>Conceitos de fotometria de abertura, formato de tabela de redução XCENTER/YCENTER.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/gnudatalanguage/gdl" target="_blank">GDL</a></td>
+        <td>Marc Schellens et al.</td>
+        <td>Solver PSF elíptico / MPFIT, filtro mediano deslizante de fundo, espectro de potência FFT.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/teuben/nemo" target="_blank">NEMO</a></td>
+        <td>Peter Teuben et al.</td>
+        <td>Algoritmo de máscara de pixels ruins, detecção de blob/traço, ClumpFind, ajuste gaussiano de histograma, filtro Laplaciano, projeções WCS.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/BoostGSoC19/astronomy" target="_blank">Boost.Astronomy</a></td>
+        <td>Contribuidores GSoC 2019</td>
+        <td>Correção de refração atmosférica, cadeia de coordenadas ICRS/CIRS, sobreposições dos planos eclíptico e galáctico.</td>
       </tr>
     </tbody>
   </table>
@@ -1257,8 +1503,9 @@ kbd {
   <table>
     <thead><tr><th>Biblioteca</th><th>Função</th></tr></thead>
     <tbody>
-      <tr><td><a href="https://github.com/qt/qtbase" target="_blank">Qt6</a></td><td>Framework de UI</td></tr>
+      <tr><td><a href="https://github.com/qt/qtbase" target="_blank">Qt6</a></td><td>Framework de UI (Core, Widgets, Concurrent, Charts, Network)</td></tr>
       <tr><td><a href="https://github.com/HEASARC/cfitsio" target="_blank">cfitsio</a></td><td>Leitura e escrita de arquivos FITS</td></tr>
+      <tr><td><a href="https://heasarc.gsfc.nasa.gov/docs/software/fitsio/ccfits/" target="_blank">CCfits</a></td><td>Acesso C++ a FITS BINTABLE (embutido)</td></tr>
       <tr><td><a href="https://gitlab.com/libeigen/eigen" target="_blank">Eigen3</a></td><td>Álgebra linear para astrometria</td></tr>
       <tr><td><a href="https://github.com/FFTW/fftw3" target="_blank">FFTW3</a></td><td>Transformadas de Fourier rápidas</td></tr>
       <tr><td><a href="https://github.com/kbarbary/sep" target="_blank">SEP</a></td><td>Extração de fontes e fotometria</td></tr>
@@ -1266,6 +1513,7 @@ kbd {
       <tr><td><a href="https://github.com/catchorg/Catch2" target="_blank">Catch2</a></td><td>Testes unitários</td></tr>
       <tr><td><a href="https://github.com/stachenov/quazip" target="_blank">QuaZip</a></td><td>Suporte a arquivos ZIP</td></tr>
       <tr><td><a href="https://github.com/frankosterfeld/qtkeychain" target="_blank">qt-keychain</a></td><td>Armazenamento seguro de chaves de API</td></tr>
+      <tr><td><a href="https://github.com/libarchive/libarchive" target="_blank">libarchive</a> <em>(opcional)</em></td><td>Suporte a TAR.GZ/BZ2/XZ, 7Z, RAR</td></tr>
     </tbody>
   </table>
 </section>

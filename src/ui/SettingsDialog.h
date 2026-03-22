@@ -41,6 +41,7 @@ private slots:
     void onApertureToggled();
     void onLocationModeChanged();
     void onCountryChanged(int idx);
+    void onBrowseLocalCatalog();
 
 private:
     void buildObserverTab(QTabWidget* tabs);
@@ -121,11 +122,14 @@ private:
     QLineEdit*      schoolEmailEdit_ = nullptr;  ///< school/recipientEmail
 
     // ── Camera ────────────────────────────────────────────────────────────────
-    QDoubleSpinBox* pixScaleXSpin_   = nullptr;
-    QDoubleSpinBox* pixScaleYSpin_   = nullptr;
-    QDoubleSpinBox* focalLenSpin_    = nullptr;
-    QSpinBox*       saturationSpin_  = nullptr;
-    QDoubleSpinBox* deltaTSpin_      = nullptr;
+    QDoubleSpinBox* pixScaleXSpin_       = nullptr;
+    QDoubleSpinBox* pixScaleYSpin_       = nullptr;
+    QDoubleSpinBox* focalLenSpin_        = nullptr;
+    QSpinBox*       saturationSpin_      = nullptr;
+    QDoubleSpinBox* deltaTSpin_          = nullptr;
+    QCheckBox*      badPixelChk_         = nullptr;
+    QDoubleSpinBox* badPixelSigmaSpin_   = nullptr;
+    QWidget*        badPixelWarnWidget_  = nullptr;
 
     // ── Connections ───────────────────────────────────────────────────────────
     QComboBox*   solverBackendCombo_ = nullptr;
@@ -141,11 +145,17 @@ private:
     QLineEdit*   vizierEdit_          = nullptr;
     QComboBox*   catalogTypeCombo_    = nullptr;
     QLineEdit*   mpcSubmitEdit_       = nullptr;
+    QComboBox*   catalogSourceCombo_   = nullptr;  ///< VizieR / Local FITS
+    QLineEdit*   localCatalogPathEdit_ = nullptr;
+    QPushButton* localCatalogBrowse_  = nullptr;
 
     // ── Detection / Photometry ────────────────────────────────────────────────
+    QCheckBox*  bgSubtractChk_       = nullptr;
+    QSpinBox*   bgTileSizeSpin_      = nullptr;
     QDoubleSpinBox* sigmaLimitSpin_  = nullptr;
     QDoubleSpinBox* minFwhmSpin_     = nullptr;
     QDoubleSpinBox* minSnrSpin_      = nullptr;   // MOD: minimum SNR per detection
+    QDoubleSpinBox* streakElongSpin_ = nullptr;   // streak/trail elongation threshold (a/b)
     QDoubleSpinBox* magLimitSpin_    = nullptr;   // faint (MinMag)
     QDoubleSpinBox* maxMagSpin_      = nullptr;   // bright (MaxMag)
     QComboBox*      bandCombo_       = nullptr;
@@ -156,10 +166,11 @@ private:
     QDoubleSpinBox* extinctionSpin_  = nullptr;
 
     // ── Display ───────────────────────────────────────────────────────────────
-    QSpinBox*  blinkIntervalSpin_  = nullptr;
-    QComboBox* themeCombo_         = nullptr;
-    QCheckBox* showWizardCheck_    = nullptr;
-    QComboBox* langCombo_          = nullptr;
+    QSpinBox*  blinkIntervalSpin_    = nullptr;
+    QComboBox* themeCombo_           = nullptr;
+    QCheckBox* showWizardCheck_      = nullptr;
+    QCheckBox* showColorWarningCheck_ = nullptr;
+    QComboBox* langCombo_            = nullptr;
 
     // ── Legacy ────────────────────────────────────────────────────────────────
     QLineEdit* usnoA2DirEdit_  = nullptr;
