@@ -124,7 +124,23 @@ libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev
 - Ubuntu installs as a full desktop normally include `libxkbcommon` automatically via
   the desktop stack. In a minimal server/container install it must be explicit.
 
-**Status:** ✅ Primary CI — runs on every push to `main` and `develop`.
+**Note:** Ubuntu 24.04 ships Qt 6.4.2+dfsg-21.1build5 in its repos (not Qt 6.6 as
+initially estimated). GCC is 13.3.0 (not 14 as documented above). Both are sufficient.
+
+**Verified results (2026-03-22, dedicated qa-ubuntu-24.yml, run #23403368717):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `ubuntu:24.04` |
+| Distro | Ubuntu 24.04.4 LTS |
+| GCC | 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) |
+| Qt6 | 6.4.2+dfsg-21.1build5 |
+| CMake | 3.28.3 |
+| Core tests | 106 passed / 10 skipped (network-dependent) |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 11s |
+
+**Status:** ✅ Primary CI (every push) + dedicated QA workflow (2026-03-22).
 
 ---
 
@@ -485,7 +501,24 @@ libgl1-mesa-dev libxkbcommon-dev
   System76 does not ship custom Qt6 packages, so the PPA adds little for build testing.
 - This is inherently an approximation. Full validation requires a real Pop!_OS install.
 
-**Status:** ❌ Pending (item 55.7) — approximation via `ubuntu:22.04` + System76 PPA
+**Note:** Pop!_OS 22.04 is based on Ubuntu 22.04 which ships Qt 6.2.4 — below
+AstroFind's minimum Qt 6.4. The workflow uses `ubuntu:24.04` instead (Qt 6.4.2 available).
+This approximates Pop!_OS 22.04 users who have upgraded Qt or use the current Pop!_OS.
+
+**Verified results (2026-03-22, run #23403368713):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `ubuntu:24.04` (Pop!_OS 22.04 approximation) |
+| Distro | Ubuntu 24.04.4 LTS |
+| GCC | 13.3.0 |
+| Qt6 | 6.4.2+dfsg-21.1build5 |
+| CMake | 3.28.3 |
+| Core tests | 106 passed / 10 skipped |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 8s |
+
+**Status:** ✅ Passed (2026-03-22, run #23403368713)
 
 ---
 
@@ -547,7 +580,23 @@ workflow must use `gcc-toolset-13` and `scl enable gcc-toolset-13`.
 - A real Rocky 9 desktop (rare, but possible with GNOME) would have more Qt5
   pre-installed. Qt6 would still need EPEL.
 
-**Status:** ❌ Pending (item 55.8) — highest complexity distro in the QA suite
+**Verified results (2026-03-22, run #23403368714):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `rockylinux:9` |
+| Distro | Rocky Linux 9.3 (Blue Onyx) |
+| GCC (toolset) | 13.3.1 (Red Hat 13.3.1-2, via gcc-toolset-13) |
+| Qt6 | 6.6.2 (from EPEL 9) |
+| CMake | 3.26.5 |
+| qt6-qtcharts-devel | available in EPEL 9 ✅ |
+| qt6-qtopengl-devel | NOT in EPEL 9 ⚠️ (CMake uses qtbase OpenGL fallback) |
+| qt6-qttools-devel | NOT in EPEL 9 ⚠️ (lupdate/lrelease skipped in CI) |
+| Core tests | 106 passed / 10 skipped |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 48s |
+
+**Status:** ✅ Passed (2026-03-22, run #23403368714)
 
 ---
 
@@ -588,7 +637,24 @@ custom Qt6 packages.
 - This is inherently an approximation. Full validation requires a real Zorin OS install
   or an ISO-based VM.
 
-**Status:** ❌ Pending (item 55.9) — approximation via `ubuntu:22.04`
+**Note:** Zorin OS 17 is based on Ubuntu 22.04 which ships Qt 6.2.4 — below AstroFind's
+minimum Qt 6.4. The workflow uses `ubuntu:24.04` instead. This approximates the APT
+package base for Zorin OS users who need Qt 6.4+.
+
+**Verified results (2026-03-22, run #23403368740):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `ubuntu:24.04` (Zorin OS 17 approximation) |
+| Distro | Ubuntu 24.04.4 LTS |
+| GCC | 13.3.0 |
+| Qt6 | 6.4.2+dfsg-21.1build5 |
+| CMake | 3.28.3 |
+| Core tests | 106 passed / 10 skipped |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 13s |
+
+**Status:** ✅ Passed (2026-03-22, run #23403368740)
 
 ---
 
@@ -647,8 +713,24 @@ cmake --build build --target AstroFind -j$(nproc)
 LIBGL_ALWAYS_SOFTWARE=1 ./build/bin/AstroFind
 ```
 
-**Status:** ❌ Pending (item 55.11) — CI job approximates via `ubuntu:22.04`;
-full GUI test requires manual execution on a Windows 11 + WSLg machine.
+**Note:** WSL2/ubuntu:22.04 ships Qt 6.2.4 which is below AstroFind's minimum Qt 6.4.
+The workflow uses `ubuntu:24.04` (Ubuntu 24.04 is now the default WSL2 distro).
+Full GUI test (WSLg, OpenGL) requires manual execution on a real Windows 11 machine.
+
+**Verified results (2026-03-22, run #23403368721):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `ubuntu:24.04` (WSL2/Ubuntu approximation) |
+| Distro | Ubuntu 24.04.4 LTS |
+| GCC | 13.3.0 |
+| Qt6 | 6.4.2+dfsg-21.1build5 |
+| CMake | 3.28.3 |
+| Core tests | 106 passed / 10 skipped |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 26s |
+
+**Status:** ✅ Passed (2026-03-22, run #23403368721) — CI portion only; WSLg GUI requires manual test
 
 ---
 

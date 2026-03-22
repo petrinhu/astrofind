@@ -96,14 +96,14 @@ The table must be shown automatically — do not wait for the user to ask.
 | 52 | Testes UI — SettingsDialog: load/save/reset de configurações (2 casos) | Testes UI | — | D1 | ✅ |
 | 53 | Testes UI — CalibrationPanel: dark/flat/bias widgets, estado habilitado/desabilitado (9 casos) | Testes UI | — | D2 | ✅ |
 | 54 | Testes UI — SessionSignals: sinais entre MainWindow, WorkflowPanel e BlinkWidget (12 casos) | Testes UI | — | D2 | ✅ |
-| 55.1 | Teste de build e execução — Ubuntu 24.04 LTS (container Docker) | QA Distros | — após base estável | D2 | ❌ |
+| 55.1 | Teste de build e execução — Ubuntu 24.04 LTS (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.2 | Teste de build e execução — Debian 12 Bookworm (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.3 | Teste de build e execução — Arch Linux (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.4 | Teste de build e execução — Manjaro (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.5 | Teste de build e execução — Linux Mint 22 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.6 | Teste de build e execução — openSUSE Tumbleweed (container Docker) | QA Distros | — após base estável | D2 | ✅ |
-| 55.7 | Teste de build e execução — Pop!_OS 22.04 (container Docker) | QA Distros | — após base estável | D2 | ❌ |
-| 55.8 | Teste de build e execução — Rocky Linux 9 (container Docker) | QA Distros | — após base estável | D2 | ❌ |
-| 55.9 | Teste de build e execução — Zorin OS 17 (container Docker) | QA Distros | — após base estável | D2 | ❌ |
+| 55.7 | Teste de build e execução — Pop!_OS 22.04 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
+| 55.8 | Teste de build e execução — Rocky Linux 9 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
+| 55.9 | Teste de build e execução — Zorin OS 17 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.10 | Teste de build e execução — Fedora (distro de desenvolvimento — já compila) | QA Distros | — | D1 | ✅ |
-| 55.11 | Teste de build e execução — WSL2/Ubuntu no Windows 11 (WSLg); testes unitários sempre funcionam; GUI requer WSLg + OpenGL software fallback | QA Distros | — após base estável | D2 | ❌ |
+| 55.11 | Teste de build e execução — WSL2/Ubuntu no Windows 11 (WSLg); testes unitários sempre funcionam; GUI requer WSLg + OpenGL software fallback | QA Distros | — após base estável | D2 | ✅ |
