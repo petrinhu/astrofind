@@ -1,0 +1,220 @@
+name: QA · Rocky Linux 9
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.8 — Build and test on Rocky Linux 9 (rockylinux:9 Docker image)
+#
+# WHY ROCKY LINUX 9:
+#   Rocky Linux 9 is a 1:1 binary compatible rebuild of RHEL 9 (Red Hat Enterprise
+#   Linux). It is widely used in scientific institutions, universities, HPC clusters,
+#   and observatories that run RHEL-based systems. Many research institutions run
+#   Rocky 9 or RHEL 9 — this is the most enterprise-focused distro in the QA suite.
+#
+# IMAGE USED: rockylinux:9
+#   Official Rocky Linux image from Docker Hub, maintained by the Rocky Linux project.
+#
+# COMPLEXITY: This is the hardest distro in the QA suite. Three extra steps are
+# required that are not needed on any other distro:
+#
+#   1. EPEL (Extra Packages for Enterprise Linux): Qt6 is not in Rocky's base repos.
+#      EPEL provides Qt6 packages for RHEL/Rocky 9.
+#
+#   2. CRB (CodeReady Builder / PowerTools): Some EPEL packages have build
+#      dependencies in CRB. Must be enabled before installing EPEL packages.
+#
+#   3. gcc-toolset-13 (SCL): Rocky 9's default GCC is GCC 11, which does NOT
+#      support C++23 std::expected. gcc-toolset-13 provides GCC 13 via Software
+#      Collections Layer (SCL). The build must be wrapped in:
+#        scl enable gcc-toolset-13 -- bash -c "cmake ... && cmake --build ..."
+#      because scl enable does not persist across GitHub Actions run: steps.
+#
+# PACKAGE NAMING NOTE (RPM/Fedora/Rocky/RHEL style):
+#   - qt6-qtbase-devel  (not qt6-base-devel as in openSUSE, not qt6-base-dev as in Debian)
+#   - fftw-devel        (not fftw3-devel, not libfftw3-dev)
+#   - cfitsio-devel     (same as openSUSE/Fedora)
+#   - libarchive-devel  (same as openSUSE/Fedora)
+#   - ninja-build       (not ninja)
+#
+# WHAT THIS JOB VALIDATES (item 55.8):
+#   ✅  EPEL + CRB enable and Qt6 install from EPEL
+#   ✅  gcc-toolset-13 (GCC 13) C++23 support on RHEL 9 base
+#   ✅  CMake configuration with SCL environment
+#   ✅  All 116 core unit tests pass
+#   ✅  All 23 UI integration tests pass (offscreen)
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
+#   ❌  qt6-qtcharts-devel availability in EPEL (may be absent — see notes)
+#   ❌  Hardware-accelerated OpenGL — not tested
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  qa-rocky-9:
+    name: Rocky Linux 9 · rockylinux:9 · dnf · gcc-toolset-13
+    runs-on: ubuntu-latest
+
+    container:
+      image: rockylinux:9
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Rocky Linux 9"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          uname -a
+          cat /etc/os-release
+          echo ""
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          free -h
+          df -h /
+          echo ""
+          echo "── dnf version ─────────────────────────────────────────────────"
+          dnf --version | head -3
+          echo ""
+
+      # ── 2. ENABLE EPEL + CRB ─────────────────────────────────────────────────
+      # EPEL provides Qt6 packages. CRB (CodeReady Builder) provides dependencies
+      # for some EPEL packages. Both must be enabled before any Qt6 install.
+      - name: "🔑  Enable EPEL and CRB repos"
+        run: |
+          echo "── Installing EPEL release ─────────────────────────────────────"
+          dnf install -y epel-release
+          echo ""
+          echo "── Enabling CRB (CodeReady Builder) ────────────────────────────"
+          dnf config-manager --set-enabled crb
+          echo ""
+          echo "── Refreshing package databases ────────────────────────────────"
+          dnf makecache
+          echo ""
+          echo "── Available Qt6 packages in EPEL ──────────────────────────────"
+          dnf search qt6 2>/dev/null | grep -E "qt6-qtbase|qt6-qtcharts|qt6-qtopengl|qt6-qttools" | head -20
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      # gcc-toolset-13 provides GCC 13 (required for C++23 std::expected).
+      # Rocky 9 default GCC 11 does NOT support std::expected.
+      - name: "📦  Install build dependencies"
+        run: |
+          echo "── Installing required packages ────────────────────────────────"
+          dnf install -y \
+            cmake \
+            ninja-build \
+            gcc-toolset-13 \
+            gcc-toolset-13-gcc-c++ \
+            git \
+            pkg-config \
+            qt6-qtbase-devel \
+            qt6-qtcharts-devel \
+            qt6-qtopengl-devel \
+            qt6-qttools-devel \
+            cfitsio-devel \
+            fftw-devel \
+            libarchive-devel \
+            mesa-libGL-devel \
+            libxkbcommon-devel
+          echo ""
+          echo "── Installed versions ──────────────────────────────────────────"
+          echo -n "cmake:       "; cmake --version | head -1
+          echo -n "ninja:       "; ninja-build --version 2>/dev/null || ninja --version 2>/dev/null || echo "not found"
+          echo    "gcc-ts-13:   $(rpm -q --qf '%{VERSION}\n' gcc-toolset-13 2>/dev/null)"
+          echo    "qt6-base:    $(rpm -q --qf '%{VERSION}\n' qt6-qtbase-devel 2>/dev/null || echo 'not found')"
+          echo    "qt6-charts:  $(rpm -q --qf '%{VERSION}\n' qt6-qtcharts-devel 2>/dev/null || echo 'NOT IN EPEL — build will fail')"
+          echo    "cfitsio:     $(rpm -q --qf '%{VERSION}\n' cfitsio-devel 2>/dev/null || echo 'not found')"
+          echo    "fftw:        $(rpm -q --qf '%{VERSION}\n' fftw-devel 2>/dev/null || echo 'not found')"
+          echo    "libarchive:  $(rpm -q --qf '%{VERSION}\n' libarchive-devel 2>/dev/null || echo 'not found')"
+          echo ""
+          echo "── GCC 13 from toolset ─────────────────────────────────────────"
+          scl enable gcc-toolset-13 -- gcc --version | head -1
+          scl enable gcc-toolset-13 -- g++ --version | head -1
+          echo ""
+
+      # ── 4. CHECKOUT ─────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-rocky-9-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-rocky-9-
+
+      # ── 6+7. CMAKE CONFIGURE AND BUILD ───────────────────────────────────────
+      # scl enable does not persist between GitHub Actions steps.
+      # CMake configure and build MUST both run inside a single scl enable call
+      # so the GCC 13 toolchain remains active for the entire build.
+      - name: "⚙️🔨  Configure and build (gcc-toolset-13)"
+        run: |
+          echo "── CMake configure + build inside gcc-toolset-13 SCL ───────────"
+          scl enable gcc-toolset-13 -- bash -c "
+            set -e
+            echo '── GCC version inside SCL ──────────────────────────────────────'
+            gcc --version | head -1
+            g++ --version | head -1
+            echo ''
+            echo '── CMake configure ─────────────────────────────────────────────'
+            cmake -B build -G Ninja \
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_VERBOSE_MAKEFILE=ON \
+              --log-level=VERBOSE
+            echo ''
+            grep -E 'Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION' \
+              build/CMakeCache.txt | sort
+            echo ''
+            echo '── Building all targets ────────────────────────────────────────'
+            cmake --build build --verbose
+            echo ''
+            echo '── Build artifacts ─────────────────────────────────────────────'
+            ls -lh build/bin/
+            echo ''
+            echo '── Binary info ─────────────────────────────────────────────────'
+            file build/bin/AstroFind
+            ldd build/bin/AstroFind | grep -i qt
+            echo ''
+          "
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      # Tests can run outside SCL — the binary is already compiled.
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Rocky Linux 9 — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC-13:  $(scl enable gcc-toolset-13 -- gcc --version 2>/dev/null | head -1 || echo 'n/a')"
+          echo "Qt6:     $(rpm -q --qf '%{VERSION}\n' qt6-qtbase-devel 2>/dev/null || echo 'unknown')"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""

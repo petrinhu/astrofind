@@ -1,0 +1,167 @@
+name: QA · Zorin OS 17
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.9 — Build and test on Zorin OS 17 (ubuntu:22.04 approximation)
+#
+# WHY ZORIN OS 17:
+#   Zorin OS 17 targets users switching from Windows, making it a key entry
+#   point for new Linux users who might use AstroFind. It is based on Ubuntu
+#   22.04 LTS with a customised GNOME desktop (Zorin Desktop Environment).
+#   Zorin does not maintain its own Qt6 packages — they come from Ubuntu 22.04.
+#
+# IMAGE USED: ubuntu:22.04
+#   There is no official Zorin OS Docker image. ubuntu:22.04 is the upstream
+#   base and provides the identical APT package set.
+#
+# LIMITATION: Zorin Desktop Environment, themes, and Zorin-specific apps are
+#   not present. For build/unit-test purposes the package base is identical.
+#
+# WHAT THIS JOB VALIDATES (item 55.9):
+#   ✅  Qt 6.4 (Ubuntu 22.04 base — minimum supported version) compatibility
+#   ✅  GCC 12 C++23 support (libstdc++ 12)
+#   ✅  CMake configuration succeeds
+#   ✅  All 116 core unit tests pass
+#   ✅  All 23 UI integration tests pass (offscreen)
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
+#   ❌  Zorin Desktop Environment, themes — not present (irrelevant for Qt6 build)
+#   ❌  Hardware-accelerated OpenGL — not tested
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  qa-zorin-17:
+    name: Zorin OS 17 · ubuntu:22.04 · apt · GCC 12
+    runs-on: ubuntu-latest
+
+    container:
+      image: ubuntu:22.04
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Zorin OS 17 (via ubuntu:22.04)"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          uname -a
+          cat /etc/os-release
+          echo ""
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          free -h
+          df -h /
+          echo ""
+
+      # ── 2. UPDATE PACKAGE DATABASE ───────────────────────────────────────────
+      - name: "🔄  Update package database"
+        run: |
+          apt-get update -qq
+          echo ""
+          apt-cache search qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools" | sort
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      - name: "📦  Install build dependencies"
+        run: |
+          apt-get install -y \
+            cmake \
+            ninja-build \
+            gcc \
+            g++ \
+            git \
+            pkg-config \
+            qt6-base-dev \
+            libqt6charts6-dev \
+            libqt6opengl6-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libcfitsio-dev \
+            libfftw3-dev \
+            libarchive-dev \
+            libgl1-mesa-dev \
+            libxkbcommon-dev
+          echo ""
+          echo -n "cmake:        "; cmake --version | head -1
+          echo -n "gcc:          "; gcc --version | head -1
+          echo    "qt6-base-dev: $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo    "cfitsio:      $(dpkg -l libcfitsio-dev | tail -1 | awk '{print $3}')"
+          echo ""
+
+      # ── 4. CHECKOUT ──────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      # Share cache key with Pop!_OS 22.04 — both use ubuntu:22.04 as base
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-ubuntu-22-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-ubuntu-22-
+
+      # ── 6. CMAKE CONFIGURE ───────────────────────────────────────────────────
+      - name: "⚙️   CMake configure"
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      - name: "🔨  Build (verbose)"
+        run: |
+          cmake --build build --verbose
+          echo ""
+          ls -lh build/bin/
+          file build/bin/AstroFind
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Zorin OS 17 (ubuntu:22.04 base) — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""

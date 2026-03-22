@@ -101,7 +101,7 @@ The table must be shown automatically — do not wait for the user to ask.
 | 55.3 | Teste de build e execução — Arch Linux (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.4 | Teste de build e execução — Manjaro (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.5 | Teste de build e execução — Linux Mint 22 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
-| 55.6 | Teste de build e execução — openSUSE Tumbleweed (container Docker) | QA Distros | — após base estável | D2 | ❌ |
+| 55.6 | Teste de build e execução — openSUSE Tumbleweed (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.7 | Teste de build e execução — Pop!_OS 22.04 (container Docker) | QA Distros | — após base estável | D2 | ❌ |
 | 55.8 | Teste de build e execução — Rocky Linux 9 (container Docker) | QA Distros | — após base estável | D2 | ❌ |
 | 55.9 | Teste de build e execução — Zorin OS 17 (container Docker) | QA Distros | — após base estável | D2 | ❌ |

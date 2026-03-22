@@ -422,7 +422,20 @@ cfitsio-devel fftw3-devel libarchive-devel
 - No YaST, no zypper-provided auto-update service running in the container.
 - No `systemd` user session.
 
-**Status:** ❌ Pending (item 55.6)
+**Verified results (2026-03-22):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `opensuse/tumbleweed` |
+| Distro | openSUSE Tumbleweed (rolling) |
+| GCC | 15.2.1 (SUSE Linux, 2026-02-02) |
+| Qt6 | 6.10.2 |
+| CMake | 4.2.3 |
+| Core tests | 106 passed / 10 skipped (network-dependent) |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 36s |
+
+**Status:** ✅ Passed (2026-03-22, run #23402424917)
 
 ---
 

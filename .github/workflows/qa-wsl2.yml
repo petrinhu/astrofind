@@ -1,0 +1,180 @@
+name: QA · WSL2 / Ubuntu 22.04
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.11 — Build and test on WSL2 / Ubuntu on Windows 11 (ubuntu:22.04)
+#
+# WHY WSL2:
+#   WSL2 (Windows Subsystem for Linux 2) with WSLg is the recommended way for
+#   Windows users to run AstroFind. The target is Ubuntu 22.04 (the default
+#   WSL2 distribution) with WSLg for GUI forwarding. Unit tests always work in
+#   WSL2; GUI requires WSLg + OpenGL software fallback.
+#
+# IMAGE USED: ubuntu:22.04
+#   WSL2 cannot be reproduced in GitHub Actions (no Hyper-V virtualisation layer
+#   available on Linux runners). This job uses ubuntu:22.04 which provides the
+#   identical apt package environment — the build and unit test results are
+#   identical to what users see in WSL2 Ubuntu 22.04.
+#
+# FUNDAMENTAL LIMITATION:
+#   The following WSL2-specific aspects CANNOT be tested in CI:
+#   - WSLg (Windows GUI forwarding via Wayland/RDP)
+#   - OpenGL via Mesa software rasteriser or GPU passthrough
+#   - Windows-Linux filesystem performance (\\wsl$ paths)
+#   - /proc/version showing "Microsoft" (some apps detect WSL2 via this)
+#   - WSL2 memory balloon / dynamic memory management
+#   These require a real Windows 11 machine with WSL2 enabled.
+#
+# WHAT THIS JOB VALIDATES (item 55.11):
+#   ✅  Qt 6.4 (Ubuntu 22.04 — same as WSL2 Ubuntu) build compatibility
+#   ✅  GCC 12 C++23 support
+#   ✅  All 116 core unit tests (no GUI required — same on real WSL2)
+#   ✅  All 23 UI integration tests with offscreen Qt platform
+#   ❌  WSLg GUI rendering — requires real Windows 11 + WSL2 (manual test)
+#   ❌  OpenGL via WSLg / software Mesa — requires manual test
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  qa-wsl2:
+    name: WSL2/Ubuntu 22.04 · ubuntu:22.04 · apt · GCC 12
+    runs-on: ubuntu-latest
+
+    container:
+      image: ubuntu:22.04
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — WSL2/Ubuntu 22.04 (via ubuntu:22.04)"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "NOTE: WSL2 cannot run in GitHub Actions. This job uses the same"
+          echo "      ubuntu:22.04 image that WSL2 Ubuntu 22.04 is based on."
+          echo "      Build and unit test results are identical to real WSL2."
+          echo "      WSLg GUI tests require a real Windows 11 + WSL2 system."
+          echo ""
+          uname -a
+          cat /etc/os-release
+          echo ""
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          free -h
+          df -h /
+          echo ""
+
+      # ── 2. UPDATE PACKAGE DATABASE ───────────────────────────────────────────
+      - name: "🔄  Update package database"
+        run: |
+          apt-get update -qq
+          apt-cache search qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools" | sort
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      - name: "📦  Install build dependencies"
+        run: |
+          apt-get install -y \
+            cmake \
+            ninja-build \
+            gcc \
+            g++ \
+            git \
+            pkg-config \
+            qt6-base-dev \
+            libqt6charts6-dev \
+            libqt6opengl6-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libcfitsio-dev \
+            libfftw3-dev \
+            libarchive-dev \
+            libgl1-mesa-dev \
+            libxkbcommon-dev
+          echo ""
+          echo -n "cmake:        "; cmake --version | head -1
+          echo -n "gcc:          "; gcc --version | head -1
+          echo    "qt6-base-dev: $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo    "cfitsio:      $(dpkg -l libcfitsio-dev | tail -1 | awk '{print $3}')"
+          echo ""
+
+      # ── 4. CHECKOUT ──────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      # Share cache key with Pop!_OS/Zorin — all use ubuntu:22.04 base
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-ubuntu-22-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-ubuntu-22-
+
+      # ── 6. CMAKE CONFIGURE ───────────────────────────────────────────────────
+      - name: "⚙️   CMake configure"
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      - name: "🔨  Build (verbose)"
+        run: |
+          cmake --build build --verbose
+          echo ""
+          ls -lh build/bin/
+          file build/bin/AstroFind
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — WSL2/Ubuntu 22.04 (ubuntu:22.04) — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          echo "NOTE: WSLg GUI rendering requires a real Windows 11 + WSL2 machine."
+          echo "      See docs/qa-distros.md section 55.11 for manual test procedure."
+          echo ""
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""
