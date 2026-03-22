@@ -160,13 +160,31 @@ libgl1-mesa-dev libxkbcommon-dev
   compatibility will be caught here first.
 - GCC 12 has slightly different C++23 support than GCC 13+. In particular,
   `std::expected` is fully available in GCC 12 as of libstdc++ 12.
+- The minimal `debian:12` image does not include `procps` (free, ps),
+  `util-linux` (lscpu), or `file`; these are bootstrapped in the first CI step.
+- The minimal `debian:12` image does not set `/usr/bin` in PATH for non-interactive
+  GitHub Actions shell steps; an explicit `PATH` env var is required in the workflow.
 
 **Differences vs a real Debian 12 desktop:**
 - `debian:12` Docker image is a minimal server install. A real Debian desktop ships
   with many Qt dependencies pre-installed by the GNOME/KDE package group.
 - The container has no `sudo`; commands run as root directly.
 
-**Status:** ❌ Pending (item 55.2)
+**Verified results (2026-03-22):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `debian:12` |
+| Distro | Debian GNU/Linux 12 (bookworm) |
+| GCC | 12.2.0 (Debian 12.2.0-14+deb12u1) |
+| Qt6 | 6.4.2+dfsg-10 |
+| CMake | 3.25.1 |
+| Core tests | 106 passed / 10 skipped (network-dependent) |
+| UI tests | 23 passed (71 assertions) |
+| Binaries | AstroFind 65 MB, astrofind_tests 42 MB, astrofind_ui_tests 82 MB |
+| Duration | ~4m 23s |
+
+**Status:** ✅ Passed (2026-03-22, run #23402097435)
 
 ---
 
