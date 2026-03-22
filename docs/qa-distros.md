@@ -364,7 +364,20 @@ maintain its own Qt packages; it inherits them from Ubuntu.
 - Mint's Update Manager and software sources GUI are absent; direct `apt` is used.
 - No `systemd` user session running in the container.
 
-**Status:** ❌ Pending (item 55.5)
+**Verified results (2026-03-22):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `linuxmintd/mint22-amd64` |
+| Distro | Ubuntu 24.04.3 LTS (Mint 22 base) |
+| GCC | 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) |
+| Qt6 | 6.4.2+dfsg-21.1build5 |
+| CMake | 3.28.3 |
+| Core tests | 106 passed / 10 skipped (network-dependent) |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 14s |
+
+**Status:** ✅ Passed (2026-03-22, run #23402319388)
 
 ---
 

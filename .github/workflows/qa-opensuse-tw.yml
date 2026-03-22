@@ -1,0 +1,223 @@
+name: QA · openSUSE Tumbleweed
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.6 — Build and test on openSUSE Tumbleweed (opensuse/tumbleweed)
+#
+# WHY OPENSUSE TUMBLEWEED:
+#   openSUSE Tumbleweed is the primary rolling-release distribution from SUSE.
+#   It uses the zypper package manager and RPM packages — entirely different
+#   package ecosystem from Debian/Ubuntu (apt/deb) and Arch (pacman/pkg.tar.zst).
+#   Tumbleweed ships the latest Qt6 and GCC (like Arch), but with SUSE-specific
+#   naming conventions and build options. Important in scientific Linux circles
+#   because SUSE/openSUSE has a strong tradition in HPC and research institutions.
+#
+# IMAGE USED: opensuse/tumbleweed
+#   Official openSUSE image maintained by the openSUSE project.
+#   Tracks the current rolling Tumbleweed snapshot.
+#   Minimal server install — no desktop environment.
+#
+# LIMITATIONS vs a real openSUSE Tumbleweed desktop:
+#   - No KDE Plasma / GNOME desktop. A real Tumbleweed KDE install has most of
+#     Qt6 pre-installed via the plasma5 and plasma6 meta-packages.
+#   - No YaST (Yet Another Setup Tool) or systemd user session.
+#   - Qt GUI rendering is offscreen (QT_QPA_PLATFORM=offscreen).
+#
+# PACKAGE NAMING NOTE:
+#   openSUSE uses different package names than Debian/Fedora:
+#   - gcc-c++  (not g++)
+#   - qt6-base-devel (not qt6-base-dev or qt6-qtbase-devel)
+#   - cfitsio-devel  (not libcfitsio-dev)
+#   - fftw3-devel    (not libfftw3-dev)
+#   - libarchive-devel (same as Fedora)
+#
+# WHAT THIS JOB VALIDATES (item 55.6):
+#   ✅  zypper-based install of all required packages
+#   ✅  openSUSE-specific package naming works with our CMake scripts
+#   ✅  Latest Qt6 compatibility (rolling, like Arch)
+#   ✅  Latest GCC C++23 support
+#   ✅  CMake configuration succeeds
+#   ✅  All 116 core unit tests pass
+#   ✅  All 23 UI integration tests pass (offscreen)
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
+#   ❌  Hardware-accelerated OpenGL — not tested
+#   ❌  Real Wayland/X11 window lifecycle — not tested
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  qa-opensuse-tw:
+    name: openSUSE Tumbleweed · opensuse/tumbleweed · zypper · GCC
+    runs-on: ubuntu-latest
+
+    container:
+      image: opensuse/tumbleweed
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — openSUSE Tumbleweed"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "── Kernel & OS ─────────────────────────────────────────────────"
+          uname -a
+          cat /etc/os-release
+          echo ""
+          echo "── CPU ─────────────────────────────────────────────────────────"
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket" 2>/dev/null || \
+            cat /proc/cpuinfo | grep "model name" | head -1
+          echo ""
+          echo "── Memory ──────────────────────────────────────────────────────"
+          free -h
+          echo ""
+          echo "── Disk ────────────────────────────────────────────────────────"
+          df -h /
+          echo ""
+          echo "── zypper version ──────────────────────────────────────────────"
+          zypper --version
+          echo ""
+
+      # ── 2. REFRESH PACKAGE DATABASE ─────────────────────────────────────────
+      # --gpg-auto-import-keys suppresses GPG key confirmation prompts that appear
+      # when the container's keyring has not yet seen the current repo signing key.
+      - name: "🔄  Refresh package database"
+        run: |
+          echo "── Refreshing zypper repos ─────────────────────────────────────"
+          zypper --gpg-auto-import-keys refresh
+          echo ""
+          echo "── Available Qt6 packages ──────────────────────────────────────"
+          zypper search -t package qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools" | head -20
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      - name: "📦  Install build dependencies"
+        run: |
+          echo "── Installing required packages ────────────────────────────────"
+          zypper install -y \
+            cmake \
+            ninja \
+            gcc \
+            gcc-c++ \
+            git \
+            pkg-config \
+            qt6-base-devel \
+            qt6-charts-devel \
+            qt6-opengl-devel \
+            qt6-tools-devel \
+            cfitsio-devel \
+            fftw3-devel \
+            libarchive-devel \
+            Mesa-libGL-devel \
+            libxkbcommon-devel
+          echo ""
+          echo "── Installed package versions ──────────────────────────────────"
+          echo -n "cmake:        "; cmake --version | head -1
+          echo -n "ninja:        "; ninja --version
+          echo -n "gcc:          "; gcc --version | head -1
+          echo -n "g++:          "; g++ --version | head -1
+          echo -n "git:          "; git --version
+          echo -n "pkg-config:   "; pkg-config --version
+          echo    "qt6-base:     $(rpm -q --qf '%{VERSION}\n' qt6-base-devel 2>/dev/null || echo 'not found')"
+          echo    "cfitsio:      $(rpm -q --qf '%{VERSION}\n' cfitsio-devel 2>/dev/null || echo 'not found')"
+          echo    "fftw3:        $(rpm -q --qf '%{VERSION}\n' fftw3-devel 2>/dev/null || echo 'not found')"
+          echo    "libarchive:   $(rpm -q --qf '%{VERSION}\n' libarchive-devel 2>/dev/null || echo 'not found')"
+          echo ""
+          echo "── Qt6 version via pkg-config ──────────────────────────────────"
+          pkg-config --modversion Qt6Core 2>/dev/null && \
+            echo "  Qt6Core: $(pkg-config --modversion Qt6Core)" || \
+            echo "  Qt6Core: not found via pkg-config"
+          echo ""
+
+      # ── 4. CHECKOUT ─────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-opensuse-tw-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-opensuse-tw-
+
+      # ── 6. CMAKE CONFIGURE ──────────────────────────────────────────────────
+      - name: "⚙️   CMake configure"
+        run: |
+          echo "── CMake configure ─────────────────────────────────────────────"
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          echo "── CMakeCache.txt (relevant entries) ───────────────────────────"
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      - name: "🔨  Build (verbose)"
+        run: |
+          echo "── Building all targets ────────────────────────────────────────"
+          cmake --build build --verbose
+          echo ""
+          echo "── Build artifacts ─────────────────────────────────────────────"
+          ls -lh build/bin/
+          echo ""
+          echo "── Binary info ─────────────────────────────────────────────────"
+          file build/bin/AstroFind
+          ldd  build/bin/AstroFind | head -30
+          echo ""
+          echo "── Linked Qt libraries ─────────────────────────────────────────"
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          echo "── Running astrofind_tests ─────────────────────────────────────"
+          echo "   Reporter: console (full output for each test case)"
+          echo ""
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          echo "── Running astrofind_ui_tests ──────────────────────────────────"
+          echo "   QT_QPA_PLATFORM = offscreen"
+          echo "   Reporter: console (full output for each test case)"
+          echo ""
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — openSUSE Tumbleweed — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(rpm -q --qf '%{VERSION}\n' qt6-base-devel 2>/dev/null || pkg-config --modversion Qt6Core 2>/dev/null || echo 'unknown')"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          echo "Artifacts:"
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""
