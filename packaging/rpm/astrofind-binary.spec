@@ -33,7 +33,8 @@ validation with real telescope FITS files has not yet been performed.
 # Binary packaging only — compiled by CI before this step.
 
 %install
-# BUILDROOT is pre-populated by CI (cmake --install output).
+# staging is passed via: rpmbuild --define "staging /path/to/staged/files"
+cp -a %{staging}/. %{buildroot}/
 
 %files
 %{_bindir}/AstroFind
