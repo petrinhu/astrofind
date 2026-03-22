@@ -230,7 +230,20 @@ cfitsio fftw libarchive
   some optional tools (e.g. `astap-bin`).
 - No `systemd` running in the container.
 
-**Status:** ❌ Pending (item 55.3)
+**Verified results (2026-03-22):**
+
+| Item | Result |
+|------|--------|
+| Docker image | `archlinux:latest` |
+| Distro | Arch Linux (rolling) |
+| GCC | 15.2.1 (2026-02-09) |
+| Qt6 | 6.10.2-1 |
+| CMake | 4.3.0 |
+| Core tests | 106 passed / 10 skipped (network-dependent) |
+| UI tests | 23 passed (71 assertions) |
+| Duration | ~4m 33s |
+
+**Status:** ✅ Passed (2026-03-22, run #23402210788)
 
 ---
 

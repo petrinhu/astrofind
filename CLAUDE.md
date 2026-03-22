@@ -98,7 +98,7 @@ The table must be shown automatically — do not wait for the user to ask.
 | 54 | Testes UI — SessionSignals: sinais entre MainWindow, WorkflowPanel e BlinkWidget (12 casos) | Testes UI | — | D2 | ✅ |
 | 55.1 | Teste de build e execução — Ubuntu 24.04 LTS (container Docker) | QA Distros | — após base estável | D2 | ❌ |
 | 55.2 | Teste de build e execução — Debian 12 Bookworm (container Docker) | QA Distros | — após base estável | D2 | ✅ |
-| 55.3 | Teste de build e execução — Arch Linux (container Docker) | QA Distros | — após base estável | D2 | ❌ |
+| 55.3 | Teste de build e execução — Arch Linux (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.4 | Teste de build e execução — Manjaro (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.5 | Teste de build e execução — Linux Mint 22 (container Docker) | QA Distros | — após base estável | D2 | ❌ |
 | 55.6 | Teste de build e execução — openSUSE Tumbleweed (container Docker) | QA Distros | — após base estável | D2 | ❌ |
