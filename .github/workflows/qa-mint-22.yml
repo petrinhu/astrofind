@@ -1,0 +1,213 @@
+name: QA · Linux Mint 22
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.5 — Build and test on Linux Mint 22 (linuxmintd/mint22-amd64)
+#
+# WHY LINUX MINT 22:
+#   Linux Mint 22 "Wilma" is based on Ubuntu 24.04 (Noble Nombat) and is one of
+#   the most popular desktop distributions for users switching from Windows. It is
+#   widely used in schools and scientific environments because of its familiar UX
+#   and long-term support. AstroFind targets Mint 22 as a primary citizen-science
+#   deployment target. Mint inherits Qt6 from Ubuntu Noble (6.6.x), which is a
+#   good midpoint between Debian 12 (6.4) and Arch (latest).
+#
+# IMAGE USED: linuxmintd/mint22-amd64
+#   Official Linux Mint Docker image maintained by the Mint project.
+#   Based on Ubuntu 24.04 (Noble). Minimal server-like install.
+#
+# LIMITATIONS vs a real Linux Mint 22 desktop:
+#   - The container does not have Cinnamon/Xfce desktop pre-installed; a real
+#     Mint 22 desktop install would have many Qt/GTK libraries pre-installed.
+#   - No systemd user session in the container.
+#   - Qt GUI rendering is offscreen (QT_QPA_PLATFORM=offscreen).
+#   - apt-get update may need --allow-releaseinfo-change on first run due to
+#     Mint's release metadata.
+#
+# WHAT THIS JOB VALIDATES (item 55.5):
+#   ✅  Qt 6.6 (Ubuntu 24.04 Noble base) compatibility
+#   ✅  GCC 14 C++23 support
+#   ✅  No apt source conflicts between Mint-specific and Ubuntu packages
+#   ✅  CMake configuration succeeds
+#   ✅  All 116 core unit tests pass
+#   ✅  All 23 UI integration tests pass (offscreen)
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
+#   ❌  Hardware-accelerated OpenGL — not tested
+#   ❌  Real Wayland/X11 window lifecycle — not tested
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  qa-mint-22:
+    name: Linux Mint 22 · linuxmintd/mint22-amd64 · apt · GCC 14
+    runs-on: ubuntu-latest
+
+    container:
+      image: linuxmintd/mint22-amd64
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Linux Mint 22"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "── Kernel & OS ─────────────────────────────────────────────────"
+          uname -a
+          cat /etc/os-release
+          cat /etc/linuxmint/info 2>/dev/null || echo "(no /etc/linuxmint/info)"
+          echo ""
+          echo "── CPU ─────────────────────────────────────────────────────────"
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          echo "── Memory ──────────────────────────────────────────────────────"
+          free -h
+          echo ""
+          echo "── Disk ────────────────────────────────────────────────────────"
+          df -h /
+          echo ""
+
+      # ── 2. UPDATE PACKAGE DATABASE ───────────────────────────────────────────
+      # --allow-releaseinfo-change is needed in some Mint container builds due to
+      # release metadata differences between Mint and Ubuntu base repos.
+      - name: "🔄  Update package database"
+        run: |
+          echo "── Updating apt database ───────────────────────────────────────"
+          apt-get update --allow-releaseinfo-change -qq || apt-get update -qq
+          echo ""
+          echo "── Available Qt6 packages ──────────────────────────────────────"
+          apt-cache search qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools" | sort
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      - name: "📦  Install build dependencies"
+        run: |
+          echo "── Installing required packages ────────────────────────────────"
+          apt-get install -y \
+            cmake \
+            ninja-build \
+            gcc \
+            g++ \
+            git \
+            pkg-config \
+            qt6-base-dev \
+            libqt6charts6-dev \
+            libqt6opengl6-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libcfitsio-dev \
+            libfftw3-dev \
+            libarchive-dev \
+            libgl1-mesa-dev \
+            libxkbcommon-dev \
+            qt6-l10n-tools \
+            libqt6openglwidgets6
+          echo ""
+          echo "── Installed package versions ──────────────────────────────────"
+          echo -n "cmake:        "; cmake --version | head -1
+          echo -n "ninja:        "; ninja --version
+          echo -n "gcc:          "; gcc --version | head -1
+          echo -n "g++:          "; g++ --version | head -1
+          echo -n "git:          "; git --version
+          echo    "qt6-base-dev: $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo    "cfitsio:      $(dpkg -l libcfitsio-dev | tail -1 | awk '{print $3}')"
+          echo    "fftw3:        $(dpkg -l libfftw3-dev | tail -1 | awk '{print $3}')"
+          echo    "libarchive:   $(dpkg -l libarchive-dev | tail -1 | awk '{print $3}')"
+          echo ""
+          echo "── Qt6 version ─────────────────────────────────────────────────"
+          pkg-config --modversion Qt6Core 2>/dev/null || \
+            echo "  Qt6Core: not found via pkg-config"
+          echo ""
+
+      # ── 4. CHECKOUT ──────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-mint-22-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-mint-22-
+
+      # ── 6. CMAKE CONFIGURE ───────────────────────────────────────────────────
+      - name: "⚙️   CMake configure"
+        run: |
+          echo "── CMake configure ─────────────────────────────────────────────"
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          echo "── CMakeCache.txt (relevant entries) ───────────────────────────"
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      - name: "🔨  Build (verbose)"
+        run: |
+          echo "── Building all targets ────────────────────────────────────────"
+          cmake --build build --verbose
+          echo ""
+          echo "── Build artifacts ─────────────────────────────────────────────"
+          ls -lh build/bin/
+          echo ""
+          echo "── Binary info ─────────────────────────────────────────────────"
+          file build/bin/AstroFind
+          echo ""
+          echo "── Linked Qt libraries ─────────────────────────────────────────"
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          echo "── Running astrofind_tests ─────────────────────────────────────"
+          echo "   Reporter: console · Verbosity: high"
+          echo ""
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          echo "── Running astrofind_ui_tests ──────────────────────────────────"
+          echo "   QT_QPA_PLATFORM = offscreen"
+          echo "   Reporter: console · Verbosity: high"
+          echo ""
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Linux Mint 22 — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          echo "Artifacts:"
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""
