@@ -145,15 +145,13 @@ add_custom_target(audit-asan
 
 # ── 38.5 audit meta-target ────────────────────────────────────────────────────
 add_custom_target(audit
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${AUDIT_REPORT_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E echo "=== AstroFind Numerical Audit ===" > "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "Date: $(date)" >> "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "" >> "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "Reports in: ${AUDIT_REPORT_DIR}/" >> "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "  cppcheck.xml       — 38.3 cppcheck static analysis" >> "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "  clang_tidy.txt     — 38.4 clang-tidy checks" >> "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "  valgrind.xml       — 38.2 Valgrind memcheck" >> "${AUDIT_REPORT}"
-    COMMAND ${CMAKE_COMMAND} -E echo "  asan_tests.txt     — 38.1 ASan+UBSan test run" >> "${AUDIT_REPORT}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${AUDIT_REPORT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E echo "=== AstroFind Numerical Audit ==="
+    COMMAND ${CMAKE_COMMAND} -E echo "Reports written to: ${AUDIT_REPORT_DIR}/"
+    COMMAND ${CMAKE_COMMAND} -E echo "  cppcheck.xml       -- 38.3 cppcheck static analysis"
+    COMMAND ${CMAKE_COMMAND} -E echo "  clang_tidy.txt     -- 38.4 clang-tidy checks"
+    COMMAND ${CMAKE_COMMAND} -E echo "  valgrind.xml       -- 38.2 Valgrind memcheck"
+    COMMAND ${CMAKE_COMMAND} -E echo "  asan_tests.txt     -- 38.1 ASan+UBSan test run"
     DEPENDS audit-cppcheck audit-clang-tidy audit-valgrind audit-asan
     COMMENT "38.5 Full numerical audit (cppcheck + clang-tidy + valgrind + asan)"
 )
