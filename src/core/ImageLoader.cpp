@@ -356,7 +356,7 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
         else if (fmt == "UInt16") { const uint16_t* p = reinterpret_cast<const uint16_t*>(src); for (size_t i=0;i<count;++i) out[i]=static_cast<float>(p[i]); }
         else if (fmt == "UInt32") { const uint32_t* p = reinterpret_cast<const uint32_t*>(src); for (size_t i=0;i<count;++i) out[i]=static_cast<float>(p[i]); }
         else if (fmt == "Float32") { std::memcpy(out.data(), src, count * 4); }
-        else if (fmt == "Float64") { const double* p = reinterpret_cast<const double*>(src); for (size_t i=0;i<count;++i) out[i]=static_cast<float>(p[i]); }
+        else if (fmt == "Float64") { double tmp; for (size_t i=0;i<count;++i) { std::memcpy(&tmp, src + i*8, 8); out[i]=static_cast<float>(tmp); } }
         return out;
     };
 
@@ -400,7 +400,7 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
             if (!img.dateObs.isValid())
                 img.dateObs = QDateTime::fromString(kv, "yyyy-MM-dd'T'HH:mm:ss.zzz");
             if (img.dateObs.isValid() && img.dateObs.timeSpec() == Qt::LocalTime)
-                img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(), Qt::UTC);
+                img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(), QTimeZone(0));
         }
     }
 

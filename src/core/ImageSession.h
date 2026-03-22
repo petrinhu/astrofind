@@ -46,7 +46,7 @@ public:
     SessionStep step()                 const noexcept { return step_; }
     void        setStep(SessionStep s);
 
-    QString     sessionId()            const noexcept { return sessionId_; }
+    const QString&     sessionId()            const noexcept { return sessionId_; }
     void        setSessionId(const QString& id)       { sessionId_ = id; }
 
     /// True if all images are from the same field (RA/Dec within tolerance)

@@ -21,7 +21,7 @@ public:
     void removeObservationAt(int row);
     void clear();
 
-    QVector<core::Observation> observations() const { return obs_; }
+    const QVector<core::Observation>& observations() const { return obs_; }
 
 signals:
     void observationRemoved(int index);

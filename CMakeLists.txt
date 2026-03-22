@@ -54,6 +54,17 @@ qt_standard_project_setup()
 # Dependencies
 include(cmake/dependencies.cmake)
 
+# ── ASan / UBSan option (item 38.1) ──────────────────────────────────────────
+option(ASTROFIND_ASAN "Enable AddressSanitizer + UndefinedBehaviorSanitizer" OFF)
+if(ASTROFIND_ASAN)
+    message(STATUS "ASan + UBSan enabled")
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 add_subdirectory(src)
 enable_testing()
 add_subdirectory(tests)
+
+# ── Audit target (items 38.1–38.5) — after subdirectories so targets exist ──
+include(cmake/audit.cmake)

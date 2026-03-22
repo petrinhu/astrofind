@@ -14,7 +14,7 @@ QString jdToIso8601(double jd, int decimalPlaces)
     // Unix epoch = JD 2440587.5
     const double unixSec  = (jd - 2440587.5) * 86400.0;
     const qint64 unixMs   = static_cast<qint64>(std::round(unixSec * 1000.0));
-    const QDateTime dt    = QDateTime::fromMSecsSinceEpoch(unixMs, Qt::UTC);
+    const QDateTime dt    = QDateTime::fromMSecsSinceEpoch(unixMs, QTimeZone(0));
 
     const int dp = std::clamp(decimalPlaces, 0, 3);
     QString fmt = QStringLiteral("yyyy-MM-ddTHH:mm:ss");

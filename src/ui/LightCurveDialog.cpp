@@ -1,3 +1,4 @@
+#include <QTimeZone>
 #include "LightCurveDialog.h"
 
 #include <QComboBox>
@@ -253,7 +254,7 @@ private:
 
         const auto jdToQDT = [](double jd) {
             return QDateTime::fromMSecsSinceEpoch(
-                qint64((jd - 2440587.5) * 86400000.0), Qt::UTC);
+                qint64((jd - 2440587.5) * 86400000.0), QTimeZone(0));
         };
 
         const double jdFirst = std::ceil(jdMin_ / xStep) * xStep;

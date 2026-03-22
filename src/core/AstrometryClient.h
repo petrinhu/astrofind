@@ -22,7 +22,7 @@ public:
     explicit AstrometryClient(QNetworkAccessManager* nam, QObject* parent = nullptr);
 
     void setApiKey(const QString& key) { apiKey_ = key; }
-    QString apiKey() const             { return apiKey_; }
+    const QString& apiKey() const             { return apiKey_; }
 
     /// Override base URL for self-hosted astrometry.net instances.
     void setBaseUrl(const QString& url) { baseUrl_ = url; }

@@ -1,0 +1,49 @@
+# Valgrind suppressions for AstroFind
+# Suppress known false positives from system libraries / Qt internals.
+
+# glibc dl_init / TLS allocations at startup
+{
+    glibc_dl_init
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:calloc
+    fun:_dl_allocate_tls
+    fun:allocate_dtv
+}
+
+{
+    glibc_tls_init
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:malloc
+    fun:_dl_map_object_deps
+}
+
+# Qt5/6 static init leaks (expected, not real bugs)
+{
+    qt_static_init
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:malloc
+    ...
+    obj:*/libQt6Core.so*
+}
+
+{
+    qt_static_init_new
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:operator new(unsigned long)
+    ...
+    obj:*/libQt6Core.so*
+}
+
+# spdlog registry singleton
+{
+    spdlog_registry
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    fun:malloc
+    ...
+    fun:spdlog::details::registry::instance*
+}

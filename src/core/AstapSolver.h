@@ -19,7 +19,7 @@ public:
     ~AstapSolver() override;
 
     void setAstapPath(const QString& path) { astapPath_ = path; }
-    QString astapPath() const              { return astapPath_; }
+    const QString& astapPath() const              { return astapPath_; }
 
     /// Start an async plate solve.
     /// raHint/decHint are initial position guesses in degrees (0 = no hint → blind solve).

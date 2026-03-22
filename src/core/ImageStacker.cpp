@@ -75,7 +75,8 @@ struct Shift { double dx, dy; };
 Shift phaseCorrelation(const FitsImage& ref, const FitsImage& img) {
     const int w = ref.width;
     const int h = ref.height;
-    const int nc = w * (h / 2 + 1);
+    // fftw r2c 2D output size for plan(h, w) is h*(w/2+1), not w*(h/2+1)
+    const int nc = h * (w / 2 + 1);
 
     fftw_complex* fref  = forwardFFT(ref.data.data(), w, h);
     fftw_complex* fimg  = forwardFFT(img.data.data(), w, h);

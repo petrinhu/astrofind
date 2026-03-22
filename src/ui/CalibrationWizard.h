@@ -17,9 +17,9 @@ public:
     explicit CalibrationWizard(QWidget* parent = nullptr);
 
     /// Returns the path selected for the dark frame, or empty if none.
-    QString darkPath()  const { return darkPath_; }
+    const QString& darkPath()  const { return darkPath_; }
     /// Returns the path selected for the flat field, or empty if none.
-    QString flatPath()  const { return flatPath_; }
+    const QString& flatPath()  const { return flatPath_; }
     /// Returns true if the user wants calibration applied immediately.
     bool    applyNow()  const;
 

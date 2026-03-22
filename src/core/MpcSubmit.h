@@ -22,7 +22,7 @@ public:
     explicit MpcSubmit(QObject* parent = nullptr);
 
     void    setEndpoint(const QString& url) { endpoint_ = url; }
-    QString endpoint() const               { return endpoint_; }
+    const QString& endpoint() const               { return endpoint_; }
     bool    isBusy()   const               { return busy_; }
 
     /// Network timeout in milliseconds (default 30 s). 0 = no timeout.

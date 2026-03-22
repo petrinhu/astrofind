@@ -43,7 +43,7 @@ QString ApiKeyStore::read()
     // If the user had the key stored in plain-text QSettings before this
     // feature was introduced, silently move it to the keychain.
     QSettings s;
-    const QString legacy = s.value(QLatin1String(kLegacySettingsKey)).toString().trimmed();
+    QString legacy = s.value(QLatin1String(kLegacySettingsKey)).toString().trimmed();
     if (!legacy.isEmpty()) {
         write(legacy);                             // store in keychain
         s.remove(QLatin1String(kLegacySettingsKey)); // erase from QSettings
