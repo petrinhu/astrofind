@@ -66,7 +66,7 @@ jobs:
       - name: "🔧  Bootstrap minimal diagnostic tools"
         run: |
           apt-get update -qq
-          apt-get install -y procps util-linux
+          apt-get install -y procps util-linux file
 
       # ── 2. SYSTEM INFORMATION ────────────────────────────────────────────────
       - name: "🖥  System information"
