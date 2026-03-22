@@ -1,5 +1,6 @@
 # AstroFind
 
+![Version](https://img.shields.io/badge/version-0.5.0-blue)
 ![Language](https://img.shields.io/badge/language-C%2B%2B23-blue)
 ![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)
 ![CMake](https://img.shields.io/badge/CMake-3.20%2B-064F8C?logo=cmake)
@@ -446,6 +447,7 @@ Libraries used:
 
 ## Português
 
+![Versão](https://img.shields.io/badge/versão-0.5.0-blue)
 ![Language](https://img.shields.io/badge/linguagem-C%2B%2B23-blue)
 ![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux-FCC624?logo=linux&logoColor=black)
