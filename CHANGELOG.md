@@ -13,6 +13,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 **Beta release — all features complete, pending real-world FITS validation.**
 
+#### Added
+- Codeberg Actions release pipeline (`.forgejo/workflows/release.yml`): automated RPM, DEB,
+  Arch PKGBUILD tarball, and `install.sh` artifacts on every version tag push
+- `packaging/debian/control-binary` — binary-only DEB control template used by CI
+- `packaging/install.sh` — universal bilingual (EN/PT-BR) installer; auto-detects distro,
+  downloads correct package, resolves dependencies, sets up desktop integration
+- INSTALL.md: "Quick install — binary packages" section with per-distro `curl` + install commands
+- README.md: "Direct package install" section with one-liner commands for all supported distros
+
 #### Changed
 - Version bumped from 0.5.0 to 0.9.0-beta to reflect feature-complete beta status
 - README: added beta warning (not yet validated with real observatory FITS files)
@@ -23,7 +32,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Overlay marking colors did not match catalog table colors (unified via `Theme::mark*()` constants)
 - 10 truncated PT-BR translations caused by AI bulk-generation hitting output token limit
 
-#### Added
+#### Infrastructure
 - `Theme::dp(int)` — DPI-proportional sizing; all hard-coded pixel values scaled to logical DPI
   (no visual change at 96 DPI; proportional on HiDPI screens without OS-level scaling)
 - `Theme::mark*()` inline color constants as single source of truth for overlay + table colors
@@ -182,6 +191,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 **Versão beta — todas as funcionalidades completas, aguardando validação com FITS reais.**
 
+#### Adicionado
+- Pipeline de release no Codeberg Actions (`.forgejo/workflows/release.yml`): geração automática
+  de RPM, DEB, tarball PKGBUILD para Arch e `install.sh` a cada push de tag de versão
+- `packaging/debian/control-binary` — template de controle DEB binário usado pelo CI
+- `packaging/install.sh` — instalador universal bilíngue (EN/PT-BR); detecta distro automaticamente,
+  baixa o pacote correto, resolve dependências, configura integração com desktop
+- INSTALL.md: seção "Instalação rápida — pacotes binários" com comandos `curl` + instalação por distro
+- README.md: seção "Instalação direta do pacote" com comandos de uma linha para todas as distros suportadas
+
 #### Alterado
 - Versão incrementada de 0.5.0 para 0.9.0-beta para refletir o estado beta com funcionalidades completas
 - README: adicionado aviso de beta (ainda não validado com FITS reais de observatório)
@@ -192,7 +210,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Cores das marcações no overlay não correspondiam às cores na tabela do catálogo (unificadas via constantes `Theme::mark*()`)
 - 10 traduções PT-BR truncadas causadas por geração em lote de IA que atingiu o limite de tokens de saída
 
-#### Adicionado
+#### Infraestrutura
 - `Theme::dp(int)` — dimensionamento proporcional ao DPI; todos os valores de pixels em código escalados ao DPI lógico
   (sem mudança visual a 96 DPI; proporcional em telas HiDPI sem escala configurada pelo SO)
 - Constantes de cor `Theme::mark*()` como fonte única de verdade para cores do overlay e da tabela

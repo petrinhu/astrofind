@@ -1,6 +1,65 @@
 # AstroFind — Installation Instructions
 
-This file lists the commands needed to install AstroFind's build dependencies on each
+**English** | [Português](#português)
+
+---
+
+## English
+
+## Quick install — binary packages (recommended)
+
+Download the universal installer from the [latest release](https://codeberg.org/petrinhu/astrofind/releases/latest):
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+The installer auto-detects your distribution, downloads the correct binary package (RPM/DEB/PKGBUILD), installs dependencies, and sets up desktop integration. Bilingual (EN/PT-BR) interactive interface.
+
+### Direct package download
+
+Replace `v0.9.0-beta` with the tag of the release you want.
+
+#### Fedora / RHEL / Rocky Linux (RPM)
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-0.beta1.x86_64.rpm
+sudo rpm -i astrofind-0.9.0-0.beta1.x86_64.rpm
+```
+
+Dependencies not bundled in the RPM (install separately):
+
+```bash
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qtopengl cfitsio fftw libarchive
+```
+
+#### Ubuntu / Debian / Linux Mint / Pop!\_OS / Zorin OS (DEB)
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind_0.9.0~beta-1_amd64.deb
+sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
+```
+
+`apt-get install ./file.deb` resolves dependencies automatically.
+
+#### Arch Linux / Manjaro (PKGBUILD)
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+tar xzf astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+cd astrofind-arch
+makepkg -si
+```
+
+`makepkg -si` installs declared dependencies via `pacman` and builds + installs the package.
+
+---
+
+## Build from source
+
+This section lists the commands needed to install build dependencies on each
 supported Linux distribution (and WSL2).
 After installing dependencies, build with:
 
@@ -380,6 +439,71 @@ sudo apt-get install -y \
 | valgrind | Memory-check audit (`cmake --build build --target audit-valgrind`) | see distro section above |
 | cppcheck | Static analysis (`cmake --build build --target audit-cppcheck`) | see distro section above |
 | clang-tidy | Static analysis (`cmake --build build --target audit-clang-tidy`) | see distro section above |
+
+---
+
+## Português
+
+## Instalação rápida — pacotes binários (recomendado)
+
+Baixe o instalador universal da [última versão](https://codeberg.org/petrinhu/astrofind/releases/latest):
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+O instalador detecta automaticamente sua distribuição, baixa o pacote binário correto (RPM/DEB/PKGBUILD), instala as dependências e configura a integração com o desktop. Interface interativa bilíngue (EN/PT-BR).
+
+### Download direto do pacote
+
+Substitua `v0.9.0-beta` pela tag da versão desejada.
+
+#### Fedora / RHEL / Rocky Linux (RPM)
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-0.beta1.x86_64.rpm
+sudo rpm -i astrofind-0.9.0-0.beta1.x86_64.rpm
+```
+
+Dependências não incluídas no RPM (instalar separadamente):
+
+```bash
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qtopengl cfitsio fftw libarchive
+```
+
+#### Ubuntu / Debian / Linux Mint / Pop!\_OS / Zorin OS (DEB)
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind_0.9.0~beta-1_amd64.deb
+sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
+```
+
+`apt-get install ./arquivo.deb` resolve dependências automaticamente.
+
+#### Arch Linux / Manjaro (PKGBUILD)
+
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+tar xzf astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+cd astrofind-arch
+makepkg -si
+```
+
+`makepkg -si` instala as dependências declaradas via `pacman` e compila + instala o pacote.
+
+---
+
+## Compilação do fonte
+
+*Veja as seções de cada distribuição acima — os comandos de dependências são os mesmos.*
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target AstroFind -j$(nproc)
+./build/bin/AstroFind
+```
 
 ---
 

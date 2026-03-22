@@ -378,16 +378,39 @@ astrometrica/
 
 ### Installation
 
-Download **`install.sh`** from the [latest release](https://codeberg.org/petrinhu/astrofind/releases) and run:
+#### Universal installer (recommended)
 
 ```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
 chmod +x install.sh
 ./install.sh
 ```
 
-The installer automatically detects your distribution, downloads the correct package (RPM/DEB/PKGBUILD), checks for optional dependencies, and handles desktop integration — with a bilingual (EN/PT-BR) interactive interface.
+Auto-detects your distribution, downloads the correct package, installs dependencies, and sets up desktop integration. Bilingual (EN/PT-BR).
 
-For per-distro manual installation commands see **[INSTALL.md](INSTALL.md)**.
+#### Direct package install
+
+**Fedora / RHEL / Rocky Linux**
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-0.beta1.x86_64.rpm
+sudo rpm -i astrofind-0.9.0-0.beta1.x86_64.rpm
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qtopengl cfitsio fftw libarchive
+```
+
+**Ubuntu / Debian / Mint / Pop!\_OS / Zorin**
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind_0.9.0~beta-1_amd64.deb
+sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
+```
+
+**Arch Linux / Manjaro**
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+tar xzf astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+cd astrofind-arch && makepkg -si
+```
+
+For all per-distro commands and build-from-source instructions see **[INSTALL.md](INSTALL.md)**.
 
 ### Building
 
@@ -624,16 +647,39 @@ Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
 
 ### Instalação
 
-Baixe o **`install.sh`** da [última versão](https://codeberg.org/petrinhu/astrofind/releases) e execute:
+#### Instalador universal (recomendado)
 
 ```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
 chmod +x install.sh
 ./install.sh
 ```
 
-O instalador detecta automaticamente sua distribuição, baixa o pacote correto (RPM/DEB/PKGBUILD), verifica dependências opcionais e configura a integração com o desktop — com interface interativa bilíngue (EN/PT-BR).
+Detecta automaticamente sua distribuição, baixa o pacote correto, instala dependências e configura a integração com o desktop. Interface bilíngue (EN/PT-BR).
 
-Para comandos de instalação manual por distribuição, veja **[INSTALL.md](INSTALL.md)**.
+#### Instalação direta do pacote
+
+**Fedora / RHEL / Rocky Linux**
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-0.beta1.x86_64.rpm
+sudo rpm -i astrofind-0.9.0-0.beta1.x86_64.rpm
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qtopengl cfitsio fftw libarchive
+```
+
+**Ubuntu / Debian / Mint / Pop!\_OS / Zorin**
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind_0.9.0~beta-1_amd64.deb
+sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
+```
+
+**Arch Linux / Manjaro**
+```bash
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+tar xzf astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+cd astrofind-arch && makepkg -si
+```
+
+Para todos os comandos por distribuição e instruções de compilação, veja **[INSTALL.md](INSTALL.md)**.
 
 ### Compilação
 
