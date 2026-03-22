@@ -104,16 +104,6 @@ jobs:
           git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
             https://codeberg.org/petrinhu/astrofind.git .
 
-      - name: "📦  Install build + packaging dependencies"
-        run: |
-          sudo dnf install -y \
-            cmake ninja-build gcc-c++ pkg-config python3 curl \
-            qt6-qtbase-devel qt6-qtcharts-devel qt6-qt5compat-devel \
-            qt6-qtopengl-devel qt6-linguist \
-            cfitsio-devel fftw-devel eigen3-devel \
-            libarchive-devel mesa-libGL-devel libxkbcommon-devel \
-            rpm-build rpmdevtools dpkg fakeroot
-
       - name: "⚙️   CMake configure + build"
         run: |
           cmake -B build -G Ninja \
