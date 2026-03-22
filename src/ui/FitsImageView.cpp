@@ -571,8 +571,8 @@ QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
         }
 
         if (invert) colorOut.invertPixels();
-        if (flipH)  colorOut = colorOut.flipped(Qt::Horizontal);
-        if (flipV)  colorOut = colorOut.flipped(Qt::Vertical);
+        if (flipH)  colorOut = colorOut.mirrored(true, false);
+        if (flipV)  colorOut = colorOut.mirrored(false, true);
         return colorOut;
     }
 
@@ -621,8 +621,8 @@ QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
                 }
             }
             if (invert) outRgb.invertPixels();
-            if (flipH)  outRgb = outRgb.flipped(Qt::Horizontal);
-            if (flipV)  outRgb = outRgb.flipped(Qt::Vertical);
+            if (flipH)  outRgb = outRgb.mirrored(true, false);
+            if (flipV)  outRgb = outRgb.mirrored(false, true);
             return outRgb;
         }
 
@@ -639,8 +639,8 @@ QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
             }
         }
         if (invert) out.invertPixels();
-        if (flipH)  out = out.flipped(Qt::Horizontal);
-        if (flipV)  out = out.flipped(Qt::Vertical);
+        if (flipH)  out = out.mirrored(true, false);
+        if (flipV)  out = out.mirrored(false, true);
         return out;
     }
 
@@ -658,8 +658,8 @@ QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
             }
         }
         if (invert) outRgb.invertPixels();
-        if (flipH)  outRgb = outRgb.flipped(Qt::Horizontal);
-        if (flipV)  outRgb = outRgb.flipped(Qt::Vertical);
+        if (flipH)  outRgb = outRgb.mirrored(true, false);
+        if (flipV)  outRgb = outRgb.mirrored(false, true);
         return outRgb;
     }
 
@@ -672,8 +672,8 @@ QImage FitsImageView::toDisplayImage(const core::FitsImage& img,
     }
 
     if (invert) out.invertPixels();
-    if (flipH)  out = out.flipped(Qt::Horizontal);
-    if (flipV)  out = out.flipped(Qt::Vertical);
+    if (flipH)  out = out.mirrored(true, false);
+    if (flipV)  out = out.mirrored(false, true);
 
     return out;
 }
