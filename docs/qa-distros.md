@@ -261,7 +261,42 @@ cfitsio fftw libarchive
   installed.
 - No `systemd` running in the container.
 
-**Status:** ✅ Workflow created (item 55.4) — runs on every push to `main`.
+**First verified run:** 2026-03-22 · run ID 23400921910 · duration **5m 11s**
+
+| Component | Version observed |
+|-----------|-----------------|
+| Distro | Manjaro Linux (manjarolinux/base) |
+| GCC | 15.2.1 20260209 |
+| Qt6 | qt6-base 6.10.2-1 |
+| CMake | 4.2.3 |
+| AstroFind binary | 70 MB (RelWithDebInfo, unstripped) |
+| astrofind_tests | 45 MB |
+| astrofind_ui_tests | 87 MB |
+
+**Test results:**
+
+| Suite | Total | Passed | Skipped | Failed |
+|-------|-------|--------|---------|--------|
+| Core (`astrofind_tests`) | 116 | 106 | 10 | 0 |
+| UI (`astrofind_ui_tests`) | 23 | 23 | 0 | 0 |
+| Total assertions | 4426 | 4426 | — | 0 |
+
+The 10 skipped core tests are `test_fits_functional.cpp` cases F-01 through F-10,
+which require real FITS image files at `/tmp/fits_test/`. These are absent in all CI
+environments (including the primary Ubuntu CI job) and are skipped by design.
+
+**Observations from this run:**
+- Manjaro ships **GCC 15** and **Qt 6.10**, both significantly newer than the minimum
+  supported versions. AstroFind compiles cleanly with no warnings under this
+  configuration — confirming the codebase is forward-compatible.
+- CMake 4.x is present on Manjaro (4.2.3). CMake 4.0 introduced the policy
+  `CMP0167` (deprecating `FindBoost`) and changed `cmake_minimum_required` semantics.
+  No issues were observed; AstroFind's CMakeLists.txt is not affected.
+- The `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` env var was added to suppress the
+  Node.js 20 deprecation warning from `actions/checkout@v4` and `actions/cache@v4`.
+  GitHub will enforce Node.js 24 by default from 2026-06-02.
+
+**Status:** ✅ Passing (item 55.4) — runs on every push to `main` and `develop`.
 
 ---
 

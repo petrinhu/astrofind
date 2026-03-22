@@ -47,6 +47,13 @@ on:
     branches: [ main ]
   workflow_dispatch:        # allow manual trigger from GitHub Actions UI
 
+env:
+  # actions/checkout and actions/cache ship Node.js 20 in their v4 releases.
+  # GitHub will force Node.js 24 as the default from 2026-06-02.
+  # This opt-in flag keeps the workflow warning-free until official v5 releases
+  # stabilise or the actions are updated in-place.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   qa-manjaro:
     name: Manjaro · manjarolinux/base · pacman · GCC
