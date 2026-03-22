@@ -1,7 +1,7 @@
 Source: astrofind
 Section: science
 Priority: optional
-Maintainer: Petrus Silva Costa <petrinhu@astrofind.app>
+Maintainer: Petrus Silva Costa <petrinhu@yahoo.com.br>
 Build-Depends:
  debhelper-compat (= 13),
  cmake (>= 3.22),

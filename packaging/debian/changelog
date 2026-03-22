@@ -9,4 +9,4 @@ astrofind (0.9.0~beta-1) unstable; urgency=low
   * Added: Theme::mark*() color constants as single source of truth.
   * Fixed: 10 truncated PT-BR translations (token-limit AI generation bug).
 
- -- Petrus Silva Costa <petrinhu@astrofind.app>  Sat, 22 Mar 2026 00:00:00 +0000
+ -- Petrus Silva Costa <petrinhu@yahoo.com.br>  Sat, 22 Mar 2026 00:00:00 +0000

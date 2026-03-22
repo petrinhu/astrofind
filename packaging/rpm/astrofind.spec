@@ -87,7 +87,7 @@ QT_QPA_PLATFORM=offscreen %{__cmake_builddir}/bin/astrofind_ui_tests --reporter 
 %{_datadir}/icons/hicolor/512x512/apps/astrofind.png
 
 %changelog
-* Sat Mar 22 2026 Petrus Silva Costa <petrinhu@astrofind.app> - 0.9.0-0.beta1
+* Sat Mar 22 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 0.9.0-0.beta1
 - Beta release: all features complete, pending real-world FITS validation
 - Version 0.9.0-beta bumped from 0.5.0
 - Fixed: invert/flip in blink mode, theme CSS consistency, marking colors

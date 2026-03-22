@@ -1,4 +1,4 @@
-# Maintainer: Petrus Silva Costa <petrinhu@astrofind.app>
+# Maintainer: Petrus Silva Costa <petrinhu@yahoo.com.br>
 pkgname=astrofind
 # Arch pkgver cannot contain '-'; use concatenation for pre-release suffix.
 pkgver=0.9.0beta
