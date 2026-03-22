@@ -654,5 +654,5 @@ permID |provID |trkSub|mode|stn|obsTime                |ra        |dec      |rms
 
 ---
 
-*Last updated: 2026-03-21 — AstroFind 0.5.0*
+*Last updated: 2026-03-22 — AstroFind 0.9.0-beta*
 *Author: Petrus Silva Costa*

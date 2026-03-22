@@ -9,6 +9,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## English
 
+### [0.9.0-beta] — 2026-03-22
+
+**Beta release — all features complete, pending real-world FITS validation.**
+
+#### Changed
+- Version bumped from 0.5.0 to 0.9.0-beta to reflect feature-complete beta status
+- README: added beta warning (not yet validated with real observatory FITS files)
+
+#### Fixed
+- Invert / flip broken in blink mode (precomputed image path now uses `invertPixels()` / `mirrored()` directly)
+- `QSpinBox` / `QDoubleSpinBox` / `QComboBox` button widths inconsistent between dark and light themes
+- Overlay marking colors did not match catalog table colors (unified via `Theme::mark*()` constants)
+- 10 truncated PT-BR translations caused by AI bulk-generation hitting output token limit
+
+#### Added
+- `Theme::dp(int)` — DPI-proportional sizing; all hard-coded pixel values scaled to logical DPI
+  (no visual change at 96 DPI; proportional on HiDPI screens without OS-level scaling)
+- `Theme::mark*()` inline color constants as single source of truth for overlay + table colors
+
+---
+
 ### [0.5.0] — 2026-03-21
 
 **Phase 4 — Advanced rendering, formats, WCS pipeline, detection algorithms, import/export, quality audit.**
@@ -156,6 +177,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ---
 
 ## Português
+
+### [0.9.0-beta] — 2026-03-22
+
+**Versão beta — todas as funcionalidades completas, aguardando validação com FITS reais.**
+
+#### Alterado
+- Versão incrementada de 0.5.0 para 0.9.0-beta para refletir o estado beta com funcionalidades completas
+- README: adicionado aviso de beta (ainda não validado com FITS reais de observatório)
+
+#### Corrigido
+- Inversor / espelhamento quebrado em modo blink (caminho de imagem pré-computada agora usa `invertPixels()` / `mirrored()` diretamente)
+- Largura dos botões `QSpinBox` / `QDoubleSpinBox` / `QComboBox` inconsistente entre temas escuro e claro
+- Cores das marcações no overlay não correspondiam às cores na tabela do catálogo (unificadas via constantes `Theme::mark*()`)
+- 10 traduções PT-BR truncadas causadas por geração em lote de IA que atingiu o limite de tokens de saída
+
+#### Adicionado
+- `Theme::dp(int)` — dimensionamento proporcional ao DPI; todos os valores de pixels em código escalados ao DPI lógico
+  (sem mudança visual a 96 DPI; proporcional em telas HiDPI sem escala configurada pelo SO)
+- Constantes de cor `Theme::mark*()` como fonte única de verdade para cores do overlay e da tabela
+
+---
 
 ### [0.5.0] — 2026-03-21
 

@@ -1,6 +1,6 @@
 # AstroFind
 
-![Version](https://img.shields.io/badge/version-0.5.0-blue)
+![Version](https://img.shields.io/badge/version-0.9.0--beta-orange)
 ![Language](https://img.shields.io/badge/language-C%2B%2B23-blue)
 ![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)
 ![CMake](https://img.shields.io/badge/CMake-3.20%2B-064F8C?logo=cmake)
@@ -17,6 +17,12 @@
 Modern asteroid detection software for citizen science and educational use.
 Built for Linux, compatible with the IASC / MPC workflow.
 Outputs [ADES 2022](https://minorplanetcenter.net/ades) format reports.
+
+> **⚠️ Beta software — not yet validated with real observatory FITS files.**
+> All features are implemented and the test suite passes on 11 Linux distributions,
+> but end-to-end validation with real telescope imagery has not been performed.
+> Results (astrometry, photometry, ADES reports) should be independently verified
+> before submission to the MPC. Feedback and real-world test reports are very welcome.
 
 > *"To my son Guga, a Linux user like me*
 > *who had no good option for finding asteroids."*
@@ -450,7 +456,7 @@ Libraries used:
 
 ## Português
 
-![Versão](https://img.shields.io/badge/versão-0.5.0-blue)
+![Versão](https://img.shields.io/badge/versão-0.9.0--beta-orange)
 ![Language](https://img.shields.io/badge/linguagem-C%2B%2B23-blue)
 ![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux-FCC624?logo=linux&logoColor=black)
@@ -460,6 +466,12 @@ Libraries used:
 Software moderno de detecção de asteroides para ciência cidadã e uso educacional.
 Desenvolvido para Linux, compatível com o fluxo de trabalho IASC / MPC.
 Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
+
+> **⚠️ Software em fase beta — ainda não validado com arquivos FITS reais de observatório.**
+> Todas as funcionalidades estão implementadas e a suite de testes passa em 11 distribuições Linux,
+> mas a validação ponta-a-ponta com imagens reais de telescópio ainda não foi realizada.
+> Os resultados (astrometria, fotometria, relatórios ADES) devem ser verificados de forma
+> independente antes de qualquer envio ao MPC. Relatos de testes com dados reais são muito bem-vindos.
 
 > *"Para meu filho Guga, usuário de Linux como eu*
 > *que estava sem uma boa opção para buscar asteroides."*
