@@ -59,7 +59,15 @@ jobs:
 
     steps:
 
-      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      # ── 1. BOOTSTRAP MINIMAL TOOLS ──────────────────────────────────────────
+      # debian:12 minimal image ships without procps (free, ps) and util-linux
+      # (lscpu). Install them first so the system-info step can use them.
+      - name: "🔧  Bootstrap minimal diagnostic tools"
+        run: |
+          apt-get update -qq
+          apt-get install -y procps util-linux
+
+      # ── 2. SYSTEM INFORMATION ────────────────────────────────────────────────
       - name: "🖥  System information"
         run: |
           echo "════════════════════════════════════════════════════════════════"
@@ -80,14 +88,9 @@ jobs:
           df -h /
           echo ""
 
-      # ── 2. UPDATE PACKAGE DATABASE ───────────────────────────────────────────
-      - name: "🔄  Update package database"
+      # ── 3. UPDATE PACKAGE DATABASE ───────────────────────────────────────────
+      - name: "🔄  List available Qt6 packages"
         run: |
-          echo "── apt-get update ──────────────────────────────────────────────"
-          apt-get update -qq
-          # procps: provides free, ps, top (absent in debian:12 minimal)
-          # util-linux: provides lscpu (absent in debian:12 minimal)
-          apt-get install -y procps util-linux
           echo ""
           echo "── Available Qt6 packages ──────────────────────────────────────"
           apt-cache search qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools|qt6-5compat" | sort
