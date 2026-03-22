@@ -1,0 +1,12 @@
+# Force LF line endings in all text files
+* text=auto eol=lf
+*.spec text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ts text eol=lf
+*.qm binary
+*.png binary
+*.jpg binary
+*.fits binary
+*.fit binary

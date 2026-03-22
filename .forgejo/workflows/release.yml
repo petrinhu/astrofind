@@ -129,7 +129,7 @@ jobs:
           cp -a staging/. "${BUILDROOT}/"
 
           # Use pre-written binary spec (no heredoc — avoids YAML directive conflicts)
-          sed "s/^Version:.*/Version:        ${VERNUM}/" \
+          sed "s/^Version:.*/Version:        ${VERNUM}/; s/\r//" \
               packaging/rpm/astrofind-binary.spec > ~/rpmbuild/SPECS/astrofind.spec
 
           rpmbuild -bb ~/rpmbuild/SPECS/astrofind.spec \
