@@ -330,7 +330,8 @@ void MainWindow::setupToolBar()
     stdTb->setObjectName("StandardToolBar");
     stdTb->setToolButtonStyle(Qt::ToolButtonIconOnly);
     stdTb->setIconSize(iconSz);
-    stdTb->setFixedHeight(36);
+    // stdTb->setFixedHeight(36);   // reference px value
+    stdTb->setFixedHeight(Theme::dp(36));
 
     // Settings
     auto* actSettings = stdTb->addAction(AppIcons::settings(), tr("Settings"));
@@ -420,7 +421,8 @@ void MainWindow::setupToolBar()
     dispTb->setObjectName("DisplayToolBar");
     dispTb->setToolButtonStyle(Qt::ToolButtonIconOnly);
     dispTb->setIconSize(iconSz);
-    dispTb->setFixedHeight(36);
+    // dispTb->setFixedHeight(36);   // reference px value
+    dispTb->setFixedHeight(Theme::dp(36));
 
     actBgRange_ = new QAction(AppIcons::backgroundRange(), tr("Background && Range"), this);
     actBgRange_->setToolTip(tr("Adjust background and display range"));
@@ -462,7 +464,8 @@ void MainWindow::setupToolBar()
     blinkTb->setObjectName("BlinkToolBar");
     blinkTb->setToolButtonStyle(Qt::ToolButtonIconOnly);
     blinkTb->setIconSize(iconSz);
-    blinkTb->setFixedHeight(36);
+    // blinkTb->setFixedHeight(36);   // reference px value
+    blinkTb->setFixedHeight(Theme::dp(36));
 
     actBlink_->setIcon(AppIcons::blinkImages());
     actBlink_->setToolTip(tr("Blink Images (Ctrl+B)"));
@@ -474,7 +477,8 @@ void MainWindow::setupToolBar()
     blinkDelayBox_->setValue(blinkIntervalMs_ / 100);
     blinkDelayBox_->setSuffix(tr("×0.1s"));
     blinkDelayBox_->setToolTip(tr("Blink interval (tenths of a second)"));
-    blinkDelayBox_->setFixedSize(70, 28);
+    // blinkDelayBox_->setFixedSize(70, 28);   // reference px value
+    blinkDelayBox_->setFixedSize(Theme::dp(70), Theme::dp(28));
     connect(blinkDelayBox_, &QSpinBox::valueChanged, this, [this](int v) {
         blinkIntervalMs_ = v * 100;
         if (blinkWidget_)
@@ -522,9 +526,12 @@ void MainWindow::setupStatusBar()
     sbImages_      = new QLabel(tr("No images"), this);
     sbObservatory_ = new QLabel(this);
 
-    sbStep_->setMinimumWidth(200);
-    sbCoords_->setMinimumWidth(220);
-    sbPixel_->setMinimumWidth(120);
+    // sbStep_->setMinimumWidth(200);    // reference px value
+    // sbCoords_->setMinimumWidth(220);  // reference px value
+    // sbPixel_->setMinimumWidth(120);   // reference px value
+    sbStep_->setMinimumWidth(Theme::dp(200));
+    sbCoords_->setMinimumWidth(Theme::dp(220));
+    sbPixel_->setMinimumWidth(Theme::dp(120));
     sbObservatory_->setStyleSheet(QStringLiteral("color:#8899aa;font-size:10px;"));
     sbObservatory_->setVisible(false);
 
@@ -599,9 +606,12 @@ void MainWindow::setupDockWidgets()
     logDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     logDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
     addDockWidget(Qt::BottomDockWidgetArea, logDock);
-    logPanel_->setMinimumHeight(115);
-    logPanel_->setMaximumHeight(300);
-    logDock->setMinimumHeight(148);     // 23 (title bar) + 115 (content) + 10 (top margin)
+    // logPanel_->setMinimumHeight(115);   // reference px value
+    // logPanel_->setMaximumHeight(300);   // reference px value
+    // logDock->setMinimumHeight(148);     // reference px: 23 (title bar) + 115 (content) + 10 (top margin)
+    logPanel_->setMinimumHeight(Theme::dp(115));
+    logPanel_->setMaximumHeight(Theme::dp(300));
+    logDock->setMinimumHeight(Theme::dp(148));
 
     // ── Thumbnail bar (bottom, above log) ─────────────────────────────────────
     thumbnailBar_ = new ThumbnailBar(this);
@@ -614,7 +624,8 @@ void MainWindow::setupDockWidgets()
     // ThumbnailBar has setFixedHeight(86) — no maxHeight needed on the dock itself
     // (setting it on the dock includes the title bar and causes height shifts on theme toggle)
     addDockWidget(Qt::BottomDockWidgetArea, thumbDock);
-    thumbDock->setMinimumHeight(114);   // 28 (title bar) + 86 (ThumbnailBar fixed)
+    // thumbDock->setMinimumHeight(114);   // reference px: 28 (title bar) + 86 (ThumbnailBar fixed)
+    thumbDock->setMinimumHeight(Theme::dp(114));
 
     connect(thumbnailBar_, &ThumbnailBar::imageActivated, this, [this](int idx) {
         thumbnailBar_->setActiveIndex(idx);
@@ -641,7 +652,8 @@ void MainWindow::setupDockWidgets()
     measDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
     addDockWidget(Qt::BottomDockWidgetArea, measDock);
     splitDockWidget(logDock, measDock, Qt::Horizontal);
-    measureTable_->setMinimumHeight(86); // consistent minimum with other bottom docks
+    // measureTable_->setMinimumHeight(86);   // reference px value
+    measureTable_->setMinimumHeight(Theme::dp(86));
     measDock->hide();   // hidden until first measurement
 
     // ── Image Catalog (right side, initially hidden) ──────────────────────────

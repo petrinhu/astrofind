@@ -1,4 +1,5 @@
 #include "FitsImageView.h"
+#include "Theme.h"
 #include "core/Astronomy.h"
 
 #include <QPainter>
@@ -109,8 +110,14 @@ void FitsImageView::setZoom(double z)
 void FitsImageView::setInvert(bool on)
 {
     if (invert_ == on) return;
-    invert_     = on;
-    displayImg_ = makeDisplayImage();
+    invert_ = on;
+    if (fitsImg_.data.empty()) {
+        // Precomputed-image mode (blink): raw data was cleared to save memory.
+        // Apply the delta transform directly to the displayed image.
+        displayImg_.invertPixels();
+    } else {
+        displayImg_ = makeDisplayImage();
+    }
     // Keep cross cursor visible on both dark and inverted images
     if (defaultCursor_.shape() == Qt::CustomCursor || defaultCursor_.shape() == Qt::CrossCursor) {
         defaultCursor_ = makeCrossCursor(on);
@@ -131,16 +138,22 @@ void FitsImageView::setToolCursor(Qt::CursorShape shape)
 void FitsImageView::setFlipH(bool on)
 {
     if (flipH_ == on) return;
-    flipH_      = on;
-    displayImg_ = makeDisplayImage();
+    flipH_ = on;
+    if (fitsImg_.data.empty())
+        displayImg_ = displayImg_.mirrored(true, false);
+    else
+        displayImg_ = makeDisplayImage();
     update();
 }
 
 void FitsImageView::setFlipV(bool on)
 {
     if (flipV_ == on) return;
-    flipV_      = on;
-    displayImg_ = makeDisplayImage();
+    flipV_ = on;
+    if (fitsImg_.data.empty())
+        displayImg_ = displayImg_.mirrored(false, true);
+    else
+        displayImg_ = makeDisplayImage();
     update();
 }
 
@@ -402,6 +415,11 @@ void FitsImageView::resetStretch()
 void FitsImageView::setPrecomputedImage(const QImage& displayImg, const core::FitsImage& img)
 {
     displayImg_ = displayImg;
+    // Re-apply active display transforms so that invert/flip persist across
+    // frame switches in blink mode (raw data is not available for recompute).
+    if (invert_) displayImg_.invertPixels();
+    if (flipH_)  displayImg_ = displayImg_.mirrored(true,  false);
+    if (flipV_)  displayImg_ = displayImg_.mirrored(false, true);
     // Copy metadata but avoid holding a second copy of the heavy pixel buffer.
     fitsImg_ = img;
     fitsImg_.data.clear();
@@ -744,7 +762,7 @@ void FitsImageView::drawDetectedStars(QPainter& p) const
         } else {
             // ── Normal point source: circle ───────────────────────────────────
             const double r = std::max(4.0, star.a * zoom_);
-            p.setPen(QPen(hi ? QColor(255, 60, 60) : QColor(0, 220, 255), hi ? 2.5 : 1.5));
+            p.setPen(QPen(hi ? QColor(255, 60, 60) : Theme::markDetectedStarDark(), hi ? 2.5 : 1.5));
             p.drawEllipse(w, hi ? r + 3.0 : r, hi ? r + 3.0 : r);
         }
     }
@@ -764,7 +782,7 @@ void FitsImageView::drawCatalogStars(QPainter& p) const
         if (!rect().marginsAdded(QMargins(20, 20, 20, 20)).contains(w.toPoint())) continue;
         const bool    hi = isHighlighted(imgPt, highlightPx_);
         const double  s = hi ? 7.0 : 4.0;
-        p.setPen(QPen(hi ? QColor(255, 60, 60) : QColor(255, 220, 0), hi ? 2.0 : 1.0));
+        p.setPen(QPen(hi ? QColor(255, 60, 60) : Theme::markCatalogStarDark(), hi ? 2.0 : 1.0));
         p.drawLine(w + QPointF(-s, 0), w + QPointF(s, 0));
         p.drawLine(w + QPointF(0, -s), w + QPointF(0, s));
     }
@@ -887,9 +905,9 @@ void FitsImageView::drawKooObjects(QPainter& p) const
 {
     if (!showKoo_ || fitsImg_.kooObjects.isEmpty() || !fitsImg_.wcs.solved) return;
 
-    static const QColor kAsteroidColor(80, 255, 120);   // green
-    static const QColor kPlanetColor(120, 180, 255);    // light blue
-    static const QColor kCometColor(255, 160, 80);      // orange
+    static const QColor kAsteroidColor = Theme::markKooAsteroidDark();
+    static const QColor kPlanetColor   = Theme::markKooPlanet();
+    static const QColor kCometColor    = Theme::markKooComet();
 
     const QFont labelFont(QStringLiteral("monospace"), 7);
     p.setFont(labelFont);

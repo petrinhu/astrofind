@@ -1,4 +1,5 @@
 #include "ImageCatalogTable.h"
+#include "Theme.h"
 
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -89,9 +90,9 @@ void ImageCatalogTable::setImage(const core::FitsImage& img)
         table_->setItem(row, ColY,    cell(QString::number(y, 'f', 1), color));
     };
 
-    const QColor colEstrela   = themeColor(QColor(  0, 210, 255), QColor(  0, 120, 180));  // ciano vivo / azul
-    const QColor colGuia      = themeColor(QColor(255, 210,   0), QColor(160, 100,   0));  // amarelo / âmbar
-    const QColor colAsteroide = themeColor(QColor( 60, 240, 100), QColor(  0, 140,  60));  // verde vivo / verde
+    const QColor colEstrela   = themeColor(Theme::markDetectedStarDark(),  Theme::markDetectedStarLight());
+    const QColor colGuia      = themeColor(Theme::markCatalogStarDark(),   Theme::markCatalogStarLight());
+    const QColor colAsteroide = themeColor(Theme::markKooAsteroidDark(),   Theme::markKooAsteroidLight());
 
     const QString ttEstrela   = tr("Estrela detectada na imagem pela análise de brilho");
     const QString ttGuia      = tr("Estrela conhecida do catálogo UCAC4, usada como referência para calcular a posição dos objetos");

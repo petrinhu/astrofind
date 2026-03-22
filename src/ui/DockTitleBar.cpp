@@ -1,4 +1,5 @@
 #include "DockTitleBar.h"
+#include "Theme.h"
 
 #include <QEvent>
 #include <QHBoxLayout>
@@ -22,9 +23,11 @@ public:
             const int w = bar->width();
             const int h = bar->height();
             if (w > 0 && h > 0) {
-                lbl_->setGeometry(0, 0, w, h);                  // full bar — AlignCenter handles both axes
-                btn_->setGeometry(w - 4 - 16, (h - 16) / 2,    // 4 px right margin, vertically centred
-                                  16, 16);
+                const int btnSz  = Theme::dp(16);
+                const int margin = Theme::dp(4);
+                lbl_->setGeometry(0, 0, w, h);                              // full bar — AlignCenter handles both axes
+                btn_->setGeometry(w - margin - btnSz, (h - btnSz) / 2,     // right margin, vertically centred
+                                  btnSz, btnSz);
             }
         }
         return false;
@@ -41,7 +44,8 @@ QWidget* makeDockTitleBar(const QString& title, QDockWidget* dock)
 {
     auto* bar = new QWidget(dock);
     bar->setObjectName(QStringLiteral("dockTitleBar"));
-    bar->setFixedHeight(23);
+    // bar->setFixedHeight(23);   // reference px value
+    bar->setFixedHeight(Theme::dp(23));
 
     auto* lbl = new QLabel(title, bar);
     lbl->setObjectName(QStringLiteral("dockTitleLabel"));
@@ -51,7 +55,8 @@ QWidget* makeDockTitleBar(const QString& title, QDockWidget* dock)
     closeBtn->setObjectName(QStringLiteral("dockCloseButton"));
     closeBtn->setIcon(dock->style()->standardIcon(
         QStyle::SP_DockWidgetCloseButton, nullptr, dock));
-    closeBtn->setFixedSize(16, 16);
+    // closeBtn->setFixedSize(16, 16);   // reference px value
+    closeBtn->setFixedSize(Theme::dp(16), Theme::dp(16));
     closeBtn->setAutoRaise(true);
     QObject::connect(closeBtn, &QToolButton::clicked, dock, &QDockWidget::close);
 

@@ -1,5 +1,6 @@
 #include "ThumbnailBar.h"
 #include "FitsImageView.h"
+#include "Theme.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -11,7 +12,8 @@
 ThumbnailBar::ThumbnailBar(QWidget* parent)
     : QWidget(parent)
 {
-    setFixedHeight(86);
+    // setFixedHeight(86);   // reference px value
+    setFixedHeight(Theme::dp(86));
 
     // Scroll area fills the bar
     scrollArea_ = new QScrollArea(this);

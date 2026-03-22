@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QGuiApplication>
+#include <QScreen>
 #include <QStyleHints>
 #include <QPalette>
 #include <QStyle>
@@ -177,12 +178,14 @@ QSpinBox {
     padding: 1px 4px;
     selection-background-color: #4060b0;
 }
-QSpinBox::up-button, QSpinBox::down-button {
+QSpinBox::up-button, QSpinBox::down-button,
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
     background: #2a2a44;
     border: none;
     width: 14px;
 }
-QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+QSpinBox::up-button:hover, QSpinBox::down-button:hover,
+QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
     background: #383860;
 }
 QScrollBar:vertical, QScrollBar:horizontal {
@@ -425,13 +428,22 @@ QSpinBox {
     border-radius: 4px;
     padding: 1px 4px;
 }
+QSpinBox::up-button, QSpinBox::down-button {
+    width: 14px;
+}
 QDoubleSpinBox {
     border-radius: 4px;
     padding: 1px 4px;
 }
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+    width: 14px;
+}
 QComboBox {
     border-radius: 4px;
     padding: 2px 6px;
+}
+QComboBox::drop-down {
+    width: 18px;
 }
 QGroupBox {
     margin-top: 1em;
@@ -507,4 +519,16 @@ Theme::Mode Theme::fromString(const QString& s, Mode fallback)
     if (s == QLatin1String("night")) return Mode::Night;
     if (s == QLatin1String("auto"))  return Mode::Auto;
     return fallback;
+}
+
+int Theme::dp(int px)
+{
+    // Scale relative to a 96-DPI reference (standard desktop).
+    // On a 96-DPI screen dp(x) == x exactly — current sizes are preserved.
+    // On screens with higher logical DPI (HiDPI without OS scaling, or larger
+    // text size settings) all panel/toolbar sizes scale proportionally.
+    const auto* scr = QGuiApplication::primaryScreen();
+    if (!scr) return px;
+    static const qreal kScale = scr->logicalDotsPerInch() / 96.0;
+    return qRound(px * kScale);
 }

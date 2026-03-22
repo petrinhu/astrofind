@@ -1,4 +1,5 @@
 #include "WorkflowPanel.h"
+#include "Theme.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -8,8 +9,10 @@
 WorkflowPanel::WorkflowPanel(QWidget* parent)
     : QWidget(parent)
 {
-    setMinimumWidth(180);
-    setMaximumWidth(220);
+    // setMinimumWidth(180);   // reference px value
+    // setMaximumWidth(220);   // reference px value
+    setMinimumWidth(Theme::dp(180));
+    setMaximumWidth(Theme::dp(220));
 
     layout_ = new QVBoxLayout(this);
     layout_->setSpacing(4);

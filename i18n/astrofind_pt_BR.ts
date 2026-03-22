@@ -86,7 +86,9 @@ Linear: direct mapping.
 Log / Sqrt / Asinh: compress bright highlights, reveal faint detail.
 HistEq: maximises local contrast (slow on large images).</source>
         <translation>Função de transferência aplicada aos valores de pixel antes da exibição.
-Linear: mapeamento direto</translation>
+Linear: mapeamento direto.
+Log / Sqrt / Asinh: comprime destaques brilhantes, revela detalhes fracos.
+HistEq: maximiza o contraste local (lento em imagens grandes).</translation>
     </message>
     <message>
         <location filename="../src/ui/BackgroundRangeDialog.cpp" line="104" />
@@ -121,7 +123,10 @@ Quente: black → red → yellow → white (thermal).
 Frio: black → dark blue → cyan → white.
 Viridis: perceptually uniform purple → teal → yellow.</source>
         <translation>Tabela de cores falsa aplicada após a função de transferência.
-Grayscale: padrão</translation>
+Grayscale: padrão preto-a-branco.
+Quente: preto → vermelho → amarelo → branco (térmico).
+Frio: preto → azul escuro → ciano → branco.
+Viridis: roxo → verde azulado → amarelo (uniforme perceptualmente).</translation>
     </message>
     <message>
         <location filename="../src/ui/BackgroundRangeDialog.cpp" line="132" />
@@ -1916,7 +1921,7 @@ Para carregar mais imagens, feche a sessão atual ou aumente o limite nas Config
     <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="11" />
         <source>Astronomical Images (*.fits *.fit *.fts *.ser *.xisf *.tiff *.tif *.png *.bmp *.jpg *.jpeg *.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar);;FITS (*.fits *.fit *.fts);;SER video (*.ser);;XISF — PixInsight (*.xisf);;TIFF / PNG / BMP / JPEG (*.tiff *.tif *.png *.bmp *.jpg *.jpeg);;ZIP archives (*.zip);;Compressed archives (*.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar);;All files (*)</source>
-        <translation>Imagens Astronômicas (*.fits *.fit *.fts *.ser *.xisf *.tiff *.tif *.png *.bmp *.</translation>
+        <translation>Imagens Astronômicas (*.fits *.fit *.fts *.ser *.xisf *.tiff *.tif *.png *.bmp *.jpg *.jpeg *.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar);;FITS (*.fits *.fit *.fts);;SER vídeo (*.ser);;XISF — PixInsight (*.xisf);;TIFF / PNG / BMP / JPEG (*.tiff *.tif *.png *.bmp *.jpg *.jpeg);;Arquivos ZIP (*.zip);;Arquivos comprimidos (*.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar);;Todos os arquivos (*)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="47" />
@@ -2261,7 +2266,7 @@ Use a ferramenta Medir (M) para clicar nos objetos em movimento primeiro.</trans
     <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="968" />
         <source>FITS &amp; Archives (*.fits *.fit *.fts *.zip *.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;FITS (*.fits *.fit *.fts);;ZIP (*.zip);;Compressed archives (*.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;All files (*)</source>
-        <translation>FITS e Arquivos (*.fits *.fit *.fts *.zip *.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;F</translation>
+        <translation>FITS e Arquivos (*.fits *.fit *.fts *.zip *.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;FITS (*.fits *.fit *.fts);;ZIP (*.zip);;Arquivos comprimidos (*.tar.gz *.tgz *.tar.bz2 *.tar.xz *.7z *.rar);;Todos os arquivos (*)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="1289" />
@@ -5141,7 +5146,8 @@ Valores 0,0 indicam localização não configurada.</translation>
 Lat/Lon não se aplicam — o código MPC do telescópio é usado nos relatórios.
 Este modo é habilitado automaticamente quando detectado no cabeçalho FITS.</source>
         <translation>Imagens de um telescópio em órbita (HST, JWST, etc.).
-Lat/Lon não se aplicam — o código MPC</translation>
+Lat/Lon não se aplicam — o código MPC do telescópio é usado nos relatórios.
+Este modo é habilitado automaticamente quando detectado no cabeçalho FITS.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="462" />
@@ -5333,7 +5339,7 @@ Valor atual (2024): ~68 s.</translation>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="588" />
         <source>Detecta e interpola hot pixels, bad columns e raios cósmicos usando estatísticas locais (mediana 3×3). Aplicado após dark/flat, antes da detecção de estrelas.</source>
-        <translation>Detecta e interpola hot pixels, bad columns e raios cósmicos usando estatísticas locais</translation>
+        <translation>Detecta e interpola hot pixels, bad columns e raios cósmicos usando estatísticas locais (mediana 3×3). Aplicado após dark/flat, antes da detecção de estrelas.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="593" />
@@ -5343,12 +5349,12 @@ Valor atual (2024): ~68 s.</translation>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="596" />
         <source>Pixels com desvio &gt; N σ da mediana local são corrigidos. Valores menores corrigem mais pixels (mais agressivo); maior = mais conservador.</source>
-        <translation>Pixels com desvio &gt; N σ da mediana local são corrigidos. Valores menores corrigem mais pixels</translation>
+        <translation>Pixels com desvio &gt; N σ da mediana local são corrigidos. Valores menores corrigem mais pixels (mais agressivo); maior = mais conservador.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="603" />
         <source>ATENÇÃO: desativar a correção de pixels ruins pode gerar falsas detecções de estrelas, comprometer a astrometria e introduzir erros fotométricos. Desative apenas se usar uma máscara BPM externa.</source>
-        <translation>ATENÇÃO: desativar a correção de pixels ruins pode gerar falsas detecções de estrelas</translation>
+        <translation>ATENÇÃO: desativar a correção de pixels ruins pode gerar falsas detecções de estrelas, comprometer a astrometria e introduzir erros fotométricos. Desative apenas se usar uma máscara BPM externa.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="617" />
@@ -5589,7 +5595,8 @@ FITS Local: use um FITS BINTABLE pré-baixado</translation>
 sigma-clipping 3σ) e o subtrai dos dados antes de detectar estrelas.
 Útil para imagens com gradientes de brilho de céu, vinheta ou nebulosidade difusa.</source>
         <translation>Estima o céu de fundo por mediana deslizante (grade de tiles com
-sigma-clipping 3σ) e o subtrai</translation>
+sigma-clipping 3σ) e o subtrai dos dados antes de detectar estrelas.
+Útil para imagens com gradientes de brilho de céu, vinheta ou nebulosidade difusa.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="808" />
@@ -5601,7 +5608,7 @@ sigma-clipping 3σ) e o subtrai</translation>
         <source>Lado do tile em pixels. Tiles menores seguem gradientes mais finos
 mas podem confundir nebulosidades com céu. 64–128 px é um bom ponto de partida.</source>
         <translation>Lado do tile em pixels. Tiles menores seguem gradientes mais finos,
-mas podem confundir nebulosas</translation>
+mas podem confundir nebulosidades com céu. 64–128 px é um bom ponto de partida.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="824" />
@@ -5641,7 +5648,7 @@ mas podem confundir nebulosas</translation>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="853" />
         <source>Elongation threshold (a/b) above which a detected source is classified as a streak or trail (fast asteroid, satellite, tracking smear). Streaks are shown in orange in the overlay. Set to 1.5 to catch mild tracking drift; 3.0 catches only clear trails. Higher values = fewer, more obvious streaks only.</source>
-        <translation>Limiar de elongação (a/b) acima do qual uma fonte detectada é classificada como traço ou rastro</translation>
+        <translation>Limiar de elongação (a/b) acima do qual uma fonte detectada é classificada como traço ou rastro (asteroide rápido, satélite, borrão de rastreamento). Os traços são exibidos em laranja na sobreposição. Use 1,5 para capturar desvios suaves de rastreamento; 3,0 captura apenas rastros evidentes. Valores maiores = menos traços, apenas os mais óbvios.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="857" />
