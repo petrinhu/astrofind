@@ -462,19 +462,19 @@ void readHeader(fitsfile* fptr, FitsImage& img)
                 if (timesys == "UTC" || timesys == "UT") {
                     // TIMESYS confirms UTC — safe to interpret as such
                     img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(),
-                                            QTimeZone::utc());
+                                            Qt::UTC);
                 } else if (!timesys.isEmpty()) {
                     // TIMESYS present but non-UTC (TT, TAI, etc.)
                     // Treat as UTC for JD but warn
                     img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(),
-                                            QTimeZone::utc());
+                                            Qt::UTC);
                     img.dateObsAmbiguous = true;
                     spdlog::warn("DATE-OBS TIMESYS='{}' is not UTC in {} — assumed UTC",
                                  timesys.toStdString(), img.fileName.toStdString());
                 } else {
                     // No timezone marker AND no TIMESYS — could be local time
                     img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(),
-                                            QTimeZone::utc());
+                                            Qt::UTC);
                     img.dateObsAmbiguous = true;
                     spdlog::warn("DATE-OBS has no timezone marker and TIMESYS is absent in {}"
                                  " — assumed UTC", img.fileName.toStdString());
@@ -568,7 +568,7 @@ void readHeader(fitsfile* fptr, FitsImage& img)
 
     if (img.jd == 0.0 && img.dateObs.isValid()) {
         // Approximate JD from datetime
-        const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), QTimeZone::utc());
+        const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), Qt::UTC);
         img.jd = 2451545.0 + static_cast<double>(j2000.secsTo(img.dateObs)) / 86400.0 + img.expTime / 172800.0;
     }
 }

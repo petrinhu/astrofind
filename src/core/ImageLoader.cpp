@@ -400,7 +400,7 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
             if (!img.dateObs.isValid())
                 img.dateObs = QDateTime::fromString(kv, "yyyy-MM-dd'T'HH:mm:ss.zzz");
             if (img.dateObs.isValid() && img.dateObs.timeSpec() == Qt::LocalTime)
-                img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(), QTimeZone::utc());
+                img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(), Qt::UTC);
         }
     }
 
