@@ -1,0 +1,223 @@
+name: QA · Arch Linux
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.3 — Build and test on Arch Linux (archlinux:latest Docker image)
+#
+# WHY ARCH LINUX:
+#   Arch is a rolling-release distro. It always ships the NEWEST Qt6, GCC, and
+#   CMake available. This is the opposite end of the spectrum from Debian 12
+#   (which ships the oldest Qt AstroFind supports). Any forward-compatibility
+#   issue caused by a new Qt or GCC release will be caught here first.
+#   Arch is popular among technical Linux users and power users in the astronomy
+#   community who prefer bleeding-edge toolchains.
+#
+# IMAGE USED: archlinux:latest
+#   Official Arch Linux image from Docker Hub, maintained by the Arch Linux
+#   project. Mirrors the current rolling-release state. Updated continuously.
+#   Minimal server install — no desktop environment.
+#
+# LIMITATIONS vs a real Arch desktop installation:
+#   - No AUR helper (yay/paru). AUR packages are unavailable; all dependencies
+#     must come from official Arch repos.
+#   - No desktop environment (no Qt fonts, no Wayland/X11 compositor).
+#   - Qt GUI rendering is offscreen (QT_QPA_PLATFORM=offscreen).
+#   - No systemd user session running in the container.
+#   - Container image may lag a few hours behind the actual rolling state.
+#
+# WHAT THIS JOB VALIDATES (item 55.3):
+#   ✅  Latest Qt6 compatibility (rolling release — newest Qt AstroFind sees)
+#   ✅  Latest GCC C++23 support
+#   ✅  All required packages available in official Arch repos
+#   ✅  CMake configuration succeeds
+#   ✅  All 116 core unit tests pass
+#   ✅  All 23 UI integration tests pass (offscreen)
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
+#   ❌  Hardware-accelerated OpenGL — not tested
+#   ❌  Real Wayland/X11 window lifecycle — not tested
+#   ❌  ASTAP offline plate solver — not installed (optional runtime dependency)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:        # allow manual trigger from GitHub Actions UI
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  qa-arch:
+    name: Arch Linux · archlinux:latest · pacman · GCC
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:latest
+      # Run as root inside the container so pacman can install packages without
+      # sudo (which is not present in the minimal base image).
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Arch Linux"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "── Kernel & OS ─────────────────────────────────────────────────"
+          uname -a
+          cat /etc/os-release
+          echo ""
+          echo "── CPU ─────────────────────────────────────────────────────────"
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          echo "── Memory ──────────────────────────────────────────────────────"
+          free -h
+          echo ""
+          echo "── Disk ────────────────────────────────────────────────────────"
+          df -h /
+          echo ""
+          echo "── pacman version ──────────────────────────────────────────────"
+          pacman --version
+          echo ""
+
+      # ── 2. SYNC PACKAGE DATABASE ─────────────────────────────────────────────
+      # On archlinux:latest the package database may be stale relative to the
+      # rolling-release mirrors. -Sy syncs without upgrading, keeping runs fast.
+      - name: "🔄  Sync package database"
+        run: |
+          echo "── Synchronising package databases ─────────────────────────────"
+          pacman -Sy --noconfirm
+          echo ""
+          echo "── Available packages in database ──────────────────────────────"
+          pacman -Sl | wc -l
+          echo "packages in database"
+          echo ""
+          echo "── Available Qt6 packages ──────────────────────────────────────"
+          pacman -Sl | grep " qt6-" | awk '{print $2, $3}' | sort
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      - name: "📦  Install build dependencies"
+        run: |
+          echo "── Installing required packages ────────────────────────────────"
+          pacman -S --noconfirm \
+            cmake \
+            ninja \
+            gcc \
+            git \
+            pkg-config \
+            qt6-base \
+            qt6-charts \
+            qt6-tools \
+            cfitsio \
+            fftw \
+            libarchive
+          echo ""
+          echo "── Installed package versions ──────────────────────────────────"
+          echo -n "cmake:       "; cmake --version | head -1
+          echo -n "ninja:       "; ninja --version
+          echo -n "gcc:         "; gcc --version | head -1
+          echo -n "g++:         "; g++ --version | head -1
+          echo -n "git:         "; git --version
+          echo -n "pkg-config:  "; pkg-config --version
+          echo    "qt6-base:    $(pacman -Q qt6-base)"
+          echo    "qt6-charts:  $(pacman -Q qt6-charts)"
+          echo    "qt6-tools:   $(pacman -Q qt6-tools)"
+          echo    "cfitsio:     $(pacman -Q cfitsio)"
+          echo    "fftw:        $(pacman -Q fftw)"
+          echo    "libarchive:  $(pacman -Q libarchive)"
+          echo ""
+          echo "── Qt6 include directories found ───────────────────────────────"
+          find /usr/include/qt6 -maxdepth 1 -type d 2>/dev/null || \
+            find /usr/lib/qt6 -maxdepth 1 -type d 2>/dev/null || \
+            echo "  (searching via pkg-config)"
+          pkg-config --modversion Qt6Core 2>/dev/null && \
+            echo "  Qt6Core version: $(pkg-config --modversion Qt6Core)" || \
+            echo "  Qt6Core: pkg-config entry not found"
+          echo ""
+
+      # ── 4. CHECKOUT ─────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-arch-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-arch-
+
+      # ── 6. CMAKE CONFIGURE ──────────────────────────────────────────────────
+      - name: "⚙️   CMake configure"
+        run: |
+          echo "── CMake configure ─────────────────────────────────────────────"
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          echo "── CMakeCache.txt (relevant entries) ───────────────────────────"
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      - name: "🔨  Build (verbose)"
+        run: |
+          echo "── Building all targets ────────────────────────────────────────"
+          cmake --build build --verbose
+          echo ""
+          echo "── Build artifacts ─────────────────────────────────────────────"
+          ls -lh build/bin/
+          echo ""
+          echo "── Binary info ─────────────────────────────────────────────────"
+          file build/bin/AstroFind
+          ldd  build/bin/AstroFind | head -30
+          echo ""
+          echo "── Linked Qt libraries ─────────────────────────────────────────"
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          echo "── Running astrofind_tests ─────────────────────────────────────"
+          echo "   Reporter: console (full output for each test case)"
+          echo ""
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          echo "── Running astrofind_ui_tests ──────────────────────────────────"
+          echo "   QT_QPA_PLATFORM = offscreen"
+          echo "   Reporter: console (full output for each test case)"
+          echo ""
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Arch Linux — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(pacman -Q qt6-base)"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          echo "Artifacts:"
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""
