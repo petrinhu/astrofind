@@ -116,6 +116,8 @@ jobs:
       - name: "📦  Install build dependencies"
         run: |
           echo "── Installing required packages ────────────────────────────────"
+          # Note: qt6-qtcharts-devel and qt6-qttools-devel may not be in EPEL 9.
+          # We install what is available and let CMake report what is missing.
           dnf install -y \
             cmake \
             ninja-build \
@@ -124,14 +126,18 @@ jobs:
             git \
             pkg-config \
             qt6-qtbase-devel \
-            qt6-qtcharts-devel \
-            qt6-qtopengl-devel \
-            qt6-qttools-devel \
             cfitsio-devel \
             fftw-devel \
             libarchive-devel \
             mesa-libGL-devel \
-            libxkbcommon-devel
+            libxkbcommon-devel || true
+          # Try optional Qt6 modules separately (may not be in EPEL 9)
+          dnf install -y qt6-qtcharts-devel 2>/dev/null || \
+            echo "WARNING: qt6-qtcharts-devel not available in EPEL 9"
+          dnf install -y qt6-qtopengl-devel 2>/dev/null || \
+            echo "WARNING: qt6-qtopengl-devel not available in EPEL 9"
+          dnf install -y qt6-qttools-devel 2>/dev/null || \
+            echo "WARNING: qt6-qttools-devel not available in EPEL 9"
           echo ""
           echo "── Installed versions ──────────────────────────────────────────"
           echo -n "cmake:       "; cmake --version | head -1
