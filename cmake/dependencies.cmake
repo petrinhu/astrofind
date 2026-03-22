@@ -116,17 +116,35 @@ if(PkgConfig_FOUND)
 endif()
 
 # ─── CCfits 2.7 (bundled C++ wrapper around cfitsio) ──────────────────────
-# Source: originals/CCfits.tar.gz (CCfits-2.7)
+# Source: originals/CCfits.tar.gz (committed to git) — GitHub fallback if file missing.
 # We build inline, bypassing CCfits's own CMakeLists.txt, to reuse the
 # cfitsio target already set up above (either system pkg-config or FetchContent).
 if(NOT TARGET CCfits::CCfits)
     set(_ccfits_srcdir "${CMAKE_BINARY_DIR}/_deps/ccfits-src")
     if(NOT EXISTS "${_ccfits_srcdir}/CCfits-2.7/CCfits.h")
-        message(STATUS "Extracting bundled CCfits 2.7 ...")
-        file(ARCHIVE_EXTRACT
-            INPUT       "${CMAKE_SOURCE_DIR}/originals/CCfits.tar.gz"
-            DESTINATION "${_ccfits_srcdir}"
-        )
+        set(_ccfits_bundle "${CMAKE_SOURCE_DIR}/originals/CCfits.tar.gz")
+        if(EXISTS "${_ccfits_bundle}")
+            message(STATUS "Extracting bundled CCfits 2.7 ...")
+            file(ARCHIVE_EXTRACT
+                INPUT       "${_ccfits_bundle}"
+                DESTINATION "${_ccfits_srcdir}"
+            )
+        else()
+            message(STATUS "Bundled CCfits not found — downloading CCfits 2.7 via FetchContent ...")
+            FetchContent_Declare(
+                ccfits_dl
+                GIT_REPOSITORY https://github.com/HEASARC/CCfits.git
+                GIT_TAG        v2.7
+                GIT_SHALLOW    TRUE
+            )
+            FetchContent_GetProperties(ccfits_dl)
+            if(NOT ccfits_dl_POPULATED)
+                FetchContent_Populate(ccfits_dl)
+            endif()
+            # FetchContent extracts to ccfits_dl_SOURCE_DIR; mirror the expected layout
+            file(MAKE_DIRECTORY "${_ccfits_srcdir}/CCfits-2.7")
+            file(COPY "${ccfits_dl_SOURCE_DIR}/" DESTINATION "${_ccfits_srcdir}/CCfits-2.7/")
+        endif()
     endif()
     set(_ccfits_dir "${_ccfits_srcdir}/CCfits-2.7")
     file(GLOB _ccfits_srcs "${_ccfits_dir}/*.cxx")

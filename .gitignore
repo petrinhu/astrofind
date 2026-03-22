@@ -53,7 +53,9 @@ PhotReport.txt
 *.ini
 
 # Originals (reference only, don't commit binaries)
-originals/
+# Exception: CCfits.tar.gz is committed as the build system needs it.
+originals/*
+!originals/CCfits.tar.gz
 .cache/
 
 # Lint / audit artifacts
