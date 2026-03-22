@@ -101,6 +101,9 @@ jobs:
       image: fedora:41
 
     steps:
+      - name: "🔧  Bootstrap git"
+        run: dnf install -y git --setopt=install_weak_deps=False -q
+
       - name: "📥  Clone repository"
         run: |
           git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
@@ -170,6 +173,9 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
 
     steps:
+      - name: "🔧  Bootstrap git"
+        run: apt-get update -qq && apt-get install -y git --no-install-recommends -q
+
       - name: "📥  Clone repository"
         run: |
           git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
