@@ -1,0 +1,247 @@
+name: QA · Manjaro
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.4 — Build and test on Manjaro Linux (manjarolinux/base Docker image)
+#
+# WHY MANJARO:
+#   Manjaro sits between Arch Linux (rolling, bleeding-edge) and Ubuntu-based
+#   distros. It uses its own branch of the Arch repositories, held back ~2 weeks
+#   for stability testing, and ships its own kernel and hardware-detection tools.
+#   Users running Manjaro on their astronomy workstations will see this exact
+#   package set — not plain Arch, not Ubuntu.
+#
+# IMAGE USED: manjarolinux/base
+#   Official minimal image maintained by the Manjaro team on Docker Hub.
+#   It ships with pacman, the Manjaro-specific keyring, and Manjaro repositories
+#   pre-configured. It does NOT ship with a desktop environment or GUI stack —
+#   which mirrors a headless/server install.
+#
+# LIMITATIONS vs a real Manjaro desktop installation:
+#   - No AUR (Arch User Repository) helper (yay/paru). AUR packages are
+#     unavailable; all dependencies must come from official Manjaro repos.
+#   - No systemd (containers use a minimal init). Services are not tested.
+#   - Qt GUI rendering is offscreen (QT_QPA_PLATFORM=offscreen). Real window
+#     manager, compositor, and OpenGL hardware acceleration are not tested.
+#   - The Manjaro-specific hardware detection layer (MHWD, kernel switcher) is
+#     absent. This is irrelevant for a Qt6/C++ build test.
+#   - Container may be slightly behind the latest Manjaro stable snapshot since
+#     Docker Hub images are updated less frequently than live ISOs.
+#
+# WHAT THIS JOB VALIDATES (items 55.4):
+#   ✅  All required dependencies are available in official Manjaro repos
+#   ✅  CMake configuration succeeds under pacman-managed Qt 6
+#   ✅  C++23 compilation succeeds with the GCC version shipped by Manjaro
+#   ✅  All 116 core unit tests pass (no display required)
+#   ✅  All 23 UI integration tests pass with offscreen Qt platform
+#   ✅  FetchContent (spdlog, nlohmann/json, SEP, Catch2) resolves correctly
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz succeeds
+#   ❌  Hardware-accelerated OpenGL rendering — not tested (no GPU in container)
+#   ❌  Real Wayland/X11 window lifecycle — not tested
+#   ❌  ASTAP offline plate solver — not installed (optional runtime dependency)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:        # allow manual trigger from GitHub Actions UI
+
+jobs:
+  qa-manjaro:
+    name: Manjaro · manjarolinux/base · pacman · GCC
+    runs-on: ubuntu-latest
+
+    container:
+      image: manjarolinux/base
+      # Run as root inside the container so pacman can install packages without
+      # sudo (which is not present in the minimal base image).
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      # Print detailed environment info for post-failure diagnosis. This appears
+      # at the top of the log so it is always visible regardless of later failures.
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Manjaro Linux"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "── Kernel & OS ─────────────────────────────────────────────────"
+          uname -a
+          cat /etc/os-release
+          echo ""
+          echo "── CPU ─────────────────────────────────────────────────────────"
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          echo "── Memory ──────────────────────────────────────────────────────"
+          free -h
+          echo ""
+          echo "── Disk ────────────────────────────────────────────────────────"
+          df -h /
+          echo ""
+          echo "── pacman version ──────────────────────────────────────────────"
+          pacman --version
+          echo ""
+          echo "── Manjaro repository mirrors ──────────────────────────────────"
+          cat /etc/pacman.d/mirrorlist 2>/dev/null | head -20 || echo "(no mirrorlist)"
+          echo ""
+
+      # ── 2. KEYRING & SYSTEM UPDATE ───────────────────────────────────────────
+      # In a Docker container the Manjaro keyring may be partially initialised.
+      # We refresh it explicitly before doing any package operations to avoid
+      # "unknown trust" errors on freshly-pulled images.
+      - name: "🔑  Refresh Manjaro keyring and update package databases"
+        run: |
+          echo "── Initialising pacman keyring ─────────────────────────────────"
+          pacman-key --init
+          pacman-key --populate manjaro archlinux
+          echo ""
+          echo "── Synchronising package databases ─────────────────────────────"
+          # -Sy: sync databases only (no full upgrade, keeps image reproducible)
+          pacman -Sy --noconfirm
+          echo ""
+          echo "── Available package database ──────────────────────────────────"
+          pacman -Sl | wc -l
+          echo "packages in database"
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      # Required packages: cmake, ninja, gcc, Qt 6, cfitsio, fftw3, libarchive.
+      # Optional packages that are tested here: libarchive (TAR/7Z/RAR support).
+      # NOT installed (optional runtime, not needed for build/tests):
+      #   - qtkeychain (qt-keychain) — may not be in Manjaro repos
+      #   - ASTAP — binary, not in repos
+      - name: "📦  Install build dependencies"
+        run: |
+          echo "── Installing required packages ────────────────────────────────"
+          pacman -S --noconfirm \
+            cmake \
+            ninja \
+            gcc \
+            git \
+            pkg-config \
+            qt6-base \
+            qt6-charts \
+            qt6-tools \
+            cfitsio \
+            fftw \
+            libarchive
+          echo ""
+          echo "── Installed package versions ──────────────────────────────────"
+          echo -n "cmake:       "; cmake --version | head -1
+          echo -n "ninja:       "; ninja --version
+          echo -n "gcc:         "; gcc --version | head -1
+          echo -n "g++:         "; g++ --version | head -1
+          echo -n "git:         "; git --version
+          echo -n "pkg-config:  "; pkg-config --version
+          echo    "qt6-base:    $(pacman -Q qt6-base)"
+          echo    "qt6-charts:  $(pacman -Q qt6-charts)"
+          echo    "qt6-tools:   $(pacman -Q qt6-tools)"
+          echo    "cfitsio:     $(pacman -Q cfitsio)"
+          echo    "fftw:        $(pacman -Q fftw)"
+          echo    "libarchive:  $(pacman -Q libarchive)"
+          echo ""
+          echo "── Qt6 include directories found ───────────────────────────────"
+          find /usr/include/qt6 -maxdepth 1 -type d 2>/dev/null || \
+            find /usr/lib/qt6 -maxdepth 1 -type d 2>/dev/null || \
+            echo "  (searching via pkg-config)"
+          pkg-config --modversion Qt6Core 2>/dev/null && \
+            echo "  Qt6Core version: $(pkg-config --modversion Qt6Core)" || \
+            echo "  Qt6Core: pkg-config entry not found"
+          echo ""
+
+      # ── 4. CHECKOUT ─────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-manjaro-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-manjaro-
+
+      # ── 6. CMAKE CONFIGURE ──────────────────────────────────────────────────
+      # --log-level=VERBOSE exposes all find_package() search paths, which helps
+      # diagnose missing dependencies on this specific distro.
+      - name: "⚙️   CMake configure"
+        run: |
+          echo "── CMake configure ─────────────────────────────────────────────"
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          echo "── CMakeCache.txt (relevant entries) ───────────────────────────"
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      # --verbose causes Ninja to print every compile and link command, making it
+      # straightforward to identify which flags or includes cause a failure.
+      - name: "🔨  Build (verbose)"
+        run: |
+          echo "── Building all targets ────────────────────────────────────────"
+          cmake --build build --verbose
+          echo ""
+          echo "── Build artifacts ─────────────────────────────────────────────"
+          ls -lh build/bin/
+          echo ""
+          echo "── Binary info ─────────────────────────────────────────────────"
+          file build/bin/AstroFind
+          ldd  build/bin/AstroFind | head -30
+          echo ""
+          echo "── Linked Qt libraries ─────────────────────────────────────────"
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      # These tests exercise all non-GUI code: FITS loading, astrometry pipeline,
+      # photometry, calibration, stacking, MOD, ADES generation, etc.
+      # No display is required.
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          echo "── Running astrofind_tests ─────────────────────────────────────"
+          echo "   Reporter: console (full output for each test case)"
+          echo ""
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      # These tests instantiate real Qt widgets but use the offscreen platform
+      # plugin — no X11/Wayland display server is needed.
+      # QT_QPA_PLATFORM=offscreen is the standard headless Qt testing approach.
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          # Suppress Qt debug output about missing fonts in headless environment
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          echo "── Running astrofind_ui_tests ──────────────────────────────────"
+          echo "   QT_QPA_PLATFORM = offscreen"
+          echo "   Reporter: console (full output for each test case)"
+          echo ""
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Manjaro — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(pacman -Q qt6-base)"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          echo "Artifacts:"
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""
