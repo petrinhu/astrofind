@@ -70,7 +70,7 @@ jobs:
 
       - name: "📦  Build RPM"
         run: |
-          TAG=${{ gitea.ref_name }}
+          TAG=${{ github.ref_name }}
           VER=${TAG#v}              # "0.9.0-beta"
           VERNUM=${VER%%-*}         # "0.9.0"
 
@@ -147,7 +147,7 @@ jobs:
 
       - name: "📦  Build DEB"
         run: |
-          TAG=${{ gitea.ref_name }}
+          TAG=${{ github.ref_name }}
           VER=${TAG#v}
           VERNUM=${VER%%-*}
           DEBVER="${VERNUM}~beta-1"
@@ -191,7 +191,7 @@ jobs:
 
       - name: "📦  Create PKGBUILD tarball"
         run: |
-          TAG=${{ gitea.ref_name }}
+          TAG=${{ github.ref_name }}
           VER=${TAG#v}
           VERNUM=${VER%%-*}
           sed -i "s/^pkgver=.*/pkgver=${VERNUM}beta/" packaging/arch/PKGBUILD
@@ -238,7 +238,7 @@ jobs:
 
       - name: "📋  Extract release notes from CHANGELOG"
         run: |
-          TAG=${{ gitea.ref_name }}
+          TAG=${{ github.ref_name }}
           VER=${TAG#v}
           # Extract the [version] section from CHANGELOG.md (English block only)
           awk "/^### \[${VER}\]/{found=1; next} found && /^### \[/{exit} found{print}" \
@@ -251,7 +251,7 @@ jobs:
           # RELEASE_TOKEN: PAT with write:repository scope
           # Add at: Settings → Secrets → RELEASE_TOKEN
           RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          TAG: ${{ gitea.ref_name }}
+          TAG: ${{ github.ref_name }}
           REPO: petrinhu/astrofind
           API: https://codeberg.org/api/v1
         run: |
