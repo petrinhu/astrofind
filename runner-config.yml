@@ -1,0 +1,6 @@
+runner:
+  labels:
+    - "self-hosted:host"
+    - "codeberg-tiny:host"
+    - "codeberg-small:host"
+    - "codeberg-medium:host"

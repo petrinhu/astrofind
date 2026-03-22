@@ -95,7 +95,7 @@ jobs:
   # ── Build RPM + DEB on Fedora host (no container — avoids Docker NAT issues) ─
   build-packages:
     name: Build RPM + DEB (Fedora host)
-    runs-on: codeberg-small
+    runs-on: [self-hosted, codeberg-small]
     needs: prepare
 
     steps:
