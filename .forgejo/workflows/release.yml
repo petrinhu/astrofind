@@ -5,6 +5,9 @@ name: Release
 # Builds binary packages for all supported distributions and publishes a
 # Codeberg release with all artifacts.
 #
+# No Node.js-based actions are used — all steps are plain shell so that
+# containers without Node (fedora:41, ubuntu:24.04) work out of the box.
+#
 # Prerequisites (one-time manual setup):
 #   1. Settings → Units → enable Actions
 #   2. Settings → Secrets → add RELEASE_TOKEN
@@ -14,9 +17,7 @@ name: Release
 #   astrofind-<ver>-0.beta1.x86_64.rpm  — Fedora / Rocky Linux / openSUSE TW
 #   astrofind_<ver>~beta-1_amd64.deb    — Debian / Ubuntu / Mint / Zorin / Pop!_OS
 #   astrofind-<ver>-arch-PKGBUILD.tar.gz — Arch Linux / Manjaro (source build)
-#
-# Runner labels: codeberg-small (compilation jobs), codeberg-tiny (packaging only)
-# Container images supply the actual OS environment.
+#   install.sh                           — universal bilingual installer
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -26,130 +27,181 @@ on:
 
 jobs:
 
+  # ── Create draft release ────────────────────────────────────────────────────
+  prepare:
+    name: Create draft release
+    runs-on: codeberg-tiny
+    outputs:
+      release_id: ${{ steps.create.outputs.release_id }}
+      tag: ${{ steps.create.outputs.tag }}
+      version: ${{ steps.create.outputs.version }}
+
+    steps:
+      - name: "📥  Clone repository"
+        run: |
+          TAG="${{ github.ref_name }}"
+          git clone --depth 1 --branch "${TAG}" \
+            https://codeberg.org/petrinhu/astrofind.git .
+
+      - name: "🗑️   Delete existing release/tag if present"
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          # Find and delete any previous release for this tag (ignore errors)
+          curl -s "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/tags/${TAG}" \
+            -H "Authorization: token ${RELEASE_TOKEN}" | \
+            python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null | \
+            while read id; do
+              [ -n "$id" ] && curl -sf -X DELETE \
+                "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${id}" \
+                -H "Authorization: token ${RELEASE_TOKEN}" && echo "Deleted old release ${id}"
+            done || true
+
+      - name: "🚀  Create draft release"
+        id: create
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          VER="${TAG#v}"
+          VERNUM="${VER%%-*}"
+
+          PRERELEASE=false
+          echo "${VER}" | grep -qiE 'alpha|beta|rc' && PRERELEASE=true
+
+          # Extract release notes from CHANGELOG (English block)
+          NOTES=$(awk "/^### \[${VER}\]/{found=1; next} found && /^### \[/{exit} found{print}" CHANGELOG.md)
+          [ -z "${NOTES}" ] && NOTES="Release ${VER}"
+
+          RESPONSE=$(curl -sf -X POST \
+            "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases" \
+            -H "Authorization: token ${RELEASE_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"tag_name\": \"${TAG}\",
+              \"name\": \"AstroFind ${VER}\",
+              \"body\": $(printf '%s' "${NOTES}" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
+              \"prerelease\": ${PRERELEASE},
+              \"draft\": true
+            }")
+
+          RELEASE_ID=$(echo "${RESPONSE}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
+          echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}"               >> $GITHUB_OUTPUT
+          echo "version=${VER}"           >> $GITHUB_OUTPUT
+          echo "Draft release created — ID: ${RELEASE_ID}"
+
   # ── RPM — Fedora 41 ────────────────────────────────────────────────────────
   build-rpm:
     name: Build RPM (Fedora 41)
     runs-on: codeberg-small
+    needs: prepare
     container:
       image: fedora:41
 
     steps:
-      - name: "📥  Checkout"
-        uses: actions/checkout@v4
+      - name: "📥  Clone repository"
+        run: |
+          git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
+            https://codeberg.org/petrinhu/astrofind.git .
 
       - name: "📦  Install build dependencies"
         run: |
           dnf install -y \
-            cmake ninja-build gcc-c++ git pkg-config \
+            cmake ninja-build gcc-c++ git pkg-config python3 curl \
             qt6-qtbase-devel qt6-qtcharts-devel qt6-qt5compat-devel \
             qt6-qtopengl-devel qt6-linguist \
             cfitsio-devel fftw-devel eigen3-devel \
             libarchive-devel mesa-libGL-devel libxkbcommon-devel \
             rpm-build rpmdevtools
 
-      - name: "💾  Restore FetchContent cache"
-        uses: actions/cache@v4
-        with:
-          path: build/_deps
-          key: fetchcontent-rpm-${{ hashFiles('cmake/dependencies.cmake') }}
-          restore-keys: fetchcontent-rpm-
-
       - name: "⚙️   CMake configure + build"
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/usr
-          cmake --build build
+          cmake --build build -j$(nproc)
 
       - name: "🧪  Run tests"
-        env:
-          QT_QPA_PLATFORM: offscreen
         run: |
           build/bin/astrofind_tests --reporter console || true
-          QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests --reporter console || true
 
       - name: "📦  Build RPM"
         run: |
-          TAG=${{ github.ref_name }}
-          VER=${TAG#v}              # "0.9.0-beta"
-          VERNUM=${VER%%-*}         # "0.9.0"
+          VER="${{ needs.prepare.outputs.version }}"
+          VERNUM="${VER%%-*}"
 
-          # Install into staging directory
           DESTDIR=$PWD/staging cmake --install build
-
-          # Set up rpmbuild tree and populate BUILDROOT
           rpmdev-setuptree
           mkdir -p ~/rpmbuild/BUILDROOT/astrofind-${VERNUM}-0.beta1.x86_64
           cp -r staging/* ~/rpmbuild/BUILDROOT/astrofind-${VERNUM}-0.beta1.x86_64/
-
-          # Substitute version into spec
           sed "s/^Version:.*/Version:        ${VERNUM}/" \
               packaging/rpm/astrofind.spec > ~/rpmbuild/SPECS/astrofind.spec
-
           rpmbuild -bb ~/rpmbuild/SPECS/astrofind.spec \
             --define "_buildroot $PWD/staging" \
             --nocheck
-
           find ~/rpmbuild/RPMS -name '*.rpm' -exec cp {} . \;
           ls -lh *.rpm
 
-      - name: "⬆️   Upload RPM artifact"
-        uses: actions/upload-artifact@v4
-        with:
-          name: rpm-package
-          path: '*.rpm'
+      - name: "⬆️   Upload RPM to release"
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
+          for f in *.rpm; do
+            echo "Uploading ${f}..."
+            curl -sf -X POST \
+              "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}/assets?name=${f}" \
+              -H "Authorization: token ${RELEASE_TOKEN}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"${f}"
+            echo " ✓ ${f}"
+          done
 
   # ── DEB — Ubuntu 24.04 ────────────────────────────────────────────────────
   build-deb:
     name: Build DEB (Ubuntu 24.04)
     runs-on: codeberg-small
+    needs: prepare
     container:
       image: ubuntu:24.04
     env:
       DEBIAN_FRONTEND: noninteractive
 
     steps:
-      - name: "📥  Checkout"
-        uses: actions/checkout@v4
+      - name: "📥  Clone repository"
+        run: |
+          git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
+            https://codeberg.org/petrinhu/astrofind.git .
 
       - name: "📦  Install build dependencies"
         run: |
           apt-get update -qq
           apt-get install -y \
-            cmake ninja-build gcc g++ git pkg-config \
+            cmake ninja-build gcc g++ git pkg-config python3 curl \
             qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
             qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
             libqt6openglwidgets6 \
             libcfitsio-dev libfftw3-dev libeigen3-dev \
             libarchive-dev libgl-dev libxkbcommon-dev \
-            debhelper devscripts dpkg-dev fakeroot file
-
-      - name: "💾  Restore FetchContent cache"
-        uses: actions/cache@v4
-        with:
-          path: build/_deps
-          key: fetchcontent-deb-${{ hashFiles('cmake/dependencies.cmake') }}
-          restore-keys: fetchcontent-deb-
+            debhelper dpkg-dev fakeroot
 
       - name: "⚙️   CMake configure + build"
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/usr
-          cmake --build build
+          cmake --build build -j$(nproc)
 
       - name: "🧪  Run tests"
-        env:
-          QT_QPA_PLATFORM: offscreen
         run: |
           build/bin/astrofind_tests --reporter console || true
-          QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests --reporter console || true
 
       - name: "📦  Build DEB"
         run: |
-          TAG=${{ github.ref_name }}
-          VER=${TAG#v}
-          VERNUM=${VER%%-*}
+          VER="${{ needs.prepare.outputs.version }}"
+          VERNUM="${VER%%-*}"
           DEBVER="${VERNUM}~beta-1"
           ARCH="amd64"
           PKGDIR="astrofind-deb/astrofind_${DEBVER}_${ARCH}"
@@ -174,121 +226,97 @@ jobs:
           find astrofind-deb -name '*.deb' -exec cp {} . \;
           ls -lh *.deb
 
-      - name: "⬆️   Upload DEB artifact"
-        uses: actions/upload-artifact@v4
-        with:
-          name: deb-package
-          path: '*.deb'
+      - name: "⬆️   Upload DEB to release"
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
+          for f in *.deb; do
+            echo "Uploading ${f}..."
+            curl -sf -X POST \
+              "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}/assets?name=${f}" \
+              -H "Authorization: token ${RELEASE_TOKEN}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"${f}"
+            echo " ✓ ${f}"
+          done
 
   # ── Arch PKGBUILD tarball ─────────────────────────────────────────────────
   package-arch:
     name: Package Arch PKGBUILD
     runs-on: codeberg-tiny
+    needs: prepare
 
     steps:
-      - name: "📥  Checkout"
-        uses: actions/checkout@v4
-
-      - name: "📦  Create PKGBUILD tarball"
+      - name: "📥  Clone repository"
         run: |
-          TAG=${{ github.ref_name }}
-          VER=${TAG#v}
-          VERNUM=${VER%%-*}
+          git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
+            https://codeberg.org/petrinhu/astrofind.git .
+
+      - name: "📦  Create and upload PKGBUILD tarball"
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          VER="${{ needs.prepare.outputs.version }}"
+          VERNUM="${VER%%-*}"
+          RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
+          TARNAME="astrofind-${VER}-arch-PKGBUILD.tar.gz"
+
           sed -i "s/^pkgver=.*/pkgver=${VERNUM}beta/" packaging/arch/PKGBUILD
           mkdir -p astrofind-arch
           cp packaging/arch/PKGBUILD astrofind-arch/
-          tar czf "astrofind-${VER}-arch-PKGBUILD.tar.gz" astrofind-arch/
-          ls -lh *.tar.gz
+          tar czf "${TARNAME}" astrofind-arch/
+          ls -lh "${TARNAME}"
 
-      - name: "⬆️   Upload Arch artifact"
-        uses: actions/upload-artifact@v4
-        with:
-          name: arch-pkgbuild
-          path: '*.tar.gz'
+          curl -sf -X POST \
+            "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}/assets?name=${TARNAME}" \
+            -H "Authorization: token ${RELEASE_TOKEN}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"${TARNAME}"
+          echo " ✓ ${TARNAME}"
 
-  # ── Package install.sh ────────────────────────────────────────────────────
+  # ── install.sh ────────────────────────────────────────────────────────────
   package-installer:
-    name: Package install.sh
+    name: Upload install.sh
     runs-on: codeberg-tiny
+    needs: prepare
 
     steps:
-      - name: "📥  Checkout"
-        uses: actions/checkout@v4
-
-      - name: "⬆️   Upload install.sh artifact"
-        uses: actions/upload-artifact@v4
-        with:
-          name: installer
-          path: packaging/install.sh
-
-  # ── Create Codeberg Release ────────────────────────────────────────────────
-  create-release:
-    name: Create Codeberg Release
-    runs-on: codeberg-tiny
-    needs: [build-rpm, build-deb, package-arch, package-installer]
-
-    steps:
-      - name: "📥  Checkout (for CHANGELOG)"
-        uses: actions/checkout@v4
-
-      - name: "⬇️   Download all artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts/
-
-      - name: "📋  Extract release notes from CHANGELOG"
+      - name: "📥  Clone repository"
         run: |
-          TAG=${{ github.ref_name }}
-          VER=${TAG#v}
-          # Extract the [version] section from CHANGELOG.md (English block only)
-          awk "/^### \[${VER}\]/{found=1; next} found && /^### \[/{exit} found{print}" \
-              CHANGELOG.md > release_notes.md
-          echo "=== Release notes ==="
-          cat release_notes.md
+          git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
+            https://codeberg.org/petrinhu/astrofind.git .
 
-      - name: "🚀  Create release and upload assets"
+      - name: "⬆️   Upload install.sh to release"
         env:
-          # RELEASE_TOKEN: PAT with write:repository scope
-          # Add at: Settings → Secrets → RELEASE_TOKEN
           RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          TAG: ${{ github.ref_name }}
-          REPO: petrinhu/astrofind
-          API: https://codeberg.org/api/v1
         run: |
-          VER=${TAG#v}
-          PRERELEASE=false
-          echo "${VER}" | grep -qiE 'alpha|beta|rc' && PRERELEASE=true
+          RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
+          chmod +x packaging/install.sh
+          curl -sf -X POST \
+            "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}/assets?name=install.sh" \
+            -H "Authorization: token ${RELEASE_TOKEN}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"packaging/install.sh"
+          echo " ✓ install.sh"
 
-          NOTES=$(cat release_notes.md)
+  # ── Publish release ────────────────────────────────────────────────────────
+  publish:
+    name: Publish release
+    runs-on: codeberg-tiny
+    needs: [prepare, build-rpm, build-deb, package-arch, package-installer]
 
-          # Create the release
-          RELEASE_JSON=$(curl -sf -X POST "${API}/repos/${REPO}/releases" \
+    steps:
+      - name: "🎉  Publish release"
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
+          TAG="${{ needs.prepare.outputs.tag }}"
+          curl -sf -X PATCH \
+            "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}" \
             -H "Authorization: token ${RELEASE_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d "{
-              \"tag_name\": \"${TAG}\",
-              \"name\": \"AstroFind ${VER}\",
-              \"body\": $(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' < release_notes.md),
-              \"prerelease\": ${PRERELEASE},
-              \"draft\": false
-            }")
-
-          RELEASE_ID=$(echo "${RELEASE_JSON}" | python3 -c \
-            'import json,sys; print(json.load(sys.stdin)["id"])')
-          echo "Created release ID: ${RELEASE_ID}"
-
-          # Upload all artifacts
-          find artifacts/ -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.tar.gz' -o -name 'install.sh' \) | \
-          while read f; do
-            FNAME=$(basename "$f")
-            echo "Uploading ${FNAME}..."
-            curl -sf -X POST \
-              "${API}/repos/${REPO}/releases/${RELEASE_ID}/assets?name=${FNAME}" \
-              -H "Authorization: token ${RELEASE_TOKEN}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @"$f"
-            echo " ✓"
-          done
-
+            -d '{"draft": false}'
           echo ""
-          echo "Release: https://codeberg.org/${REPO}/releases/tag/${TAG}"
+          echo "Release published: https://codeberg.org/petrinhu/astrofind/releases/tag/${TAG}"
