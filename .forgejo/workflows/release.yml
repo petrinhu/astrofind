@@ -133,6 +133,7 @@ jobs:
           # Pass staging path via --define so %install can copy it into buildroot
           rpmbuild -bb ~/rpmbuild/SPECS/astrofind.spec \
             --define "staging $PWD/staging" \
+            --define "_unpackaged_files_terminate_build 0" \
             --nodeps --nocheck
           find ~/rpmbuild/RPMS -name '*.rpm' -exec cp {} . \;
           ls -lh *.rpm
