@@ -125,6 +125,7 @@ jobs:
             gcc-toolset-13-gcc-c++ \
             git \
             pkg-config \
+            file \
             qt6-qtbase-devel \
             cfitsio-devel \
             fftw-devel \

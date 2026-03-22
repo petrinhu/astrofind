@@ -104,7 +104,8 @@ jobs:
             libgl1-mesa-dev \
             libxkbcommon-dev \
             qt6-l10n-tools \
-            libqt6openglwidgets6
+            libqt6openglwidgets6 \
+            file
           echo ""
           echo -n "cmake:        "; cmake --version | head -1
           echo -n "gcc:          "; gcc --version | head -1

@@ -98,7 +98,8 @@ jobs:
             libgl1-mesa-dev \
             libxkbcommon-dev \
             qt6-l10n-tools \
-            libqt6openglwidgets6
+            libqt6openglwidgets6 \
+            file
           echo ""
           echo "── Installed package versions ──────────────────────────────────"
           echo -n "cmake:        "; cmake --version | head -1
