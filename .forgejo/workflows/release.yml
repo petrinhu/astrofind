@@ -92,32 +92,27 @@ jobs:
           echo "version=${VER}"           >> $GITHUB_OUTPUT
           echo "Draft release created — ID: ${RELEASE_ID}"
 
-  # ── RPM — Fedora 41 ────────────────────────────────────────────────────────
-  build-rpm:
-    name: Build RPM (Fedora 41)
+  # ── Build RPM + DEB on Fedora host (no container — avoids Docker NAT issues) ─
+  build-packages:
+    name: Build RPM + DEB (Fedora host)
     runs-on: codeberg-small
     needs: prepare
-    container:
-      image: fedora:41
 
     steps:
-      - name: "🔧  Bootstrap git"
-        run: dnf install -y git --setopt=install_weak_deps=False -q
-
       - name: "📥  Clone repository"
         run: |
           git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
             https://codeberg.org/petrinhu/astrofind.git .
 
-      - name: "📦  Install build dependencies"
+      - name: "📦  Install build + packaging dependencies"
         run: |
-          dnf install -y \
-            cmake ninja-build gcc-c++ git pkg-config python3 curl \
+          sudo dnf install -y \
+            cmake ninja-build gcc-c++ pkg-config python3 curl \
             qt6-qtbase-devel qt6-qtcharts-devel qt6-qt5compat-devel \
             qt6-qtopengl-devel qt6-linguist \
             cfitsio-devel fftw-devel eigen3-devel \
             libarchive-devel mesa-libGL-devel libxkbcommon-devel \
-            rpm-build rpmdevtools
+            rpm-build rpmdevtools dpkg fakeroot
 
       - name: "⚙️   CMake configure + build"
         run: |
@@ -147,63 +142,6 @@ jobs:
           find ~/rpmbuild/RPMS -name '*.rpm' -exec cp {} . \;
           ls -lh *.rpm
 
-      - name: "⬆️   Upload RPM to release"
-        env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: |
-          RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
-          for f in *.rpm; do
-            echo "Uploading ${f}..."
-            curl -sf -X POST \
-              "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}/assets?name=${f}" \
-              -H "Authorization: token ${RELEASE_TOKEN}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @"${f}"
-            echo " ✓ ${f}"
-          done
-
-  # ── DEB — Ubuntu 24.04 ────────────────────────────────────────────────────
-  build-deb:
-    name: Build DEB (Ubuntu 24.04)
-    runs-on: codeberg-small
-    needs: prepare
-    container:
-      image: ubuntu:24.04
-    env:
-      DEBIAN_FRONTEND: noninteractive
-
-    steps:
-      - name: "🔧  Bootstrap git"
-        run: apt-get update -qq && apt-get install -y git --no-install-recommends -q
-
-      - name: "📥  Clone repository"
-        run: |
-          git clone --depth 1 --branch "${{ needs.prepare.outputs.tag }}" \
-            https://codeberg.org/petrinhu/astrofind.git .
-
-      - name: "📦  Install build dependencies"
-        run: |
-          apt-get update -qq
-          apt-get install -y \
-            cmake ninja-build gcc g++ git pkg-config python3 curl \
-            qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
-            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
-            libqt6openglwidgets6 \
-            libcfitsio-dev libfftw3-dev libeigen3-dev \
-            libarchive-dev libgl-dev libxkbcommon-dev \
-            debhelper dpkg-dev fakeroot
-
-      - name: "⚙️   CMake configure + build"
-        run: |
-          cmake -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr
-          cmake --build build -j$(nproc)
-
-      - name: "🧪  Run tests"
-        run: |
-          build/bin/astrofind_tests --reporter console || true
-
       - name: "📦  Build DEB"
         run: |
           VER="${{ needs.prepare.outputs.version }}"
@@ -211,8 +149,6 @@ jobs:
           DEBVER="${VERNUM}~beta-1"
           ARCH="amd64"
           PKGDIR="astrofind-deb/astrofind_${DEBVER}_${ARCH}"
-
-          DESTDIR=$PWD/staging cmake --install build
 
           mkdir -p "${PKGDIR}/DEBIAN"
           mkdir -p "${PKGDIR}/usr"
@@ -232,12 +168,13 @@ jobs:
           find astrofind-deb -name '*.deb' -exec cp {} . \;
           ls -lh *.deb
 
-      - name: "⬆️   Upload DEB to release"
+      - name: "⬆️   Upload RPM + DEB to release"
         env:
           RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
-          for f in *.deb; do
+          for f in *.rpm *.deb; do
+            [ -f "$f" ] || continue
             echo "Uploading ${f}..."
             curl -sf -X POST \
               "https://codeberg.org/api/v1/repos/petrinhu/astrofind/releases/${RELEASE_ID}/assets?name=${f}" \
@@ -310,7 +247,7 @@ jobs:
   publish:
     name: Publish release
     runs-on: codeberg-tiny
-    needs: [prepare, build-rpm, build-deb, package-arch, package-installer]
+    needs: [prepare, build-packages, package-arch, package-installer]
 
     steps:
       - name: "🎉  Publish release"
