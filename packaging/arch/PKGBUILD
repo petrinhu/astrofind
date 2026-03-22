@@ -1,0 +1,53 @@
+# Maintainer: Petrus Silva Costa <petrinhu@astrofind.app>
+pkgname=astrofind
+# Arch pkgver cannot contain '-'; use concatenation for pre-release suffix.
+pkgver=0.9.0beta
+pkgrel=1
+epoch=0
+pkgdesc="Modern asteroid detection software for citizen science (IASC/MPC workflow)"
+arch=('x86_64')
+url="https://codeberg.org/petrinhu/astrofind"
+license=('LicenseRef-PolyForm-NC-1.0')
+depends=(
+    'qt6-base'
+    'qt6-charts'
+    'qt6-5compat'
+    'cfitsio'
+    'fftw'
+    'libarchive'
+)
+makedepends=(
+    'cmake'
+    'ninja'
+    'gcc'
+    'git'
+    'qt6-tools'
+    'eigen'
+    'mesa'
+)
+# Source from Codeberg tag archive
+source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/petrinhu/astrofind/archive/v0.9.0-beta.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "${srcdir}/astrofind"
+    cmake -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_SKIP_INSTALL_RPATH=ON
+    cmake --build build
+}
+
+check() {
+    cd "${srcdir}/astrofind"
+    # Core tests (no display required)
+    build/bin/astrofind_tests --reporter console || true
+    # UI tests (offscreen)
+    QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests --reporter console || true
+}
+
+package() {
+    cd "${srcdir}/astrofind"
+    DESTDIR="${pkgdir}" cmake --install build
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,12 @@
+astrofind (0.9.0~beta-1) unstable; urgency=low
+
+  * Beta release: all features complete, pending real-world FITS validation.
+  * Version bumped from 0.5.0 to 0.9.0-beta.
+  * Fixed: invert/flip broken in blink mode (precomputed image path).
+  * Fixed: QSpinBox/QComboBox button widths inconsistent between themes.
+  * Fixed: overlay marking colors did not match catalog table colors.
+  * Added: Theme::dp() for DPI-proportional sizing across screens.
+  * Added: Theme::mark*() color constants as single source of truth.
+  * Fixed: 10 truncated PT-BR translations (token-limit AI generation bug).
+
+ -- Petrus Silva Costa <petrinhu@astrofind.app>  Sat, 22 Mar 2026 00:00:00 +0000

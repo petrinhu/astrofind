@@ -1,0 +1,14 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: astrofind
+Upstream-Contact: Petrus Silva Costa <petrinhu@astrofind.app>
+Source: https://codeberg.org/petrinhu/astrofind
+
+Files: *
+Copyright: 2024-2026 Petrus Silva Costa <petrinhu@astrofind.app>
+License: LicenseRef-PolyForm-NC-1.0
+ PolyForm Noncommercial License 1.0.0
+ https://polyformproject.org/licenses/noncommercial/1.0.0/
+ .
+ This software may be used for any noncommercial purpose, including
+ educational use, citizen science, and personal research.
+ Commercial use requires a separate license from the author.

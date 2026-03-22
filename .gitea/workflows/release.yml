@@ -1,0 +1,285 @@
+name: Release
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggered by a version tag push (e.g. v0.9.0-beta, v1.0.0).
+# Builds binary packages for all supported distributions and publishes a
+# Codeberg release with all artifacts.
+#
+# Artifacts produced:
+#   astrofind-<ver>-1.x86_64.rpm      — Fedora / Rocky Linux / openSUSE
+#   astrofind_<ver>~beta-1_amd64.deb  — Debian / Ubuntu / Mint / Zorin / Pop!_OS
+#   astrofind-<ver>-arch-PKGBUILD.tar.gz — Arch Linux / Manjaro (build from source)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+
+  # ── RPM — Fedora 41 ────────────────────────────────────────────────────────
+  build-rpm:
+    name: Build RPM (Fedora 41)
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:41
+      options: --user root
+
+    steps:
+      - name: "📥  Checkout"
+        uses: actions/checkout@v4
+
+      - name: "📦  Install build dependencies"
+        run: |
+          dnf install -y \
+            cmake ninja-build gcc-c++ git pkg-config \
+            qt6-qtbase-devel qt6-qtcharts-devel qt6-qt5compat-devel \
+            qt6-qtopengl-devel qt6-linguist \
+            cfitsio-devel fftw-devel eigen3-devel \
+            libarchive-devel mesa-libGL-devel libxkbcommon-devel \
+            rpm-build rpmdevtools
+
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-rpm-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-rpm-
+
+      - name: "⚙️   CMake configure + build"
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build build
+
+      - name: "🧪  Run tests"
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          build/bin/astrofind_tests --reporter console || true
+          QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests --reporter console || true
+
+      - name: "📦  Build RPM"
+        run: |
+          TAG=${{ gitea.ref_name }}
+          VER=${TAG#v}              # strip leading 'v' → "0.9.0-beta"
+          VERNUM=${VER%%-*}         # strip "-beta" → "0.9.0"
+
+          # Install into staging directory
+          DESTDIR=$PWD/staging cmake --install build
+
+          # Set up rpmbuild tree
+          rpmdev-setuptree
+
+          # Create source tarball from staging (rpmbuild -bb uses BUILDROOT)
+          mkdir -p ~/rpmbuild/BUILDROOT/astrofind-${VERNUM}-0.beta1.x86_64
+          cp -r staging/* ~/rpmbuild/BUILDROOT/astrofind-${VERNUM}-0.beta1.x86_64/
+
+          # Substitute version into spec
+          sed "s/^Version:.*/Version:        ${VERNUM}/" \
+              packaging/rpm/astrofind.spec > ~/rpmbuild/SPECS/astrofind.spec
+
+          rpmbuild -bb ~/rpmbuild/SPECS/astrofind.spec \
+            --define "_buildroot $PWD/staging" \
+            --nocheck
+
+          find ~/rpmbuild/RPMS -name '*.rpm' -exec cp {} . \;
+          ls -lh *.rpm
+
+      - name: "⬆️   Upload RPM artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-package
+          path: '*.rpm'
+
+  # ── DEB — Ubuntu 24.04 ────────────────────────────────────────────────────
+  build-deb:
+    name: Build DEB (Ubuntu 24.04)
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+      options: --user root
+    env:
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - name: "📥  Checkout"
+        uses: actions/checkout@v4
+
+      - name: "📦  Install build dependencies"
+        run: |
+          apt-get update -qq
+          apt-get install -y \
+            cmake ninja-build gcc g++ git pkg-config \
+            qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
+            qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
+            libqt6openglwidgets6 \
+            libcfitsio-dev libfftw3-dev libeigen3-dev \
+            libarchive-dev libgl-dev libxkbcommon-dev \
+            debhelper devscripts dpkg-dev fakeroot file
+
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-deb-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-deb-
+
+      - name: "⚙️   CMake configure + build"
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build build
+
+      - name: "🧪  Run tests"
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          build/bin/astrofind_tests --reporter console || true
+          QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests --reporter console || true
+
+      - name: "📦  Build DEB"
+        run: |
+          TAG=${{ gitea.ref_name }}
+          VER=${TAG#v}              # "0.9.0-beta"
+          VERNUM=${VER%%-*}         # "0.9.0"
+
+          # Install into staging directory
+          DESTDIR=$PWD/staging cmake --install build
+
+          # Build .deb manually from staging using dpkg-deb
+          DEBVER="${VERNUM}~beta-1"
+          ARCH="amd64"
+          PKGDIR="astrofind-deb/astrofind_${DEBVER}_${ARCH}"
+
+          mkdir -p "${PKGDIR}/DEBIAN"
+          mkdir -p "${PKGDIR}/usr"
+          cp -r staging/usr/* "${PKGDIR}/usr/"
+
+          # Generate DEBIAN/control from template
+          sed "s/^Version:.*/Version: ${DEBVER}/" \
+              packaging/debian/control > "${PKGDIR}/DEBIAN/control"
+          echo "Installed-Size: $(du -sk ${PKGDIR}/usr | cut -f1)" \
+              >> "${PKGDIR}/DEBIAN/control"
+
+          # Install changelog and copyright
+          mkdir -p "${PKGDIR}/usr/share/doc/astrofind"
+          cp packaging/debian/changelog "${PKGDIR}/usr/share/doc/astrofind/changelog.Debian"
+          gzip -9 "${PKGDIR}/usr/share/doc/astrofind/changelog.Debian"
+          cp packaging/debian/copyright "${PKGDIR}/usr/share/doc/astrofind/copyright"
+
+          fakeroot dpkg-deb --build "${PKGDIR}"
+
+          find astrofind-deb -name '*.deb' -exec cp {} . \;
+          ls -lh *.deb
+
+      - name: "⬆️   Upload DEB artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: '*.deb'
+
+  # ── Arch PKGBUILD tarball ─────────────────────────────────────────────────
+  package-arch:
+    name: Package Arch PKGBUILD
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "📥  Checkout"
+        uses: actions/checkout@v4
+
+      - name: "📦  Create PKGBUILD tarball"
+        run: |
+          TAG=${{ gitea.ref_name }}
+          VER=${TAG#v}
+          VERNUM=${VER%%-*}
+
+          # Update pkgver in PKGBUILD
+          sed -i "s/^pkgver=.*/pkgver=${VERNUM}beta/" packaging/arch/PKGBUILD
+
+          mkdir -p astrofind-arch
+          cp packaging/arch/PKGBUILD astrofind-arch/
+          tar czf "astrofind-${VER}-arch-PKGBUILD.tar.gz" astrofind-arch/
+          ls -lh *.tar.gz
+
+      - name: "⬆️   Upload Arch artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-pkgbuild
+          path: '*.tar.gz'
+
+  # ── Create Codeberg Release ────────────────────────────────────────────────
+  create-release:
+    name: Create Codeberg Release
+    runs-on: ubuntu-latest
+    needs: [build-rpm, build-deb, package-arch]
+
+    steps:
+      - name: "📥  Checkout (for CHANGELOG)"
+        uses: actions/checkout@v4
+
+      - name: "⬇️   Download all artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: "📋  Extract release notes from CHANGELOG"
+        id: notes
+        run: |
+          TAG=${{ gitea.ref_name }}
+          VER=${TAG#v}
+          # Extract the section for this version from CHANGELOG.md (English block)
+          awk "/^### \[${VER}\]/{found=1; next} found && /^### \[/{exit} found{print}" \
+              CHANGELOG.md > release_notes.md
+          echo "Release notes:"
+          cat release_notes.md
+
+      - name: "🚀  Create release and upload assets"
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          TAG: ${{ gitea.ref_name }}
+          REPO: petrinhu/astrofind
+          API: https://codeberg.org/api/v1
+        run: |
+          VER=${TAG#v}
+          PRERELEASE=false
+          echo "${VER}" | grep -qiE 'alpha|beta|rc' && PRERELEASE=true
+
+          NOTES=$(cat release_notes.md)
+
+          # Create the release
+          RELEASE_JSON=$(curl -s -X POST "${API}/repos/${REPO}/releases" \
+            -H "Authorization: token ${GITEA_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"tag_name\": \"${TAG}\",
+              \"name\": \"AstroFind ${VER}\",
+              \"body\": $(echo "${NOTES}" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
+              \"prerelease\": ${PRERELEASE},
+              \"draft\": false
+            }")
+
+          echo "Release response: ${RELEASE_JSON}"
+          RELEASE_ID=$(echo "${RELEASE_JSON}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
+          echo "Release ID: ${RELEASE_ID}"
+
+          # Upload all artifacts
+          for f in artifacts/**/*.rpm artifacts/**/*.deb artifacts/**/*.tar.gz; do
+            [ -f "$f" ] || continue
+            FNAME=$(basename "$f")
+            echo "Uploading ${FNAME}..."
+            curl -s -X POST \
+              "${API}/repos/${REPO}/releases/${RELEASE_ID}/assets?name=${FNAME}" \
+              -H "Authorization: token ${GITEA_TOKEN}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$f"
+            echo ""
+          done
+
+          echo "Release created: https://codeberg.org/${REPO}/releases/tag/${TAG}"

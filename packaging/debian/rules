@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+# AstroFind debian/rules — uses dh with cmake buildsystem.
+# FetchContent handles: spdlog, nlohmann/json, SEP, Catch2, CCfits — no extra configure needed.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export QT_QPA_PLATFORM = offscreen
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-GNinja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr
+
+override_dh_auto_test:
+	# Core unit tests (no display required)
+	debian/tmp/usr/bin/../../../obj-$(DEB_HOST_GNU_TYPE)/bin/astrofind_tests \
+		--reporter console || true
+	# UI integration tests (offscreen platform)
+	QT_QPA_PLATFORM=offscreen \
+	debian/tmp/usr/bin/../../../obj-$(DEB_HOST_GNU_TYPE)/bin/astrofind_ui_tests \
+		--reporter console || true

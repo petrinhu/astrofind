@@ -1,0 +1,54 @@
+Source: astrofind
+Section: science
+Priority: optional
+Maintainer: Petrus Silva Costa <petrinhu@astrofind.app>
+Build-Depends:
+ debhelper-compat (= 13),
+ cmake (>= 3.22),
+ ninja-build,
+ gcc,
+ g++,
+ git,
+ pkg-config,
+ qt6-base-dev (>= 6.4),
+ libqt6charts6-dev (>= 6.4),
+ libqt6opengl6-dev (>= 6.4),
+ qt6-tools-dev,
+ qt6-tools-dev-tools,
+ qt6-l10n-tools,
+ libcfitsio-dev,
+ libfftw3-dev,
+ libeigen3-dev,
+ libarchive-dev,
+ libgl-dev,
+ libxkbcommon-dev
+Standards-Version: 4.6.2
+Homepage: https://codeberg.org/petrinhu/astrofind
+Rules-Requires-Root: no
+
+Package: astrofind
+Architecture: amd64
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ libqt6core6 (>= 6.4) | qt6-base (>= 6.4),
+ libqt6charts6 (>= 6.4),
+ libqt6widgets6 (>= 6.4),
+ libqt6opengl6 (>= 6.4),
+ libqt6openglwidgets6 (>= 6.4),
+ libcfitsio10 | libcfitsio9,
+ libfftw3-double3,
+ libarchive13
+Description: Modern asteroid detection software for citizen science
+ AstroFind is asteroid detection software for citizen science and
+ educational use. Compatible with the IASC / MPC workflow.
+ Outputs ADES 2022 format (XML and PSV) for submission to the MPC.
+ .
+ Features: FITS viewer (SER/XISF/TIFF/PNG), plate solving via
+ astrometry.net and ASTAP, star detection (SEP), aperture photometry,
+ blink comparison, Moving Object Detection across ≥3 images,
+ calibration (dark/flat/bias), and full bilingual EN/PT-BR interface.
+ .
+ NOTE: This is a beta release. All features are implemented but
+ end-to-end validation with real telescope FITS files has not yet
+ been performed.
