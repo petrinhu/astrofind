@@ -125,15 +125,17 @@ jobs:
 
           DESTDIR=$PWD/staging cmake --install build
           rpmdev-setuptree
-          mkdir -p "${BUILDROOT}"
-          cp -a staging/. "${BUILDROOT}/"
+
+          # rpmbuild default buildroot: BUILD/{name}-{version}-build/BUILDROOT
+          BROOT="${HOME}/rpmbuild/BUILD/astrofind-${VERNUM}-build/BUILDROOT"
+          mkdir -p "${BROOT}"
+          cp -a staging/. "${BROOT}/"
 
           # Use pre-written binary spec (no heredoc — avoids YAML directive conflicts)
           sed "s/^Version:.*/Version:        ${VERNUM}/; s/\r//" \
               packaging/rpm/astrofind-binary.spec > ~/rpmbuild/SPECS/astrofind.spec
 
           rpmbuild -bb ~/rpmbuild/SPECS/astrofind.spec \
-            --define "_buildroot ${BUILDROOT}" \
             --nodeps --nocheck
           find ~/rpmbuild/RPMS -name '*.rpm' -exec cp {} . \;
           ls -lh *.rpm
