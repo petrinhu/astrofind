@@ -114,17 +114,18 @@ Outputs [ADES 2022](https://minorplanetcenter.net/ades) format reports.
 ```
 astrometrica/
 ├── cmake/
-│   └── dependencies.cmake       # Third-party library detection (pkg-config + FetchContent)
+│   ├── dependencies.cmake       # Third-party library detection (pkg-config + FetchContent)
+│   ├── audit.cmake              # Numerical audit targets (38.1–38.5)
+│   └── valgrind.supp            # Valgrind suppressions for Qt/glibc noise
+├── docs/
+│   └── technical-reference.md  # Technical reference (WCS, refraction, PSF, ADES…)
 ├── i18n/
 │   ├── astrofind_en.ts          # English translation source
 │   ├── astrofind_pt_BR.ts       # Brazilian Portuguese translation source
 │   ├── astrofind_en.qm          # Compiled English strings
 │   └── astrofind_pt_BR.qm       # Compiled Portuguese strings
 ├── originals/
-│   ├── guide/                   # Original Astrometrica manuals (PDF)
-│   ├── image_sets/              # Practice IASC/MPC image sets (ZIP)
-│   ├── CCfits.tar.gz            # Bundled CCfits 2.7 source
-│   └── …                        # Reference Astrometrica files
+│   └── CCfits.tar.gz            # CCfits 2.7 source archive — used at build time only
 ├── resources/
 │   ├── help/
 │   │   ├── help_en.html         # Built-in help — English
@@ -213,7 +214,7 @@ astrometrica/
 │   │   └── CMakeLists.txt
 │   ├── CMakeLists.txt
 │   └── main.cpp
-├── tests/
+├── tests/                       # Unit / integration tests — optional for app-only builds
 │   ├── test_ades_report.cpp     # ADES XML/PSV generation, ICRS flag (10 cases)
 │   ├── test_astronomy.cpp       # Refraction, aberration, precession, nutation, CIRS (17 cases)
 │   ├── test_calibration.cpp     # Dark/flat/bias, background, bad pixels (8 cases)
@@ -236,9 +237,18 @@ astrometrica/
 ├── CLAUDE.md                    # AI assistant instructions and feature backlog
 ├── CMakeLists.txt               # Root build configuration
 ├── CONTRIBUTING.md
+├── INSTALL.md                   # Per-distro installation instructions
 ├── LICENSE                      # PolyForm Noncommercial 1.0.0
 └── README.md
 ```
+
+> **Note on `originals/`:** this directory contains only `CCfits.tar.gz`, a C++ FITS library used
+> at build time. It is not needed to run the application and can be ignored by end users.
+> CMake extracts it automatically during configuration.
+>
+> **Note on `tests/`:** the test suite (116 core + 23 UI cases) is part of the repository but
+> is not required to build the application. See [Building](#building) for how to compile
+> the app only.
 
 ---
 
@@ -358,22 +368,18 @@ astrometrica/
 
 ### Building
 
+For per-distro installation commands see **[INSTALL.md](INSTALL.md)**.
+
 ```bash
-# Install required system packages (Fedora / RHEL)
-sudo dnf install qt6-qtbase-devel qt6-qtcharts-devel \
-                 qt6-qtopengl-devel qt6-qtnetwork-devel \
-                 cfitsio-devel fftw-devel cmake gcc-c++
-
-# Optional packages
-sudo dnf install qt6-qt5compat-devel libarchive-devel \
-                 qtkeychain-qt6-devel libsecret-devel qt6-linguist
-
-# Configure and build
+# Configure and build (application only)
 cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
+cmake --build build --target AstroFind -j$(nproc)
 
 # Run
 ./build/bin/AstroFind
+
+# Build everything including tests (optional)
+cmake --build build -j$(nproc)
 ```
 
 Optional: install to system (Linux FHS)
@@ -546,6 +552,14 @@ Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
 
 *Veja a seção [Project Structure](#project-structure) acima — a estrutura é idêntica.*
 
+> **Nota sobre `originals/`:** este diretório contém apenas `CCfits.tar.gz`, uma biblioteca C++
+> de FITS usada somente em tempo de compilação. Não é necessária para executar o aplicativo e
+> pode ser ignorada por usuários finais. O CMake a extrai automaticamente durante a configuração.
+>
+> **Nota sobre `tests/`:** a suíte de testes (116 casos core + 23 UI) faz parte do repositório
+> mas não é necessária para compilar o aplicativo. Veja [Compilação](#compilação) para compilar
+> somente o app.
+
 ---
 
 ### Requisitos
@@ -577,22 +591,18 @@ Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
 
 ### Compilação
 
+Para comandos de instalação por distribuição, veja **[INSTALL.md](INSTALL.md)**.
+
 ```bash
-# Instalar pacotes obrigatórios (Fedora / RHEL)
-sudo dnf install qt6-qtbase-devel qt6-qtcharts-devel \
-                 qt6-qtopengl-devel qt6-qtnetwork-devel \
-                 cfitsio-devel fftw-devel cmake gcc-c++
-
-# Pacotes opcionais
-sudo dnf install qt6-qt5compat-devel libarchive-devel \
-                 qtkeychain-qt6-devel libsecret-devel qt6-linguist
-
-# Configurar e compilar
+# Configurar e compilar (somente o aplicativo)
 cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
+cmake --build build --target AstroFind -j$(nproc)
 
 # Executar
 ./build/bin/AstroFind
+
+# Compilar tudo incluindo testes (opcional)
+cmake --build build -j$(nproc)
 ```
 
 Opcional: instalar no sistema (Linux FHS)
