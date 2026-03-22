@@ -43,11 +43,11 @@ env:
 
 jobs:
   qa-pop-os-22:
-    name: Pop!_OS 22.04 · ubuntu:22.04 · apt · GCC 12
+    name: Pop!_OS 22.04 · ubuntu:24.04 · apt · GCC 13
     runs-on: ubuntu-latest
 
     container:
-      image: ubuntu:22.04
+      image: ubuntu:24.04
       options: --user root
 
     steps:
@@ -96,7 +96,9 @@ jobs:
             libfftw3-dev \
             libarchive-dev \
             libgl1-mesa-dev \
-            libxkbcommon-dev
+            libxkbcommon-dev \
+            qt6-l10n-tools \
+            libqt6openglwidgets6
           echo ""
           echo "── Installed package versions ──────────────────────────────────"
           echo -n "cmake:        "; cmake --version | head -1
@@ -117,8 +119,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/_deps
-          key: fetchcontent-ubuntu-22-${{ hashFiles('cmake/dependencies.cmake') }}
-          restore-keys: fetchcontent-ubuntu-22-
+          key: fetchcontent-ubuntu-24-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-ubuntu-24-
 
       # ── 6. CMAKE CONFIGURE ───────────────────────────────────────────────────
       - name: "⚙️   CMake configure"

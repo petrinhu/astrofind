@@ -66,7 +66,14 @@ jobs:
 
     steps:
 
-      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      # ── 1. BOOTSTRAP MINIMAL TOOLS ──────────────────────────────────────────
+      # rockylinux:9 minimal image does not include procps (free, ps).
+      # Install before system info step so free -h and ps work.
+      - name: "🔧  Bootstrap minimal diagnostic tools"
+        run: |
+          dnf install -y procps-ng util-linux
+
+      # ── 2. SYSTEM INFORMATION ────────────────────────────────────────────────
       - name: "🖥  System information"
         run: |
           echo "════════════════════════════════════════════════════════════════"
