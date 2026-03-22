@@ -74,12 +74,12 @@ The table must be shown automatically — do not wait for the user to ask.
 | 36 | Manual extenso (com links navegáveis) | Documentação | — fazer após base estável | D3 | ✅ |
 | 37 | HowTo passo a passo de todas as funções (com links navegáveis) | Documentação | — fazer após base estável | D3 | ✅ |
 | 39 | Manual técnico de cálculos astronômicos (Markdown + LaTeX math `$...$`): estrutura FITS/SER/XISF, WCS pipeline (IWC→nativo→celeste), projeções TAN/SIN/ARC/STG/CAR/MER/GLS/AIT, refração atmosférica, ICRS→CIRS→topocêntrico, aberração anual, precessão, nutação, PSF elíptica, fotometria diferencial, zero-point, airmass, Julian Date, coordenadas eclípticas/galácticas, ADES/MPC — `docs/technical-reference.md` | Documentação | — fazer após base estável | D3 | ✅ |
-| 38 | Auditoria numérica: verificar todos os tipos numéricos (float/int overflow, div/0, UB, cast inseguro, stack overflow em recursão) | Qualidade | P0 — fazer por último, após base estável | D3 | ❌ |
-| 38.1 | Auditoria — ASan + UBSan: recompilar com -fsanitize=address,undefined e rodar toda a suite de testes (zero instalação necessária) | Qualidade | P0 | D1 | ❌ |
-| 38.2 | Auditoria — Valgrind: rodar astrofind_tests sob memcheck, gerar relatório de leaks e acessos inválidos — requer: sudo dnf install valgrind | Qualidade | P0 | D2 | ❌ |
-| 38.3 | Auditoria — cppcheck: análise estática de todo src/ com --enable=all, exportar relatório XML — requer: sudo dnf install cppcheck | Qualidade | P0 | D1 | ❌ |
-| 38.4 | Auditoria — clang-tidy: análise estática com checks de bugprone, cert, cppcoreguidelines — requer: sudo dnf install clang-tools-extra | Qualidade | P0 | D2 | ❌ |
-| 38.5 | Auditoria — target CMake `audit`: automatizar 38.1–38.4 em um único `cmake --build build --target audit` com relatório consolidado | Qualidade | P0 | D2 | ❌ |
+| 38 | Auditoria numérica: verificar todos os tipos numéricos (float/int overflow, div/0, UB, cast inseguro, stack overflow em recursão) | Qualidade | P0 — fazer por último, após base estável | D3 | ✅ |
+| 38.1 | Auditoria — ASan + UBSan: recompilar com -fsanitize=address,undefined e rodar toda a suite de testes (zero instalação necessária) | Qualidade | P0 | D1 | ✅ |
+| 38.2 | Auditoria — Valgrind: rodar astrofind_tests sob memcheck, gerar relatório de leaks e acessos inválidos — requer: sudo dnf install valgrind | Qualidade | P0 | D2 | ✅ |
+| 38.3 | Auditoria — cppcheck: análise estática de todo src/ com --enable=all, exportar relatório XML — requer: sudo dnf install cppcheck | Qualidade | P0 | D1 | ✅ |
+| 38.4 | Auditoria — clang-tidy: análise estática com checks de bugprone, cert, cppcoreguidelines — requer: sudo dnf install clang-tools-extra | Qualidade | P0 | D2 | ✅ |
+| 38.5 | Auditoria — target CMake `audit`: automatizar 38.1–38.4 em um único `cmake --build build --target audit` com relatório consolidado | Qualidade | P0 | D2 | ✅ |
 | 39 | Testes — FITS loader: abertura, metadados, imagens inválidas (2 casos) | Testes | — | D1 | ✅ |
 | 40 | Testes — ImageSession: criação, adição de imagens, persistência (3 casos) | Testes | — | D1 | ✅ |
 | 41 | Testes — StarDetector: detecção básica, threshold, limite de estrelas (3 casos) | Testes | — | D2 | ✅ |
