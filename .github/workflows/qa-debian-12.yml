@@ -1,0 +1,216 @@
+name: QA · Debian 12
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Item 55.2 — Build and test on Debian 12 Bookworm (debian:12 Docker image)
+#
+# WHY DEBIAN 12:
+#   Debian 12 "Bookworm" is the current stable release and the upstream base
+#   for Ubuntu, Linux Mint, Zorin OS, Pop!_OS and many other derivatives.
+#   It ships Qt 6.4 — the OLDEST Qt version AstroFind supports. Any regression
+#   that breaks Qt 6.4 compatibility will be caught here first.
+#   Debian stable is widely used in scientific and observatory environments
+#   precisely because it changes slowly and is extremely well tested.
+#
+# IMAGE USED: debian:12
+#   Official Debian image from Docker Hub, maintained by the Debian project.
+#   Minimal server install — no desktop environment.
+#
+# LIMITATIONS vs a real Debian 12 desktop installation:
+#   - No desktop environment (GNOME/KDE/Xfce). A real Debian desktop would
+#     have much of the Qt6 stack pre-installed via desktop metapackages.
+#   - No sudo (commands run as root directly in the container).
+#   - Qt GUI rendering is offscreen (QT_QPA_PLATFORM=offscreen).
+#   - qt6-qtkeychain-dev is NOT available in Debian 12 repos — the application
+#     falls back to QSettings for API key storage (designed fallback).
+#   - No systemd user session running in the container.
+#
+# WHAT THIS JOB VALIDATES (item 55.2):
+#   ✅  Qt 6.4 compatibility (minimum supported version)
+#   ✅  GCC 12 C++23 support (std::expected in libstdc++ 12)
+#   ✅  All required packages available in Debian 12 repos
+#   ✅  CMake configuration succeeds
+#   ✅  All 116 core unit tests pass
+#   ✅  All 23 UI integration tests pass (offscreen)
+#   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
+#   ❌  qt6-qtkeychain-dev — not in Debian 12 repos (QSettings fallback used)
+#   ❌  Hardware-accelerated OpenGL — not tested
+#   ❌  Real Wayland/X11 window lifecycle — not tested
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  qa-debian-12:
+    name: Debian 12 Bookworm · debian:12 · apt · GCC 12
+    runs-on: ubuntu-latest
+
+    container:
+      image: debian:12
+      options: --user root
+
+    steps:
+
+      # ── 1. SYSTEM INFORMATION ────────────────────────────────────────────────
+      - name: "🖥  System information"
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Debian 12 Bookworm"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "── Kernel & OS ─────────────────────────────────────────────────"
+          uname -a
+          cat /etc/os-release
+          echo ""
+          echo "── CPU ─────────────────────────────────────────────────────────"
+          lscpu | grep -E "Architecture|Model name|CPU\(s\)|Thread|Socket"
+          echo ""
+          echo "── Memory ──────────────────────────────────────────────────────"
+          free -h
+          echo ""
+          echo "── Disk ────────────────────────────────────────────────────────"
+          df -h /
+          echo ""
+
+      # ── 2. UPDATE PACKAGE DATABASE ───────────────────────────────────────────
+      - name: "🔄  Update package database"
+        run: |
+          echo "── apt-get update ──────────────────────────────────────────────"
+          apt-get update -qq
+          echo ""
+          echo "── Available Qt6 packages ──────────────────────────────────────"
+          apt-cache search qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools|qt6-5compat" | sort
+          echo ""
+
+      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      - name: "📦  Install build dependencies"
+        run: |
+          echo "── Installing required packages ────────────────────────────────"
+          apt-get install -y \
+            cmake \
+            ninja-build \
+            gcc \
+            g++ \
+            git \
+            pkg-config \
+            qt6-base-dev \
+            libqt6charts6-dev \
+            libqt6opengl6-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libcfitsio-dev \
+            libfftw3-dev \
+            libarchive-dev \
+            libgl1-mesa-dev \
+            libxkbcommon-dev
+          echo ""
+          echo "── Installed package versions ──────────────────────────────────"
+          echo -n "cmake:        "; cmake --version | head -1
+          echo -n "ninja:        "; ninja --version
+          echo -n "gcc:          "; gcc --version | head -1
+          echo -n "g++:          "; g++ --version | head -1
+          echo -n "git:          "; git --version
+          echo -n "pkg-config:   "; pkg-config --version
+          echo    "qt6-base-dev: $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo    "qt6-charts:   $(dpkg -l libqt6charts6-dev 2>/dev/null | tail -1 | awk '{print $3}' || echo 'not found')"
+          echo    "cfitsio:      $(dpkg -l libcfitsio-dev | tail -1 | awk '{print $3}')"
+          echo    "fftw3:        $(dpkg -l libfftw3-dev | tail -1 | awk '{print $3}')"
+          echo    "libarchive:   $(dpkg -l libarchive-dev | tail -1 | awk '{print $3}')"
+          echo ""
+          echo "── Qt6 version via pkg-config ──────────────────────────────────"
+          pkg-config --modversion Qt6Core 2>/dev/null && \
+            echo "  Qt6Core: $(pkg-config --modversion Qt6Core)" || \
+            echo "  Qt6Core: not found via pkg-config"
+          echo ""
+          echo "── Note: qt6-qtkeychain-dev NOT available in Debian 12 repos ──"
+          echo "   Application will use QSettings fallback for API key storage."
+          echo ""
+
+      # ── 4. CHECKOUT ──────────────────────────────────────────────────────────
+      - name: "📥  Checkout source"
+        uses: actions/checkout@v4
+
+      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "💾  Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-debian-12-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-debian-12-
+
+      # ── 6. CMAKE CONFIGURE ───────────────────────────────────────────────────
+      - name: "⚙️   CMake configure"
+        run: |
+          echo "── CMake configure ─────────────────────────────────────────────"
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            --log-level=VERBOSE
+          echo ""
+          echo "── CMakeCache.txt (relevant entries) ───────────────────────────"
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|VERSION" \
+            build/CMakeCache.txt | sort
+          echo ""
+
+      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      - name: "🔨  Build (verbose)"
+        run: |
+          echo "── Building all targets ────────────────────────────────────────"
+          cmake --build build --verbose
+          echo ""
+          echo "── Build artifacts ─────────────────────────────────────────────"
+          ls -lh build/bin/
+          echo ""
+          echo "── Binary info ─────────────────────────────────────────────────"
+          file build/bin/AstroFind
+          echo ""
+          echo "── Linked Qt libraries ─────────────────────────────────────────"
+          ldd build/bin/AstroFind | grep -i qt
+          echo ""
+
+      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      - name: "🧪  Core unit tests (116 cases, no display required)"
+        run: |
+          echo "── Running astrofind_tests ─────────────────────────────────────"
+          echo "   Reporter: console · Verbosity: high"
+          echo ""
+          build/bin/astrofind_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_LOGGING_RULES: "qt.qpa.*=false"
+        run: |
+          echo "── Running astrofind_ui_tests ──────────────────────────────────"
+          echo "   QT_QPA_PLATFORM = offscreen"
+          echo "   Reporter: console · Verbosity: high"
+          echo ""
+          build/bin/astrofind_ui_tests --reporter console --verbosity high
+          echo ""
+
+      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      - name: "📋  Summary"
+        if: always()
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "  AstroFind QA — Debian 12 Bookworm — DONE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+          echo "GCC:     $(gcc --version | head -1)"
+          echo "Qt6:     $(dpkg -l qt6-base-dev | tail -1 | awk '{print $3}')"
+          echo "CMake:   $(cmake --version | head -1)"
+          echo ""
+          echo "Artifacts:"
+          ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
+          echo ""
