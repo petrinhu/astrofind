@@ -16,6 +16,10 @@ AstroFind is a Qt6/C++ astrometry application for asteroid detection and measure
 Stack: Qt6, CMake, cfitsio, Eigen3, fftw3.
 Language: C++ (src/) with Qt translations (i18n/astrofind_pt_BR.ts → .qm).
 
+## Paths
+
+- User temp folder: `/home/petrus/IDrive/Documentos/temp/` — CI logs, screenshots, and debug artifacts shared during sessions
+
 ## Conventions
 
 - UI files: `src/ui/` — Qt widgets, no .ui files (all code-built)
@@ -106,4 +110,3 @@ The table must be shown automatically — do not wait for the user to ask.
 | 55.8 | Teste de build e execução — Rocky Linux 9 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.9 | Teste de build e execução — Zorin OS 17 (container Docker) | QA Distros | — após base estável | D2 | ✅ |
 | 55.10 | Teste de build e execução — Fedora (distro de desenvolvimento — já compila) | QA Distros | — | D1 | ✅ |
-| 55.11 | Teste de build e execução — WSL2/Ubuntu no Windows 11 (WSLg); testes unitários sempre funcionam; GUI requer WSLg + OpenGL software fallback | QA Distros | — após base estável | D2 | ✅ |

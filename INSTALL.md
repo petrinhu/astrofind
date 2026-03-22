@@ -89,7 +89,6 @@ cmake --build build -j$(nproc)
 - [Manjaro](#manjaro)
 - [openSUSE Tumbleweed](#opensuse-tumbleweed)
 - [Rocky Linux 9](#rocky-linux-9)
-- [WSL2 / Ubuntu on Windows 11](#wsl2--ubuntu-on-windows-11)
 - [Optional dependencies](#optional-dependencies)
 
 ---
@@ -382,47 +381,6 @@ sudo dnf install -y \
     libarchive-devel \
     libsecret-devel \
     qt6-linguist
-```
-
----
-
-## WSL2 / Ubuntu on Windows 11
-
-> Item 55.11 — WSL2 with WSLg (Windows Subsystem for Linux GUI)
-
-Unit tests (`astrofind_tests`, `astrofind_ui_tests`) run without a display under WSL2.
-The full GUI requires **WSLg** (included in Windows 11 builds ≥ 22000) and an OpenGL
-software renderer if the GPU driver does not expose an OpenGL ICD in WSL.
-
-### Required
-
-```bash
-sudo apt-get update
-sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
-    libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
-    libcfitsio-dev libfftw3-dev
-```
-
-### OpenGL software fallback (GUI only)
-
-If the application fails to start with an OpenGL error, install Mesa's software renderer:
-
-```bash
-sudo apt-get install -y libgl1-mesa-dri mesa-utils
-export LIBGL_ALWAYS_SOFTWARE=1   # add to ~/.bashrc for persistence
-```
-
-### Optional
-
-```bash
-sudo apt-get install -y \
-    libqt6core5compat6-dev \
-    libarchive-dev \
-    libsecret-1-dev \
-    qt6-l10n-tools
 ```
 
 ---

@@ -21,7 +21,6 @@ package names, known issues, and what is and is not validated by the automated t
 - [55.7 — Pop!_OS 22.04](#557--pop_os-2204)
 - [55.8 — Rocky Linux 9](#558--rocky-linux-9)
 - [55.9 — Zorin OS 17](#559--zorin-os-17)
-- [55.11 — WSL2 / Ubuntu on Windows 11](#5511--wsl2--ubuntu-on-windows-11)
 
 ---
 
@@ -658,82 +657,6 @@ package base for Zorin OS users who need Qt 6.4+.
 
 ---
 
-## 55.11 — WSL2 / Ubuntu on Windows 11
-
-**Workflow file:** `.github/workflows/qa-wsl2.yml`
-
-> **⚠️ Fundamental limitation:** WSL2 is not a Linux distribution — it is a Microsoft
-> virtualisation layer that runs a real Linux kernel inside Hyper-V on Windows 11.
-> GitHub Actions runners run on Linux (or Windows), not inside WSL2. A full WSL2 test
-> — including WSLg (GUI forwarding), OpenGL via Mesa or the GPU driver, and the
-> Windows–Linux filesystem bridge — **cannot be reproduced in GitHub Actions**.
-
-**What CAN be tested in CI:**
-
-The unit tests (`astrofind_tests`) and UI offscreen tests (`astrofind_ui_tests`) run
-identically inside any Ubuntu 22.04 environment, whether native, containerised, or
-inside WSL2. The CI job for WSL2 uses `ubuntu:22.04` and validates exactly this:
-
-- The application compiles correctly with the Ubuntu 22.04 package set that WSL2
-  users have available via `apt`.
-- All 116 core tests pass.
-- All 23 UI tests pass with `QT_QPA_PLATFORM=offscreen`.
-
-**What CANNOT be tested in CI:**
-
-| Feature | Reason |
-|---------|--------|
-| WSLg GUI forwarding | Requires Windows 11 + WSLg + a real Wayland compositor |
-| OpenGL hardware acceleration | Requires GPU driver ICD in WSL2 (`dxgi.dll` bridge) |
-| Mesa software OpenGL fallback | Testable on CI, but only with `LIBGL_ALWAYS_SOFTWARE=1` |
-| Filesystem performance (plan 9 mount) | Not relevant for build testing |
-| Windows–Linux path interoperability | Not relevant for a standalone Qt app |
-
-**Manual test procedure for WSL2 (not automated):**
-
-```bash
-# On Windows 11 with WSL2 + Ubuntu 22.04 + WSLg installed:
-sudo apt-get update
-sudo apt-get install -y cmake g++ qt6-base-dev libqt6charts6-dev \
-    libqt6opengl6-dev libcfitsio-dev libfftw3-dev libarchive-dev \
-    libgl1-mesa-dev libxkbcommon-dev
-
-git clone https://github.com/petrinhu/astrofind.git
-cd astrofind
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target AstroFind -j$(nproc)
-
-# Core tests (no display needed — works even without WSLg)
-./build/bin/astrofind_tests
-
-# GUI (requires WSLg — will fail without it)
-./build/bin/AstroFind
-
-# Fallback if OpenGL fails:
-LIBGL_ALWAYS_SOFTWARE=1 ./build/bin/AstroFind
-```
-
-**Note:** WSL2/ubuntu:22.04 ships Qt 6.2.4 which is below AstroFind's minimum Qt 6.4.
-The workflow uses `ubuntu:24.04` (Ubuntu 24.04 is now the default WSL2 distro).
-Full GUI test (WSLg, OpenGL) requires manual execution on a real Windows 11 machine.
-
-**Verified results (2026-03-22, run #23403368721):**
-
-| Item | Result |
-|------|--------|
-| Docker image | `ubuntu:24.04` (WSL2/Ubuntu approximation) |
-| Distro | Ubuntu 24.04.4 LTS |
-| GCC | 13.3.0 |
-| Qt6 | 6.4.2+dfsg-21.1build5 |
-| CMake | 3.28.3 |
-| Core tests | 106 passed / 10 skipped |
-| UI tests | 23 passed (71 assertions) |
-| Duration | ~4m 26s |
-
-**Status:** ✅ Passed (2026-03-22, run #23403368721) — CI portion only; WSLg GUI requires manual test
-
----
-
 ## Appendix — Docker image provenance
 
 | Distro | Image | Maintainer | Notes |
@@ -747,8 +670,7 @@ Full GUI test (WSLg, OpenGL) requires manual execution on a real Windows 11 mach
 | Rocky Linux 9 | `rockylinux:9` | Rocky Linux project | Official |
 | Pop!_OS 22.04 | `ubuntu:22.04` + System76 PPA | — | Approximation |
 | Zorin OS 17 | `ubuntu:22.04` | — | Approximation |
-| WSL2/Ubuntu | `ubuntu:22.04` | — | Approximation (no WSLg) |
 
 ---
 
-*Last updated: 2026-03-22 — AstroFind 0.5.0*
+*Last updated: 2026-03-22 — AstroFind 0.9.0-beta*
