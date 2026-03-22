@@ -18,6 +18,9 @@ Modern asteroid detection software for citizen science and educational use.
 Built for Linux, compatible with the IASC / MPC workflow.
 Outputs [ADES 2022](https://minorplanetcenter.net/ades) format reports.
 
+> *"To my son Guga, a Linux user like me*
+> *who had no good option for finding asteroids."*
+
 ---
 
 ### Features
@@ -457,6 +460,9 @@ Libraries used:
 Software moderno de detecção de asteroides para ciência cidadã e uso educacional.
 Desenvolvido para Linux, compatível com o fluxo de trabalho IASC / MPC.
 Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
+
+> *"Para meu filho Guga, usuário de Linux como eu*
+> *que estava sem uma boa opção para buscar asteroides."*
 
 ---
 
