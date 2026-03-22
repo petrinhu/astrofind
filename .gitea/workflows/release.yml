@@ -5,10 +5,18 @@ name: Release
 # Builds binary packages for all supported distributions and publishes a
 # Codeberg release with all artifacts.
 #
+# Prerequisites (one-time manual setup):
+#   1. Settings → Units → enable Actions
+#   2. Settings → Secrets → add RELEASE_TOKEN
+#      (PAT from your profile → Settings → Applications, scope: write:repository)
+#
 # Artifacts produced:
-#   astrofind-<ver>-1.x86_64.rpm      — Fedora / Rocky Linux / openSUSE
-#   astrofind_<ver>~beta-1_amd64.deb  — Debian / Ubuntu / Mint / Zorin / Pop!_OS
-#   astrofind-<ver>-arch-PKGBUILD.tar.gz — Arch Linux / Manjaro (build from source)
+#   astrofind-<ver>-0.beta1.x86_64.rpm  — Fedora / Rocky Linux / openSUSE TW
+#   astrofind_<ver>~beta-1_amd64.deb    — Debian / Ubuntu / Mint / Zorin / Pop!_OS
+#   astrofind-<ver>-arch-PKGBUILD.tar.gz — Arch Linux / Manjaro (source build)
+#
+# Runner labels: codeberg-small (compilation jobs), codeberg-tiny (packaging only)
+# Container images supply the actual OS environment.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -16,18 +24,14 @@ on:
     tags:
       - 'v*'
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
 
   # ── RPM — Fedora 41 ────────────────────────────────────────────────────────
   build-rpm:
     name: Build RPM (Fedora 41)
-    runs-on: ubuntu-latest
+    runs-on: codeberg-small
     container:
       image: fedora:41
-      options: --user root
 
     steps:
       - name: "📥  Checkout"
@@ -67,16 +71,14 @@ jobs:
       - name: "📦  Build RPM"
         run: |
           TAG=${{ gitea.ref_name }}
-          VER=${TAG#v}              # strip leading 'v' → "0.9.0-beta"
-          VERNUM=${VER%%-*}         # strip "-beta" → "0.9.0"
+          VER=${TAG#v}              # "0.9.0-beta"
+          VERNUM=${VER%%-*}         # "0.9.0"
 
           # Install into staging directory
           DESTDIR=$PWD/staging cmake --install build
 
-          # Set up rpmbuild tree
+          # Set up rpmbuild tree and populate BUILDROOT
           rpmdev-setuptree
-
-          # Create source tarball from staging (rpmbuild -bb uses BUILDROOT)
           mkdir -p ~/rpmbuild/BUILDROOT/astrofind-${VERNUM}-0.beta1.x86_64
           cp -r staging/* ~/rpmbuild/BUILDROOT/astrofind-${VERNUM}-0.beta1.x86_64/
 
@@ -100,10 +102,9 @@ jobs:
   # ── DEB — Ubuntu 24.04 ────────────────────────────────────────────────────
   build-deb:
     name: Build DEB (Ubuntu 24.04)
-    runs-on: ubuntu-latest
+    runs-on: codeberg-small
     container:
       image: ubuntu:24.04
-      options: --user root
     env:
       DEBIAN_FRONTEND: noninteractive
 
@@ -147,35 +148,29 @@ jobs:
       - name: "📦  Build DEB"
         run: |
           TAG=${{ gitea.ref_name }}
-          VER=${TAG#v}              # "0.9.0-beta"
-          VERNUM=${VER%%-*}         # "0.9.0"
-
-          # Install into staging directory
-          DESTDIR=$PWD/staging cmake --install build
-
-          # Build .deb manually from staging using dpkg-deb
+          VER=${TAG#v}
+          VERNUM=${VER%%-*}
           DEBVER="${VERNUM}~beta-1"
           ARCH="amd64"
           PKGDIR="astrofind-deb/astrofind_${DEBVER}_${ARCH}"
+
+          DESTDIR=$PWD/staging cmake --install build
 
           mkdir -p "${PKGDIR}/DEBIAN"
           mkdir -p "${PKGDIR}/usr"
           cp -r staging/usr/* "${PKGDIR}/usr/"
 
-          # Generate DEBIAN/control from template
           sed "s/^Version:.*/Version: ${DEBVER}/" \
               packaging/debian/control > "${PKGDIR}/DEBIAN/control"
           echo "Installed-Size: $(du -sk ${PKGDIR}/usr | cut -f1)" \
               >> "${PKGDIR}/DEBIAN/control"
 
-          # Install changelog and copyright
           mkdir -p "${PKGDIR}/usr/share/doc/astrofind"
           cp packaging/debian/changelog "${PKGDIR}/usr/share/doc/astrofind/changelog.Debian"
           gzip -9 "${PKGDIR}/usr/share/doc/astrofind/changelog.Debian"
           cp packaging/debian/copyright "${PKGDIR}/usr/share/doc/astrofind/copyright"
 
           fakeroot dpkg-deb --build "${PKGDIR}"
-
           find astrofind-deb -name '*.deb' -exec cp {} . \;
           ls -lh *.deb
 
@@ -188,7 +183,7 @@ jobs:
   # ── Arch PKGBUILD tarball ─────────────────────────────────────────────────
   package-arch:
     name: Package Arch PKGBUILD
-    runs-on: ubuntu-latest
+    runs-on: codeberg-tiny
 
     steps:
       - name: "📥  Checkout"
@@ -199,10 +194,7 @@ jobs:
           TAG=${{ gitea.ref_name }}
           VER=${TAG#v}
           VERNUM=${VER%%-*}
-
-          # Update pkgver in PKGBUILD
           sed -i "s/^pkgver=.*/pkgver=${VERNUM}beta/" packaging/arch/PKGBUILD
-
           mkdir -p astrofind-arch
           cp packaging/arch/PKGBUILD astrofind-arch/
           tar czf "astrofind-${VER}-arch-PKGBUILD.tar.gz" astrofind-arch/
@@ -217,7 +209,7 @@ jobs:
   # ── Create Codeberg Release ────────────────────────────────────────────────
   create-release:
     name: Create Codeberg Release
-    runs-on: ubuntu-latest
+    runs-on: codeberg-tiny
     needs: [build-rpm, build-deb, package-arch]
 
     steps:
@@ -230,19 +222,20 @@ jobs:
           path: artifacts/
 
       - name: "📋  Extract release notes from CHANGELOG"
-        id: notes
         run: |
           TAG=${{ gitea.ref_name }}
           VER=${TAG#v}
-          # Extract the section for this version from CHANGELOG.md (English block)
+          # Extract the [version] section from CHANGELOG.md (English block only)
           awk "/^### \[${VER}\]/{found=1; next} found && /^### \[/{exit} found{print}" \
               CHANGELOG.md > release_notes.md
-          echo "Release notes:"
+          echo "=== Release notes ==="
           cat release_notes.md
 
       - name: "🚀  Create release and upload assets"
         env:
-          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          # RELEASE_TOKEN: PAT with write:repository scope
+          # Add at: Settings → Secrets → RELEASE_TOKEN
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           TAG: ${{ gitea.ref_name }}
           REPO: petrinhu/astrofind
           API: https://codeberg.org/api/v1
@@ -254,32 +247,33 @@ jobs:
           NOTES=$(cat release_notes.md)
 
           # Create the release
-          RELEASE_JSON=$(curl -s -X POST "${API}/repos/${REPO}/releases" \
-            -H "Authorization: token ${GITEA_TOKEN}" \
+          RELEASE_JSON=$(curl -sf -X POST "${API}/repos/${REPO}/releases" \
+            -H "Authorization: token ${RELEASE_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "{
               \"tag_name\": \"${TAG}\",
               \"name\": \"AstroFind ${VER}\",
-              \"body\": $(echo "${NOTES}" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),
+              \"body\": $(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))' < release_notes.md),
               \"prerelease\": ${PRERELEASE},
               \"draft\": false
             }")
 
-          echo "Release response: ${RELEASE_JSON}"
-          RELEASE_ID=$(echo "${RELEASE_JSON}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
-          echo "Release ID: ${RELEASE_ID}"
+          RELEASE_ID=$(echo "${RELEASE_JSON}" | python3 -c \
+            'import json,sys; print(json.load(sys.stdin)["id"])')
+          echo "Created release ID: ${RELEASE_ID}"
 
           # Upload all artifacts
-          for f in artifacts/**/*.rpm artifacts/**/*.deb artifacts/**/*.tar.gz; do
-            [ -f "$f" ] || continue
+          find artifacts/ -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.tar.gz' \) | \
+          while read f; do
             FNAME=$(basename "$f")
             echo "Uploading ${FNAME}..."
-            curl -s -X POST \
+            curl -sf -X POST \
               "${API}/repos/${REPO}/releases/${RELEASE_ID}/assets?name=${FNAME}" \
-              -H "Authorization: token ${GITEA_TOKEN}" \
+              -H "Authorization: token ${RELEASE_TOKEN}" \
               -H "Content-Type: application/octet-stream" \
               --data-binary @"$f"
-            echo ""
+            echo " ✓"
           done
 
-          echo "Release created: https://codeberg.org/${REPO}/releases/tag/${TAG}"
+          echo ""
+          echo "Release: https://codeberg.org/${REPO}/releases/tag/${TAG}"
