@@ -45,7 +45,7 @@ if(NOT CFITSIO_FOUND_SYSTEM)
     FetchContent_Declare(
         cfitsio_src
         GIT_REPOSITORY https://github.com/HEASARC/cfitsio.git
-        GIT_TAG        cfitsio-4-4-1
+        GIT_TAG        cfitsio-4.6.3
         GIT_SHALLOW    TRUE
     )
     set(USE_PTHREADS  OFF CACHE BOOL "" FORCE)

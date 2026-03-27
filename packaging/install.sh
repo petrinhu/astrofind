@@ -261,7 +261,7 @@ center_text() {
 }
 
 hr() {
-    local char="${1:─}"
+    local char="${1:-─}"
     local color="${2:-$C_CYAN}"
     printf "${color}"
     printf '%*s' "$TERM_WIDTH" '' | tr ' ' "${char}"
