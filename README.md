@@ -6,7 +6,7 @@
 ![CMake](https://img.shields.io/badge/CMake-3.20%2B-064F8C?logo=cmake)
 ![Platform](https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&logoColor=black)
 ![Tests](https://img.shields.io/badge/tests-116%20passed-brightgreen)
-![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0-lightgrey)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
 **English** | [Português](#português)
 
@@ -248,7 +248,7 @@ astrometrica/
 ├── CMakeLists.txt               # Root build configuration
 ├── CONTRIBUTING.md
 ├── INSTALL.md                   # Per-distro installation instructions
-├── LICENSE                      # PolyForm Noncommercial 1.0.0
+├── LICENSE                      # AGPL-3.0
 └── README.md
 ```
 
@@ -453,9 +453,8 @@ This installs the binary to `/usr/local/bin`, the `.desktop` file to
 
 ### License
 
-[PolyForm Noncommercial License 1.0.0](LICENSE) — free for personal, educational,
-and non-commercial use.
-Copyright (c) 2024–2026 Petrus Silva Costa.
+[GNU Affero General Public License v3.0](LICENSE) - copyleft forte; uso comercial permitido, mas obriga disponibilizar o codigo-fonte.
+Copyright (c) 2024-2026 Petrus Silva Costa.
 
 ---
 
@@ -497,7 +496,7 @@ Libraries used:
 ![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)
 ![Plataforma](https://img.shields.io/badge/plataforma-Linux-FCC624?logo=linux&logoColor=black)
 ![Testes](https://img.shields.io/badge/testes-116%20aprovados-brightgreen)
-![Licença](https://img.shields.io/badge/licença-PolyForm%20NC%201.0-lightgrey)
+![Licença](https://img.shields.io/badge/licença-AGPL--3.0-blue)
 
 Software moderno de detecção de asteroides para ciência cidadã e uso educacional.
 Desenvolvido para Linux, compatível com o fluxo de trabalho IASC / MPC.
@@ -719,8 +718,8 @@ sudo cmake --install build
 
 ### Licença
 
-[PolyForm Noncommercial License 1.0.0](LICENSE) — livre para uso pessoal, educacional e não comercial.
-Copyright (c) 2024–2026 Petrus Silva Costa.
+[GNU Affero General Public License v3.0](LICENSE) - copyleft forte; uso comercial permitido, mas obriga disponibilizar o codigo-fonte.
+Copyright (c) 2024-2026 Petrus Silva Costa.
 
 ---
 

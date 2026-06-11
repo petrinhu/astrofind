@@ -23,8 +23,8 @@ Gera relatórios no formato ADES 2022.</translation>
     </message>
     <message>
         <location filename="../src/ui/AboutDialog.cpp" line="158" />
-        <source>Inspired by &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; by Herbert Raab.&lt;br&gt;Built with Qt6, cfitsio, Eigen3, SEP.&lt;br&gt;Licensed under the &lt;a href="license"&gt;PolyForm Noncommercial 1.0.0&lt;/a&gt;.</source>
-        <translation>Inspirado por &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; de Herbert Raab.&lt;br&gt;Desenvolvido com Qt6, cfitsio, Eigen3, SEP.&lt;br&gt;Licenciado sob a &lt;a href="license"&gt;PolyForm Noncommercial 1.0.0&lt;/a&gt;.</translation>
+        <source>Inspired by &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; by Herbert Raab.&lt;br&gt;Built with Qt6, cfitsio, Eigen3, SEP.&lt;br&gt;Licensed under the &lt;a href="license"&gt;AGPL-3.0&lt;/a&gt;.</source>
+        <translation>Inspirado por &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; de Herbert Raab.&lt;br&gt;Desenvolvido com Qt6, cfitsio, Eigen3, SEP.&lt;br&gt;Licenciado sob a &lt;a href="license"&gt;AGPL-3.0&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/AboutDialog.cpp" line="183" />
@@ -4191,8 +4191,8 @@ quando o serviço SkyBoT não está acessível (~200 MB).</translation>
     </message>
     <message>
         <location filename="../src/ui/AboutDialog.cpp" line="80" />
-        <source>PolyForm Noncommercial License 1.0.0</source>
-        <translation>PolyForm Noncommercial License 1.0.0</translation>
+        <source>GNU Affero General Public License v3.0 (AGPL-3.0)</source>
+        <translation>GNU Affero General Public License v3.0 (AGPL-3.0)</translation>
     </message>
     <message>
         <location filename="../src/ui/AboutDialog.cpp" line="93" />
