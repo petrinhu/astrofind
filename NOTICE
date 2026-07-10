@@ -1,0 +1,254 @@
+AstroFind — Third-Party Notices
+================================
+
+AstroFind is licensed under the GNU Affero General Public License v3.0
+(see `LICENSE` in the repository root). This file lists third-party
+components that are distributed with, statically linked into, or whose
+code has been adapted into the AstroFind binary, together with their
+copyright holders, licenses and — where the license requires it — the
+verbatim notice text.
+
+Compatibility note: all licenses below (LGPL-3.0, LGPL-2.1, GPL-2.0,
+MIT, and the NASA cfitsio/CCfits permissive license) are compatible
+with distributing the combined work under AGPL-3.0, because AGPL-3.0
+already satisfies the "make source available" requirement that the
+copyleft licenses below impose, and the permissive ones (MIT, NASA)
+impose no restriction beyond preserving their notices. This file exists
+to satisfy the *attribution* duty, not to resolve a compatibility
+conflict.
+
+--------------------------------------------------------------------
+1. WCSLIB — code adapted (not linked)
+--------------------------------------------------------------------
+Component:   WCSLIB 8.2 (`prj.c` — celestial projection routines)
+Copyright:   Copyright (C) 1995-2024 Mark Calabretta, CSIRO/ATNF
+Project:     https://www.atnf.csiro.au/people/mcalabre/WCS/
+License:     LGPL-3.0-or-later
+
+The WCS pixel→sky projection formulas (TAN, SIN, ARC, STG, CAR, MER,
+GLS/SFL, AIT) implemented in `src/core/FitsImage.cpp` were adapted from
+WCSLIB 8.2 (`prj.c`), as documented in a source comment at the top of
+that file ("Projection formulas adapted from WCSLIB 8.2 (prj.c,
+Calabretta, CSIRO ATNF)."). WCSLIB itself is not linked or bundled;
+only the projection formulas were reimplemented in-house in C++,
+following the mathematical treatment of Calabretta & Greisen (2002),
+A&A 395, 1077 ("WCS Paper II"), which is the same reference WCSLIB
+itself implements.
+
+Because the adaptation follows WCSLIB's own reference implementation
+rather than only the published paper, this NOTICE records the
+derivation and the LGPL-3.0-or-later attribution duty as a matter of
+diligence (AUD-PROV-1). LGPL-3.0 is a library-linking license; it does
+not require AstroFind (an application, not a redistributed copy of the
+library) to be relicensed, but does require that Calabretta's copyright
+and the license be acknowledged wherever the adapted code is
+distributed — which this NOTICE does.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version. Full text:
+  https://www.gnu.org/licenses/lgpl-3.0.html
+
+--------------------------------------------------------------------
+2. SEP — Source Extractor Python C library (bundled, statically linked)
+--------------------------------------------------------------------
+Component:   SEP v1.2.1 (github.com/kbarbary/sep)
+Copyright:   Copyright 1993-2011 Emmanuel Bertin — IAP/CNRS/UPMC
+             Copyright 2014 SEP developers
+License:     LGPL-3.0 for the core extraction/background/deblending
+             code (derived from SExtractor); BSD-3-Clause for parts
+             derived from photutils (Astropy Team, 2011-14); MIT for
+             some utility files. See `sep/licenses/` upstream for the
+             per-file breakdown.
+
+SEP is fetched via CMake FetchContent and statically linked into the
+AstroFind binary (`sep_lib` target, `cmake/dependencies.cmake`). Used
+for star/source detection (`StarDetector`).
+
+  LGPL-3.0: same terms as WCSLIB above —
+  https://www.gnu.org/licenses/lgpl-3.0.html
+
+  BSD-3-Clause (photutils-derived portions):
+  Copyright (c) 2011-14, photutils developers. All rights reserved.
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the copyright notice and
+  disclaimer are retained; see full text at
+  https://opensource.org/license/bsd-3-clause/
+
+  MIT (SEP developers, 2014-2016) — see notice under §5 below for the
+  standard MIT text this reduces to.
+
+--------------------------------------------------------------------
+3. QuaZip — ZIP archive extraction (optional, bundled when
+   Qt6Core5Compat is available)
+--------------------------------------------------------------------
+Component:   QuaZip v1.4 (github.com/stachenov/quazip)
+Copyright:   QuaZip contributors; embedded MiniZip portions
+             Copyright Gilles Vollant and contributors (zlib license)
+License:     LGPL-2.1 WITH a static-linking exception (see below)
+
+  STATIC LINKING EXCEPTION (verbatim, from QuaZip's `COPYING`):
+
+  The copyright holders give you permission to link this library with
+  independent modules to produce an executable, regardless of the
+  license terms of these independent modules, and to copy and
+  distribute the resulting executable under terms of your choice,
+  provided that you also meet, for each linked independent module, the
+  terms and conditions of the license of that module. An independent
+  module is a module which is not derived from or based on this
+  library. If you modify this library, you must extend this exception
+  to your version of the library.
+
+  Full LGPL-2.1 text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
+This exception is what allows AstroFind to statically link QuaZip
+under AGPL-3.0 without QuaZip's own LGPL-2.1 requiring the AstroFind
+binary itself to additionally satisfy LGPL's "user can relink a
+modified library" clause.
+
+--------------------------------------------------------------------
+4. cfitsio and CCfits — FITS I/O (bundled or system package)
+--------------------------------------------------------------------
+Component:   cfitsio 4.6.3 (github.com/HEASARC/cfitsio) and
+             CCfits 2.7 (heasarc.gsfc.nasa.gov/fitsio/CCfits/,
+             bundled as `originals/CCfits.tar.gz`)
+Copyright:   Copyright (Unpublished — all rights reserved under the
+             copyright laws of the United States), U.S. Government as
+             represented by the Administrator of the National
+             Aeronautics and Space Administration (NASA/HEASARC). No
+             copyright is claimed in the United States under Title 17,
+             U.S. Code.
+License:     NASA permissive license (verbatim below; identical text
+             ships with both cfitsio and CCfits)
+
+  Permission to freely use, copy, modify, and distribute this software
+  and its documentation without fee is hereby granted, provided that
+  this copyright notice and disclaimer of warranty appears in all
+  copies.
+
+  DISCLAIMER: THE SOFTWARE IS PROVIDED 'AS IS' WITHOUT ANY WARRANTY OF
+  ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT
+  LIMITED TO, ANY WARRANTY THAT THE SOFTWARE WILL CONFORM TO
+  SPECIFICATIONS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+  FOR A PARTICULAR PURPOSE, AND FREEDOM FROM INFRINGEMENT, AND ANY
+  WARRANTY THAT THE DOCUMENTATION WILL CONFORM TO THE SOFTWARE, OR ANY
+  WARRANTY THAT THE SOFTWARE WILL BE ERROR FREE. IN NO EVENT SHALL NASA
+  BE LIABLE FOR ANY DAMAGES, INCLUDING, BUT NOT LIMITED TO, DIRECT,
+  INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES, ARISING OUT OF, RESULTING
+  FROM, OR IN ANY WAY CONNECTED WITH THIS SOFTWARE, WHETHER OR NOT
+  BASED UPON WARRANTY, CONTRACT, TORT, OR OTHERWISE, WHETHER OR NOT
+  INJURY WAS SUSTAINED BY PERSONS OR PROPERTY OR OTHERWISE, AND WHETHER
+  OR NOT LOSS WAS SUSTAINED FROM, OR AROSE OUT OF THE RESULTS OF, OR
+  USE OF, THE SOFTWARE OR SERVICES PROVIDED HEREUNDER.
+
+--------------------------------------------------------------------
+5. spdlog and nlohmann/json (bundled, statically linked, MIT)
+--------------------------------------------------------------------
+Component:   spdlog v1.14.1 (github.com/gabime/spdlog)
+Copyright:   Copyright (c) 2016 Gabi Melman
+License:     MIT
+
+  The MIT License (MIT)
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  Note: spdlog itself depends on the bundled fmt library (MIT);
+  see https://github.com/fmtlib/fmt/blob/master/LICENSE
+
+Component:   nlohmann/json v3.11.3 (github.com/nlohmann/json)
+Copyright:   Copyright (c) 2013-2022 Niels Lohmann
+License:     MIT
+
+  MIT License
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+--------------------------------------------------------------------
+6. FFTW3 — FFT for image stacking / power spectrum (system package)
+--------------------------------------------------------------------
+Component:   FFTW3 (github.com/FFTW/fftw3, linked via pkg-config)
+Copyright:   Copyright (c) 2003, 2007-14 Matteo Frigo
+             Copyright (c) 2003, 2007-14 Massachusetts Institute of
+             Technology
+License:     GPL-2.0-or-later
+
+FFTW3 is linked, not bundled/vendored, and is expected to be provided
+by the system package manager (`fftw`/`fftw-devel`). Its GPL-2.0 terms
+are compatible with AGPL-3.0 distribution of the combined work; full
+text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+--------------------------------------------------------------------
+7. Qt6, Qt6Keychain, libarchive
+--------------------------------------------------------------------
+Component:   Qt6 (qt.io) — Widgets, OpenGL, Charts, Concurrent, Network,
+             Sql, Xml, Core5Compat modules
+Copyright:   The Qt Company Ltd. and contributors
+License:     LGPL-3.0 (open-source edition)
+             Full text: https://www.gnu.org/licenses/lgpl-3.0.html
+
+Component:   Qt6Keychain (github.com/frankosterfeld/qtkeychain)
+Copyright:   Frank Osterfeld and contributors
+License:     LGPL-2.1 (BSD-style exception clause, see upstream COPYING)
+             Full text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
+Component:   libarchive (libarchive.org)
+Copyright:   Tim Kientzle and libarchive contributors
+License:     BSD 2-Clause / 3-Clause (per-file; see upstream COPYING)
+
+--------------------------------------------------------------------
+8. Catch2 — test framework (build/test-time only, not distributed)
+--------------------------------------------------------------------
+Component:   Catch2 v3.6.0 (github.com/catchorg/Catch2)
+Copyright:   Copyright (c) 2020 Two Blue Cubes Ltd. and contributors
+License:     BSL-1.0 (Boost Software License)
+
+Catch2 is a test-only dependency (`astrofind_tests` /
+`astrofind_ui_tests`); it is not linked into or distributed with the
+`AstroFind` production binary. Listed here for completeness / SBOM
+purposes only.
+
+--------------------------------------------------------------------
+See also
+--------------------------------------------------------------------
+- `README.md` — dependency table with a License column, cross-linking
+  to this file.
+- `AUDIT_FIND.md` (AUD-PROV-1, AUD-PROV-2, AUD-PROV-3-6) — the audit
+  findings that this file remediates.
+- `TODO.md` (Onda 3, items 18-20) — remediation tracking.

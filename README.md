@@ -353,26 +353,31 @@ astrometrica/
 
 #### Required
 
-| Dependency | Version | Notes |
-|------------|---------|-------|
-| Qt | ≥ 6.4 | Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml |
-| cfitsio | any | FITS I/O (system package or FetchContent) |
-| FFTW3 | any | FFT for image stacking and power spectrum |
-| SEP | ≥ 1.2 | Source Extractor C library (bundled via FetchContent) |
-| spdlog | ≥ 1.11 | Logging (bundled via FetchContent) |
-| nlohmann/json | ≥ 3.11 | Project file serialisation (bundled) |
-| CMake | ≥ 3.20 | Build system |
-| C++ | 23 | Compiler: GCC ≥ 13 or Clang ≥ 16 |
+| Dependency | Version | License | Notes |
+|------------|---------|---------|-------|
+| Qt | ≥ 6.4 | LGPL-3.0 | Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml |
+| cfitsio | any | NASA permissive | FITS I/O (system package or FetchContent) |
+| FFTW3 | any | GPL-2.0-or-later | FFT for image stacking and power spectrum |
+| SEP | ≥ 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Source Extractor C library (bundled via FetchContent) |
+| spdlog | ≥ 1.11 | MIT | Logging (bundled via FetchContent) |
+| nlohmann/json | ≥ 3.11 | MIT | Project file serialisation (bundled) |
+| CMake | ≥ 3.20 | n/a | Build system, not distributed |
+| C++ | 23 | n/a | Compiler: GCC ≥ 13 or Clang ≥ 16, not distributed |
+
+Full third-party attribution, copyright holders and required license
+notices: see [`NOTICE`](NOTICE).
 
 #### Optional
 
-| Dependency | Notes |
-|------------|-------|
-| QuaZip + Qt6Core5Compat | ZIP archive extraction; `dnf install qt6-qt5compat-devel` |
-| libarchive | TAR.GZ/BZ2/XZ, 7Z, RAR extraction; `dnf install libarchive-devel` |
-| Qt6Keychain | Secure API key storage; `dnf install qtkeychain-qt6-devel libsecret-devel` |
-| Qt6LinguistTools | Compile `.ts` translations; `dnf install qt6-linguist` |
-| ASTAP | Offline plate solver; download from [hnsky.org](https://www.hnsky.org/astap.htm) |
+| Dependency | License | Notes |
+|------------|---------|-------|
+| QuaZip + Qt6Core5Compat | LGPL-2.1 + static-linking exception | ZIP archive extraction; `dnf install qt6-qt5compat-devel` |
+| libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction; `dnf install libarchive-devel` |
+| Qt6Keychain | LGPL-2.1 | Secure API key storage; `dnf install qtkeychain-qt6-devel libsecret-devel` |
+| Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations; `dnf install qt6-linguist` |
+| ASTAP | proprietary freeware | Offline plate solver; download from [hnsky.org](https://www.hnsky.org/astap.htm) |
+| CCfits | NASA permissive | Bundled C++ wrapper around cfitsio (`originals/CCfits.tar.gz`) |
+| Catch2 | BSL-1.0 | Test framework only, not linked into the production binary |
 
 ---
 
@@ -471,7 +476,8 @@ AstroFind was inspired by and learned from these excellent projects:
 | [astrometry.net](https://github.com/dstndstn/astrometry.net) | Dustin Lang et al. | Plate-solving REST API used directly |
 | [IRAF](https://github.com/iraf-community/iraf) | NOAO / community | Aperture photometry concepts and table column conventions |
 | [GDL](https://github.com/gnudatalanguage/gdl) | GDL team | PSF elliptical / MPFIT, sliding median, FFT algorithms |
-| [NEMO](https://github.com/teuben/nemo) | P. Teuben | Bad pixel masks, blob/streak, ClumpFind, histogram, Laplacian, WCS |
+| [NEMO](https://github.com/teuben/nemo) | P. Teuben | Bad pixel masks, blob/streak, ClumpFind, histogram, Laplacian |
+| [WCSLIB](https://www.atnf.csiro.au/people/mcalabre/WCS/) | Mark Calabretta, CSIRO/ATNF | WCS projection formulas (TAN/SIN/ARC/STG/CAR/MER/GLS/AIT) adapted from `prj.c`; see [`NOTICE`](NOTICE) |
 | [Boost.Astronomy](https://github.com/BoostGSoC19/astronomy) | GSoC 2019 | Atmospheric refraction, CIRS/ADES, ecliptic/galactic overlays |
 
 Libraries used:
@@ -486,6 +492,8 @@ Libraries used:
 [QuaZip](https://github.com/stachenov/quazip) ·
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain) ·
 [libarchive](https://www.libarchive.org/)
+
+See [`NOTICE`](NOTICE) for the license and copyright of every item above.
 
 ---
 
@@ -621,26 +629,31 @@ Gera relatórios no formato [ADES 2022](https://minorplanetcenter.net/ades).
 
 #### Obrigatórios
 
-| Dependência | Versão | Notas |
-|-------------|--------|-------|
-| Qt | ≥ 6.4 | Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml |
-| cfitsio | qualquer | I/O FITS (pacote do sistema ou FetchContent) |
-| FFTW3 | qualquer | FFT para empilhamento de imagens e espectro de potência |
-| SEP | ≥ 1.2 | Biblioteca C do Source Extractor (bundled via FetchContent) |
-| spdlog | ≥ 1.11 | Log (bundled via FetchContent) |
-| nlohmann/json | ≥ 3.11 | Serialização de arquivo de projeto (bundled) |
-| CMake | ≥ 3.20 | Sistema de build |
-| C++ | 23 | Compilador: GCC ≥ 13 ou Clang ≥ 16 |
+| Dependência | Versão | Licença | Notas |
+|-------------|--------|---------|-------|
+| Qt | ≥ 6.4 | LGPL-3.0 | Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml |
+| cfitsio | qualquer | Permissiva NASA | I/O FITS (pacote do sistema ou FetchContent) |
+| FFTW3 | qualquer | GPL-2.0-or-later | FFT para empilhamento de imagens e espectro de potência |
+| SEP | ≥ 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Biblioteca C do Source Extractor (bundled via FetchContent) |
+| spdlog | ≥ 1.11 | MIT | Log (bundled via FetchContent) |
+| nlohmann/json | ≥ 3.11 | MIT | Serialização de arquivo de projeto (bundled) |
+| CMake | ≥ 3.20 | n/a | Sistema de build, não distribuído |
+| C++ | 23 | n/a | Compilador: GCC ≥ 13 ou Clang ≥ 16, não distribuído |
+
+Atribuição completa de terceiros, detentores de copyright e avisos de
+licença exigidos: ver [`NOTICE`](NOTICE).
 
 #### Opcionais
 
-| Dependência | Notas |
-|-------------|-------|
-| QuaZip + Qt6Core5Compat | Extração de arquivos ZIP; `dnf install qt6-qt5compat-devel` |
-| libarchive | Extração TAR.GZ/BZ2/XZ, 7Z, RAR; `dnf install libarchive-devel` |
-| Qt6Keychain | Armazenamento seguro de chave API; `dnf install qtkeychain-qt6-devel libsecret-devel` |
-| Qt6LinguistTools | Compilar traduções `.ts`; `dnf install qt6-linguist` |
-| ASTAP | Plate solver offline; baixar em [hnsky.org](https://www.hnsky.org/astap.htm) |
+| Dependência | Licença | Notas |
+|-------------|---------|-------|
+| QuaZip + Qt6Core5Compat | LGPL-2.1 + exceção de linkagem estática | Extração de arquivos ZIP; `dnf install qt6-qt5compat-devel` |
+| libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR; `dnf install libarchive-devel` |
+| Qt6Keychain | LGPL-2.1 | Armazenamento seguro de chave API; `dnf install qtkeychain-qt6-devel libsecret-devel` |
+| Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts`; `dnf install qt6-linguist` |
+| ASTAP | freeware proprietário | Plate solver offline; baixar em [hnsky.org](https://www.hnsky.org/astap.htm) |
+| CCfits | Permissiva NASA | Wrapper C++ do cfitsio, bundled (`originals/CCfits.tar.gz`) |
+| Catch2 | BSL-1.0 | Apenas framework de testes, não linkado no binário de produção |
 
 ---
 
@@ -736,7 +749,8 @@ O AstroFind foi inspirado e aprendeu com estes excelentes projetos:
 | [astrometry.net](https://github.com/dstndstn/astrometry.net) | Dustin Lang et al. | API REST de plate-solving usada diretamente |
 | [IRAF](https://github.com/iraf-community/iraf) | NOAO / comunidade | Conceitos de fotometria de abertura e convenções de colunas de tabela |
 | [GDL](https://github.com/gnudatalanguage/gdl) | equipe GDL | PSF elíptica / MPFIT, mediana deslizante, algoritmos FFT |
-| [NEMO](https://github.com/teuben/nemo) | P. Teuben | Máscaras de pixels ruins, blob/streak, ClumpFind, histograma, Laplaciano, WCS |
+| [NEMO](https://github.com/teuben/nemo) | P. Teuben | Máscaras de pixels ruins, blob/streak, ClumpFind, histograma, Laplaciano |
+| [WCSLIB](https://www.atnf.csiro.au/people/mcalabre/WCS/) | Mark Calabretta, CSIRO/ATNF | Fórmulas de projeção WCS (TAN/SIN/ARC/STG/CAR/MER/GLS/AIT) adaptadas de `prj.c`; ver [`NOTICE`](NOTICE) |
 | [Boost.Astronomy](https://github.com/BoostGSoC19/astronomy) | GSoC 2019 | Refração atmosférica, CIRS/ADES, sobreposições eclíptica/galáctica |
 
 Bibliotecas utilizadas:
@@ -751,3 +765,5 @@ Bibliotecas utilizadas:
 [QuaZip](https://github.com/stachenov/quazip) ·
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain) ·
 [libarchive](https://www.libarchive.org/)
+
+Ver [`NOTICE`](NOTICE) para a licença e o copyright de cada item acima.
