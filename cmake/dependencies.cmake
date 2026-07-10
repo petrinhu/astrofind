@@ -76,11 +76,20 @@ else()
 endif()
 
 # ─── SEP (Source Extractor C library) — Phase 2 ───────────────────────────
+# AUD-MEM-1: upstream v1.2.1 (and current upstream main) has a double-QMALLOC
+# leak in convert_to_catalog() (src/extract.c) — cat->cflux/cat->flux get
+# allocated twice, leaking the first buffer (44B/6 allocs per detectStars()
+# call). Patched locally; see cmake/patches/sep-leak-fix.patch. PATCH_COMMAND
+# runs once right after the initial git clone (before the static-lib glob
+# below); "sh -c ... || true" makes it idempotent (a no-op with exit 0) if
+# FetchContent ever re-runs the patch step against an already-patched
+# checkout — plain patch(1) exits non-zero on replay ("previously applied").
 FetchContent_Declare(
     sep
     GIT_REPOSITORY https://github.com/kbarbary/sep.git
     GIT_TAG        v1.2.1
     GIT_SHALLOW    TRUE
+    PATCH_COMMAND  sh -c "patch -p1 -N -r - -i ${CMAKE_CURRENT_LIST_DIR}/patches/sep-leak-fix.patch || true"
 )
 FetchContent_GetProperties(sep)
 if(NOT sep_POPULATED)
