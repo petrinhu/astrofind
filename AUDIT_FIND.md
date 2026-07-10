@@ -458,17 +458,17 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 | [AUD-MEM-2](#aud-mem-2) | 🔴 CRÍTICO | ✅ Resolvido `2dfc872`+`b3295c8` | Onda 1 |
 | [AUD-MEM-3](#aud-mem-3) | 🔴 CRÍTICO | ✅ Resolvido `44d6f22` | Onda 1 |
 | [AUD-SEC-1](#aud-sec-1) | 🟠 IMPORTANTE | ✅ Resolvido `1a9ff5b` + token rotacionado | Onda 1 |
-| [AUD-INPUT-3](#aud-input-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-INPUT-4](#aud-input-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-INPUT-5](#aud-input-5) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-MEM-1](#aud-mem-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
+| [AUD-INPUT-3](#aud-input-3) | 🟠 IMPORTANTE | ✅ Resolvido `f610898` | Onda 2 |
+| [AUD-INPUT-4](#aud-input-4) | 🟠 IMPORTANTE | ✅ Resolvido `554e0aa` (hardlink refutado) | Onda 2 |
+| [AUD-INPUT-5](#aud-input-5) | 🟠 IMPORTANTE | ✅ Resolvido `2801ea8` | Onda 2 |
+| [AUD-MEM-1](#aud-mem-1) | 🟠 IMPORTANTE | ✅ Resolvido `7c06e73` (patch SEP, leak sumiu) | Onda 2 |
 | [AUD-MEM-4](#aud-mem-4) | 🟠 IMPORTANTE | ✅ Resolvido `f3a7534`+`1d0fe30` (junto do INPUT-2) | Onda 1 |
-| [AUD-SEC-2](#aud-sec-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-SEC-3](#aud-sec-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-CORR-2](#aud-corr-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-CORR-3](#aud-corr-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-CORR-4](#aud-corr-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-CORR-5](#aud-corr-5) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
+| [AUD-SEC-2](#aud-sec-2) | 🟠 IMPORTANTE | ✅ Resolvido `db864ea` (6 SHAs; CCfits-fallback pendente) | Onda 2 |
+| [AUD-SEC-3](#aud-sec-3) | 🟠 IMPORTANTE | ✅ Resolvido `2c31dda` | Onda 2 |
+| [AUD-CORR-2](#aud-corr-2) | 🟠 IMPORTANTE | ✅ Resolvido `0be641b` (mutação prova que pega o +90°) | Onda 2 |
+| [AUD-CORR-3](#aud-corr-3) | 🟠 IMPORTANTE | ✅ Resolvido `120f72c` | Onda 2 |
+| [AUD-CORR-4](#aud-corr-4) | 🟠 IMPORTANTE | ✅ Resolvido `f41b007` (dead code removido + doc) | Onda 2 |
+| [AUD-CORR-5](#aud-corr-5) | 🟠 IMPORTANTE | ✅ Resolvido `02f0da1` (vaidade→oráculo) | Onda 2 |
 | [AUD-PROV-1](#aud-prov-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
 | [AUD-PROV-2](#aud-prov-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
 | [AUD-PROV-3-6](#aud-prov-3-6) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |

@@ -30,6 +30,10 @@
 
 ## Onda 2 — Robustez / corretude / segurança (🟠 Alta)
 
+> **✅ Onda 2 CONCLUÍDA (2026-07-10)** — pushada. INPUT-3 `f610898`, INPUT-4 `554e0aa` (bypass hardlink refutado), INPUT-5 `2801ea8`, SEC-3 `2c31dda`, MEM-1 `7c06e73` (leak SEP sumiu), SEC-2 `db864ea` (6 SHAs), CORR-2 `0be641b` (mutação prova que pega o +90°), CORR-3 `120f72c`, CORR-4 `f41b007` (dead code removido + doc), CORR-5 `02f0da1` (vaidade→oráculo). Suíte 4426→**4734 assertions** verdes, agora com `detect_leaks=1`. Cada fix passou por reviewer adversarial que EXECUTA.
+>
+> **Residuais/novos (Onda 3-4):** CCfits git-fallback ainda em tag v2.7 (baixo risco, atrás de tarball vendorizado); `applyExtinctionCorrection` não religada à UI (defesa; UI fora de escopo); **AUD-INPUT-6** (UB de alinhamento no `SerHeader` — aborta `.ser` sob UBSan) reconfirmado 2×, subir prioridade; **AUD-TEST-3** (loaders `loadFitsCube`/`loadFitsHdu`/`scanImageHdus` e `FitsTableReader` sem teste).
+>
 > Pré-req: **AUD-CORR-2 depende de AUD-CORR-1 corrigido** (o teste das 8 projeções só fica verde após o fix do polo nativo).
 
 | # | ID (AUD-*) | Feature (remediação) | Severidade | Onda | Prioridade | Link |
