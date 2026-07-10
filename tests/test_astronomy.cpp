@@ -217,3 +217,240 @@ TEST_CASE("WCS pixToSky / skyToPix round-trip is identity", "[astronomy][wcs]")
         REQUIRE_THAT(py1, WithinAbs(py0, 1e-5));
     }
 }
+
+// ─── WCS: 8-projection value-absolute oracle (AUD-CORR-2) ────────────────────
+//
+// The round-trip test above (pre-existing) only ever exercised TAN — the
+// default projection when PlateSolution::projection is never set. Round-trip
+// is a NECESSARY-but-NOT-SUFFICIENT invariant: AUD-CORR-1 showed CAR closing
+// its own round-trip to 8.6e-11 px while reporting a value 90° WRONG in
+// absolute RA (axes swapped). The tests below check absolute (α,δ) against
+// an INDEPENDENT oracle (astropy 8.0.1 `astropy.wcs.WCS`) for all 8
+// projections AstroFind supports, so an axis-swap/90°-offset regression like
+// AUD-CORR-1 fails immediately instead of hiding behind a closed round-trip.
+//
+// Oracle generation scripts (not part of the build):
+//   $SCRATCH/oracle_wcs_onda2.py, oracle_wrap3.py, oracle_pole_mer.py
+// CI has no astropy — all reference values below are hard-coded doubles.
+
+namespace {
+
+struct ProjCase { core::WcsProjection proj; const char* name; };
+
+constexpr ProjCase kAllProjections[] = {
+    { core::WcsProjection::TAN, "TAN" },
+    { core::WcsProjection::SIN, "SIN" },
+    { core::WcsProjection::ARC, "ARC" },
+    { core::WcsProjection::STG, "STG" },
+    { core::WcsProjection::CAR, "CAR" },
+    { core::WcsProjection::MER, "MER" },
+    { core::WcsProjection::GLS, "GLS" },
+    { core::WcsProjection::AIT, "AIT" },
+};
+
+core::PlateSolution makeWcs(core::WcsProjection proj,
+                             double crval1, double crval2,
+                             double crpix1 = 512.0, double crpix2 = 512.0)
+{
+    core::PlateSolution wcs;
+    wcs.solved     = true;
+    wcs.projection = proj;
+    wcs.crval1 = crval1; wcs.crval2 = crval2;
+    wcs.crpix1 = crpix1; wcs.crpix2 = crpix2;
+    wcs.cd1_1  = -1.0 / 3600.0;  // 1"/px, RA flips with +X (standard CCD convention)
+    wcs.cd1_2  = 0.0;
+    wcs.cd2_1  = 0.0;
+    wcs.cd2_2  =  1.0 / 3600.0;
+    return wcs;
+}
+
+} // namespace
+
+TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections", "[astronomy][wcs]")
+{
+    for (const auto& pc : kAllProjections) {
+        INFO("projection = " << pc.name);
+        auto wcs = makeWcs(pc.proj, 180.0, 0.0);
+        double ra = 0.0, dec = 0.0;
+        wcs.pixToSky(wcs.crpix1, wcs.crpix2, ra, dec);
+        CHECK_THAT(ra,  WithinAbs(180.0, 1e-6));   // 1e-6° ≈ 3.6 mas — sub-arcsec
+        CHECK_THAT(dec, WithinAbs(0.0,   1e-6));
+    }
+}
+
+TEST_CASE("WCS: pixToSky/skyToPix round-trip identity, all 8 projections", "[astronomy][wcs]")
+{
+    for (const auto& pc : kAllProjections) {
+        INFO("projection = " << pc.name);
+        auto wcs = makeWcs(pc.proj, 180.0, 0.0);
+        for (auto [px0, py0] : std::initializer_list<std::pair<double,double>>{
+                {512.0, 512.0}, {612.0, 512.0}, {512.0, 612.0}, {462.0, 542.0}}) {
+            double ra, dec, px1, py1;
+            wcs.pixToSky(px0, py0, ra, dec);
+            wcs.skyToPix(ra, dec, px1, py1);
+            CHECK_THAT(px1, WithinAbs(px0, 1e-4));
+            CHECK_THAT(py1, WithinAbs(py0, 1e-4));
+        }
+    }
+}
+
+TEST_CASE("WCS: off-axis pixels match astropy oracle, all 8 projections", "[astronomy][wcs]")
+{
+    // crval=(180,0), crpix=(512,512), 1"/px. Offsets (dx,dy) in pixels from
+    // CRPIX; expected (RA,Dec) in degrees from astropy 8.0.1 (full precision).
+    struct Off { double dx, dy, ra, dec; };
+    struct Case { core::WcsProjection proj; const char* name; Off offs[3]; };
+
+    static const Case kCases[] = {
+        { core::WcsProjection::TAN, "TAN", {
+            {100.0, 0.0, 179.97222222439854, 3.5032515425613497e-15},
+            {0.0, 100.0, 180.0, 0.027777775601464327},
+            {-50.0, 30.0, 180.01388888861686, 0.008333333029741109} } },
+        { core::WcsProjection::SIN, "SIN", {
+            {100.0, 0.0, 179.97222222113405, 3.5032515419615752e-15},
+            {0.0, 100.0, 180.0, 0.02777777886595345},
+            {-50.0, 30.0, 180.0138888891718, 0.008333333362712083} } },
+        { core::WcsProjection::ARC, "ARC", {
+            {100.0, 0.0, 179.97222222222223, 3.503251542161503e-15},
+            {0.0, 100.0, 180.0, 0.027777777777771462},
+            {-50.0, 30.0, 180.01388888898683, 0.008333333251732666} } },
+        { core::WcsProjection::STG, "STG", {
+            {100.0, 0.0, 179.9722222227663, 3.5032515422614646e-15},
+            {0.0, 100.0, 180.0, 0.027777777233694678},
+            {-50.0, 30.0, 180.01388888889431, 0.008333333196226598} } },
+        { core::WcsProjection::CAR, "CAR", {
+            {100.0, 0.0, 179.97222222222223, 0.0},
+            {0.0, 100.0, 180.0, 0.027777777777777776},
+            {-50.0, 30.0, 180.01388888888889, 0.008333333333333333} } },
+        { core::WcsProjection::MER, "MER", {
+            {100.0, 0.0, 179.97222222222223, 0.0},
+            {0.0, 100.0, 180.0, 0.027777776689617895},
+            {-50.0, 30.0, 180.01388888888889, 0.008333333303951918} } },
+        { core::WcsProjection::GLS, "GLS", {
+            {100.0, 0.0, 179.97222222222223, 0.0},
+            {0.0, 100.0, 180.0, 0.027777777777777776},
+            {-50.0, 30.0, 180.0138888890358, 0.008333333333333333} } },
+        { core::WcsProjection::AIT, "AIT", {
+            {100.0, 0.0, 179.97222222215422, 0.0},
+            {0.0, 100.0, 180.0, 0.027777778049819807},
+            {-50.0, 30.0, 180.01388888900757, 0.008333333325376105} } },
+    };
+
+    for (const auto& c : kCases) {
+        INFO("projection = " << c.name);
+        auto wcs = makeWcs(c.proj, 180.0, 0.0);
+        for (const auto& o : c.offs) {
+            double ra = 0.0, dec = 0.0;
+            wcs.pixToSky(wcs.crpix1 + o.dx, wcs.crpix2 + o.dy, ra, dec);
+            CHECK_THAT(ra,  WithinAbs(o.ra,  1e-6));
+            CHECK_THAT(dec, WithinAbs(o.dec, 1e-6));
+        }
+    }
+}
+
+TEST_CASE("WCS: negative Dec field matches astropy oracle", "[astronomy][wcs]")
+{
+    // crval=(45,-30), crpix=(500,500) — this is the case AUD-CORR-1's original
+    // bug would get most visibly wrong (southern-hemisphere target field).
+    struct Off { double dx, dy, ra, dec; };
+    struct Case { core::WcsProjection proj; const char* name; Off offs[2]; };
+    static const Case kCases[] = {
+        { core::WcsProjection::TAN, "TAN", {
+            {100.0, 0.0, 44.967924988395694, -29.999996112399224},
+            {0.0, -100.0, 45.0, -30.02777777560145} } },
+        { core::WcsProjection::CAR, "CAR", {
+            {100.0, 0.0, 44.96792498588271, -29.999996112398623},
+            {0.0, -100.0, 45.0, -30.027777777777764} } },
+        { core::WcsProjection::AIT, "AIT", {
+            {100.0, 0.0, 44.967924985804174, -29.999996112398605},
+            {0.0, -100.0, 45.0, -30.027777778049806} } },
+    };
+    for (const auto& c : kCases) {
+        INFO("projection = " << c.name);
+        auto wcs = makeWcs(c.proj, 45.0, -30.0, 500.0, 500.0);
+        double ra = 0.0, dec = 0.0;
+        wcs.pixToSky(wcs.crpix1, wcs.crpix2, ra, dec);
+        CHECK_THAT(ra,  WithinAbs(45.0,  1e-6));
+        CHECK_THAT(dec, WithinAbs(-30.0, 1e-6));
+        for (const auto& o : c.offs) {
+            wcs.pixToSky(wcs.crpix1 + o.dx, wcs.crpix2 + o.dy, ra, dec);
+            CHECK_THAT(ra,  WithinAbs(o.ra,  1e-6));
+            CHECK_THAT(dec, WithinAbs(o.dec, 1e-6));
+        }
+    }
+}
+
+TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle, all 8 projections", "[astronomy][wcs]")
+{
+    // crval=(0, 89.9), crpix=(500,500) — near the celestial pole, a classic
+    // singularity/branch-cut stress case (φ ill-defined at θ=±90°, and RA
+    // sweeps through the full [0,360) range for a small pixel offset).
+    struct Off { double dx, dy, ra, dec; };
+    struct Case { core::WcsProjection proj; const char* name; Off offs[2]; };
+    static const Case kCases[] = {
+        { core::WcsProjection::TAN, "TAN", {
+            {50.0, 0.0, 352.0928333333852, 89.89904010186643},
+            {0.0, -50.0, 8.556967963118149e-16, 89.88611111138316} } },
+        { core::WcsProjection::SIN, "SIN", {
+            {50.0, 0.0, 352.0928331040057, 89.89904010181031},
+            {0.0, -50.0, 8.556968183868118e-16, 89.8861111109751} } },
+        { core::WcsProjection::ARC, "ARC", {
+            {50.0, 0.0, 352.09283318046795, 89.899040101829},
+            {0.0, -50.0, 8.556968110282499e-16, 89.88611111111112} } },
+        { core::WcsProjection::STG, "STG", {
+            {50.0, 0.0, 352.09283321869907, 89.89904010183838},
+            {0.0, -50.0, 8.556968073489695e-16, 89.88611111117913} } },
+        { core::WcsProjection::CAR, "CAR", {
+            {50.0, 0.0, 352.0928331804665, 89.899040101829},
+            {0.0, -50.0, 0.0, 89.88611111111112} } },
+        { core::WcsProjection::MER, "MER", {
+            {50.0, 0.0, 352.0928331804665, 89.899040101829},
+            {0.0, -50.0, 0.0, 89.88611111111112} } },
+        { core::WcsProjection::GLS, "GLS", {
+            {50.0, 0.0, 352.0928331804665, 89.899040101829},
+            {0.0, -50.0, 0.0, 89.88611111111112} } },
+        { core::WcsProjection::AIT, "AIT", {
+            {50.0, 0.0, 352.09283317568776, 89.89904010182785},
+            {0.0, -50.0, 0.0, 89.88611111107711} } },
+    };
+    for (const auto& c : kCases) {
+        INFO("projection = " << c.name);
+        auto wcs = makeWcs(c.proj, 0.0, 89.9, 500.0, 500.0);
+        double ra = 0.0, dec = 0.0;
+        wcs.pixToSky(wcs.crpix1, wcs.crpix2, ra, dec);
+        CHECK_THAT(dec, WithinAbs(89.9, 1e-6));
+        for (const auto& o : c.offs) {
+            wcs.pixToSky(wcs.crpix1 + o.dx, wcs.crpix2 + o.dy, ra, dec);
+            CHECK_THAT(ra,  WithinAbs(o.ra,  1e-6));
+            CHECK_THAT(dec, WithinAbs(o.dec, 1e-6));
+        }
+    }
+}
+
+TEST_CASE("WCS: RA wrap across 0/360 matches astropy oracle, all 8 projections", "[astronomy][wcs]")
+{
+    // crval=(0.01,10), crpix=(500,500); pixel +60 in X crosses the RA=0
+    // meridian and must normalise to just under 360°, not go negative.
+    struct Ref { core::WcsProjection proj; const char* name; double ra, dec; };
+    static const Ref kRefs[] = {
+        { core::WcsProjection::TAN, "TAN", 359.99307622362744, 9.999999572571369 },
+        { core::WcsProjection::SIN, "SIN", 359.99307622291144, 9.999999572571333 },
+        { core::WcsProjection::ARC, "ARC", 359.99307622315007, 9.999999572571346 },
+        { core::WcsProjection::STG, "STG", 359.99307622326944, 9.999999572571351 },
+        { core::WcsProjection::CAR, "CAR", 359.99307622315007, 9.99999957257134  },
+        { core::WcsProjection::MER, "MER", 359.99307622315007, 9.99999957257134  },
+        { core::WcsProjection::GLS, "GLS", 359.99307622315007, 9.99999957257134  },
+        { core::WcsProjection::AIT, "AIT", 359.9930762231352,  9.999999572571339 },
+    };
+    for (const auto& r : kRefs) {
+        INFO("projection = " << r.name);
+        auto wcs = makeWcs(r.proj, 0.01, 10.0, 500.0, 500.0);
+        double ra = 0.0, dec = 0.0;
+        wcs.pixToSky(wcs.crpix1 + 60.0, wcs.crpix2, ra, dec);
+        REQUIRE(ra >= 0.0);
+        REQUIRE(ra < 360.0);
+        CHECK_THAT(ra,  WithinAbs(r.ra,  1e-6));
+        CHECK_THAT(dec, WithinAbs(r.dec, 1e-6));
+    }
+}
+
