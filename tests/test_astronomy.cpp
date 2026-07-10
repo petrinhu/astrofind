@@ -570,3 +570,101 @@ TEST_CASE("Refraction: R monotonically decreases as altitude increases", "[astro
     }
 }
 
+
+// ─── Ecliptic / galactic frame conversions (AUD-CORR-4) ──────────────────────
+//
+// eclipticToEquatorial() and equatorialToGalactic() feed the ecliptic/
+// galactic-plane overlay (feature #16) — real callers in FitsImageView.cpp —
+// but had zero tests. Oracle values below are well-known astronomical facts
+// (vernal equinox, solstice, galactic centre direction), independent of this
+// codebase's own formulas.
+
+TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0, Dec=0",
+          "[astronomy][ecliptic]")
+{
+    double ra = 0.0, dec = 0.0;
+    core::eclipticToEquatorial(0.0, 0.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(0.0, 1e-9));
+    CHECK_THAT(dec, WithinAbs(0.0, 1e-9));
+}
+
+TEST_CASE("eclipticToEquatorial: summer solstice (lambda=90) maps to RA=90, Dec=+obliquity",
+          "[astronomy][ecliptic]")
+{
+    // At the solstice point (beta=0, lambda=90): Dec = obliquity of the
+    // ecliptic exactly, RA = 90 exactly — a textbook spherical-trig identity,
+    // independent of any AstroFind formula.
+    double ra = 0.0, dec = 0.0;
+    core::eclipticToEquatorial(90.0, 0.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(90.0, 1e-9));
+    CHECK_THAT(dec, WithinAbs(23.4392911, 1e-6));   // IAU J2000.0 mean obliquity
+}
+
+TEST_CASE("eclipticToEquatorial: winter solstice (lambda=270) maps to Dec=-obliquity",
+          "[astronomy][ecliptic]")
+{
+    double ra = 0.0, dec = 0.0;
+    core::eclipticToEquatorial(270.0, 0.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(270.0, 1e-9));
+    CHECK_THAT(dec, WithinAbs(-23.4392911, 1e-6));
+}
+
+TEST_CASE("equatorialToGalactic: known galactic-centre direction maps close to l=0,b=0",
+          "[astronomy][galactic]")
+{
+    // Widely-cited J2000 equatorial coordinates of the galactic centre
+    // (Sgr A*, IAU 1958 system reference direction): RA=266.405, Dec=-28.936.
+    // By the definition of the IAU galactic coordinate system this direction
+    // is (l,b) ≈ (0,0); residual ~0.001° is the historical rounding in the
+    // commonly-quoted RA/Dec figure, not a code error.
+    double l = 0.0, b = 0.0;
+    core::equatorialToGalactic(266.405, -28.936, l, b);
+    const double lWrapped = (l > 180.0) ? l - 360.0 : l;   // compare near 0, not 360
+    CHECK_THAT(lWrapped, WithinAbs(0.0, 0.01));
+    CHECK_THAT(b,        WithinAbs(0.0, 0.01));
+}
+
+TEST_CASE("equatorialToGalactic: north galactic pole maps to b=+90", "[astronomy][galactic]")
+{
+    // The NGP is at RA=192.859508, Dec=27.128336 by definition — must map to
+    // b=+90 exactly (l is undefined/degenerate there, not checked).
+    double l = 0.0, b = 0.0;
+    core::equatorialToGalactic(192.859508, 27.128336, l, b);
+    CHECK_THAT(b, WithinAbs(90.0, 1e-6));
+}
+
+// ─── Annual aberration (AUD-CORR-4) ──────────────────────────────────────────
+//
+// annualAberrationComponents() DOES have a real caller (MainWindow_measurement
+// .cpp, for diagnostic logging only — the plate solution already absorbs
+// aberration, see Astronomy.h doc comment), so it is kept (not dead code),
+// but had zero tests. Property test: total shift is bounded by the IAU
+// constant of aberration kappa=20.49552" for any date/position (Meeus 23.3
+// is a first-order truncation of an ellipse of semi-major axis kappa).
+
+TEST_CASE("annualAberrationComponents: total magnitude never exceeds kappa=20.4954\"",
+          "[astronomy][aberration]")
+{
+    for (double jd : {2451545.0, 2451545.0 + 91.0, 2451545.0 + 182.0, 2451545.0 + 273.0}) {
+        for (auto [ra, dec] : std::initializer_list<std::pair<double,double>>{
+                {0.0, 0.0}, {90.0, 45.0}, {180.0, -60.0}, {270.0, 80.0}}) {
+            double dRa = 0.0, dDec = 0.0;
+            const double mag = core::annualAberrationComponents(ra, dec, jd, dRa, dDec);
+            INFO("jd=" << jd << " ra=" << ra << " dec=" << dec << " mag=" << mag);
+            CHECK(mag >= 0.0);
+            CHECK(mag <= 20.4954 + 1e-4);   // kappa, with small numeric margin
+        }
+    }
+}
+
+TEST_CASE("annualAberrationComponents: at the ecliptic pole the shift is (near-)pure kappa",
+          "[astronomy][aberration]")
+{
+    // At the ecliptic pole (beta=90) the star-Sun angle is always 90°, so the
+    // aberration ellipse degenerates to a circle of radius kappa — the
+    // classic textbook maximum-shift case.  Approximate the ecliptic pole in
+    // equatorial coordinates: RA=270, Dec=90-obliquity=66.5607089.
+    double dRa = 0.0, dDec = 0.0;
+    const double mag = core::annualAberrationComponents(270.0, 66.5607089, 2451545.0, dRa, dDec);
+    CHECK_THAT(mag, WithinAbs(20.49552, 0.01));
+}
