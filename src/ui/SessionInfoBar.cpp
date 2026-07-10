@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "SessionInfoBar.h"
 #include "core/ImageSession.h"
 #include "core/FitsImage.h"

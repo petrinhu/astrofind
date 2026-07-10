@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 /// @file MainWindow_p.h
 /// Private implementation header — included by all MainWindow_*.cpp TUs.
 /// Centralises the heavy include list so each split file only needs one line.
