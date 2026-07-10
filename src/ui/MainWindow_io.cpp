@@ -1,5 +1,27 @@
 #include "MainWindow_p.h"
 
+#include <sys/stat.h>
+
+namespace {
+
+// AUD-INPUT-4: unzip(1) happily recreates a ZIP entry stored as a symlink
+// (or, with the Unix extra field, a FIFO/device) under its original name —
+// including a name ending in ".fits". QDir::Files/QDirIterator dereferences
+// symlinks, so a "*.fits" entry that is actually a symlink to /etc/passwd or
+// ~/.ssh/id_rsa would otherwise sail through and be handed to loadImage(),
+// which follows the link (arbitrary file read) or hangs (FIFO). lstat (which
+// does NOT follow the link) is the only way to see the entry's real type;
+// only S_ISREG is accepted.
+bool isSafeRegularFile(const QString& path)
+{
+    struct stat st{};
+    if (::lstat(path.toLocal8Bit().constData(), &st) != 0)
+        return false;
+    return S_ISREG(st.st_mode);
+}
+
+} // namespace
+
 void MainWindow::onLoadImages()
 {
     const QString ccdDir  = settings_.value(QStringLiteral("paths/ccdDir")).toString();
@@ -1448,6 +1470,22 @@ QStringList MainWindow::expandArchive(const QString& archivePath)
             continue;
         }
 
+        // AUD-INPUT-4: reject any entry that is not a plain regular file
+        // BEFORE recreating it on disk. Without this check, an entry named
+        // "*.fits" that is actually a symlink (or FIFO/device) is happily
+        // written by archive_write_disk and handed back to loadImage(),
+        // which follows the link — arbitrary file read (e.g. /etc/passwd,
+        // ~/.ssh/id_rsa) or a hang on a FIFO, all from an untrusted archive.
+        // Only AE_IFREG is accepted; symlinks/FIFOs/devices/sockets/dirs
+        // are skipped and logged.
+        if (archive_entry_filetype(entry) != AE_IFREG) {
+            logPanel_->appendWarning(
+                tr("Skipped non-regular archive entry (symlink/device/FIFO not allowed): %1")
+                    .arg(QString::fromUtf8(pathname)));
+            archive_read_data_skip(ar);
+            continue;
+        }
+
         // Flatten to basename — avoids recreating the archive's directory tree
         const QString baseName = QFileInfo(QString::fromUtf8(pathname)).fileName();
         const QString destPath = extractDir + QDir::separator() + baseName;
@@ -1524,8 +1562,18 @@ QStringList MainWindow::expandZip(const QString& zipPath)
                      "*.ser", "*.SER", "*.xisf", "*.XISF",
                      "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG"},
                     QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext())
-        result.append(it.next());
+    while (it.hasNext()) {
+        const QString candidate = it.next();
+        // AUD-INPUT-4: reject anything unzip recreated that is not a plain
+        // regular file (symlink/FIFO/device) — see isSafeRegularFile above.
+        if (!isSafeRegularFile(candidate)) {
+            logPanel_->appendWarning(
+                tr("Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1")
+                    .arg(candidate));
+            continue;
+        }
+        result.append(candidate);
+    }
     result.sort();
 
     if (result.isEmpty())
