@@ -345,7 +345,8 @@ constexpr int kMaxImageAxes = 3;
 // ceiling — far beyond any real astronomical CCD/mosaic frame (largest known
 // single-shot sensors are on the order of 10-15k px/side, tens to ~150 MP)
 // but 50-2000x smaller than the attack payloads seen in the audit fixtures.
-constexpr long      kMaxImageDim    = 20000;         // per-axis ceiling (px)
+constexpr long      kMaxImageDim    = 20000;         // per-axis ceiling (px, NAXIS1/NAXIS2)
+constexpr long      kMaxCubeDepth   = 100000;        // NAXIS3 ceiling (frames/planes)
 constexpr long long kMaxImagePixels = 200'000'000LL; // ~800 MB/plane as float
 
 /// Validates declared FITS image dimensions (still as `long`, pre-cast to
@@ -363,11 +364,27 @@ bool validateImageDims(long w, long h, long depth, const QString& filePath, QStr
                   .arg(filePath).arg(w).arg(h).arg(depth);
         return false;
     }
+    // ALL THREE axes must clear their per-axis ceiling BEFORE the product is
+    // computed. Bounding depth here is not optional: NAXIS3 arrives as a raw
+    // `long`, and a huge value (e.g. 144115188575855872, valid in `long`)
+    // would make `w*h*depth` overflow — signed integer overflow is UB (UBSan
+    // aborts in Debug; in Release it wraps to a negative that then bypasses
+    // BOTH the totalPixels ceiling and the file-size cross-check, and the
+    // subsequent static_cast<int>(depth) truncates to garbage fed into
+    // loadFitsCube's reserve()/loop. With w,h <= 20000 and depth <= 100000
+    // the product is at most 4e13, far inside long long — no overflow path
+    // remains. (AUD-INPUT-2 follow-up; found by adversarial review.)
     if (w > kMaxImageDim || h > kMaxImageDim) {
         err = QObject::tr("Image dimension too large in '%1' (%2 x %3 px, ceiling %4 px/axis)")
                   .arg(filePath).arg(w).arg(h).arg(kMaxImageDim);
         return false;
     }
+    if (depth > kMaxCubeDepth) {
+        err = QObject::tr("Cube depth too large in '%1' (NAXIS3=%2, ceiling %3)")
+                  .arg(filePath).arg(depth).arg(kMaxCubeDepth);
+        return false;
+    }
+    // Safe now: every factor is bounded, so the product cannot overflow.
     const long long totalPixels = static_cast<long long>(w) * static_cast<long long>(h)
                                  * static_cast<long long>(depth);
     if (totalPixels > kMaxImagePixels) {
