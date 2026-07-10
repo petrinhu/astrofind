@@ -189,8 +189,13 @@ std::optional<ZeroPointResult> computeDifferentialZeroPoint(
         double px = 0.0, py = 0.0;
         img.wcs.skyToPix(raCorr, decCorr, px, py);
 
-        // Edge exclusion
-        if (px < edgeMargin || py < edgeMargin ||
+        // Edge exclusion.
+        // AUD-MEM-3 (same pattern): comparisons against NaN are always false,
+        // so a WCS solution that projects a catalog star to a non-finite
+        // pixel would silently bypass this exclusion instead of being
+        // rejected. Check isfinite() explicitly.
+        if (!std::isfinite(px) || !std::isfinite(py) ||
+            px < edgeMargin || py < edgeMargin ||
             px > img.width  - edgeMargin ||
             py > img.height - edgeMargin)
             continue;

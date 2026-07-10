@@ -196,8 +196,12 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
         if (std::hypot(cx - prevCx, cy - prevCy) < kTol) break;
     }
 
-    // Sanity check: centroid must stay within the search box
-    if (cx < x0 || cx > x1 || cy < y0 || cy > y1) return seed;
+    // Sanity check: centroid must stay within the search box.
+    // AUD-MEM-3: comparisons against NaN are always false, so a plain
+    // range check silently lets a diverged NaN/Inf centroid through.
+    // isfinite() must be checked explicitly, not implied by the range test.
+    if (!std::isfinite(cx) || !std::isfinite(cy) ||
+        cx < x0 || cx > x1 || cy < y0 || cy > y1) return seed;
 
     const double fwhm = 2.355 * sigma;
     const double snr  = (bkg > 0.0) ? amp / std::sqrt(amp + bkg) : std::sqrt(amp);
@@ -384,9 +388,16 @@ std::optional<CentroidResult> findCentroidElliptical(const FitsImage& img,
     thetaDeg = std::fmod(thetaDeg + 360.0, 180.0);
     if (thetaDeg > 90.0) thetaDeg -= 180.0;
 
-    // Sanity check: centroid within search box, sigma plausible
-    if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) return seed;
-    if (p[2] > boxRadius || p[3] > boxRadius)               return seed;
+    // Sanity check: centroid within search box, sigma plausible.
+    // AUD-MEM-3: comparisons against NaN are always false, so a plain range
+    // check silently lets a diverged NaN/Inf centroid/sigma through. isfinite()
+    // must be checked explicitly — this is the exact gap flagged for
+    // findCentroidElliptical/findCentroidPsf (the two LM-fit routines), where
+    // Astronomy/Calibration/FitsImage already use isfinite but these did not.
+    if (!std::isfinite(p[0]) || !std::isfinite(p[1]) ||
+        p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) return seed;
+    if (!std::isfinite(p[2]) || !std::isfinite(p[3]) ||
+        p[2] > boxRadius || p[3] > boxRadius)               return seed;
 
     const double fwhmA = 2.355 * p[2];
     const double fwhmB = 2.355 * p[3];
