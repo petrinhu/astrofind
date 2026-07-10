@@ -15,6 +15,13 @@
 
 namespace core {
 
+namespace {
+// AUD-SEC-3: every outbound request needs a transfer timeout, or a server
+// that accepts the connection and never responds hangs busy_/state_ forever
+// (DoS of the plate-solving feature until process restart).
+constexpr int kHttpTimeoutMs = 30000;
+} // namespace
+
 AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
     : QObject(parent)
     , nam_(nam)
@@ -25,7 +32,9 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
         if (state_ == State::WaitingForJob) {
             // Poll submission → get job list
             const QUrl url(baseUrl_ + "/api/submissions/" + QString::number(submissionId_));
-            auto* reply = nam_->get(QNetworkRequest(url));
+            QNetworkRequest req(url);
+            req.setTransferTimeout(kHttpTimeoutMs);
+            auto* reply = nam_->get(req);
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
                 if (reply->error() != QNetworkReply::NoError) {
@@ -51,7 +60,9 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
         } else if (state_ == State::PollingJob) {
             // Poll job info → check status
             const QUrl url(baseUrl_ + "/api/jobs/" + QString::number(jobId_) + "/info");
-            auto* reply = nam_->get(QNetworkRequest(url));
+            QNetworkRequest req(url);
+            req.setTransferTimeout(kHttpTimeoutMs);
+            auto* reply = nam_->get(req);
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
                 if (reply->error() != QNetworkReply::NoError) {
@@ -126,6 +137,7 @@ void AstrometryClient::doLogin()
     QNetworkRequest req(QUrl(baseUrl_ + "/api/login"));
     req.setHeader(QNetworkRequest::ContentTypeHeader,
                   "application/x-www-form-urlencoded");
+    req.setTransferTimeout(kHttpTimeoutMs);
 
     const nlohmann::json j = {{"apikey", apiKey_.toStdString()}};
     const QByteArray body  = "request-json=" +
@@ -197,6 +209,7 @@ void AstrometryClient::doUpload()
     multiPart->append(filePart);
 
     QNetworkRequest req(QUrl(baseUrl_ + "/api/upload"));
+    req.setTransferTimeout(kHttpTimeoutMs);
     auto* reply  = nam_->post(req, multiPart);
     multiPart->setParent(reply);
     currentReply_ = reply;
@@ -235,7 +248,9 @@ void AstrometryClient::doDownloadWcs()
     emit progress(tr("Downloading WCS solution..."), 90);
 
     const QUrl url(baseUrl_ + "/wcs_file/" + QString::number(jobId_));
-    auto* reply  = nam_->get(QNetworkRequest(url));
+    QNetworkRequest req(url);
+    req.setTransferTimeout(kHttpTimeoutMs);
+    auto* reply  = nam_->get(req);
     currentReply_ = reply;
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {

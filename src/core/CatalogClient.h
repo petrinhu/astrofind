@@ -5,8 +5,10 @@
 #include <QObject>
 #include <QVector>
 #include <QString>
+#include <QPointer>
 
 class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace core {
 
@@ -28,6 +30,9 @@ public:
 
     bool isBusy() const noexcept { return busy_; }
 
+    /// Abort the in-flight VizieR request (if any) and reset busy state.
+    void cancel();
+
 signals:
     void starsReady(const QVector<core::CatalogStar>& stars);
     void failed(const QString& reason);
@@ -44,6 +49,7 @@ private:
     QVector<CatalogStar> parseVizierJson(const QByteArray& data) const;
 
     QNetworkAccessManager* nam_;
+    QPointer<QNetworkReply> currentReply_;
     bool    busy_        = false;
     QString dbPath_;
     QString vizierUrl_   = QStringLiteral("https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync");

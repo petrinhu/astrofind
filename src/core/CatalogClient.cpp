@@ -20,6 +20,13 @@ namespace core {
 // SQLite connection name
 static const char* kDbConnection = "astrofind_catalog";
 
+namespace {
+// AUD-SEC-3: bound every request so a stalled VizieR server can't hang
+// busy_=true forever (transfer timeout resets on any progress, so slow-but-
+// alive downloads are not affected).
+constexpr int kHttpTimeoutMs = 30000;
+} // namespace
+
 CatalogClient::CatalogClient(QNetworkAccessManager* nam, QObject* parent)
     : QObject(parent)
     , nam_(nam)
@@ -89,10 +96,20 @@ void CatalogClient::queryRegion(double ra, double dec,
     spdlog::debug("CatalogClient: querying VizieR ({}) ra={:.4f} dec={:.4f} r={:.2f}°",
                   catalogType_.toUtf8().constData(), ra, dec, radiusDeg);
 
-    busy_      = true;
-    auto* reply = nam_->get(QNetworkRequest(url));
+    QNetworkRequest req(url);
+    req.setTransferTimeout(kHttpTimeoutMs);
+
+    busy_         = true;
+    auto* reply   = nam_->get(req);
+    currentReply_ = reply;
     connect(reply, &QNetworkReply::finished, this, &CatalogClient::onReply);
-    reply->setProperty("reply_ptr", QVariant::fromValue(reply));
+}
+
+void CatalogClient::cancel()
+{
+    if (!currentReply_.isNull())
+        currentReply_->abort();
+    busy_ = false;
 }
 
 void CatalogClient::onReply()
@@ -100,6 +117,8 @@ void CatalogClient::onReply()
     auto* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
     reply->deleteLater();
+    if (reply == currentReply_)
+        currentReply_ = nullptr;
     busy_ = false;
 
     if (reply->error() != QNetworkReply::NoError) {
