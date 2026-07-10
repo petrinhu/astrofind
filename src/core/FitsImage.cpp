@@ -30,19 +30,55 @@ constexpr double D2R = M_PI / 180.0;
 constexpr double R2D = 180.0 / M_PI;
 constexpr double R0  = R2D;  // sphere radius r₀ in degrees
 
-// φ_p: native longitude of the celestial pole.
-// Zenithal projections (θ₀=90°): φ_p = 180° (WCS Paper II §2.4, eq. 82).
-// Cylindrical/conventional (θ₀=0°): φ_p = 90° if δ_p ≥ 0, else 270°.
-inline double nativePoleAngle(WcsProjection proj, double crval2)
+// Celestial pole (α_p, δ_p) and native longitude of the celestial pole
+// (φ_p = LONPOLE), derived from the reference point CRVAL=(α0,δ0) and the
+// projection's native fiducial point (φ0,θ0), per Calabretta & Greisen 2002
+// (WCS Paper II, A&A 395, 1077), §2.4/§2.7 eqs. 8-10 — general fiducial-point
+// determination of the celestial pole given (φ0,θ0,α0,δ0,φ_p).
+//
+// AUD-CORR-1 fix: the previous code always treated CRVAL as the native pole
+// itself and used φ_p ∈ {90°,270°} for non-zenithal projections. That is only
+// correct when the fiducial point coincides with the native pole, i.e.
+// θ0=90° (zenithal: TAN/SIN/ARC/STG, Table 13). For the cylindrical /
+// pseudocylindrical family used here (CAR, MER, GLS/SFL, AIT) the native
+// fiducial point is on the native EQUATOR: (φ0,θ0) = (0°,0°) (WCS Paper II
+// Table 13). Solving eqs. 8-10 for φ0=θ0=0 collapses (closed form, derived
+// from the spherical triangle NCP–native-pole–fiducial-point) to:
+//
+//   δ0 ≥ 0°  → φ_p = 0°,   δ_p = 90° − δ0,  α_p = α0 + 180° (mod 360°)
+//   δ0 <  0° → φ_p = 180°, δ_p = 90° + δ0,  α_p = α0
+//
+// (default LONPOLE rule per the standard: 0° if δ0≥θ0, else 180°, with θ0=0
+// here). Verified against astropy 8.0.1 (WCS) for CAR/MER/GLS/AIT — the
+// reference pixel round-trips to CRVAL and ±100px offsets move the expected
+// axis (X→RA, Y→Dec) to sub-arcsecond agreement; see delta_wcs.cpp/oracle_wcs.py.
+inline void celestialPole(WcsProjection proj, double crval1, double crval2,
+                          double& alpha_p, double& delta_p, double& phi_p) noexcept
 {
     switch (proj) {
         case WcsProjection::TAN:
         case WcsProjection::SIN:
         case WcsProjection::ARC:
         case WcsProjection::STG:
-            return 180.0;
+            // Zenithal: fiducial point == native pole (φ0,θ0)=(0°,90°) → the
+            // celestial pole coincides trivially with CRVAL, φ_p = 180°.
+            phi_p   = 180.0;
+            alpha_p = crval1;
+            delta_p = crval2;
+            return;
         default:
-            return crval2 >= 0.0 ? 90.0 : 270.0;
+            // Cylindrical/pseudocylindrical: fiducial point on native equator
+            // (φ0,θ0)=(0°,0°) — see derivation above.
+            if (crval2 >= 0.0) {
+                phi_p   = 0.0;
+                delta_p = 90.0 - crval2;
+                alpha_p = std::fmod(crval1 + 180.0, 360.0);
+            } else {
+                phi_p   = 180.0;
+                delta_p = 90.0 + crval2;
+                alpha_p = crval1;
+            }
+            return;
     }
 }
 
@@ -255,16 +291,18 @@ void PlateSolution::pixToSky(double px, double py, double& ra, double& dec) cons
     }
 
     // Step 3: native spherical → celestial
-    const double phi_p = nativePoleAngle(projection, crval2);
-    nativeToCelestial(phi, theta, crval1, crval2, phi_p, ra, dec);
+    double alpha_p = 0.0, delta_p = 0.0, phi_p = 0.0;
+    celestialPole(projection, crval1, crval2, alpha_p, delta_p, phi_p);
+    nativeToCelestial(phi, theta, alpha_p, delta_p, phi_p, ra, dec);
 }
 
 void PlateSolution::skyToPix(double ra, double dec, double& px, double& py) const noexcept
 {
     // Step 3 inverse: celestial → native spherical
-    const double phi_p = nativePoleAngle(projection, crval2);
+    double alpha_p = 0.0, delta_p = 0.0, phi_p = 0.0;
+    celestialPole(projection, crval1, crval2, alpha_p, delta_p, phi_p);
     double phi = 0.0, theta = 0.0;
-    celestialToNative(ra, dec, crval1, crval2, phi_p, phi, theta);
+    celestialToNative(ra, dec, alpha_p, delta_p, phi_p, phi, theta);
 
     // Step 2 inverse: native spherical → IWC
     double x = 0.0, y = 0.0;
