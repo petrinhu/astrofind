@@ -452,17 +452,17 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 
 | ID | Severidade | Status remediação | Item TODO |
 |---|:---:|:---:|:---:|
-| [AUD-INPUT-1](#aud-input-1) | 🔴 CRÍTICO | ❌ Pendente | Onda 1 |
-| [AUD-INPUT-2](#aud-input-2) | 🔴 CRÍTICO | ❌ Pendente | Onda 1 |
-| [AUD-CORR-1](#aud-corr-1) | 🔴 CRÍTICO | ❌ Pendente | Onda 1 |
-| [AUD-MEM-2](#aud-mem-2) | 🔴 CRÍTICO | ❌ Pendente | Onda 1 |
-| [AUD-MEM-3](#aud-mem-3) | 🔴 CRÍTICO | ❌ Pendente | Onda 1 |
-| [AUD-SEC-1](#aud-sec-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 1 |
+| [AUD-INPUT-1](#aud-input-1) | 🔴 CRÍTICO | ✅ Resolvido `0463796` | Onda 1 |
+| [AUD-INPUT-2](#aud-input-2) | 🔴 CRÍTICO | ✅ Resolvido `f3a7534`+`1d0fe30` | Onda 1 |
+| [AUD-CORR-1](#aud-corr-1) | 🔴 CRÍTICO | ✅ Resolvido `9d3e43b` (astropy 168/168) | Onda 1 |
+| [AUD-MEM-2](#aud-mem-2) | 🔴 CRÍTICO | ✅ Resolvido `2dfc872`+`b3295c8` | Onda 1 |
+| [AUD-MEM-3](#aud-mem-3) | 🔴 CRÍTICO | ✅ Resolvido `44d6f22` | Onda 1 |
+| [AUD-SEC-1](#aud-sec-1) | 🟠 IMPORTANTE | ✅ Resolvido `1a9ff5b` + token rotacionado | Onda 1 |
 | [AUD-INPUT-3](#aud-input-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
 | [AUD-INPUT-4](#aud-input-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
 | [AUD-INPUT-5](#aud-input-5) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
 | [AUD-MEM-1](#aud-mem-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
-| [AUD-MEM-4](#aud-mem-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
+| [AUD-MEM-4](#aud-mem-4) | 🟠 IMPORTANTE | ✅ Resolvido `f3a7534`+`1d0fe30` (junto do INPUT-2) | Onda 1 |
 | [AUD-SEC-2](#aud-sec-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
 | [AUD-SEC-3](#aud-sec-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
 | [AUD-CORR-2](#aud-corr-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 2 |
@@ -492,4 +492,4 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 
 ## 8. Parecer de prontidão
 
-**NÃO PRONTO para release** enquanto a Onda 1 (4 CRÍTICOS + `.runner`) estiver aberta. Os CRÍTICOS de input hostil ([AUD-INPUT-1/2](#aud-input-1)) e o CRÍTICO de memória ([AUD-MEM-2](#aud-mem-2)) causam crash/UB ao abrir arquivo de terceiro; o CRÍTICO de corretude ([AUD-CORR-1](#aud-corr-1)) põe coordenada errada no MPC. Duas divergências de severidade ficam registradas para o auditor externo: [AUD-SEC-1](#aud-sec-1) (CI-finder=CRÍTICO vs adjudicado IMPORTANTE) e [AUD-PROV-1](#aud-prov-1) (PROV-finder=CRÍTICO-compliance vs adjudicado IMPORTANTE, requer jurídico). O restante é débito de robustez, corretude testável, higiene de CI/doc e proveniência de licenças — endereçável nas Ondas 2–4.
+**Onda 1 RESOLVIDA em 2026-07-10** (branch `audit-remediation-onda1`, pushada; implementer ≠ reviewer adversarial ≠ orquestrador; suíte ASan/UBSan 100% verde; WCS validado vs astropy nas 8 projeções). Os 4 CRÍTICOS + `.runner` + AUD-MEM-4 estão fechados. **Bloqueadores de release removidos** — falta o merge à `main` (com CI) e as Ondas 2-4. Registro histórico do risco original: os CRÍTICOS de input hostil ([AUD-INPUT-1/2](#aud-input-1)) e de memória ([AUD-MEM-2](#aud-mem-2)) causavam crash/UB ao abrir arquivo de terceiro; o CRÍTICO de corretude ([AUD-CORR-1](#aud-corr-1)) punha coordenada errada no MPC. Duas divergências de severidade ficam registradas para o auditor externo: [AUD-SEC-1](#aud-sec-1) (CI-finder=CRÍTICO vs adjudicado IMPORTANTE) e [AUD-PROV-1](#aud-prov-1) (PROV-finder=CRÍTICO-compliance vs adjudicado IMPORTANTE, requer jurídico). O restante é débito de robustez, corretude testável, higiene de CI/doc e proveniência de licenças — endereçável nas Ondas 2–4.

@@ -1,21 +1,30 @@
 # TODO — Remediação da Auditoria AstroFind
 
-> **Nota:** Feats de remediação oriundas da auditoria read-only de 2026-07-10; ver [`AUDIT_FIND.md`](AUDIT_FIND.md). Status inicial: todos ❌ Pendente. Fase de remediação sob decisão do líder.
+> **Nota:** Feats de remediação oriundas da auditoria read-only de 2026-07-10; ver [`AUDIT_FIND.md`](AUDIT_FIND.md). Fase de remediação sob decisão do líder.
 >
-> Ordenação: topological + WSJF, urgentes no topo. Links por âncora de ID (nunca por linha). Legenda de status: ❌ Pendente.
+> Ordenação: topological + WSJF, urgentes no topo. Links por âncora de ID (nunca por linha). Legenda: ✅ Resolvido · ❌ Pendente.
+>
+> **✅ Onda 1 CONCLUÍDA (2026-07-10)** — branch `audit-remediation-onda1` (pushada; CI só no fim de tudo). Implementer ≠ reviewer adversarial ≠ orquestrador; cada review adversarial pegou 1 bug real (bypass de overflow no NAXIS3; fail-open NaN no netFlux), corrigidos. Suíte ASan/UBSan 100% verde, WCS validado vs astropy nas 8 projeções.
 
 ---
 
 ## Onda 1 — CRÍTICOS + token vivo (🔴 Urgente)
 
-| # | ID (AUD-*) | Feature (remediação) | Severidade | Onda | Prioridade | Link |
-|---|---|---|:---:|:---:|:---:|---|
-| 1 | AUD-INPUT-1 | Rejeitar `naxis > 3` antes de qualquer chamada cfitsio nos 3 call sites (fim do stack-buffer-overflow) | 🔴 CRÍTICO | 1 | 🔴 Urgente | [AUD-INPUT-1](AUDIT_FIND.md#aud-input-1) |
-| 2 | AUD-INPUT-2 | Validar dimensões contra teto + `QFileInfo::size()`; try/catch nos resize; nunca deixar exceção escapar de slot Qt | 🔴 CRÍTICO | 1 | 🔴 Urgente | [AUD-INPUT-2](AUDIT_FIND.md#aud-input-2) |
-| 3 | AUD-CORR-1 | Corrigir polo nativo p/ projeções não-zenitais (WCS Paper II eqs 8-10) ou delegar ao WCSLIB — fim do erro +90° no MPC | 🔴 CRÍTICO | 1 | 🔴 Urgente | [AUD-CORR-1](AUDIT_FIND.md#aud-corr-1) |
-| 4 | AUD-MEM-2 | Guard `isfinite` na entrada de centroid/photometry/zeropoint (fim do abort NaN/Inf→INT_MIN) | 🔴 CRÍTICO | 1 | 🔴 Urgente | [AUD-MEM-2](AUDIT_FIND.md#aud-mem-2) |
-| 5 | AUD-MEM-3 | Guard de sanidade de centroide à prova de NaN (`!isfinite \|\| fora do box`) em elliptical/psf | 🔴 CRÍTICO | 1 | 🔴 Urgente | [AUD-MEM-3](AUDIT_FIND.md#aud-mem-3) |
-| 6 | AUD-SEC-1 | `.runner` → `.gitignore` + `chmod 600` + rotacionar token no Codeberg + gate gitleaks (trivial, alto risco) | 🟠 IMPORTANTE | 1 | 🔴 Urgente | [AUD-SEC-1](AUDIT_FIND.md#aud-sec-1) |
+| # | ID (AUD-*) | Feature (remediação) | Severidade | Status | Commit(s) | Link |
+|---|---|---|:---:|:---:|---|---|
+| 1 | AUD-INPUT-1 | Rejeitar `naxis > 3` antes de qualquer chamada cfitsio (fim do stack-buffer-overflow) | 🔴 CRÍTICO | ✅ Resolvido | `0463796` | [AUD-INPUT-1](AUDIT_FIND.md#aud-input-1) |
+| 2 | AUD-INPUT-2 | Validar dims (w/h/depth) contra teto + `fileSize` antes do produto; `safeResizeFloat` | 🔴 CRÍTICO | ✅ Resolvido | `f3a7534` + `1d0fe30` (fix bypass NAXIS3) | [AUD-INPUT-2](AUDIT_FIND.md#aud-input-2) |
+| 3 | AUD-CORR-1 | Polo nativo correto p/ não-zenitais (WCS Paper II, in-house) — fim do +90° no MPC | 🔴 CRÍTICO | ✅ Resolvido | `9d3e43b` (validado vs astropy 168/168) | [AUD-CORR-1](AUDIT_FIND.md#aud-corr-1) |
+| 4 | AUD-MEM-2 | Guard `isfinite` antes de `static_cast<int>` + rejeitar `netFlux` NaN (fim do abort e do fail-open) | 🔴 CRÍTICO | ✅ Resolvido | `2dfc872` + `b3295c8` (fix fail-open netFlux) | [AUD-MEM-2](AUDIT_FIND.md#aud-mem-2) |
+| 5 | AUD-MEM-3 | Guard de sanidade de centroide à prova de NaN (`!isfinite \|\| fora do box`) | 🔴 CRÍTICO | ✅ Resolvido | `44d6f22` | [AUD-MEM-3](AUDIT_FIND.md#aud-mem-3) |
+| 5b | AUD-MEM-4 | Re-validar NAXIS antes do cast no path multi-ext RGB (coberto junto do INPUT-2) | 🟠 IMPORTANTE | ✅ Resolvido | `f3a7534` + `1d0fe30` | [AUD-MEM-4](AUDIT_FIND.md#aud-mem-4) |
+| 6 | AUD-SEC-1 | `.runner` → `.gitignore` + `chmod 600` + token rotacionado no Codeberg pelo líder | 🟠 IMPORTANTE | ✅ Resolvido | `1a9ff5b` | [AUD-SEC-1](AUDIT_FIND.md#aud-sec-1) |
+
+**Follow-ups descobertos nos reviews adversariais da Onda 1** (novos itens, ver Onda 2/3):
+- Os dois bugs achados pelos reviewers (bypass overflow NAXIS3; fail-open NaN netFlux) já foram corrigidos nos commits `1d0fe30`/`b3295c8` acima.
+- **AUD-TEST-3 (novo)**: `loadFitsCube`/`loadFitsHdu`/`scanImageHdus` não têm nenhum teste unitário/funcional — exatamente os loaders mais expostos. Adicionar cobertura. → Onda 3.
+- **AUD-CORR-2 enriquecido**: ao portar o teste round-trip das 8 projeções, incluir Dec negativa, polo (±89.9) e wrap de RA (0/360) — casos que o teste atual não cobre e que o review validou vs astropy. → Onda 2.
+- **Defense-in-depth (opcional, UI)**: `MainWindow_measurement.cpp:175` faz `obs.mag = phot->magInst + ...` sem `isfinite` — hoje blindado na origem; um guard lá seria defesa extra (decisão do dono da UI, fora do escopo "não tocar UI").
 
 ---
 
