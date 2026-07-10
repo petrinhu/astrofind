@@ -2,10 +2,14 @@ include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
 # ─── spdlog ────────────────────────────────────────────────────────────────
+# AUD-SEC-2: pinned to the exact commit SHA behind the tag (not the mutable
+# tag itself) so a re-pointed tag / compromised maintainer can't silently
+# swap what gets fetched. Verified via:
+#   git ls-remote https://github.com/gabime/spdlog.git refs/tags/v1.14.1
 FetchContent_Declare(
     spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG        v1.14.1
+    GIT_TAG        27cb4c76708608465c413f6d0e6b8d99a4d84302 # v1.14.1
     GIT_SHALLOW    TRUE
 )
 set(SPDLOG_BUILD_SHARED OFF CACHE BOOL "" FORCE)
@@ -13,10 +17,12 @@ set(SPDLOG_FMT_EXTERNAL OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(spdlog)
 
 # ─── nlohmann/json ─────────────────────────────────────────────────────────
+# AUD-SEC-2: pinned SHA (see spdlog comment above for rationale). Verified:
+#   git ls-remote https://github.com/nlohmann/json.git refs/tags/v3.11.3
 FetchContent_Declare(
     nlohmann_json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG        v3.11.3
+    GIT_TAG        9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03 # v3.11.3
     GIT_SHALLOW    TRUE
 )
 set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
@@ -42,10 +48,12 @@ endif()
 
 if(NOT CFITSIO_FOUND_SYSTEM)
     message(STATUS "cfitsio not found on system, building from source...")
+    # AUD-SEC-2: pinned SHA (see spdlog comment above for rationale). Verified:
+    #   git ls-remote https://github.com/HEASARC/cfitsio.git refs/tags/cfitsio-4.6.3
     FetchContent_Declare(
         cfitsio_src
         GIT_REPOSITORY https://github.com/HEASARC/cfitsio.git
-        GIT_TAG        cfitsio-4.6.3
+        GIT_TAG        386e719ccc5e30ca497ec2df57c4ef1de5adbc3f # cfitsio-4.6.3
         GIT_SHALLOW    TRUE
     )
     set(USE_PTHREADS  OFF CACHE BOOL "" FORCE)
@@ -62,10 +70,12 @@ endif()
 # Enabled automatically when Core5Compat is found
 find_package(Qt6 OPTIONAL_COMPONENTS Core5Compat)
 if(Qt6Core5Compat_FOUND)
+    # AUD-SEC-2: pinned SHA (see spdlog comment above for rationale). Verified:
+    #   git ls-remote https://github.com/stachenov/quazip.git refs/tags/v1.4
     FetchContent_Declare(
         quazip
         GIT_REPOSITORY https://github.com/stachenov/quazip.git
-        GIT_TAG        v1.4
+        GIT_TAG        566fa496649b8cb09018b497575bb3bf2977965f # v1.4
         GIT_SHALLOW    TRUE
     )
     set(QUAZIP_QT_MAJOR_VERSION 6 CACHE STRING "" FORCE)
@@ -84,10 +94,13 @@ endif()
 # below); "sh -c ... || true" makes it idempotent (a no-op with exit 0) if
 # FetchContent ever re-runs the patch step against an already-patched
 # checkout — plain patch(1) exits non-zero on replay ("previously applied").
+#
+# AUD-SEC-2: pinned SHA (see spdlog comment above for rationale). Verified:
+#   git ls-remote https://github.com/kbarbary/sep.git refs/tags/v1.2.1
 FetchContent_Declare(
     sep
     GIT_REPOSITORY https://github.com/kbarbary/sep.git
-    GIT_TAG        v1.2.1
+    GIT_TAG        d6150a61a6c734d720f459a48dd2b8f15d92318f # v1.2.1
     GIT_SHALLOW    TRUE
     PATCH_COMMAND  sh -c "patch -p1 -N -r - -i ${CMAKE_CURRENT_LIST_DIR}/patches/sep-leak-fix.patch || true"
 )
@@ -105,10 +118,15 @@ if(NOT sep_POPULATED)
 endif()
 
 # ─── Catch2 (unit tests) ───────────────────────────────────────────────────
+# AUD-SEC-2: v3.6.0 is an ANNOTATED tag; the SHA below is the dereferenced
+# commit (the ^{} target), not the tag object itself. Verified:
+#   git ls-remote https://github.com/catchorg/Catch2.git refs/tags/v3.6.0 refs/tags/v3.6.0^{}
+#   -> 1ea016810728365d3af3648aeefa683a10ff830e  refs/tags/v3.6.0        (tag object)
+#   -> 4e8d92bf02f7d1c8006a0e7a5ecabd8e62d98502  refs/tags/v3.6.0^{}     (commit, pinned below)
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG        v3.6.0
+    GIT_TAG        4e8d92bf02f7d1c8006a0e7a5ecabd8e62d98502 # v3.6.0
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(Catch2)
