@@ -475,8 +475,8 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 | [AUD-DOC-1](#aud-doc-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
 | [AUD-DOC-3](#aud-doc-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
 | [AUD-DOC-4](#aud-doc-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-CI-3](#aud-ci-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-CI-4](#aud-ci-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
+| [AUD-CI-3](#aud-ci-3) | 🟠 IMPORTANTE | 🔍 Pendente verificação | Onda 3 |
+| [AUD-CI-4](#aud-ci-4) | 🟠 IMPORTANTE | 🔍 Pendente verificação | Onda 3 |
 | [AUD-TEST-2](#aud-test-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
 | [AUD-SEC-4](#aud-sec-4) | 🟠 IMPORTANTE (plausível) | ❌ Pendente | Onda 3 |
 | [AUD-SEC-5](#aud-sec-5) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# AUD-CI-3 remediation (AUDIT_FIND.md) — fast local gate for day-to-day commits.
+#
+# This is the LOCAL, event-driven counterpart to the heavy `numerical-audit`
+# CI job (.github/workflows/audit.yml, self-hosted runner, PR->main/release
+# only). It never leaves this machine and never touches CI minutes: it just
+# builds incrementally and runs ctest before a commit lands, so a broken
+# test never even reaches the remote.
+#
+# It is intentionally NOT the full audit (no ASan/UBSan, no cppcheck/
+# clang-tidy/valgrind — those are minutes-long and belong in the PR->main
+# gate, not in every commit). If it's not fast, people learn to skip it.
+#
+# Install (once per clone):
+#   ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# Works the same on Linux/macOS (native bash) and Windows (Git Bash, which
+# ships with Git for Windows and is what runs git hooks there too).
+#
+# Bypass (emergency only — never as habit, and never with `--no-verify`
+# silently): SKIP_TESTS=1 git commit ...
+set -euo pipefail
+
+if [ "${SKIP_TESTS:-0}" = "1" ]; then
+  echo "pre-commit: SKIP_TESTS=1 — skipping build+ctest gate (explicit bypass)."
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+BUILD_DIR="${REPO_ROOT}/build"
+
+if [ ! -f "${BUILD_DIR}/CMakeCache.txt" ]; then
+  echo "pre-commit: no configured build/ found — skipping (one-time setup):"
+  echo "  cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug"
+  echo "  (hook will run automatically on subsequent commits)"
+  exit 0
+fi
+
+echo "pre-commit: incremental build ..."
+if ! cmake --build "${BUILD_DIR}" --parallel; then
+  echo "pre-commit: BUILD FAILED — commit blocked. Fix the build or use SKIP_TESTS=1 to bypass." >&2
+  exit 1
+fi
+
+echo "pre-commit: ctest (fast gate, no sanitizers/static-analysis — see .github/workflows/audit.yml for that) ..."
+export QT_QPA_PLATFORM=offscreen
+if ! ctest --test-dir "${BUILD_DIR}" --output-on-failure; then
+  echo "pre-commit: TESTS FAILED — commit blocked. Fix the failure or use SKIP_TESTS=1 to bypass." >&2
+  exit 1
+fi
+
+echo "pre-commit: OK."
+exit 0

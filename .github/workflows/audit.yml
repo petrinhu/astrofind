@@ -1,0 +1,187 @@
+name: Numerical Audit (ASan/UBSan + cppcheck + clang-tidy + valgrind)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUD-CI-3 remediation (AUDIT_FIND.md) — items 38.1-38.5 (✅ in CLAUDE.md) were
+# implemented as local `cmake --target audit` tooling but NEVER ran in CI. A
+# regression of the exact class of bug the audit exists to catch (UB, leak,
+# OOB read) could land undetected. This workflow closes that gap.
+#
+# WHY THIS RUNS HERE, AND ONLY HERE (canonical CI policy):
+#   - Heavy build + ASan/UBSan + valgrind is expensive (multi-build, minutes,
+#     not seconds). It runs on the self-hosted runner (`claudio`, label
+#     `docker`, `forgejo-runner.service`), never on a volunteer/hosted runner.
+#   - Trigger is intentionally narrow: pull_request -> main, and release tags.
+#     NOT on every feature-branch push — that would make CI a bottleneck
+#     (>10-20min gate people learn to skip) for a check whose whole point is
+#     to gate the promotion to main/release, not every commit.
+#   - Fast day-to-day feedback stays local: see scripts/pre-commit (ctest),
+#     installed as a git hook — event-driven, no CI minutes spent.
+#
+# WHY THE MAIN BUILD IS *NOT* SANITizer-INSTRUMENTED HERE:
+#   `cmake --target audit` already builds its OWN isolated ASan+UBSan build
+#   in build_asan/ (see cmake/audit.cmake, item 38.1) and runs the test suite
+#   there. That target is *intentionally* decoupled from the main build:
+#   Valgrind (item 38.2) instruments the astrofind_tests binary from the
+#   PLAIN (non-sanitized) main build. Running Valgrind against an
+#   ASan-instrumented binary is unsupported and produces garbage results/
+#   crashes (ASan and Valgrind's shadow-memory models collide). Keeping the
+#   main build plain and letting audit-asan manage its own build_asan/ is
+#   the only configuration where both checks are valid simultaneously.
+#
+# WHY THE JOB PARSES REPORTS INSTEAD OF TRUSTING THE TARGET'S EXIT CODE:
+#   cmake/audit.cmake was written so `cmake --build build --target audit`
+#   NEVER fails on its own (cppcheck --error-exitcode=0, clang-tidy piped
+#   with `|| true`, valgrind --error-exitcode=0, asan test run piped with
+#   `|| true`) — that lets a human run it locally and always get a full
+#   report even when some checker finds something. CI must therefore be the
+#   layer that turns "report exists" into "job fails on critical finding".
+#   That gating logic lives in the "Gate on critical findings" step below.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  numerical-audit:
+    name: Numerical audit · fedora:42 · ASan/UBSan + cppcheck + clang-tidy + valgrind
+    runs-on: docker
+    timeout-minutes: 90
+
+    container:
+      image: fedora:42
+      options: --user root
+
+    steps:
+      # ── 1. SYSTEM INFO ──────────────────────────────────────────────────────
+      - name: "System information"
+        run: |
+          echo "AstroFind — Numerical Audit (AUD-CI-3) on fedora:42"
+          cat /etc/os-release
+          gcc --version | head -1 || true
+          nproc
+          free -h
+
+      # ── 2. INSTALL TOOLCHAIN + AUDIT TOOLS ──────────────────────────────────
+      - name: "Install build + audit toolchain"
+        run: |
+          dnf install -y \
+            cmake ninja-build gcc-c++ git pkgconf-pkg-config file \
+            qt6-qtbase-devel qt6-qtcharts-devel qt6-qtopengl-devel \
+            qt6-qtnetwork-devel qt6-qtsql-devel qt6-qtxml-devel \
+            qt6-qtconcurrent-devel qt6-qttools-devel qt6-qt5compat-devel \
+            cfitsio-devel fftw-devel eigen3-devel libarchive-devel \
+            mesa-libGL-devel libxkbcommon-devel \
+            clang-tools-extra cppcheck valgrind
+          echo -n "cmake:   "; cmake --version | head -1
+          echo -n "gcc:     "; gcc --version | head -1
+          echo -n "cppcheck: "; cppcheck --version
+          echo -n "clang-tidy: "; clang-tidy --version | head -1
+          echo -n "valgrind: "; valgrind --version
+
+      # ── 3. CHECKOUT ──────────────────────────────────────────────────────────
+      - uses: actions/checkout@v4
+
+      # ── 4. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      - name: "Restore FetchContent cache"
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-audit-fedora42-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-audit-fedora42-
+
+      # ── 5. CONFIGURE (plain build — required for a valid valgrind run) ──────
+      - name: "CMake configure"
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          echo ""
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE" \
+            build/CMakeCache.txt | sort
+
+      # ── 6. BUILD ──────────────────────────────────────────────────────────────
+      - name: "Build"
+        run: cmake --build build --parallel
+
+      # ── 7. BASELINE ctest (plain build — fast sanity gate) ───────────────────
+      - name: "ctest (plain build, 116 core + 23 UI cases)"
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure
+
+      # ── 8. FULL AUDIT (items 38.1-38.5): cppcheck + clang-tidy + valgrind +
+      #       ASan/UBSan (own isolated build_asan/, see cmake/audit.cmake) ────
+      - name: "cmake --build build --target audit"
+        run: |
+          cmake --build build --target audit
+          echo ""
+          echo "=== Reports written to build/audit/ ==="
+          ls -la build/audit/ || true
+
+      # ── 9. GATE — turn "report exists" into "job fails on critical finding"
+      #       (see header comment: the cmake target intentionally never fails
+      #       on its own so a human can always get a full report locally) ────
+      - name: "Gate on critical findings"
+        if: always()
+        run: |
+          set +e
+          FAIL=0
+
+          echo "── ASan/UBSan (build_asan/bin/astrofind_tests) ──────────────"
+          if [ -f build/audit/asan_tests.txt ]; then
+            cat build/audit/asan_tests.txt
+            if grep -qiE \
+              'ERROR: (Address|LeakSanitizer|UndefinedBehavior)|runtime error:|SUMMARY: (Address|UndefinedBehavior)Sanitizer|FAILED' \
+              build/audit/asan_tests.txt; then
+              echo "::error::ASan/UBSan reported an error or a test FAILED under sanitizers."
+              FAIL=1
+            else
+              echo "OK — no sanitizer error, no failed test."
+            fi
+          else
+            echo "::error::build/audit/asan_tests.txt not produced — audit-asan target did not run."
+            FAIL=1
+          fi
+
+          echo ""
+          echo "── cppcheck (severity=error) ─────────────────────────────────"
+          if [ -f build/audit/cppcheck.xml ]; then
+            ERR_COUNT=$(grep -c 'severity="error"' build/audit/cppcheck.xml || true)
+            echo "cppcheck severity=error findings: ${ERR_COUNT:-0}"
+            if [ "${ERR_COUNT:-0}" -gt 0 ]; then
+              grep 'severity="error"' build/audit/cppcheck.xml
+              echo "::error::cppcheck found ${ERR_COUNT} critical (severity=error) issue(s)."
+              FAIL=1
+            fi
+          else
+            echo "::warning::build/audit/cppcheck.xml not produced (cppcheck missing?)."
+          fi
+
+          echo ""
+          echo "── valgrind memcheck (definite leaks / invalid access) ──────"
+          if [ -f build/audit/valgrind.xml ]; then
+            CRIT_COUNT=$(grep -cE \
+              '<kind>(Leak_DefinitelyLost|InvalidRead|InvalidWrite|InvalidFree|MismatchedFree|UninitCondition)</kind>' \
+              build/audit/valgrind.xml || true)
+            echo "valgrind critical findings: ${CRIT_COUNT:-0}"
+            if [ "${CRIT_COUNT:-0}" -gt 0 ]; then
+              echo "::error::valgrind found ${CRIT_COUNT} critical memcheck issue(s) (definite leak / invalid access)."
+              FAIL=1
+            fi
+          else
+            echo "::warning::build/audit/valgrind.xml not produced (valgrind missing?)."
+          fi
+
+          echo ""
+          if [ "$FAIL" -ne 0 ]; then
+            echo "Numerical audit gate: FAILED — see errors above."
+            exit 1
+          fi
+          echo "Numerical audit gate: PASSED."
