@@ -60,7 +60,9 @@ The table must be shown automatically — do not wait for the user to ask.
 | 18 | Painel de histograma de pixels com ajuste gaussiano ao fundo (diagnóstico de ruído, faixas de brilho) | UI | Média | D2 | ✅ |
 | 19 | Suporte a cor via multi-extensão (3 HDUs) | Core | Média | D3 | ✅ |
 | 20 | Navegação de extensões HDU (painel lateral) | Core/UI | Média | D3 | ✅ |
-| 21 | Suporte a outros formatos astronômicos: SER (.ser), XISF (.xisf), TIFF 16-bit (.tif), PNG 16-bit (.png), RAW DSLR (.cr2/.nef/.arw via libraw), PDS/PDS4 (.img+.lbl) | Core/IO | Média | D3 | ✅ |
+| 21 | Suporte a outros formatos astronômicos: SER (.ser), XISF (.xisf), TIFF 16-bit (.tif), PNG 16-bit (.png) | Core/IO | Média | D3 | ✅ |
+| 21.1 | RAW DSLR (.cr2/.nef/.arw via libraw) — **AUD-DOC-4: feature-fantasma, NÃO implementada** (`grep libraw\|LibRaw\|.cr2\|.nef\|.arw` em `src/` = vazio, confirmado 2026-07-10); estava marcada ✅ incorretamente | Core/IO | Média | D3 | ❌ |
+| 21.2 | PDS/PDS4 (.img+.lbl) — **AUD-DOC-4: feature-fantasma, NÃO implementada** (`grep PDS4` em `src/` = vazio, confirmado 2026-07-10); estava marcada ✅ incorretamente | Core/IO | Média | D3 | ❌ |
 | 22 | ClumpFind: detecção de fontes por contorno de intensidade — melhor para fontes blendadas e traços | Detecção | Média | D4 | ✅ |
 | 23 | Filtro Laplaciano / unsharp-mask para realce de imagem no blink (visualização de candidatos fracos) | Renderização | Baixa | D2 | ✅ |
 | 24 | Integração CCfits (bundled em ./originals) | Infraestrutura | Baixa | D3 | ✅ |
