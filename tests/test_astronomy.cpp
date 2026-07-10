@@ -454,3 +454,119 @@ TEST_CASE("WCS: RA wrap across 0/360 matches astropy oracle, all 8 projections",
     }
 }
 
+
+// ─── Atmospheric refraction (AUD-CORR-3) ─────────────────────────────────────
+//
+// applyRefractionCorrection() had ZERO tests before this remediation despite
+// being the only frame correction actually applied to the coordinate that
+// gets reported to the MPC (see MainWindow_measurement.cpp). A sign flip on
+// the Bennett term (`alt_app - R_deg` → `alt_app + R_deg`) compiles cleanly
+// and would have passed the whole suite; the direction check below fails
+// immediately under that mutation.
+
+namespace {
+/// Independent (not-under-test) alt computation — same spherical trig as the
+/// SUT, but written separately here purely as a checking oracle, so that a
+/// bug in applyRefractionCorrection's OWN alt/az computation cannot silently
+/// cancel out against an equally-buggy check.
+double altitudeDeg(double ra_deg, double dec_deg, double jd, double lat_deg, double lon_deg)
+{
+    const double lst_deg = core::localSiderealTime(jd, lon_deg);
+    const double ha_rad  = (lst_deg - ra_deg) * M_PI / 180.0;
+    const double dec_rad = dec_deg * M_PI / 180.0;
+    const double lat_rad = lat_deg * M_PI / 180.0;
+    const double sinAlt  = std::sin(lat_rad) * std::sin(dec_rad)
+                         + std::cos(lat_rad) * std::cos(dec_rad) * std::cos(ha_rad);
+    return std::asin(std::clamp(sinAlt, -1.0, 1.0)) * 180.0 / M_PI;
+}
+
+/// Bennett (1982) formula, computed independently of Astronomy.cpp, as the
+/// numeric oracle for R at a given TRUE altitude in degrees.
+double bennettRArcmin(double trueAltDeg)
+{
+    const double hArg = trueAltDeg + 10.3 / (trueAltDeg + 5.11);
+    return 1.02 / std::tan(hArg * M_PI / 180.0);
+}
+} // namespace
+
+TEST_CASE("Refraction: R matches Bennett formula and pushes the true position toward the horizon",
+          "[astronomy][refraction]")
+{
+    // Geometry: lat=0, lon=0, dec=0 → alt = 90 - |HA|. HA=60° → apparent alt=30°.
+    const double lat = 0.0, lon = 0.0, jd = 2451545.0;
+    const double lst = core::localSiderealTime(jd, lon);
+    const double raApp = std::fmod(lst - 60.0 + 360.0, 360.0);
+    const double decApp = 0.0;
+
+    double ra = raApp, dec = decApp;
+    const double R = core::applyRefractionCorrection(ra, dec, jd, lat, lon);
+
+    // The doc/audit reference value at 30° altitude: R ≈ 1.746' (≈104.76").
+    CHECK_THAT(R, WithinAbs(1.745985, 0.001));
+    CHECK_THAT(R * 60.0, WithinAbs(104.759, 0.1));   // arcseconds
+
+    // The apparent altitude is exactly the geometry we built (30°, up to the
+    // asin/atan2 round-trip precision of the alt/az conversion inside the
+    // function) — corroborate independently.
+    const double altApp = altitudeDeg(raApp, decApp, jd, lat, lon);
+    CHECK_THAT(altApp, WithinAbs(30.0, 0.01));
+
+    // The corrected (true, catalog) position must be LOWER in altitude than
+    // the apparent one by exactly R (atmosphere lifts the apparent image up).
+    // A sign flip (alt_app + R instead of alt_app - R) would make this fail:
+    // it would place the true altitude 2R too high instead of R too low.
+    const double altTrue = altitudeDeg(ra, dec, jd, lat, lon);
+    CHECK_THAT(altApp - altTrue, WithinAbs(R / 60.0, 0.001));
+    CHECK(altTrue < altApp);
+}
+
+TEST_CASE("Refraction: zero below 1 degree altitude (formula unstable near horizon)",
+          "[astronomy][refraction]")
+{
+    // lat=0, dec=0, HA=89.5° → alt ≈ 0.5°, well below the 1° cutoff.
+    const double lat = 0.0, lon = 0.0, jd = 2451545.0;
+    const double lst = core::localSiderealTime(jd, lon);
+    const double raApp = std::fmod(lst - 89.5 + 360.0, 360.0);
+    double ra = raApp, dec = 0.0;
+
+    const double R = core::applyRefractionCorrection(ra, dec, jd, lat, lon);
+    CHECK(R == 0.0);
+    CHECK_THAT(ra,  WithinAbs(raApp, 1e-12));   // no-op: unchanged in place
+    CHECK_THAT(dec, WithinAbs(0.0,   1e-12));
+}
+
+TEST_CASE("Refraction: zero and no-op with non-finite site coordinates", "[astronomy][refraction]")
+{
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    double ra = 180.0, dec = 45.0;
+    const double R1 = core::applyRefractionCorrection(ra, dec, 2451545.0, nan, 0.0);
+    CHECK(R1 == 0.0);
+    CHECK_THAT(ra,  WithinAbs(180.0, 1e-12));
+    CHECK_THAT(dec, WithinAbs(45.0,  1e-12));
+
+    double ra2 = 90.0, dec2 = -20.0;
+    const double R2 = core::applyRefractionCorrection(ra2, dec2, 2451545.0, 0.0, nan);
+    CHECK(R2 == 0.0);
+    CHECK_THAT(ra2,  WithinAbs(90.0,  1e-12));
+    CHECK_THAT(dec2, WithinAbs(-20.0, 1e-12));
+}
+
+TEST_CASE("Refraction: R monotonically decreases as altitude increases", "[astronomy][refraction]")
+{
+    const double lat = 0.0, lon = 0.0, jd = 2451545.0;
+    const double lst = core::localSiderealTime(jd, lon);
+
+    double prevR = std::numeric_limits<double>::infinity();
+    for (double ha : {85.0, 75.0, 60.0, 30.0, 10.0}) {   // alt = 5,15,30,60,80 deg
+        double ra  = std::fmod(lst - ha + 360.0, 360.0);
+        double dec = 0.0;
+        const double R = core::applyRefractionCorrection(ra, dec, jd, lat, lon);
+        INFO("HA=" << ha << "  alt=" << (90.0 - ha) << "  R=" << R);
+        CHECK(R < prevR);
+        CHECK(R > 0.0);
+        // Cross-check each point against the independent Bennett oracle too.
+        CHECK_THAT(R, WithinAbs(bennettRArcmin(90.0 - ha), 0.01));
+        prevR = R;
+    }
+}
+
