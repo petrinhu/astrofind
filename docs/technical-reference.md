@@ -199,28 +199,45 @@ Equal-area full-sky projection. Used for CMB and survey coverage maps.
 
 ## 5. Atmospheric Refraction
 
-The observed zenith angle $z'$ differs from the true zenith angle $z$ by:
+> **Last reviewed:** 2026-07-10 (AUD-DOC-1). This section previously described a
+> two-branch model (pressure/temperature-corrected formula above 15°, Bennett
+> below 15°) that does not match the implementation. It has been rewritten to
+> describe `applyRefractionCorrection()` (`src/core/Astronomy.cpp`) as it
+> actually exists: the Bennett (1982) formula, applied unconditionally down to
+> a fixed altitude gate, with no pressure/temperature input.
 
-$$
-R = R_0 \cdot P/P_0 \cdot T_0/T \cdot \tan z
-$$
-
-where:
-- $R_0 = 60.4''$ (standard refraction constant)
-- $P$ = atmospheric pressure (default 1013.25 hPa)
-- $T$ = temperature in Kelvin (default 283 K)
-- $P_0 = 1013.25\,\text{hPa}$, $T_0 = 283\,\text{K}$
-
-For elevations below 15°, the Bennett (1982) formula is used:
+AstroFind uses a single formula for atmospheric refraction, the Bennett
+(1982) approximation, applied uniformly at all altitudes (no separate
+high-altitude branch):
 
 $$
 R = \frac{1.02}{\tan\!\left(a + \frac{10.3}{a + 5.11}\right)}
 $$
 
-where $a$ is the true altitude in degrees, giving $R$ in arcminutes.
+where $a$ is the apparent (observed) altitude in degrees, giving $R$ in
+arcminutes.
 
-The correction is applied to each measured RA/Dec before writing to the ADES report.
-The log panel shows the applied correction as `Refraction correction: X" (R=Y')`.
+**Altitude gate:** the correction is skipped entirely (returns 0) when the
+apparent altitude is below 1° — the formula becomes numerically unstable near
+the horizon. There is no 15° branch and no separate low-altitude formula; the
+same Bennett expression is used from 1° up to the zenith.
+
+**No pressure/temperature input:** unlike some refraction models, this
+implementation does not accept, and its function signature does not expose,
+atmospheric pressure or temperature parameters. It is a fixed-atmosphere
+approximation (Bennett's formula already folds standard sea-level conditions
+into its empirical constants). If site-specific P/T correction is ever
+desired, it would need to be implemented as a new parameter and formula
+(e.g. the $R = R_0 \cdot P/P_0 \cdot T_0/T \cdot \tan z$ style correction),
+not assumed to already exist.
+
+**Space telescopes:** the caller (`MainWindow_measurement.cpp`) gates the
+call behind `isSpaceTelescope` — refraction is only applied for ground-based
+observations, since there is no atmosphere to correct for from orbit.
+
+The correction is applied to each measured RA/Dec before writing to the ADES
+report. The log panel shows the applied correction as
+`Refraction correction: X" (R=Y')`.
 
 ---
 
