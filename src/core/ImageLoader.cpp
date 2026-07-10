@@ -103,6 +103,16 @@ struct SerHeader {
 
 static_assert(sizeof(SerHeader) == 178, "SerHeader must be 178 bytes");
 
+// AUD-INPUT-3: imageWidth/imageHeight are attacker-controlled uint32_t read
+// directly from the binary header. A value with the high bit set (e.g.
+// 0xFFFFFFFF or 0x80000010) previously passed the `== 0` guard below and was
+// then narrowed via static_cast<int>, producing a negative width/height that
+// silently became a huge size_t once multiplied into a pixel count — feeding
+// std::vector::resize() a request beyond max_size() and crashing the process
+// via an uncaught std::length_error. Mirror FitsImage.cpp's kMaxImageDim
+// ceiling (20000 px/axis) here and validate strictly BEFORE narrowing.
+constexpr uint32_t kMaxSerDim = 20000;
+
 enum SerColorID : uint32_t {
     SER_MONO       = 0,
     SER_BAYER_RGGB = 8,
@@ -157,6 +167,13 @@ std::expected<FitsImage, QString> loadSer(const QString& filePath)
 
     if (hdr.imageWidth == 0 || hdr.imageHeight == 0 || hdr.frameCount == 0)
         return std::unexpected(QObject::tr("Invalid SER header (zero dimensions): %1").arg(filePath));
+    // Validate the raw uint32_t values BEFORE narrowing to int: a header with
+    // the sign bit set (e.g. 0xFFFFFFFF/0x80000010) must be rejected here,
+    // not after static_cast<int> turns it into a negative width/height.
+    if (hdr.imageWidth > kMaxSerDim || hdr.imageHeight > kMaxSerDim)
+        return std::unexpected(
+            QObject::tr("SER dimensions out of range (%1x%2, max %3): %4")
+                .arg(hdr.imageWidth).arg(hdr.imageHeight).arg(kMaxSerDim).arg(filePath));
     if (hdr.pixelDepth != 8 && hdr.pixelDepth != 16)
         return std::unexpected(QObject::tr("Unsupported SER pixel depth %1 in: %2")
             .arg(hdr.pixelDepth).arg(filePath));
