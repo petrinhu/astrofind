@@ -69,3 +69,7 @@ warnings_gcc.txt
 
 # Reference implementations (local study copies, not part of repo)
 semelhantes/
+
+# Forgejo runner registration (contém token vivo — NUNCA commitar) — AUD-SEC-1
+.runner
+.runner*
