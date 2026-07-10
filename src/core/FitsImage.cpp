@@ -328,6 +328,15 @@ QString cfitsioError(int status)
     return QString::fromLatin1(errmsg);
 }
 
+// AUD-INPUT-1: cfitsio's fits_read_pix (ffgpxv) indexes the fpixel/naxes
+// arrays declared at every call site below (long[3]) using the FILE's real
+// NAXIS, not the size of the array we pass in. A FITS header with NAXIS>=4
+// makes cfitsio write/read past those 3-element stack arrays (confirmed
+// stack-buffer-overflow under ASan). kMaxImageAxes bounds the accepted
+// NAXIS BEFORE any fits_get_img_size/fits_read_pix call at every call site
+// that declares naxes[3]/fpixel[3].
+constexpr int kMaxImageAxes = 3;
+
 double parseRaHMS(const QString& s)
 {
     // "HH MM SS.sss" or "HHhMMmSS.ssss"
@@ -787,8 +796,13 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
     // Image dimensions
     int naxis = 0;
     fits_get_img_dim(fptr, &naxis, &status);
-    if (naxis < 2)
-        return std::unexpected(QObject::tr("FITS file has no 2D image: %1").arg(filePath));
+    // AUD-INPUT-1: naxes/fpixel below are long[3] — cfitsio's fits_read_pix
+    // indexes them by the file's REAL NAXIS, so NAXIS>3 must be rejected
+    // before any fits_get_img_size/fits_read_pix call (stack-buffer-overflow
+    // otherwise; see kMaxImageAxes).
+    if (naxis < 2 || naxis > kMaxImageAxes)
+        return std::unexpected(QObject::tr("Unsupported NAXIS=%1 in: %2 (expected 2 or 3)")
+            .arg(naxis).arg(filePath));
 
     long naxes[3] = {1, 1, 1};
     fits_get_img_size(fptr, 3, naxes, &status);
@@ -869,7 +883,10 @@ QVector<HduInfo> scanImageHdus(const QString& filePath)
 
         int naxis = 0;
         fits_get_img_dim(fptr, &naxis, &status);
-        if (status || naxis < 2) continue;
+        // AUD-INPUT-1 dominó: same naxes[3] shape as the loaders below — skip
+        // (rather than abort the whole scan) any HDU with NAXIS outside what
+        // this array can safely represent.
+        if (status || naxis < 2 || naxis > kMaxImageAxes) continue;
 
         long naxes[3] = {1, 1, 1};
         fits_get_img_size(fptr, 3, naxes, &status);
@@ -918,9 +935,12 @@ std::expected<FitsImage, QString> loadFitsHdu(const QString& filePath, int hduNu
 
     int naxis = 0;
     fits_get_img_dim(fptr, &naxis, &status);
-    if (naxis < 2)
-        return std::unexpected(QObject::tr("HDU %1 has no 2D image in: %2")
-            .arg(hduNumber).arg(filePath));
+    // AUD-INPUT-1: reject NAXIS>3 before any fits_get_img_size/fits_read_pix
+    // call — naxes/fpixel below are long[3], and cfitsio indexes them by the
+    // file's real NAXIS (stack-buffer-overflow otherwise).
+    if (naxis < 2 || naxis > kMaxImageAxes)
+        return std::unexpected(QObject::tr("HDU %1 has unsupported NAXIS=%2 in: %3 (expected 2 or 3)")
+            .arg(hduNumber).arg(naxis).arg(filePath));
 
     long naxes[3] = {1, 1, 1};
     fits_get_img_size(fptr, 3, naxes, &status);
@@ -992,6 +1012,14 @@ loadFitsCube(const QString& filePath, int hduNumber)
 
     int naxis = 0;
     fits_get_img_dim(fptr, &naxis, &status);
+    // AUD-INPUT-1: a temporal cube is exactly 3 axes (W,H,depth); naxes/fpixel
+    // below are long[3] and cfitsio indexes them by the file's real NAXIS, so
+    // NAXIS>3 must be rejected before fits_get_img_size/fits_read_pix
+    // (stack-buffer-overflow otherwise).
+    if (status || naxis < 2 || naxis > kMaxImageAxes)
+        return std::unexpected(QObject::tr("Unsupported NAXIS=%1 in '%2' (expected 2 or 3)")
+            .arg(naxis).arg(filePath));
+
     long naxes[3] = {1, 1, 1};
     fits_get_img_size(fptr, 3, naxes, &status);
     const int W = static_cast<int>(naxes[0]);
