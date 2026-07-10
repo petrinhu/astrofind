@@ -48,6 +48,16 @@ double computeAirmass(double ra_deg, double dec_deg, double jd,
     return 1.0 / std::sin(x * M_PI / 180.0);
 }
 
+// ─── applyExtinctionCorrection ───────────────────────────────────────────────
+
+double applyExtinctionCorrection(double instMag, double kExt, double airmass) noexcept
+{
+    if (!std::isfinite(instMag) || !std::isfinite(kExt) || !std::isfinite(airmass))
+        return instMag;
+    if (kExt <= 0.0 || airmass <= 0.0) return instMag;   // disabled / below horizon
+    return instMag - kExt * airmass;
+}
+
 // ─── applyRefractionCorrection ───────────────────────────────────────────────
 
 double applyRefractionCorrection(double& ra, double& dec,

@@ -27,6 +27,26 @@ double localSiderealTime(double jd, double lonDeg) noexcept;
 double computeAirmass(double ra_deg, double dec_deg, double jd,
                       double lat_deg, double lon_deg) noexcept;
 
+/// First-order atmospheric extinction correction: mag_corrected = mag_inst − k·X.
+///
+/// Reference implementation of the convention used by the measurement
+/// pipeline (`MainWindow::runMeasurePipeline`, `photometry/extinctionCoeff`
+/// setting): the star appears fainter (numerically larger magnitude) at
+/// higher airmass, so the correction SUBTRACTS `k·X` to recover the
+/// magnitude the star would have at the zenith (X=1).
+///
+/// AUD-CORR-5 (audit remediation, Onda 2): extracted so the sign convention
+/// is unit-testable independently of the UI. A sign flip here (`+k·X`
+/// instead of `−k·X`) would move fainter-at-higher-airmass stars the wrong
+/// direction and must fail `tests/test_photometry.cpp`.
+///
+/// @param instMag  Instrumental magnitude (uncorrected).
+/// @param kExt     Extinction coefficient (mag/airmass), typically 0–1.
+/// @param airmass  Airmass X (≥ 1.0); values ≤ 0 are treated as "no correction".
+/// @returns Extinction-corrected magnitude, or `instMag` unchanged if
+///          `kExt <= 0` or `airmass <= 0` (matches the UI's "disabled" gate).
+double applyExtinctionCorrection(double instMag, double kExt, double airmass) noexcept;
+
 /// Great-circle angular distance between two sky positions (degrees).
 /// Uses the haversine formula — numerically stable at any separation.
 /// @returns Distance in degrees, always in [0, 180].
