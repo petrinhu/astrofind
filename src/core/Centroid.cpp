@@ -11,6 +11,8 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
                                            int    boxRadius)
 {
     if (!img.isValid()) return std::nullopt;
+    // AUD-MEM-2: reject non-finite click coordinates before any static_cast<int>.
+    if (!std::isfinite(clickX) || !std::isfinite(clickY)) return std::nullopt;
 
     // ── 1. Bounding box ───────────────────────────────────────────────────────
     const int x0 = std::max(0,            static_cast<int>(std::floor(clickX)) - boxRadius);
@@ -34,6 +36,11 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
     const auto mid = static_cast<std::ptrdiff_t>(border.size() / 2);
     std::nth_element(border.begin(), border.begin() + mid, border.end());
     const double bkg = static_cast<double>(border[static_cast<std::size_t>(mid)]);
+    // AUD-MEM-2/AUD-MEM-3: a non-finite border pixel (e.g. +Inf, legitimate in
+    // real FITS float data — see feature #13) would silently poison every sum
+    // below; a NaN comparison is always false, so "peak <= 0.0"-style guards
+    // do NOT catch it. Reject explicitly here, before it propagates.
+    if (!std::isfinite(bkg)) return std::nullopt;
 
     // ── 3. Peak above background ──────────────────────────────────────────────
     double peak = 0.0;
@@ -41,7 +48,7 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
         for (int x = x0; x <= x1; ++x)
             peak = std::max(peak, static_cast<double>(img.pixelAt(x,y)) - bkg);
 
-    if (peak <= 0.0) return std::nullopt;
+    if (!std::isfinite(peak) || peak <= 0.0) return std::nullopt;
 
     // ── 4. Intensity-weighted moments (first pass) ────────────────────────────
     double sumW = 0.0, sumWX = 0.0, sumWY = 0.0;
@@ -57,6 +64,10 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
 
     double cx = sumWX / sumW;
     double cy = sumWY / sumW;
+    // AUD-MEM-2: sumW/sumWX/sumWY can carry Inf from a single saturated/masked
+    // pixel; Inf/Inf = NaN, which then reaches static_cast<int>(round(NaN))
+    // below and aborts (signed overflow, INT_MIN). Guard before any cast.
+    if (!std::isfinite(cx) || !std::isfinite(cy)) return std::nullopt;
 
     // ── 5. Second pass centred on first-pass centroid (reduces bias) ──────────
     const int r2 = std::max(4, boxRadius / 2);
@@ -81,6 +92,10 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
 
     cx = sumWX / sumW;
     cy = sumWY / sumW;
+    // AUD-MEM-2: same non-finite risk as the first pass; cx/cy are returned
+    // to the caller and feed static_cast<int> in downstream centroid/
+    // photometry routines, so a NaN/Inf must not leave this function.
+    if (!std::isfinite(cx) || !std::isfinite(cy)) return std::nullopt;
 
     // Second-moment FWHM: σ² = <x²> - <x>²;  FWHM = 2.355·σ
     const double varX = sumWX2/sumW - cx*cx;
@@ -103,6 +118,9 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
                                               double clickY,
                                               int    boxRadius)
 {
+    // AUD-MEM-2: reject non-finite click coordinates before any static_cast<int>.
+    if (!std::isfinite(clickX) || !std::isfinite(clickY)) return std::nullopt;
+
     // Seed with moment centroid
     auto seed = findCentroid(img, clickX, clickY, boxRadius);
     if (!seed) return std::nullopt;
@@ -126,6 +144,9 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
     const auto bkgMid = static_cast<std::ptrdiff_t>(border.size() / 2);
     std::nth_element(border.begin(), border.begin() + bkgMid, border.end());
     const double bkg = border[static_cast<std::size_t>(bkgMid)];
+    // AUD-MEM-2: a non-finite border pixel would poison every residual/model
+    // value below; bail out to the (already-finite) seed instead of fitting.
+    if (!std::isfinite(bkg)) return seed;
 
     for (int y = y0; y <= y1; ++y)
         for (int x = x0; x <= x1; ++x)
@@ -226,6 +247,9 @@ std::optional<CentroidResult> findCentroidElliptical(const FitsImage& img,
                                                      double clickY,
                                                      int    boxRadius)
 {
+    // AUD-MEM-2: reject non-finite click coordinates before any static_cast<int>.
+    if (!std::isfinite(clickX) || !std::isfinite(clickY)) return std::nullopt;
+
     // Seed from symmetric fit
     auto seed = findCentroidPsf(img, clickX, clickY, boxRadius);
     if (!seed) return std::nullopt;
@@ -245,6 +269,9 @@ std::optional<CentroidResult> findCentroidElliptical(const FitsImage& img,
     const auto bkgMid = static_cast<std::ptrdiff_t>(border.size() / 2);
     std::nth_element(border.begin(), border.begin() + bkgMid, border.end());
     const double bkg = static_cast<double>(border[static_cast<size_t>(bkgMid)]);
+    // AUD-MEM-2: a non-finite border pixel would poison chi2/Jacobian terms
+    // in the LM fit below; bail out to the (already-finite) seed instead.
+    if (!std::isfinite(bkg)) return seed;
 
     struct Pix { double x, y, val; };
     std::vector<Pix> pixels;
