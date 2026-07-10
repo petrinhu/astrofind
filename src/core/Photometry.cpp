@@ -75,7 +75,13 @@ std::optional<ApertureResult> aperturePhotometry(const FitsImage& img,
     const double bkgSigma = 1.4826 * absdev[mid2];
 
     const double netFlux = sumAp - bkg * nAp;
-    if (netFlux <= 0.0) return std::nullopt;
+    // AUD-MEM-2 (fail-open sibling): a non-finite pixel INSIDE the aperture
+    // (or a non-finite sky median poisoning bkg) makes netFlux NaN. "NaN <= 0.0"
+    // is always false, so without an isfinite check the function would return a
+    // "success" ApertureResult with flux/magInst/magErr = NaN, which then leaks
+    // into the measurement pipeline. Reject the measurement instead (fail-secure),
+    // mirroring the "!isfinite(peak) || peak <= 0.0" guard in Centroid.cpp.
+    if (!std::isfinite(netFlux) || netFlux <= 0.0) return std::nullopt;
 
     // Instrumental magnitude
     const double magInst = -2.5 * std::log10(netFlux);
@@ -356,7 +362,11 @@ QVector<GrowthPoint> multiAperturePhotometry(const FitsImage& img,
     for (int i = 0; i < N; ++i) {
         const int    n       = npix[static_cast<size_t>(i)];
         const double netFlux = sums[static_cast<size_t>(i)] - bkg * n;
-        if (n == 0 || netFlux <= 0.0) continue;
+        // AUD-MEM-2 (fail-open sibling): a non-finite pixel inside a radius band
+        // (or a non-finite sky bkg) makes netFlux NaN; "NaN <= 0.0" is false, so
+        // without isfinite it would append a growth-curve point with NaN
+        // flux/magInst and contaminate every larger aperture. Skip instead.
+        if (n == 0 || !std::isfinite(netFlux) || netFlux <= 0.0) continue;
         maxFlux = std::max(maxFlux, netFlux);
         const double magInst = -2.5 * std::log10(netFlux);
         const double sigFlux = std::sqrt(netFlux + static_cast<double>(n) * bkgSigma * bkgSigma);
