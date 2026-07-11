@@ -50,4 +50,4 @@ cp -a %{staging}/. %{buildroot}/
 %changelog
 * Sun Mar 22 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 0.9.0-0.beta1
 - Beta release: all features complete, pending real-world FITS validation
-- Version 0.9.0-beta bumped from 0.5.0
+- Version 0.9.0 bumped from 0.5.0

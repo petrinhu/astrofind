@@ -26,7 +26,7 @@ makedepends=(
     'mesa'
 )
 # Source from Codeberg tag archive
-source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/petrinhu/astrofind/archive/v0.9.0-beta.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/petrinhu/astrofind/archive/v0.9.0.tar.gz")
 sha256sums=('SKIP')
 
 build() {
