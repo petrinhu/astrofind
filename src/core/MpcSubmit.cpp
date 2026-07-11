@@ -16,10 +16,39 @@
 
 namespace core {
 
+namespace {
+// AUD-SEC-4: true when `url` may carry the ADES/PSV report safely — https://
+// always, or http:// restricted to loopback (a local relay, where no network
+// eavesdropper can intercept the traffic).
+bool isSafeMpcUrlScheme(const QUrl& url)
+{
+    const QString scheme = url.scheme().toLower();
+    if (scheme == QLatin1String("https")) return true;
+    if (scheme != QLatin1String("http")) return false;
+    const QString host = url.host().toLower();
+    return host == QLatin1String("localhost")
+        || host == QLatin1String("127.0.0.1")
+        || host == QLatin1String("::1");
+}
+} // namespace
+
 MpcSubmit::MpcSubmit(QObject* parent)
     : QObject(parent)
     , nam_(new QNetworkAccessManager(this))
 {}
+
+void MpcSubmit::setEndpoint(const QString& url)
+{
+    const QUrl parsed(url);
+    if (isSafeMpcUrlScheme(parsed)) {
+        endpoint_ = url;
+        return;
+    }
+    spdlog::warn("MpcSubmit::setEndpoint: rejected insecure URL '{}' "
+                 "(scheme must be https://, or http:// restricted to localhost) "
+                 "— keeping previous endpoint '{}'",
+                 url.toStdString(), endpoint_.toStdString());
+}
 
 void MpcSubmit::submitHttp(const QString& content, bool isXml)
 {

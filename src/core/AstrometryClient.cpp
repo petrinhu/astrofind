@@ -23,7 +23,34 @@ namespace {
 // that accepts the connection and never responds hangs busy_/state_ forever
 // (DoS of the plate-solving feature until process restart).
 constexpr int kHttpTimeoutMs = 30000;
+
+// AUD-SEC-4: true when `url` may carry the astrometry.net API key safely —
+// https:// always, or http:// restricted to loopback (a self-hosted local
+// instance, where no network eavesdropper can intercept the traffic).
+bool isSafeAstrometryUrlScheme(const QUrl& url)
+{
+    const QString scheme = url.scheme().toLower();
+    if (scheme == QLatin1String("https")) return true;
+    if (scheme != QLatin1String("http")) return false;
+    const QString host = url.host().toLower();
+    return host == QLatin1String("localhost")
+        || host == QLatin1String("127.0.0.1")
+        || host == QLatin1String("::1");
+}
 } // namespace
+
+void AstrometryClient::setBaseUrl(const QString& url)
+{
+    const QUrl parsed(url);
+    if (isSafeAstrometryUrlScheme(parsed)) {
+        baseUrl_ = url;
+        return;
+    }
+    spdlog::warn("AstrometryClient::setBaseUrl: rejected insecure URL '{}' "
+                 "(scheme must be https://, or http:// restricted to localhost) "
+                 "— keeping previous baseUrl '{}'",
+                 url.toStdString(), baseUrl_.toStdString());
+}
 
 AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
     : QObject(parent)

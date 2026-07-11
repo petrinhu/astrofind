@@ -24,7 +24,14 @@ class MpcSubmit : public QObject {
 public:
     explicit MpcSubmit(QObject* parent = nullptr);
 
-    void    setEndpoint(const QString& url) { endpoint_ = url; }
+    /// Override the HTTP submission endpoint.
+    ///
+    /// AUD-SEC-4: enforces transport security. `https://` is always accepted.
+    /// `http://` is accepted only for localhost/127.0.0.1/::1 (a local
+    /// relay on the same machine). Any other `http://` (or unknown scheme)
+    /// is rejected — the previous (safe) endpoint_ is kept and a warning is
+    /// logged — because this endpoint receives the full ADES/PSV report.
+    void    setEndpoint(const QString& url);
     const QString& endpoint() const               { return endpoint_; }
     bool    isBusy()   const               { return busy_; }
 

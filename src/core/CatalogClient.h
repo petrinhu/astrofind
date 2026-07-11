@@ -23,7 +23,15 @@ class CatalogClient : public QObject {
 public:
     explicit CatalogClient(QNetworkAccessManager* nam, QObject* parent = nullptr);
 
-    void setVizierUrl(const QString& url)    { vizierUrl_    = url; }
+    /// Override the VizieR TAP endpoint.
+    ///
+    /// AUD-SEC-4: enforces transport security. `https://` is always accepted.
+    /// `http://` is accepted only for localhost/127.0.0.1/::1 (a local
+    /// mirror/proxy on the same machine). Any other `http://` (or unknown
+    /// scheme) is rejected — the previous (safe) vizierUrl_ is kept and a
+    /// warning is logged.
+    void setVizierUrl(const QString& url);
+    const QString& vizierUrl() const { return vizierUrl_; }
     /// Set the astrometric catalog to query. Supported: "UCAC4" (default), "GaiaDR3".
     void setCatalogType(const QString& type) { catalogType_   = type; }
 
