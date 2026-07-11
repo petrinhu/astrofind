@@ -9,9 +9,11 @@ add_executable(astrofind_tests
     test_mpc_orb.cpp
     test_ades_report.cpp
     test_fits_functional.cpp
+    test_fits_loaders.cpp
     test_astronomy.cpp
     test_photometry.cpp
     test_robustness.cpp
+    test_url_scheme_guard.cpp
 )
 
 target_link_libraries(astrofind_tests PRIVATE
@@ -32,6 +34,7 @@ add_executable(astrofind_ui_tests
     test_settings_dialog.cpp
     test_calibration_panel.cpp
     test_session_signals.cpp
+    test_url_scheme_guard_ui.cpp
 )
 
 target_link_libraries(astrofind_ui_tests PRIVATE
