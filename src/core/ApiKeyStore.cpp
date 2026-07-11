@@ -4,6 +4,8 @@
 #include "ApiKeyStore.h"
 
 #include <QSettings>
+#include <QFile>
+#include <QFileDevice>
 
 #ifdef ASTROFIND_HAS_KEYCHAIN
 #  include <qt6keychain/keychain.h>
@@ -11,6 +13,23 @@
 #endif
 
 namespace core {
+
+namespace {
+#ifndef ASTROFIND_HAS_KEYCHAIN
+// AUD-SEC-5: the plain-text QSettings fallback (no qt6keychain) writes the
+// API key to a config file that inherits the platform-default permissions
+// (typically 0644 — world-readable). The user IS warned about this in
+// SettingsDialog, but the file itself should still be locked down to the
+// owner. sync() first so the write is flushed to disk before we chmod it
+// (setPermissions on a not-yet-created file is a silent no-op).
+void restrictSettingsFilePermissions(QSettings& s)
+{
+    s.sync();
+    QFile::setPermissions(s.fileName(),
+        QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+}
+#endif
+} // anonymous namespace
 
 // ─── isSecure ─────────────────────────────────────────────────────────────────
 
@@ -89,6 +108,7 @@ void ApiKeyStore::write(const QString& key)
         s.remove(QLatin1String(kLegacySettingsKey));
     else
         s.setValue(QLatin1String(kLegacySettingsKey), key);
+    restrictSettingsFilePermissions(s);
 #endif
 }
 
