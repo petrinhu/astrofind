@@ -10,7 +10,7 @@
 
 | ID | Onda | Grupo | Descrição Técnica | Prioridade | Pré-requisito | Dificuldade | Status | Estado Auditado |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| REL-1 | W-REL | Release | Tag `v0.9.0` estável (pós-auditoria; sucede `v0.9.0-beta`) — dispara `audit.yml` na tag | Alta | Ondas 1-4 (✅) | Baixa | ⏳ Pendente | — |
+| REL-1 | W-REL | Release | Release `v0.9.0` estável: tag + GitHub Release + **binários** (RPM/DEB/tarball/SHA256SUMS) + Wiki bilíngue (GitHub+Codeberg). Binário bumpado 0.9.0; dep qtkeychain declarada | Alta | Ondas 1-4 (✅) | Baixa | ✅ Concluído | ✓ |
 | AUD-INPUT-gaps | W-REL | Auditoria | Fuzzar RAW/PDS4/QImage/XISF sob ASan (formatos não exercitados) — cobertura, não bug | Baixa | — | Média | 🟡 Parcial (aceito; `audit.yml` cobre o tooling daqui pra frente) | — |
 | AUD-MEM-gaps | W-REL | Auditoria | Valgrind/cppcheck/clang-tidy em build limpo; `Calibration.cpp:276` refutado por análise | Baixa | — | Baixa | 🟡 Parcial (agora no `audit.yml`/CI a cada PR→main) | — |
 
