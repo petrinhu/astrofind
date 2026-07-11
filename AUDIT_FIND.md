@@ -485,10 +485,10 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 | [AUD-CI-2](#aud-ci-2) | 🟢 COSMÉTICO | ✅ Resolvido `d946b02` (renormalize) | Onda 4 |
 | [AUD-CORR-6](#aud-corr-6) | 🟢 COSMÉTICO | ✅ Resolvido `e88cc54` (2.354820045) | Onda 4 |
 | [AUD-INPUT-6](#aud-input-6) | 🟢 COSMÉTICO | ✅ Resolvido `f12a463` (.ser não aborta sob UBSan) | Onda 4 |
-| [AUD-INPUT-7](#aud-input-7) | Plausível | ❌ Pendente | Onda 4 |
-| [AUD-PROV-8](#aud-prov-8) | Plausível | ❌ Pendente | Onda 4 |
+| [AUD-INPUT-7](#aud-input-7) | Plausível | ✅ Resolvido `8ca5730` (guard defensivo `i<col.size()`; repro TFORM=1PE prova que já era inalcançável via CCfits, mas guard fica) | Onda 4 |
+| [AUD-PROV-8](#aud-prov-8) | Plausível | ✅ Resolvido `a196275` (NOTICE §9 — risco documentado/aceito, não deep-audit) | Onda 4 |
 | [AUD-INPUT-gaps](#aud-input-gaps) | Plausível | ❌ Pendente | Onda 4 |
-| [AUD-MEM-gaps](#aud-mem-gaps) | Plausível | ❌ Pendente | Onda 4 |
+| [AUD-MEM-gaps](#aud-mem-gaps) | Plausível | 🔍 Parcial — `Calibration.cpp:274-277` analisado e refutado (tileSize clamp ≥8 + nTX>1⇒W>tileSize garante denominador `tileCx[1]-tileCx[0] ≥ 4.5`, nunca 0; código não alterado). Valgrind/cppcheck/clang-tidy ainda não re-rodados nesta sessão | Onda 4 |
 
 ---
 
