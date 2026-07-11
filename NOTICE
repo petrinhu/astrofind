@@ -245,10 +245,56 @@ Catch2 is a test-only dependency (`astrofind_tests` /
 purposes only.
 
 --------------------------------------------------------------------
+9. GDL, NEMO, Siril — algorithmic learning references (AUD-PROV-8)
+--------------------------------------------------------------------
+Component:   GDL — GNU Data Language (github.com/gnudatalanguage/gdl),
+             GPL-2.0-or-later
+             NEMO — Stellar Dynamics Toolbox (github.com/teuben/nemo),
+             GPL/BSD-mixed per-module (see upstream)
+             Siril (gitlab.com/free-astro/siril), GPL-3.0-or-later
+
+The README's "Acknowledgments" table credits these three projects as
+sources of *algorithmic inspiration* for parts of AstroFind's own,
+independently written implementation:
+
+  - GDL   — elliptical PSF fitting / MPFIT-style least squares, sliding
+            median background estimation, FFT-based alignment
+            (`src/core/Centroid.cpp`, `src/core/Calibration.cpp`,
+            `src/core/ImageStacker.cpp`).
+  - NEMO  — bad-pixel masking, blob/streak morphological detection,
+            ClumpFind, histogram diagnostics, Laplacian sharpening
+            (`src/core/Calibration.cpp`, `src/core/StarDetector.cpp`).
+  - Siril — PSF fitting concepts, background extraction, and the shape
+            of a differential-photometry pipeline
+            (`src/core/Centroid.cpp`, `src/core/Photometry.cpp`).
+
+Unlike WCSLIB (§1) and SEP (§2) above — where a specific function was
+adapted from, or statically links, the upstream project's own source —
+these three credits reflect having *studied published algorithms and
+general approach* (as one would from a textbook, paper, or reading
+someone else's implementation to understand a technique), not copying
+or transcribing GDL/NEMO/Siril source code into AstroFind. No line-by-
+line comparison (e.g. `scancode-toolkit`, structural diff) against the
+GDL/NEMO/Siril repositories has been performed as part of this audit
+pass — the WCSLIB/SOFA comparison was the only one in scope this
+round (AUD-PROV-1). This entry exists so that omission is visible and
+intentional rather than silent.
+
+This is recorded as an **accepted, documented risk**, not an open
+pending item: if a legal question about provenance of a specific
+function ever arises, the recommended due-diligence step is a
+line-by-line / structural diff of the named AstroFind file(s) above
+against the corresponding GDL/NEMO/Siril source (all three are GPL —
+compatible with AGPL-3.0 distribution regardless of the outcome, so
+this is an attribution/reputational question, not a licensing
+blocker).
+
+--------------------------------------------------------------------
 See also
 --------------------------------------------------------------------
-- `README.md` — dependency table with a License column, cross-linking
-  to this file.
-- `AUDIT_FIND.md` (AUD-PROV-1, AUD-PROV-2, AUD-PROV-3-6) — the audit
-  findings that this file remediates.
-- `TODO.md` (Onda 3, items 18-20) — remediation tracking.
+- `README.md` — dependency table with a License column, and the
+  "Acknowledgments" table (§9 above elaborates on GDL/NEMO/Siril).
+- `AUDIT_FIND.md` (AUD-PROV-1, AUD-PROV-2, AUD-PROV-3-6, AUD-PROV-8) —
+  the audit findings that this file remediates/documents.
+- `TODO.md` (Onda 3, items 18-20; Onda 4 for AUD-PROV-8) — remediation
+  tracking.
