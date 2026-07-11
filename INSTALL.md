@@ -32,7 +32,7 @@ Download the universal installer from the
 [latest release](https://codeberg.org/petrinhu/astrofind/releases/latest):
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -45,26 +45,26 @@ interactive interface.
 
 #### Direct package download
 
-Replace `v0.9.0-beta` with the tag of the release you want.
+Replace `v0.9.0` with the tag of the release you want.
 
 **Fedora / RHEL / Rocky Linux (RPM package):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-0.beta1.x86_64.rpm
-sudo rpm -i astrofind-0.9.0-0.beta1.x86_64.rpm
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-1.x86_64.rpm
+sudo rpm -i astrofind-0.9.0-1.x86_64.rpm
 ```
 
 Dependencies not bundled in the RPM (install separately):
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qtopengl cfitsio fftw libarchive
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive mesa-libGL libxkbcommon
 ```
 
 **Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (DEB package):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind_0.9.0~beta-1_amd64.deb
-sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind_0.9.0_amd64.deb
+sudo apt-get install ./astrofind_0.9.0_amd64.deb
 ```
 
 `apt-get install ./file.deb` resolves dependencies automatically.
@@ -73,8 +73,8 @@ sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
 manager):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
-tar xzf astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-arch-PKGBUILD.tar.gz
+tar xzf astrofind-0.9.0-arch-PKGBUILD.tar.gz
 cd astrofind-arch
 makepkg -si
 ```
@@ -88,7 +88,7 @@ Baixe o instalador universal da
 [última versão](https://codeberg.org/petrinhu/astrofind/releases/latest):
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -101,26 +101,26 @@ interativa bilíngue (EN/PT-BR).
 
 #### Download direto do pacote
 
-Substitua `v0.9.0-beta` pela tag da versão desejada.
+Substitua `v0.9.0` pela tag da versão desejada.
 
 **Fedora / RHEL / Rocky Linux (pacote RPM):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-0.beta1.x86_64.rpm
-sudo rpm -i astrofind-0.9.0-0.beta1.x86_64.rpm
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-1.x86_64.rpm
+sudo rpm -i astrofind-0.9.0-1.x86_64.rpm
 ```
 
 Dependências não incluídas no RPM (instalar separadamente):
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qtopengl cfitsio fftw libarchive
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive mesa-libGL libxkbcommon
 ```
 
 **Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (pacote DEB):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind_0.9.0~beta-1_amd64.deb
-sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind_0.9.0_amd64.deb
+sudo apt-get install ./astrofind_0.9.0_amd64.deb
 ```
 
 `apt-get install ./arquivo.deb` resolve dependências automaticamente.
@@ -129,8 +129,8 @@ sudo apt-get install ./astrofind_0.9.0~beta-1_amd64.deb
 pacotes do Arch):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
-tar xzf astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-arch-PKGBUILD.tar.gz
+tar xzf astrofind-0.9.0-arch-PKGBUILD.tar.gz
 cd astrofind-arch
 makepkg -si
 ```

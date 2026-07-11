@@ -1,17 +1,18 @@
 # Maintainer: Petrus Silva Costa <petrinhu@yahoo.com.br>
 pkgname=astrofind
-# Arch pkgver cannot contain '-'; use concatenation for pre-release suffix.
-pkgver=0.9.0beta
+# Arch pkgver cannot contain '-'; use concatenation for pre-release suffix (e.g. 1.0.0beta).
+pkgver=0.9.0
 pkgrel=1
 epoch=0
 pkgdesc="Modern asteroid detection software for citizen science (IASC/MPC workflow)"
 arch=('x86_64')
 url="https://codeberg.org/petrinhu/astrofind"
-license=('LicenseRef-PolyForm-NC-1.0')
+license=('AGPL-3.0-or-later')
 depends=(
     'qt6-base'
     'qt6-charts'
     'qt6-5compat'
+    'qtkeychain-qt6'
     'cfitsio'
     'fftw'
     'libarchive'

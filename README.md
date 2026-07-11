@@ -211,7 +211,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -243,7 +243,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0-beta/install.sh
+curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -327,6 +327,7 @@ cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
 | SEP | >= 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Source Extractor C library (FetchContent) |
 | spdlog | >= 1.11 | MIT | Logging (FetchContent) |
 | nlohmann/json | >= 3.11 | MIT | Project file serialisation (bundled) |
+| Qt6Keychain | any | LGPL-2.1 | Secure API key storage (dynamically linked, required at runtime) |
 | CMake | >= 3.20 | n/a | Build system, not distributed |
 | C++ | 23 | n/a | Compiler: GCC 13+ or Clang 16+, not distributed |
 
@@ -336,7 +337,6 @@ cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
 |------------|---------|-------|
 | QuaZip + Qt6Core5Compat | LGPL-2.1 + static-linking exception | ZIP archive extraction |
 | libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction |
-| Qt6Keychain | LGPL-2.1 | Secure API key storage |
 | Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations |
 | ASTAP | proprietary freeware | Offline plate solver ([hnsky.org](https://www.hnsky.org/astap.htm)) |
 | CCfits | NASA permissive | Bundled C++ wrapper around cfitsio |
@@ -357,6 +357,7 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 | SEP | >= 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Biblioteca C do Source Extractor (FetchContent) |
 | spdlog | >= 1.11 | MIT | Log (FetchContent) |
 | nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (bundled) |
+| Qt6Keychain | qualquer | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente, obrigatório em runtime) |
 | CMake | >= 3.20 | n/a | Sistema de build, não distribuído |
 | C++ | 23 | n/a | Compilador: GCC 13+ ou Clang 16+, não distribuído |
 
@@ -366,7 +367,6 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 |-------------|---------|-------|
 | QuaZip + Qt6Core5Compat | LGPL-2.1 + exceção de linkagem estática | Extração de arquivos ZIP |
 | libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR |
-| Qt6Keychain | LGPL-2.1 | Armazenamento seguro de chave API |
 | Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts` |
 | ASTAP | freeware proprietário | Plate solver offline ([hnsky.org](https://www.hnsky.org/astap.htm)) |
 | CCfits | Permissiva NASA | Wrapper C++ do cfitsio, bundled |
