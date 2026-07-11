@@ -30,6 +30,9 @@
 
 #include <QDir>
 #include <QDateTime>
+#include <QDate>
+#include <QTime>
+#include <QTimeZone>
 #include <QTemporaryDir>
 
 using namespace testutil;
