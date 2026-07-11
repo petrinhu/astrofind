@@ -1,10 +1,26 @@
 # TODO — Remediação da Auditoria AstroFind
 
-> **Nota:** Feats de remediação oriundas da auditoria read-only de 2026-07-10; ver [`AUDIT_FIND.md`](AUDIT_FIND.md). Fase de remediação sob decisão do líder.
+> **Ordenação (reorder 2026-07-10, topological + WSJF + ondas):** a auditoria (Ondas 1-4 + plausíveis) está **100% FECHADA e mergeada na `main` (`5e1014e`** em github/local/Codeberg). O único passo de execução restante é o **Release (W-REL)**. Legenda: ✅ Resolvido · 🟡 Parcial · ⏳ Pendente.
 >
-> Ordenação: topological + WSJF, urgentes no topo. Links por âncora de ID (nunca por linha). Legenda: ✅ Resolvido · ❌ Pendente.
->
-> **✅ Onda 1 CONCLUÍDA (2026-07-10)** — branch `audit-remediation-onda1` (pushada; CI só no fim de tudo). Implementer ≠ reviewer adversarial ≠ orquestrador; cada review adversarial pegou 1 bug real (bypass de overflow no NAXIS3; fail-open NaN no netFlux), corrigidos. Suíte ASan/UBSan 100% verde, WCS validado vs astropy nas 8 projeções.
+> Métrica final: suíte ASan/UBSan **4426 → 5480 assertions / 159 casos**, 100% verde incl. `[bintable]`, `detect_leaks=1`. 5 bugs reais pegos por reviewers adversariais. UI/UX intocada. `audit.yml` roda ASan/cppcheck/clang-tidy/valgrind a cada PR→main.
+
+---
+
+## W-REL — Release (🔴 Urgente — próximo passo de execução)
+
+| ID | Onda | Grupo | Descrição Técnica | Prioridade | Pré-requisito | Dificuldade | Status | Estado Auditado |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| REL-1 | W-REL | Release | Tag `v0.9.0` estável (pós-auditoria; sucede `v0.9.0-beta`) — dispara `audit.yml` na tag | Alta | Ondas 1-4 (✅) | Baixa | ⏳ Pendente | — |
+| AUD-INPUT-gaps | W-REL | Auditoria | Fuzzar RAW/PDS4/QImage/XISF sob ASan (formatos não exercitados) — cobertura, não bug | Baixa | — | Média | 🟡 Parcial (aceito; `audit.yml` cobre o tooling daqui pra frente) | — |
+| AUD-MEM-gaps | W-REL | Auditoria | Valgrind/cppcheck/clang-tidy em build limpo; `Calibration.cpp:276` refutado por análise | Baixa | — | Baixa | 🟡 Parcial (agora no `audit.yml`/CI a cada PR→main) | — |
+
+> Nota: features de produto pendentes (RAW DSLR/PDS4 = itens 21.1/21.2, Wiki + doc iniciante) vivem na tabela do `CLAUDE.md`, não nesta (que é a remediação de auditoria).
+
+---
+
+## ✅ Ondas 1-4 — auditoria CONCLUÍDA (histórico, execução já feita)
+
+> **Onda 1** (bloqueadores, mergeada) — Implementer ≠ reviewer adversarial ≠ orquestrador; cada review adversarial pegou 1 bug real (bypass overflow NAXIS3; fail-open NaN netFlux), corrigidos. WCS validado vs astropy nas 8 projeções.
 
 ---
 
@@ -54,6 +70,8 @@
 
 ## Onda 3 — Doc / licença / CI / testes (🟡 Média)
 
+> **✅ CONCLUÍDA (2026-07-10)** — PROV-1/2/3-6 `6dedadc` (NOTICE, decisão: atribuir WCSLIB), DOC-1 `209e275`, DOC-3 `e75518a` (SPDX 127/127), DOC-4 `df1d883` (RAW/PDS4→❌ honesto), CI-3 `e31dc4a` (`audit.yml` docker/fedora:42), CI-4 `7cfdf56` (wsl2 removido), TEST-2 `498db3c` + TEST-3 `f808732` (fixtures sintéticas + loaders), SEC-4 `cc5e62b` (enforce https).
+
 | # | ID (AUD-*) | Feature (remediação) | Severidade | Onda | Prioridade | Link |
 |---|---|---|:---:|:---:|:---:|---|
 | 18 | AUD-PROV-1 | Apurar proveniência WCSLIB (paper vs prj.c); NOTICE+copyright+LGPL se código; alinhar README — **requer jurídico/CLO** | 🟠 IMPORTANTE | 3 | 🟡 Média | [AUD-PROV-1](AUDIT_FIND.md#aud-prov-1) |
@@ -69,7 +87,9 @@
 
 ---
 
-## Onda 4 — Cosméticos + plausíveis a fechar (🟢 Baixa)
+## Onda 4 — Cosméticos + plausíveis (🟢 Baixa)
+
+> **✅ CONCLUÍDA (2026-07-10)** — SEC-5 `756cb12` (config 0600), CI-2 `d946b02` (renormalize CRLF), CORR-6 `e88cc54` (FWHM 2.354820045), INPUT-6 `f12a463` (align UB SER), CCFITS-ASAN `52c94b3` ([bintable] roda sob ASan), INPUT-7 `8ca5730` (guard índice), PROV-8 `a196275` (nota honesta, risco aceito). CCfits-fallback: URL git 404 morta, documentada (`292044b`). Restam só `AUD-INPUT-gaps`/`AUD-MEM-gaps` (cobertura, em W-REL).
 
 | # | ID (AUD-*) | Feature (remediação) | Severidade | Onda | Prioridade | Link |
 |---|---|---|:---:|:---:|:---:|---|
