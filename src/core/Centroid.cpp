@@ -8,6 +8,11 @@
 
 namespace core {
 
+// AUD-CORR-6: FWHM = 2·sqrt(2·ln2)·sigma for a Gaussian PSF. The previous
+// literal 2.355 was a truncated approximation (error ~0.0077%, immaterial in
+// practice but not the exact constant); use the precise value everywhere.
+constexpr double kFwhmPerSigma = 2.354820045;
+
 std::optional<CentroidResult> findCentroid(const FitsImage& img,
                                            double clickX,
                                            double clickY,
@@ -100,11 +105,11 @@ std::optional<CentroidResult> findCentroid(const FitsImage& img,
     // photometry routines, so a NaN/Inf must not leave this function.
     if (!std::isfinite(cx) || !std::isfinite(cy)) return std::nullopt;
 
-    // Second-moment FWHM: σ² = <x²> - <x>²;  FWHM = 2.355·σ
+    // Second-moment FWHM: σ² = <x²> - <x>²;  FWHM = kFwhmPerSigma·σ
     const double varX = sumWX2/sumW - cx*cx;
     const double varY = sumWY2/sumW - cy*cy;
-    const double fwhmX = (varX > 0.0) ? 2.355 * std::sqrt(varX) : 1.0;
-    const double fwhmY = (varY > 0.0) ? 2.355 * std::sqrt(varY) : 1.0;
+    const double fwhmX = (varX > 0.0) ? kFwhmPerSigma * std::sqrt(varX) : 1.0;
+    const double fwhmY = (varY > 0.0) ? kFwhmPerSigma * std::sqrt(varY) : 1.0;
 
     // ── 6. SNR: peak / sqrt(peak + bkg) (Poisson + background noise) ─────────
     const double snr = (bkg > 0.0)
@@ -159,7 +164,7 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
     // Parameters: p[0]=cx, p[1]=cy, p[2]=sigma, p[3]=amplitude
     double cx    = seed->x;
     double cy    = seed->y;
-    double sigma = std::max(0.5, (seed->fwhmX + seed->fwhmY) * 0.5 / 2.355);
+    double sigma = std::max(0.5, (seed->fwhmX + seed->fwhmY) * 0.5 / kFwhmPerSigma);
     double amp   = seed->peak;
 
     constexpr int    kMaxIter = 40;
@@ -206,7 +211,7 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
     if (!std::isfinite(cx) || !std::isfinite(cy) ||
         cx < x0 || cx > x1 || cy < y0 || cy > y1) return seed;
 
-    const double fwhm = 2.355 * sigma;
+    const double fwhm = kFwhmPerSigma * sigma;
     const double snr  = (bkg > 0.0) ? amp / std::sqrt(amp + bkg) : std::sqrt(amp);
 
     return CentroidResult{ cx, cy, fwhm, fwhm, /*theta=*/0.0, amp, snr };
@@ -290,7 +295,7 @@ std::optional<CentroidResult> findCentroidElliptical(const FitsImage& img,
     if (pixels.size() < 7) return seed;   // under-determined
 
     // Parameters p[0..5] = {cx, cy, sigma_a, sigma_b, theta_rad, amplitude}
-    const double sig0 = std::max(0.5, seed->fwhmX / 2.355);
+    const double sig0 = std::max(0.5, seed->fwhmX / kFwhmPerSigma);
     std::array<double,6> p = { seed->x, seed->y, sig0, sig0 * 0.9, 0.0, seed->peak };
 
     // ── Levenberg-Marquardt ────────────────────────────────────────────────────
@@ -402,8 +407,8 @@ std::optional<CentroidResult> findCentroidElliptical(const FitsImage& img,
     if (!std::isfinite(p[2]) || !std::isfinite(p[3]) ||
         p[2] > boxRadius || p[3] > boxRadius)               return seed;
 
-    const double fwhmA = 2.355 * p[2];
-    const double fwhmB = 2.355 * p[3];
+    const double fwhmA = kFwhmPerSigma * p[2];
+    const double fwhmB = kFwhmPerSigma * p[3];
     const double snr   = (bkg > 0.0)
         ? p[5] / std::sqrt(p[5] + bkg)
         : std::sqrt(p[5]);
