@@ -246,6 +246,26 @@ TEST_CASE("importDaophotTable: NAXIS2-lie fixture propagates the read error "
     REQUIRE_FALSE(result.has_value());
 }
 
+TEST_CASE("importDaophotTable: optional variable-length (TFORM=1PE) FLUX column "
+          "fails cleanly, never an OOB/short read (AUD-INPUT-7)",
+          "[loaders][bintable][regression][AUD-INPUT-7]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("daophot_varlen_flux.fits");
+
+    QString err;
+    REQUIRE(writeSynthBinTableWithVarLenOptionalColumn(path, /*nRows=*/5, &err));
+
+    // readColumn() cannot extract a std::vector<double> out of a P/Q
+    // (ColumnVectorData) column at all -- CCfits throws WrongColumnType,
+    // which readFitsTable() turns into a clean error. importDaophotTable
+    // must propagate that error rather than silently indexing a
+    // shorter-than-nRows FLUX column out of bounds.
+    auto result = core::importDaophotTable(path);
+    REQUIRE_FALSE(result.has_value());
+}
+
 // ─── FitsTableReader::readLocalCatalogTable ───────────────────────────────────
 
 TEST_CASE("readLocalCatalogTable: needs RA/Dec columns, fails on X/Y-only table",

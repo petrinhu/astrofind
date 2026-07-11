@@ -201,7 +201,16 @@ importDaophotTable(const QString& filePath, const QString& hduName)
     QVector<DetectedStar> stars;
     stars.reserve(tbl.nRows);
     int skippedNonFinite = 0;
+    int skippedShortColumn = 0;
     for (int i = 0; i < tbl.nRows; ++i) {
+        // AUD-INPUT-7 defense-in-depth: readColumn() already enforces that
+        // every returned column has exactly nRows elements (or the whole
+        // table load fails), so in practice a found column is either empty
+        // (name absent) or exactly nRows long. Guard by index rather than by
+        // .isEmpty() anyway — a bounds check is correct regardless of what
+        // readColumn()/CCfits guarantee today, and stays correct if that
+        // invariant ever changes upstream.
+        if (i >= xs.size() || i >= ys.size()) { ++skippedShortColumn; continue; }
         const double x = xs[i].toDouble() - 1.0;   // FITS 1-based → 0-based pixels
         const double y = ys[i].toDouble() - 1.0;
         // AUD-INPUT-5 defense-in-depth: readColumn now refuses to fabricate
@@ -212,11 +221,11 @@ importDaophotTable(const QString& filePath, const QString& hduName)
         DetectedStar s;
         s.x    = x;
         s.y    = y;
-        s.flux = fluxes.isEmpty() ? 0.0  : fluxes[i].toDouble();
-        s.a    = as_.isEmpty()    ? 2.0  : as_[i].toDouble();
-        s.b    = bs_.isEmpty()    ? 2.0  : bs_[i].toDouble();
-        s.theta = thetas.isEmpty()? 0.0  : thetas[i].toDouble() * M_PI / 180.0;
-        if (!mags.isEmpty()) {
+        s.flux  = (i < fluxes.size()) ? fluxes[i].toDouble() : 0.0;
+        s.a     = (i < as_.size())    ? as_[i].toDouble()    : 2.0;
+        s.b     = (i < bs_.size())    ? bs_[i].toDouble()    : 2.0;
+        s.theta = (i < thetas.size()) ? thetas[i].toDouble() * M_PI / 180.0 : 0.0;
+        if (i < mags.size()) {
             const double mag = mags[i].toDouble();
             if (mag < 90.0) s.snr = std::pow(10.0, (15.0 - mag) / 2.5);
         }
@@ -225,6 +234,10 @@ importDaophotTable(const QString& filePath, const QString& hduName)
     if (skippedNonFinite > 0)
         spdlog::warn("importDaophotTable: skipped {} row(s) with non-finite X/Y in '{}'",
                      skippedNonFinite, filePath.toStdString());
+    if (skippedShortColumn > 0)
+        spdlog::warn("importDaophotTable: skipped {} row(s) whose X/Y column had "
+                     "fewer entries than the declared row count in '{}'",
+                     skippedShortColumn, filePath.toStdString());
     spdlog::info("importDaophotTable: {} stars from '{}'", stars.size(), filePath.toStdString());
     return stars;
 }
@@ -262,7 +275,13 @@ readLocalCatalogTable(const QString& filePath,
 
     QVector<CatalogStar> stars;
     int skippedNonFinite = 0;
+    int skippedShortColumn = 0;
     for (int i = 0; i < tbl.nRows; ++i) {
+        // AUD-INPUT-7 defense-in-depth: bound-check before indexing rather
+        // than relying solely on .isEmpty(); see the comment in
+        // importDaophotTable() for why this is currently unreachable but
+        // kept as a hard invariant regardless.
+        if (i >= ras.size() || i >= decs.size()) { ++skippedShortColumn; continue; }
         const double ra  = ras[i].toDouble();
         const double dec = decs[i].toDouble();
         // AUD-INPUT-5 defense-in-depth: skip rows whose required RA/Dec are
@@ -275,15 +294,19 @@ readLocalCatalogTable(const QString& filePath,
         CatalogStar s;
         s.ra    = ra;
         s.dec   = dec;
-        s.mag   = mags.isEmpty()   ? 99.0 : mags[i].toDouble();
-        s.pmRA  = pmras.isEmpty()  ? 0.0  : pmras[i].toDouble();
-        s.pmDec = pmdecs.isEmpty() ? 0.0  : pmdecs[i].toDouble();
-        s.id    = ids.isEmpty() ? QStringLiteral("L%1").arg(i) : ids[i].toString();
+        s.mag   = (i < mags.size())   ? mags[i].toDouble()   : 99.0;
+        s.pmRA  = (i < pmras.size())  ? pmras[i].toDouble()  : 0.0;
+        s.pmDec = (i < pmdecs.size()) ? pmdecs[i].toDouble() : 0.0;
+        s.id    = (i < ids.size())    ? ids[i].toString()    : QStringLiteral("L%1").arg(i);
         stars.append(s);
     }
     if (skippedNonFinite > 0)
         spdlog::warn("readLocalCatalogTable: skipped {} row(s) with non-finite RA/Dec in '{}'",
                      skippedNonFinite, filePath.toStdString());
+    if (skippedShortColumn > 0)
+        spdlog::warn("readLocalCatalogTable: skipped {} row(s) whose RA/Dec column had "
+                     "fewer entries than the declared row count in '{}'",
+                     skippedShortColumn, filePath.toStdString());
     spdlog::info("readLocalCatalogTable: {}/{} stars in cone from '{}'",
                  stars.size(), tbl.nRows, filePath.toStdString());
     return stars;
@@ -335,7 +358,15 @@ importReductionTable(const QString& filePath, const QString& hduName)
     QVector<DetectedStar> stars;
     stars.reserve(tbl.nRows);
     int skippedNonFinite = 0;
+    int skippedShortColumn = 0;
     for (int i = 0; i < tbl.nRows; ++i) {
+        // AUD-INPUT-7 defense-in-depth: bound-check the columns that are
+        // actually in play (pixel and/or sky) before indexing; see the
+        // comment in importDaophotTable() for why this is currently
+        // unreachable but kept as a hard invariant regardless.
+        if (hasPixel && (i >= xs.size() || i >= ys.size())) { ++skippedShortColumn; continue; }
+        if (hasSky   && (i >= ras.size() || i >= decs.size())) { ++skippedShortColumn; continue; }
+
         double x = -1.0, y = -1.0;
         if (hasPixel) {
             x = xs[i].toDouble() - 1.0;   // FITS 1-based → 0-based
@@ -360,11 +391,11 @@ importReductionTable(const QString& filePath, const QString& hduName)
             s.dec     = dec;
             s.matched = true;
         }
-        s.flux  = fluxes.isEmpty() ? 0.0  : fluxes[i].toDouble();
-        s.a     = as_.isEmpty()    ? 2.0  : as_[i].toDouble();
-        s.b     = bs_.isEmpty()    ? 2.0  : bs_[i].toDouble();
-        s.theta = thetas.isEmpty() ? 0.0  : thetas[i].toDouble() * M_PI / 180.0;
-        if (!mags.isEmpty()) {
+        s.flux  = (i < fluxes.size()) ? fluxes[i].toDouble() : 0.0;
+        s.a     = (i < as_.size())    ? as_[i].toDouble()    : 2.0;
+        s.b     = (i < bs_.size())    ? bs_[i].toDouble()    : 2.0;
+        s.theta = (i < thetas.size()) ? thetas[i].toDouble() * M_PI / 180.0 : 0.0;
+        if (i < mags.size()) {
             const double mag = mags[i].toDouble();
             if (mag < 90.0) s.snr = std::pow(10.0, (15.0 - mag) / 2.5);
         }
@@ -373,6 +404,10 @@ importReductionTable(const QString& filePath, const QString& hduName)
     if (skippedNonFinite > 0)
         spdlog::warn("importReductionTable: skipped {} row(s) with non-finite position field(s) in '{}'",
                      skippedNonFinite, filePath.toStdString());
+    if (skippedShortColumn > 0)
+        spdlog::warn("importReductionTable: skipped {} row(s) whose position column had "
+                     "fewer entries than the declared row count in '{}'",
+                     skippedShortColumn, filePath.toStdString());
     spdlog::info("importReductionTable: {} entries from '{}' (pixel={} sky={})",
                  stars.size(), filePath.toStdString(), hasPixel, hasSky);
     return stars;
