@@ -480,11 +480,11 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 | [AUD-TEST-2](#aud-test-2) | 🟠 IMPORTANTE | ✅ Resolvido `498db3c` (fixtures sintéticas, 10 SKIP→rodam) | Onda 3 |
 | [AUD-TEST-3](#aud-test-3) | 🟠 IMPORTANTE (novo) | ✅ Resolvido `f808732` (cobre loaders/table) | Onda 3 |
 | [AUD-SEC-4](#aud-sec-4) | 🟠 IMPORTANTE (plausível) | ✅ Resolvido `cc5e62b` (enforce https) | Onda 3 |
-| [AUD-CCFITS-ASAN](#aud-ccfits-asan) | 🟢 COSMÉTICO (novo) | ❌ Pendente (UB CCfits aborta `[bintable]` só sob ASan; fix: `-fno-sanitize=undefined` na ccfits_lib) | Onda 4 |
-| [AUD-SEC-5](#aud-sec-5) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
-| [AUD-CI-2](#aud-ci-2) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
-| [AUD-CORR-6](#aud-corr-6) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
-| [AUD-INPUT-6](#aud-input-6) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
+| [AUD-CCFITS-ASAN](#aud-ccfits-asan) | 🟢 COSMÉTICO (novo) | ✅ Resolvido `52c94b3` ([bintable] roda sob ASan; suíte 5477 verde) | Onda 4 |
+| [AUD-SEC-5](#aud-sec-5) | 🟢 COSMÉTICO | ✅ Resolvido `756cb12` (config 0600) | Onda 4 |
+| [AUD-CI-2](#aud-ci-2) | 🟢 COSMÉTICO | ✅ Resolvido `d946b02` (renormalize) | Onda 4 |
+| [AUD-CORR-6](#aud-corr-6) | 🟢 COSMÉTICO | ✅ Resolvido `e88cc54` (2.354820045) | Onda 4 |
+| [AUD-INPUT-6](#aud-input-6) | 🟢 COSMÉTICO | ✅ Resolvido `f12a463` (.ser não aborta sob UBSan) | Onda 4 |
 | [AUD-INPUT-7](#aud-input-7) | Plausível | ❌ Pendente | Onda 4 |
 | [AUD-PROV-8](#aud-prov-8) | Plausível | ❌ Pendente | Onda 4 |
 | [AUD-INPUT-gaps](#aud-input-gaps) | Plausível | ❌ Pendente | Onda 4 |
