@@ -13,11 +13,13 @@ name: Release
 #   2. Settings → Secrets → add RELEASE_TOKEN
 #      (PAT from your profile → Settings → Applications, scope: write:repository)
 #
-# Artifacts produced:
-#   astrofind-<ver>-0.beta1.x86_64.rpm  — Fedora / Rocky Linux / openSUSE TW
-#   astrofind_<ver>~beta-1_amd64.deb    — Debian / Ubuntu / Mint / Zorin / Pop!_OS
-#   astrofind-<ver>-arch-PKGBUILD.tar.gz — Arch Linux / Manjaro (source build)
-#   install.sh                           — universal bilingual installer
+# Artifacts produced (stable tag, e.g. v0.9.0):
+#   astrofind-<ver>-1.x86_64.rpm          — Fedora / Rocky Linux / openSUSE TW
+#   astrofind_<ver>_amd64.deb             — Debian / Ubuntu / Mint / Zorin / Pop!_OS
+#   astrofind-<ver>-arch-PKGBUILD.tar.gz  — Arch Linux / Manjaro (source build)
+#   install.sh                            — universal bilingual installer
+# For a pre-release tag (contains alpha/beta/rc, e.g. v1.0.0-beta), the RPM
+# Release/DEB Version fall back to the "0.betaN" / "~beta-1" pre-release scheme.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -119,9 +121,11 @@ jobs:
         run: |
           VER="${{ needs.prepare.outputs.version }}"
           VERNUM="${VER%%-*}"
-          RELNUM="0.beta1"
+          # RELNUM/DEBVER track the astrofind-binary.spec Release field and
+          # packaging/debian/control-binary Version — keep both in sync when bumping.
+          RELNUM="1"
+          echo "${VER}" | grep -qiE 'alpha|beta|rc' && RELNUM="0.beta1"
           ARCH=$(uname -m)
-          BUILDROOT="${HOME}/rpmbuild/BUILDROOT/astrofind-${VERNUM}-${RELNUM}.fc43.${ARCH}"
 
           DESTDIR=$PWD/staging cmake --install build
           rpmdev-setuptree
@@ -142,7 +146,8 @@ jobs:
         run: |
           VER="${{ needs.prepare.outputs.version }}"
           VERNUM="${VER%%-*}"
-          DEBVER="${VERNUM}~beta-1"
+          DEBVER="${VERNUM}"
+          echo "${VER}" | grep -qiE 'alpha|beta|rc' && DEBVER="${VERNUM}~beta-1"
           ARCH="amd64"
           PKGDIR="astrofind-deb/astrofind_${DEBVER}_${ARCH}"
 
@@ -205,7 +210,9 @@ jobs:
           RELEASE_ID="${{ needs.prepare.outputs.release_id }}"
           TARNAME="astrofind-${VER}-arch-PKGBUILD.tar.gz"
 
-          sed -i "s/^pkgver=.*/pkgver=${VERNUM}beta/" packaging/arch/PKGBUILD
+          PKGVER="${VERNUM}"
+          echo "${VER}" | grep -qiE 'alpha|beta|rc' && PKGVER="${VERNUM}beta"
+          sed -i "s/^pkgver=.*/pkgver=${PKGVER}/" packaging/arch/PKGBUILD
           mkdir -p astrofind-arch
           cp packaging/arch/PKGBUILD astrofind-arch/
           tar czf "${TARNAME}" astrofind-arch/
