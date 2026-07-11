@@ -185,6 +185,13 @@ if(NOT TARGET CCfits::CCfits)
     target_compile_features(ccfits_lib PRIVATE cxx_std_11)
     # Suppress all warnings from third-party code
     target_compile_options(ccfits_lib PRIVATE -w)
+    # AUD-CCFITS-ASAN: CCfits-2.7 vendored code has pre-existing UB
+    # (HDUCreator.cxx:178, `m_hdu = &(m_parent->pHDU())` taken before the
+    # primary HDU exists) that aborts every [bintable] test under our
+    # ASan/UBSan CI build (audit.yml). This disables UBSan instrumentation
+    # ONLY for this third-party target — harmless in normal (non-sanitizer)
+    # builds, and does not mask bugs in our own code.
+    target_compile_options(ccfits_lib PRIVATE -fno-sanitize=undefined)
     add_library(CCfits::CCfits ALIAS ccfits_lib)
     message(STATUS "CCfits 2.7 built from bundled source (${_ccfits_dir})")
 endif()
