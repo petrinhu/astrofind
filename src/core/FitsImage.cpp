@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "FitsImage.h"
 
 #include <fitsio.h>
@@ -30,19 +33,55 @@ constexpr double D2R = M_PI / 180.0;
 constexpr double R2D = 180.0 / M_PI;
 constexpr double R0  = R2D;  // sphere radius r₀ in degrees
 
-// φ_p: native longitude of the celestial pole.
-// Zenithal projections (θ₀=90°): φ_p = 180° (WCS Paper II §2.4, eq. 82).
-// Cylindrical/conventional (θ₀=0°): φ_p = 90° if δ_p ≥ 0, else 270°.
-inline double nativePoleAngle(WcsProjection proj, double crval2)
+// Celestial pole (α_p, δ_p) and native longitude of the celestial pole
+// (φ_p = LONPOLE), derived from the reference point CRVAL=(α0,δ0) and the
+// projection's native fiducial point (φ0,θ0), per Calabretta & Greisen 2002
+// (WCS Paper II, A&A 395, 1077), §2.4/§2.7 eqs. 8-10 — general fiducial-point
+// determination of the celestial pole given (φ0,θ0,α0,δ0,φ_p).
+//
+// AUD-CORR-1 fix: the previous code always treated CRVAL as the native pole
+// itself and used φ_p ∈ {90°,270°} for non-zenithal projections. That is only
+// correct when the fiducial point coincides with the native pole, i.e.
+// θ0=90° (zenithal: TAN/SIN/ARC/STG, Table 13). For the cylindrical /
+// pseudocylindrical family used here (CAR, MER, GLS/SFL, AIT) the native
+// fiducial point is on the native EQUATOR: (φ0,θ0) = (0°,0°) (WCS Paper II
+// Table 13). Solving eqs. 8-10 for φ0=θ0=0 collapses (closed form, derived
+// from the spherical triangle NCP–native-pole–fiducial-point) to:
+//
+//   δ0 ≥ 0°  → φ_p = 0°,   δ_p = 90° − δ0,  α_p = α0 + 180° (mod 360°)
+//   δ0 <  0° → φ_p = 180°, δ_p = 90° + δ0,  α_p = α0
+//
+// (default LONPOLE rule per the standard: 0° if δ0≥θ0, else 180°, with θ0=0
+// here). Verified against astropy 8.0.1 (WCS) for CAR/MER/GLS/AIT — the
+// reference pixel round-trips to CRVAL and ±100px offsets move the expected
+// axis (X→RA, Y→Dec) to sub-arcsecond agreement; see delta_wcs.cpp/oracle_wcs.py.
+inline void celestialPole(WcsProjection proj, double crval1, double crval2,
+                          double& alpha_p, double& delta_p, double& phi_p) noexcept
 {
     switch (proj) {
         case WcsProjection::TAN:
         case WcsProjection::SIN:
         case WcsProjection::ARC:
         case WcsProjection::STG:
-            return 180.0;
+            // Zenithal: fiducial point == native pole (φ0,θ0)=(0°,90°) → the
+            // celestial pole coincides trivially with CRVAL, φ_p = 180°.
+            phi_p   = 180.0;
+            alpha_p = crval1;
+            delta_p = crval2;
+            return;
         default:
-            return crval2 >= 0.0 ? 90.0 : 270.0;
+            // Cylindrical/pseudocylindrical: fiducial point on native equator
+            // (φ0,θ0)=(0°,0°) — see derivation above.
+            if (crval2 >= 0.0) {
+                phi_p   = 0.0;
+                delta_p = 90.0 - crval2;
+                alpha_p = std::fmod(crval1 + 180.0, 360.0);
+            } else {
+                phi_p   = 180.0;
+                delta_p = 90.0 + crval2;
+                alpha_p = crval1;
+            }
+            return;
     }
 }
 
@@ -255,16 +294,18 @@ void PlateSolution::pixToSky(double px, double py, double& ra, double& dec) cons
     }
 
     // Step 3: native spherical → celestial
-    const double phi_p = nativePoleAngle(projection, crval2);
-    nativeToCelestial(phi, theta, crval1, crval2, phi_p, ra, dec);
+    double alpha_p = 0.0, delta_p = 0.0, phi_p = 0.0;
+    celestialPole(projection, crval1, crval2, alpha_p, delta_p, phi_p);
+    nativeToCelestial(phi, theta, alpha_p, delta_p, phi_p, ra, dec);
 }
 
 void PlateSolution::skyToPix(double ra, double dec, double& px, double& py) const noexcept
 {
     // Step 3 inverse: celestial → native spherical
-    const double phi_p = nativePoleAngle(projection, crval2);
+    double alpha_p = 0.0, delta_p = 0.0, phi_p = 0.0;
+    celestialPole(projection, crval1, crval2, alpha_p, delta_p, phi_p);
     double phi = 0.0, theta = 0.0;
-    celestialToNative(ra, dec, crval1, crval2, phi_p, phi, theta);
+    celestialToNative(ra, dec, alpha_p, delta_p, phi_p, phi, theta);
 
     // Step 2 inverse: native spherical → IWC
     double x = 0.0, y = 0.0;
@@ -288,6 +329,97 @@ QString cfitsioError(int status)
     char errmsg[FLEN_ERRMSG];
     fits_get_errstatus(status, errmsg);
     return QString::fromLatin1(errmsg);
+}
+
+// ── Input-hardening constants and guards (AUD-INPUT-1 / AUD-INPUT-2 / AUD-MEM-4) ──
+//
+// cfitsio's fits_read_pix (ffgpxv) indexes the fpixel/naxes arrays declared
+// here (long[3]) using the FILE's real NAXIS, not the size of the array we
+// pass in. A FITS header with NAXIS>=4 makes cfitsio write/read past those
+// 3-element stack arrays (confirmed stack-buffer-overflow under ASan).
+// kMaxImageAxes bounds the accepted NAXIS BEFORE any fits_get_img_size /
+// fits_read_pix call at every call site that declares naxes[3]/fpixel[3].
+constexpr int kMaxImageAxes = 3;
+
+// A malicious/corrupt header can declare NAXIS1/NAXIS2/NAXIS3 arbitrarily
+// large (e.g. 100000x100000) while the file itself is only a couple of KB;
+// resizing a std::vector<float> to match tries to allocate ~40 GB before a
+// single pixel is read. kMaxImageDim/kMaxImagePixels are a generous sanity
+// ceiling — far beyond any real astronomical CCD/mosaic frame (largest known
+// single-shot sensors are on the order of 10-15k px/side, tens to ~150 MP)
+// but 50-2000x smaller than the attack payloads seen in the audit fixtures.
+constexpr long      kMaxImageDim    = 20000;         // per-axis ceiling (px, NAXIS1/NAXIS2)
+constexpr long      kMaxCubeDepth   = 100000;        // NAXIS3 ceiling (frames/planes)
+constexpr long long kMaxImagePixels = 200'000'000LL; // ~800 MB/plane as float
+
+/// Validates declared FITS image dimensions (still as `long`, pre-cast to
+/// `int`) against the sanity ceiling above, and cross-checks against the
+/// actual file size on disk (cheap DoS guard: even at the smallest possible
+/// FITS sample size, BITPIX=8 / 1 byte per pixel, the declared pixel count
+/// cannot exceed what physically fits in the file). Validating the raw
+/// `long` values (rather than after `static_cast<int>`) also closes
+/// AUD-MEM-4: a NAXIS near 2^31 can no longer silently wrap to a negative
+/// `int` and slip past a post-cast `<= 0` check.
+bool validateImageDims(long w, long h, long depth, const QString& filePath, QString& err)
+{
+    if (w <= 0 || h <= 0 || depth <= 0) {
+        err = QObject::tr("Invalid image dimensions in '%1' (%2 x %3 x %4)")
+                  .arg(filePath).arg(w).arg(h).arg(depth);
+        return false;
+    }
+    // ALL THREE axes must clear their per-axis ceiling BEFORE the product is
+    // computed. Bounding depth here is not optional: NAXIS3 arrives as a raw
+    // `long`, and a huge value (e.g. 144115188575855872, valid in `long`)
+    // would make `w*h*depth` overflow — signed integer overflow is UB (UBSan
+    // aborts in Debug; in Release it wraps to a negative that then bypasses
+    // BOTH the totalPixels ceiling and the file-size cross-check, and the
+    // subsequent static_cast<int>(depth) truncates to garbage fed into
+    // loadFitsCube's reserve()/loop. With w,h <= 20000 and depth <= 100000
+    // the product is at most 4e13, far inside long long — no overflow path
+    // remains. (AUD-INPUT-2 follow-up; found by adversarial review.)
+    if (w > kMaxImageDim || h > kMaxImageDim) {
+        err = QObject::tr("Image dimension too large in '%1' (%2 x %3 px, ceiling %4 px/axis)")
+                  .arg(filePath).arg(w).arg(h).arg(kMaxImageDim);
+        return false;
+    }
+    if (depth > kMaxCubeDepth) {
+        err = QObject::tr("Cube depth too large in '%1' (NAXIS3=%2, ceiling %3)")
+                  .arg(filePath).arg(depth).arg(kMaxCubeDepth);
+        return false;
+    }
+    // Safe now: every factor is bounded, so the product cannot overflow.
+    const long long totalPixels = static_cast<long long>(w) * static_cast<long long>(h)
+                                 * static_cast<long long>(depth);
+    if (totalPixels > kMaxImagePixels) {
+        err = QObject::tr("Image too large in '%1' (%2 total pixels, ceiling %3)")
+                  .arg(filePath).arg(totalPixels).arg(kMaxImagePixels);
+        return false;
+    }
+    const qint64 fileSize = QFileInfo(filePath).size();
+    if (fileSize > 0 && totalPixels > static_cast<long long>(fileSize)) {
+        err = QObject::tr("Declared image size (%1 px) in '%2' exceeds the %3-byte file on disk "
+                           "(lying/corrupt header)")
+                  .arg(totalPixels).arg(filePath).arg(fileSize);
+        return false;
+    }
+    return true;
+}
+
+/// Resizes a pixel buffer, converting any allocation failure (bad_alloc,
+/// length_error) into a returned error instead of letting the exception
+/// escape — validateImageDims() already bounds `n` well below what should
+/// ever throw, but a loaded system can still fail an allocation, and no
+/// caller in this codebase catches exceptions from a Qt slot (AUD-INPUT-2).
+bool safeResizeFloat(std::vector<float>& v, size_t n, const QString& filePath, QString& err)
+{
+    try {
+        v.resize(n);
+    } catch (const std::exception& e) {
+        err = QObject::tr("Out of memory allocating pixel buffer for '%1' (%2 floats): %3")
+                  .arg(filePath).arg(static_cast<qulonglong>(n)).arg(QString::fromLocal8Bit(e.what()));
+        return false;
+    }
+    return true;
 }
 
 double parseRaHMS(const QString& s)
@@ -676,8 +808,16 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
         fits_movabs_hdu(fptr, hdus[0], nullptr, &status);
         long axes[2] = {1, 1};
         fits_get_img_size(fptr, 2, axes, &status);
-        if (status || axes[0] <= 0 || axes[1] <= 0)
+        if (status)
             return std::unexpected(QObject::tr("Invalid image dimensions in: %1").arg(filePath));
+        // AUD-INPUT-2 / AUD-MEM-4: validate the raw `long` axes (pre-cast to
+        // `int`) against the sanity ceiling and the file size on disk before
+        // ever resizing a buffer.
+        {
+            QString dimErr;
+            if (!validateImageDims(axes[0], axes[1], 1, filePath, dimErr))
+                return std::unexpected(dimErr);
+        }
 
         img.width   = static_cast<int>(axes[0]);
         img.height  = static_cast<int>(axes[1]);
@@ -686,9 +826,13 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
         status = 0;
 
         const long planeSize = static_cast<long>(img.width) * img.height;
-        img.dataR.resize(static_cast<size_t>(planeSize));
-        img.dataG.resize(static_cast<size_t>(planeSize));
-        img.dataB.resize(static_cast<size_t>(planeSize));
+        {
+            QString allocErr;
+            if (!safeResizeFloat(img.dataR, static_cast<size_t>(planeSize), filePath, allocErr) ||
+                !safeResizeFloat(img.dataG, static_cast<size_t>(planeSize), filePath, allocErr) ||
+                !safeResizeFloat(img.dataB, static_cast<size_t>(planeSize), filePath, allocErr))
+                return std::unexpected(allocErr);
+        }
 
         float nullval = 0.0f;
         int   anynull = 0;
@@ -708,7 +852,11 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
 
         // Compute Rec.709 luminance for astrometry / star detection
         const size_t ps = static_cast<size_t>(planeSize);
-        img.data.resize(ps);
+        {
+            QString allocErr;
+            if (!safeResizeFloat(img.data, ps, filePath, allocErr))
+                return std::unexpected(allocErr);
+        }
         for (size_t i = 0; i < ps; ++i)
             img.data[i] = 0.2126f * img.dataR[i] + 0.7152f * img.dataG[i] + 0.0722f * img.dataB[i];
 
@@ -749,18 +897,27 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
     // Image dimensions
     int naxis = 0;
     fits_get_img_dim(fptr, &naxis, &status);
-    if (naxis < 2)
-        return std::unexpected(QObject::tr("FITS file has no 2D image: %1").arg(filePath));
+    // AUD-INPUT-1: naxes/fpixel below are long[3] — cfitsio's fits_read_pix
+    // indexes them by the file's REAL NAXIS, so NAXIS>3 must be rejected
+    // before any fits_get_img_size/fits_read_pix call (stack-buffer-overflow
+    // otherwise; see kMaxImageAxes).
+    if (naxis < 2 || naxis > kMaxImageAxes)
+        return std::unexpected(QObject::tr("Unsupported NAXIS=%1 in: %2 (expected 2 or 3)")
+            .arg(naxis).arg(filePath));
 
     long naxes[3] = {1, 1, 1};
     fits_get_img_size(fptr, 3, naxes, &status);
+    // AUD-INPUT-2 / AUD-MEM-4: validate the raw `long` naxes (pre-cast) — a
+    // lying header (e.g. NAXIS1=NAXIS2=100000) must not reach any resize.
+    {
+        QString dimErr;
+        if (!validateImageDims(naxes[0], naxes[1], naxes[2], filePath, dimErr))
+            return std::unexpected(dimErr);
+    }
     img.width   = static_cast<int>(naxes[0]);
     img.height  = static_cast<int>(naxes[1]);
     img.isColor    = (naxes[2] == 3);  ///< NAXIS3=3 → RGB color image
     img.cubeDepth  = static_cast<int>(naxes[2]);
-
-    if (img.width <= 0 || img.height <= 0)
-        return std::unexpected(QObject::tr("Invalid image dimensions in: %1").arg(filePath));
 
     // Read pixel data as float (cfitsio handles BZERO/BSCALE)
     const long planeSize = static_cast<long>(img.width) * img.height;
@@ -770,7 +927,10 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
     int   anynull = 0;
 
     if (img.isColor) {
-        std::vector<float> allPlanes(static_cast<size_t>(npix));
+        std::vector<float> allPlanes;
+        QString allocErr;
+        if (!safeResizeFloat(allPlanes, static_cast<size_t>(npix), filePath, allocErr))
+            return std::unexpected(allocErr);
         fits_read_pix(fptr, TFLOAT, fpixel, npix, &nullval, allPlanes.data(), &anynull, &status);
         if (status)
             return std::unexpected(QObject::tr("Error reading color pixel data from: %1 (%2)")
@@ -779,11 +939,14 @@ std::expected<FitsImage, QString> loadFits(const QString& filePath)
         img.dataR.assign(allPlanes.begin(),        allPlanes.begin() + ps);
         img.dataG.assign(allPlanes.begin() + ps,   allPlanes.begin() + ps * 2);
         img.dataB.assign(allPlanes.begin() + ps*2, allPlanes.end());
-        img.data.resize(ps);
+        if (!safeResizeFloat(img.data, ps, filePath, allocErr))
+            return std::unexpected(allocErr);
         for (size_t i = 0; i < ps; ++i)
             img.data[i] = 0.2126f * img.dataR[i] + 0.7152f * img.dataG[i] + 0.0722f * img.dataB[i];
     } else {
-        img.data.resize(static_cast<size_t>(planeSize));
+        QString allocErr;
+        if (!safeResizeFloat(img.data, static_cast<size_t>(planeSize), filePath, allocErr))
+            return std::unexpected(allocErr);
         fits_read_pix(fptr, TFLOAT, fpixel, planeSize, &nullval, img.data.data(), &anynull, &status);
         if (status)
             return std::unexpected(QObject::tr("Error reading pixel data from: %1 (%2)")
@@ -831,11 +994,23 @@ QVector<HduInfo> scanImageHdus(const QString& filePath)
 
         int naxis = 0;
         fits_get_img_dim(fptr, &naxis, &status);
-        if (status || naxis < 2) continue;
+        // AUD-INPUT-1 dominó: same naxes[3] shape as the loaders above — skip
+        // (rather than abort the whole scan) any HDU with NAXIS outside what
+        // this array can safely represent.
+        if (status || naxis < 2 || naxis > kMaxImageAxes) continue;
 
         long naxes[3] = {1, 1, 1};
         fits_get_img_size(fptr, 3, naxes, &status);
-        if (status || naxes[0] <= 0 || naxes[1] <= 0) continue;
+        if (status) continue;
+        // AUD-INPUT-2 dominó: reject dimensions that fail the same sanity
+        // ceiling used by the loaders (this HDU's number would otherwise be
+        // handed to loadFitsHdu()/loadFitsCube(), which re-validate anyway,
+        // but a bogus/huge entry in the picker list is a UX foot-gun too).
+        {
+            QString dimErr;
+            if (!validateImageDims(naxes[0], naxes[1], naxes[2] > 0 ? naxes[2] : 1, filePath, dimErr))
+                continue;
+        }
 
         int kst = 0;
         fits_read_keyword(fptr, "EXTNAME", valstr, comment, &kst);
@@ -880,20 +1055,25 @@ std::expected<FitsImage, QString> loadFitsHdu(const QString& filePath, int hduNu
 
     int naxis = 0;
     fits_get_img_dim(fptr, &naxis, &status);
-    if (naxis < 2)
-        return std::unexpected(QObject::tr("HDU %1 has no 2D image in: %2")
-            .arg(hduNumber).arg(filePath));
+    // AUD-INPUT-1: reject NAXIS>3 before any fits_get_img_size/fits_read_pix
+    // call — naxes/fpixel below are long[3], and cfitsio indexes them by the
+    // file's real NAXIS (stack-buffer-overflow otherwise).
+    if (naxis < 2 || naxis > kMaxImageAxes)
+        return std::unexpected(QObject::tr("HDU %1 has unsupported NAXIS=%2 in: %3 (expected 2 or 3)")
+            .arg(hduNumber).arg(naxis).arg(filePath));
 
     long naxes[3] = {1, 1, 1};
     fits_get_img_size(fptr, 3, naxes, &status);
+    // AUD-INPUT-2 / AUD-MEM-4: validate raw `long` naxes before casting/resizing.
+    {
+        QString dimErr;
+        if (!validateImageDims(naxes[0], naxes[1], naxes[2], filePath, dimErr))
+            return std::unexpected(QObject::tr("HDU %1: %2").arg(hduNumber).arg(dimErr));
+    }
     img.width      = static_cast<int>(naxes[0]);
     img.height     = static_cast<int>(naxes[1]);
     img.isColor    = (naxes[2] == 3);
     img.cubeDepth  = static_cast<int>(naxes[2]);
-
-    if (img.width <= 0 || img.height <= 0)
-        return std::unexpected(QObject::tr("Invalid image dimensions in HDU %1: %2")
-            .arg(hduNumber).arg(filePath));
 
     const long planeSize = static_cast<long>(img.width) * img.height;
     const long npix      = img.isColor ? planeSize * 3 : planeSize;
@@ -902,7 +1082,10 @@ std::expected<FitsImage, QString> loadFitsHdu(const QString& filePath, int hduNu
     int   anynull = 0;
 
     if (img.isColor) {
-        std::vector<float> allPlanes(static_cast<size_t>(npix));
+        std::vector<float> allPlanes;
+        QString allocErr;
+        if (!safeResizeFloat(allPlanes, static_cast<size_t>(npix), filePath, allocErr))
+            return std::unexpected(allocErr);
         fits_read_pix(fptr, TFLOAT, fpixel, npix, &nullval, allPlanes.data(), &anynull, &status);
         if (status)
             return std::unexpected(QObject::tr("Error reading pixel data from HDU %1: %2 (%3)")
@@ -911,11 +1094,14 @@ std::expected<FitsImage, QString> loadFitsHdu(const QString& filePath, int hduNu
         img.dataR.assign(allPlanes.begin(),        allPlanes.begin() + ps);
         img.dataG.assign(allPlanes.begin() + ps,   allPlanes.begin() + ps * 2);
         img.dataB.assign(allPlanes.begin() + ps*2, allPlanes.end());
-        img.data.resize(ps);
+        if (!safeResizeFloat(img.data, ps, filePath, allocErr))
+            return std::unexpected(allocErr);
         for (size_t i = 0; i < ps; ++i)
             img.data[i] = 0.2126f * img.dataR[i] + 0.7152f * img.dataG[i] + 0.0722f * img.dataB[i];
     } else {
-        img.data.resize(static_cast<size_t>(planeSize));
+        QString allocErr;
+        if (!safeResizeFloat(img.data, static_cast<size_t>(planeSize), filePath, allocErr))
+            return std::unexpected(allocErr);
         fits_read_pix(fptr, TFLOAT, fpixel, planeSize, &nullval, img.data.data(), &anynull, &status);
         if (status)
             return std::unexpected(QObject::tr("Error reading pixel data from HDU %1: %2 (%3)")
@@ -954,14 +1140,26 @@ loadFitsCube(const QString& filePath, int hduNumber)
 
     int naxis = 0;
     fits_get_img_dim(fptr, &naxis, &status);
+    // AUD-INPUT-1: a temporal cube is exactly 3 axes (W,H,depth); naxes/fpixel
+    // below are long[3] and cfitsio indexes them by the file's real NAXIS, so
+    // NAXIS>3 must be rejected before fits_get_img_size/fits_read_pix
+    // (stack-buffer-overflow otherwise).
+    if (status || naxis < 2 || naxis > kMaxImageAxes)
+        return std::unexpected(QObject::tr("Unsupported NAXIS=%1 in '%2' (expected 2 or 3)")
+            .arg(naxis).arg(filePath));
+
     long naxes[3] = {1, 1, 1};
     fits_get_img_size(fptr, 3, naxes, &status);
+    // AUD-INPUT-2 / AUD-MEM-4: validate raw `long` naxes before casting/resizing.
+    {
+        QString dimErr;
+        if (!validateImageDims(naxes[0], naxes[1], naxes[2], filePath, dimErr))
+            return std::unexpected(dimErr);
+    }
     const int W = static_cast<int>(naxes[0]);
     const int H = static_cast<int>(naxes[1]);
     const int D = static_cast<int>(naxes[2]);
 
-    if (W <= 0 || H <= 0)
-        return std::unexpected(QObject::tr("Invalid image dimensions in '%1'").arg(filePath));
     if (D <= 1 || D == 3)
         return std::unexpected(QObject::tr("'%1' is not a temporal cube (NAXIS3=%2)")
             .arg(filePath).arg(D));
@@ -980,10 +1178,17 @@ loadFitsCube(const QString& filePath, int hduNumber)
     int   anynull = 0;
 
     QVector<FitsImage> frames;
-    frames.reserve(D);
+    try {
+        frames.reserve(D);
+    } catch (const std::exception& e) {
+        return std::unexpected(QObject::tr("Out of memory allocating %1 cube frames for '%2': %3")
+            .arg(D).arg(filePath, QString::fromLocal8Bit(e.what())));
+    }
     for (int k = 0; k < D; ++k) {
         FitsImage frame = meta;
-        frame.data.resize(static_cast<size_t>(planeSize));
+        QString allocErr;
+        if (!safeResizeFloat(frame.data, static_cast<size_t>(planeSize), filePath, allocErr))
+            return std::unexpected(allocErr);
         long fpixel[3] = {1, 1, static_cast<long>(k + 1)};
         int st = 0;
         fits_read_pix(fptr, TFLOAT, fpixel, planeSize, &nullval,

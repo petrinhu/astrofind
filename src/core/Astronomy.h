@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #pragma once
 
 #include "Overlay.h"   // CatalogStar
@@ -26,6 +29,26 @@ double localSiderealTime(double jd, double lonDeg) noexcept;
 /// @returns Airmass X (≥ 1.0), or 0.0 if the object is below the horizon.
 double computeAirmass(double ra_deg, double dec_deg, double jd,
                       double lat_deg, double lon_deg) noexcept;
+
+/// First-order atmospheric extinction correction: mag_corrected = mag_inst − k·X.
+///
+/// Reference implementation of the convention used by the measurement
+/// pipeline (`MainWindow::runMeasurePipeline`, `photometry/extinctionCoeff`
+/// setting): the star appears fainter (numerically larger magnitude) at
+/// higher airmass, so the correction SUBTRACTS `k·X` to recover the
+/// magnitude the star would have at the zenith (X=1).
+///
+/// AUD-CORR-5 (audit remediation, Onda 2): extracted so the sign convention
+/// is unit-testable independently of the UI. A sign flip here (`+k·X`
+/// instead of `−k·X`) would move fainter-at-higher-airmass stars the wrong
+/// direction and must fail `tests/test_photometry.cpp`.
+///
+/// @param instMag  Instrumental magnitude (uncorrected).
+/// @param kExt     Extinction coefficient (mag/airmass), typically 0–1.
+/// @param airmass  Airmass X (≥ 1.0); values ≤ 0 are treated as "no correction".
+/// @returns Extinction-corrected magnitude, or `instMag` unchanged if
+///          `kExt <= 0` or `airmass <= 0` (matches the UI's "disabled" gate).
+double applyExtinctionCorrection(double instMag, double kExt, double airmass) noexcept;
 
 /// Great-circle angular distance between two sky positions (degrees).
 /// Uses the haversine formula — numerically stable at any separation.
@@ -115,31 +138,15 @@ std::pair<double,double> sunEclipticPosition(double jd) noexcept;
 double annualAberrationComponents(double ra, double dec, double jd,
                                   double& dRa_as, double& dDec_as) noexcept;
 
-/// Apply simplified IAU 2006 precession (Lieske 1977 rotation angles) from
-/// J2000.0 mean equinox to the mean equinox of @p jd.
-///
-/// Use this when input coordinates are in the FK5/J2000.0 mean equinox frame
-/// (e.g. catalog epochs before Hipparcos/Gaia) and must be converted to
-/// approximate ICRS / coordinates of date.
-///
-/// Accuracy: < 0.1" per century from J2000.0.  No nutation included.
-///
-/// @param ra   J2000.0 RA (degrees), updated in-place.
-/// @param dec  J2000.0 Dec (degrees), updated in-place.
-/// @param jd   Target Julian Date (defines the epoch of date).
-void applyPrecessionJ2000ToDate(double& ra, double& dec, double jd) noexcept;
-
-/// Apply dominant nutation terms (9-term IAU 1980 series) to convert
-/// mean-equinox-of-date coordinates to the true (apparent) equinox of date.
-///
-/// Magnitude can reach 17.2" in Δψ (longitude) and 9.2" in Δε (obliquity).
-/// Accuracy: ~0.5" (adequate for sub-arcsecond ADES residuals).
-/// Call AFTER applyPrecessionJ2000ToDate() when building apparent place from
-/// historical J2000 mean-equinox coordinates.
-///
-/// @param ra   Mean-equinox-of-date RA (degrees), updated in-place.
-/// @param dec  Mean-equinox-of-date Dec (degrees), updated in-place.
-/// @param jd   Julian Date.
-void applyNutation(double& ra, double& dec, double jd) noexcept;
+// ─── AUD-CORR-4 (audit remediation, Onda 2) ──────────────────────────────────
+// applyPrecessionJ2000ToDate() and applyNutation() were removed here: grep of
+// src/ confirmed ZERO callers (dead code — only declared/defined, never
+// invoked from any pipeline). Rationale for NOT reintroducing them: the WCS
+// plate solution (astrometry.net or equivalent) is calibrated directly
+// against a modern ICRS catalog (Gaia/UCAC4/2MASS) at the epoch of
+// observation, so precession and nutation are already implicitly resolved by
+// the plate-solve step. Applying them again in post-processing would
+// double-correct the reported coordinates. See docs/technical-reference.md
+// §6/§8 for the full rationale.
 
 } // namespace core

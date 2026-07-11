@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "SessionComparator.h"
 
 #include <algorithm>

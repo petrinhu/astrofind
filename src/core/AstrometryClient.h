@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #pragma once
 
 #include "FitsImage.h"
@@ -25,7 +28,16 @@ public:
     const QString& apiKey() const             { return apiKey_; }
 
     /// Override base URL for self-hosted astrometry.net instances.
-    void setBaseUrl(const QString& url) { baseUrl_ = url; }
+    ///
+    /// AUD-SEC-4: enforces transport security. `https://` is always accepted.
+    /// `http://` is accepted only for localhost/127.0.0.1/::1 (a local
+    /// astrometry.net instance on the same machine, where no network
+    /// eavesdropper can intercept loopback traffic). Any other `http://`
+    /// (or unknown scheme) is rejected — the previous (safe) baseUrl_ is
+    /// kept unchanged and a warning is logged — because this endpoint
+    /// receives the user's API key on every request.
+    void setBaseUrl(const QString& url);
+    const QString& baseUrl() const { return baseUrl_; }
 
     void setTimeout(int seconds) { maxPollCount_ = std::max(1, seconds / 5); }
 

@@ -1,11 +1,16 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #pragma once
 
 #include "Ephemeris.h"
 
 #include <QObject>
 #include <QString>
+#include <QPointer>
 
 class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace core {
 
@@ -30,6 +35,9 @@ public:
 
     bool isBusy() const noexcept { return busy_; }
 
+    /// Abort the in-flight Horizons request (if any) and reset busy state.
+    void cancel();
+
 signals:
     void resultReady(const core::EphemerisMatch& match);
     void failed(const QString& reason);
@@ -41,6 +49,7 @@ private:
     EphemerisMatch parseHorizonsResult(const QString& text) const;
 
     QNetworkAccessManager* nam_;
+    QPointer<QNetworkReply> currentReply_;
     bool    busy_   = false;
     double  obsLat_ = 0.0;
     double  obsLon_ = 0.0;

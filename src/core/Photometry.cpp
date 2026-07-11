@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "Photometry.h"
 
 #include <cmath>
@@ -16,6 +19,13 @@ std::optional<ApertureResult> aperturePhotometry(const FitsImage& img,
                                                   double rOut)
 {
     if (!img.isValid() || rAp <= 0.0) return std::nullopt;
+    // AUD-MEM-2: cx/cy/rAp/rIn/rOut are float-derived inputs that feed
+    // static_cast<int> below (boxR, ix0..iy1). A NaN/Inf here would compare
+    // false against "<= 0.0" (NaN comparisons are always false) and slip past
+    // the check above, then abort at the cast. Reject explicitly, up front.
+    if (!std::isfinite(cx) || !std::isfinite(cy) ||
+        !std::isfinite(rAp) || !std::isfinite(rIn) || !std::isfinite(rOut))
+        return std::nullopt;
 
     if (rIn  <= 0.0) rIn  = 1.5 * rAp;
     if (rOut <= 0.0) rOut = 2.5 * rAp;
@@ -68,7 +78,13 @@ std::optional<ApertureResult> aperturePhotometry(const FitsImage& img,
     const double bkgSigma = 1.4826 * absdev[mid2];
 
     const double netFlux = sumAp - bkg * nAp;
-    if (netFlux <= 0.0) return std::nullopt;
+    // AUD-MEM-2 (fail-open sibling): a non-finite pixel INSIDE the aperture
+    // (or a non-finite sky median poisoning bkg) makes netFlux NaN. "NaN <= 0.0"
+    // is always false, so without an isfinite check the function would return a
+    // "success" ApertureResult with flux/magInst/magErr = NaN, which then leaks
+    // into the measurement pipeline. Reject the measurement instead (fail-secure),
+    // mirroring the "!isfinite(peak) || peak <= 0.0" guard in Centroid.cpp.
+    if (!std::isfinite(netFlux) || netFlux <= 0.0) return std::nullopt;
 
     // Instrumental magnitude
     const double magInst = -2.5 * std::log10(netFlux);
@@ -88,6 +104,9 @@ std::optional<double> computeZeroPoint(const FitsImage& img,
 {
     if (img.catalogStars.isEmpty() || img.detectedStars.isEmpty())
         return std::nullopt;
+    // AUD-MEM-2: rAp feeds aperturePhotometry() and the rAp*rAp distance
+    // threshold below; a non-finite value must not propagate silently.
+    if (!std::isfinite(rAp) || rAp <= 0.0) return std::nullopt;
 
     // Match catalog stars to detected stars by proximity (within rAp pixels)
     // using WCS to project catalog positions (epoch-corrected) to pixels
@@ -158,6 +177,9 @@ std::optional<ZeroPointResult> computeDifferentialZeroPoint(
 {
     if (!img.wcs.solved) return std::nullopt;
     if (img.catalogStars.isEmpty() || img.detectedStars.isEmpty()) return std::nullopt;
+    // AUD-MEM-2: rAp derives isoRadius2/edgeMargin below and is passed on to
+    // aperturePhotometry(); a non-finite value must not propagate silently.
+    if (!std::isfinite(rAp) || rAp <= 0.0) return std::nullopt;
 
     const double isoRadius2  = (2.5 * rAp) * (2.5 * rAp);
     const double edgeMargin  = 2.5 * rAp;
@@ -176,8 +198,13 @@ std::optional<ZeroPointResult> computeDifferentialZeroPoint(
         double px = 0.0, py = 0.0;
         img.wcs.skyToPix(raCorr, decCorr, px, py);
 
-        // Edge exclusion
-        if (px < edgeMargin || py < edgeMargin ||
+        // Edge exclusion.
+        // AUD-MEM-3 (same pattern): comparisons against NaN are always false,
+        // so a WCS solution that projects a catalog star to a non-finite
+        // pixel would silently bypass this exclusion instead of being
+        // rejected. Check isfinite() explicitly.
+        if (!std::isfinite(px) || !std::isfinite(py) ||
+            px < edgeMargin || py < edgeMargin ||
             px > img.width  - edgeMargin ||
             py > img.height - edgeMargin)
             continue;
@@ -250,9 +277,19 @@ QVector<GrowthPoint> multiAperturePhotometry(const FitsImage& img,
                                               const QVector<double>& radii)
 {
     if (!img.isValid() || radii.isEmpty()) return {};
+    // AUD-MEM-2: cx/cy feed static_cast<int> below (boxR, ix0..iy1); a
+    // non-finite click coordinate must not reach the cast.
+    if (!std::isfinite(cx) || !std::isfinite(cy)) return {};
 
-    // Sort and deduplicate radii
+    // Sort and deduplicate radii.
+    // AUD-MEM-2/AUD-MEM-3: strip non-finite radii first — "<= 0.0" compares
+    // false against NaN (so it would survive the filter below), and a NaN
+    // present during std::sort violates strict-weak-ordering (UB); either
+    // path can leave a non-finite maxR that later reaches static_cast<int>.
     QVector<double> sorted = radii;
+    sorted.erase(std::remove_if(sorted.begin(), sorted.end(),
+                                 [](double v) { return !std::isfinite(v); }),
+                 sorted.end());
     std::sort(sorted.begin(), sorted.end());
     sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
     // Remove non-positive radii
@@ -328,7 +365,11 @@ QVector<GrowthPoint> multiAperturePhotometry(const FitsImage& img,
     for (int i = 0; i < N; ++i) {
         const int    n       = npix[static_cast<size_t>(i)];
         const double netFlux = sums[static_cast<size_t>(i)] - bkg * n;
-        if (n == 0 || netFlux <= 0.0) continue;
+        // AUD-MEM-2 (fail-open sibling): a non-finite pixel inside a radius band
+        // (or a non-finite sky bkg) makes netFlux NaN; "NaN <= 0.0" is false, so
+        // without isfinite it would append a growth-curve point with NaN
+        // flux/magInst and contaminate every larger aperture. Skip instead.
+        if (n == 0 || !std::isfinite(netFlux) || netFlux <= 0.0) continue;
         maxFlux = std::max(maxFlux, netFlux);
         const double magInst = -2.5 * std::log10(netFlux);
         const double sigFlux = std::sqrt(netFlux + static_cast<double>(n) * bkgSigma * bkgSigma);

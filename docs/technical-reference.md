@@ -199,45 +199,97 @@ Equal-area full-sky projection. Used for CMB and survey coverage maps.
 
 ## 5. Atmospheric Refraction
 
-The observed zenith angle $z'$ differs from the true zenith angle $z$ by:
+> **Last reviewed:** 2026-07-10 (AUD-DOC-1). This section previously described a
+> two-branch model (pressure/temperature-corrected formula above 15°, Bennett
+> below 15°) that does not match the implementation. It has been rewritten to
+> describe `applyRefractionCorrection()` (`src/core/Astronomy.cpp`) as it
+> actually exists: the Bennett (1982) formula, applied unconditionally down to
+> a fixed altitude gate, with no pressure/temperature input.
 
-$$
-R = R_0 \cdot P/P_0 \cdot T_0/T \cdot \tan z
-$$
-
-where:
-- $R_0 = 60.4''$ (standard refraction constant)
-- $P$ = atmospheric pressure (default 1013.25 hPa)
-- $T$ = temperature in Kelvin (default 283 K)
-- $P_0 = 1013.25\,\text{hPa}$, $T_0 = 283\,\text{K}$
-
-For elevations below 15°, the Bennett (1982) formula is used:
+AstroFind uses a single formula for atmospheric refraction, the Bennett
+(1982) approximation, applied uniformly at all altitudes (no separate
+high-altitude branch):
 
 $$
 R = \frac{1.02}{\tan\!\left(a + \frac{10.3}{a + 5.11}\right)}
 $$
 
-where $a$ is the true altitude in degrees, giving $R$ in arcminutes.
+where $a$ is the apparent (observed) altitude in degrees, giving $R$ in
+arcminutes.
 
-The correction is applied to each measured RA/Dec before writing to the ADES report.
-The log panel shows the applied correction as `Refraction correction: X" (R=Y')`.
+**Altitude gate:** the correction is skipped entirely (returns 0) when the
+apparent altitude is below 1° — the formula becomes numerically unstable near
+the horizon. There is no 15° branch and no separate low-altitude formula; the
+same Bennett expression is used from 1° up to the zenith.
+
+**No pressure/temperature input:** unlike some refraction models, this
+implementation does not accept, and its function signature does not expose,
+atmospheric pressure or temperature parameters. It is a fixed-atmosphere
+approximation (Bennett's formula already folds standard sea-level conditions
+into its empirical constants). If site-specific P/T correction is ever
+desired, it would need to be implemented as a new parameter and formula
+(e.g. the $R = R_0 \cdot P/P_0 \cdot T_0/T \cdot \tan z$ style correction),
+not assumed to already exist.
+
+**Space telescopes:** the caller (`MainWindow_measurement.cpp`) gates the
+call behind `isSpaceTelescope` — refraction is only applied for ground-based
+observations, since there is no atmosphere to correct for from orbit.
+
+The correction is applied to each measured RA/Dec before writing to the ADES
+report. The log panel shows the applied correction as
+`Refraction correction: X" (R=Y')`.
 
 ---
 
 ## 6. Coordinate Chain: ICRS → CIRS → Topocentric
 
-AstroFind computes the apparent topocentric position of each observed object following
-the IAU 2006/2000A precession-nutation model:
+> **Updated during audit remediation (AUD-CORR-4, Onda 2, 2026-07-10).** The chain
+> described in earlier revisions of this document (precession → nutation → aberration →
+> topocentric) was **never actually wired into the pipeline**: `applyPrecessionJ2000ToDate()`
+> and `applyNutation()` had zero callers anywhere in `src/` and have since been **removed**
+> as dead code. What AstroFind actually does is described below.
 
-1. **ICRS** (catalog/WCS coordinates, epoch-independent)
-2. **Apply precession** from J2000.0 to the date of observation (see §8)
-3. **Apply nutation** to get the true equator and equinox of date
-4. **CIRS** — add annual aberration (see §7)
-5. **Topocentric** — parallax correction for the observer's geodetic position
-6. **Apply atmospheric refraction** (see §5)
+AstroFind's plate solution (from `astrometry.net`, or an equivalent external solver, read
+from the FITS WCS header) is fit directly against a modern astrometric catalog — Gaia DR2/DR3,
+UCAC4, or 2MASS — **at the epoch of observation**. That fit absorbs, as a single field-wide
+systematic, everything a classical precession/nutation/aberration chain would otherwise need
+to apply explicitly:
 
-The ADES XML output tags coordinates with `<sys>ICRF</sys>` because AstroFind reports
-the aberration-corrected ICRF-aligned position, consistent with the ADES 2017 standard.
+- **Precession/nutation**: the catalog itself is expressed in the ICRS frame, and the plate
+  solve maps image pixels straight to ICRS sky coordinates — there is no separate "mean
+  equinox of J2000" intermediate frame in this pipeline that would need precessing to the
+  date of observation.
+- **Annual aberration**: a WCS solution calibrated against ICRS reference stars already
+  contains the aberration displacement of those very reference stars at the moment of
+  exposure, so the target's measured position inherits the same (correct) aberration
+  automatically.
+
+Applying precession, nutation, or aberration **again** in post-processing on top of an
+already-astrometrically-solved position would **double-correct** the coordinate — moving it
+away from truth by roughly the size of the correction itself (up to ~20″ for aberration,
+tens of arcseconds per century for precession). This is why AstroFind does not implement
+those three steps as active corrections.
+
+What AstroFind **does** apply to the measured position before it is written to the ADES/MPC
+report:
+
+1. **WCS pixel → sky** (§3/§4) — gives the ICRS-aligned apparent position directly from the
+   plate solution.
+2. **Catalog proper-motion propagation** (`applyProperMotion()`) — used when matching/
+   calibrating against catalog stars at the image epoch, not applied to the target itself.
+3. **Atmospheric refraction removal** (`applyRefractionCorrection()`, §5) — the one frame
+   correction that IS real and applied: it converts the apparent (refracted) altitude/
+   azimuth back to the true topocentric direction. Skipped for space telescopes
+   (`isSpaceTelescope`, no atmosphere).
+
+`annualAberrationComponents()` (§7) is retained and still has one real call site
+(`MainWindow::runMeasurePipeline`), but purely to **log** the aberration magnitude at the
+epoch as a diagnostic for the observer — its result is never added to or subtracted from the
+reported coordinate.
+
+The ADES XML output tags coordinates with `<sys>ICRF</sys>` because the WCS plate solution
+is itself calibrated against an ICRS-aligned catalog; this is not a claim that AstroFind
+applies its own separate aberration/precession/nutation correction.
 
 ---
 
@@ -266,34 +318,32 @@ The constant of aberration $\kappa = 20.49552''$; $\varepsilon$ is the obliquity
 
 The Sun's ecliptic longitude is computed from the Julian date via `sunEclipticPosition()`.
 
+> **Not applied to the reported coordinate** (see §6): `annualAberrationComponents()` is
+> computed only for the diagnostic log line `Frame: ICRF — annual aberration at epoch: ...`.
+> The WCS plate solution already absorbs this shift; applying it again would double-correct.
+
 ---
 
 ## 8. Precession and Nutation
 
-**Precession from J2000.0 to epoch $t$** (IAU 1976, Lieske):
-
-$$
-\zeta_A = 2306.2181'' t + 0.30188'' t^2 + 0.017998'' t^3
-$$
-$$
-z_A    = 2306.2181'' t + 1.09468'' t^2 + 0.018203'' t^3
-$$
-$$
-\theta_A = 2004.3109'' t - 0.42665'' t^2 - 0.041775'' t^3
-$$
-
-where $t$ = Julian centuries from J2000.0. The rotation matrix is:
-
-$$
-P = R_z(-z_A)\,R_y(\theta_A)\,R_z(-\zeta_A)
-$$
-
-**Nutation** corrections $\Delta\psi$ (longitude) and $\Delta\varepsilon$ (obliquity) are
-computed from the 1980 IAU series (106 terms). The mean obliquity:
-
-$$
-\varepsilon_0 = 84381.448'' - 46.8150'' t - 0.00059'' t^2 + 0.001813'' t^3
-$$
+> **Removed (AUD-CORR-4, audit remediation Onda 2, 2026-07-10).** Earlier revisions of this
+> document described `applyPrecessionJ2000ToDate()` (IAU 1976/Lieske rotation angles) and
+> `applyNutation()` (9-term IAU 1980 series) as part of the coordinate chain. A grep across
+> `src/` confirmed **zero callers** for either function outside their own
+> declaration/definition — dead code that had never been wired into any pipeline, and had
+> zero test coverage. Both functions were deleted from `src/core/Astronomy.{h,cpp}`.
+>
+> AstroFind does **not** implement precession or nutation as separate corrections. See §6
+> for why: the WCS plate solution is fit directly against an ICRS catalog at the epoch of
+> observation, which makes a standalone precession/nutation step both unnecessary and, if
+> added naively on top of the plate-solved position, a double-correction.
+>
+> If a future need arises to support historical J2000.0 mean-equinox catalog input that is
+> **not** run through a modern epoch-of-date plate solve, the precession/nutation formulas
+> (Lieske 1977 rotation angles; 9-term IAU 1980 nutation series) can be reintroduced — but
+> must come with unit tests against an external oracle (Meeus/SOFA/Horizons) from the start,
+> and a clearly gated call site so they are never applied downstream of an already-solved
+> WCS position.
 
 ---
 
@@ -639,9 +689,12 @@ $$
 </ades>
 ```
 
-The `<sys>ICRF</sys>` tag indicates the reported position is in the ICRF frame (i.e.,
-corrected for annual aberration, precession, and nutation from J2000.0, and for atmospheric
-refraction). The `<ctr>399</ctr>` tag is the NAIF body code for Earth.
+The `<sys>ICRF</sys>` tag indicates the reported position is in the ICRF frame: this comes
+from the WCS plate solution being calibrated against an ICRS-aligned catalog (Gaia/UCAC4/
+2MASS), which absorbs annual aberration and precession/nutation as a field-wide systematic
+(see §6) — AstroFind does not apply a separate aberration/precession/nutation step. The one
+frame correction AstroFind does apply explicitly is atmospheric refraction removal (§5). The
+`<ctr>399</ctr>` tag is the NAIF body code for Earth.
 
 ### PSV Format
 

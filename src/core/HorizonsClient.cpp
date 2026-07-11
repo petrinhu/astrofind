@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "HorizonsClient.h"
 
 #include <QNetworkAccessManager>
@@ -12,6 +15,12 @@
 #include <cmath>
 
 namespace core {
+
+namespace {
+// AUD-SEC-3: bound every request so a stalled/MITM Horizons endpoint can't
+// hang busy_=true forever (transfer timeout resets on any progress).
+constexpr int kHttpTimeoutMs = 30000;
+} // namespace
 
 HorizonsClient::HorizonsClient(QNetworkAccessManager* nam, QObject* parent)
     : QObject(parent), nam_(nam)
@@ -69,14 +78,28 @@ void HorizonsClient::query(const QString& target, double jd)
 
     url.setQuery(q);
 
-    auto* reply = nam_->get(QNetworkRequest(url));
+    QNetworkRequest req(url);
+    req.setTransferTimeout(kHttpTimeoutMs);
+
+    auto* reply   = nam_->get(req);
+    currentReply_ = reply;
     connect(reply, &QNetworkReply::finished, this, &HorizonsClient::onReply);
+}
+
+void HorizonsClient::cancel()
+{
+    if (!currentReply_.isNull())
+        currentReply_->abort();
+    busy_ = false;
 }
 
 void HorizonsClient::onReply()
 {
     auto* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
     reply->deleteLater();
+    if (reply == currentReply_)
+        currentReply_ = nullptr;
     busy_ = false;
 
     if (reply->error() != QNetworkReply::NoError) {

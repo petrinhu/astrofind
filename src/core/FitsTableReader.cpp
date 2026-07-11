@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "FitsTableReader.h"
 
 // CCfits is a C++ wrapper around cfitsio.
@@ -44,7 +47,14 @@ namespace {
 
 /// Read one CCfits column into a FitsTableColumn.
 /// Numeric types are read as double; string types as std::string → QString.
-FitsTableColumn readColumn(CCfits::Column& col, long nRows)
+///
+/// AUD-INPUT-5: previously any CCfits::FitsException thrown by col.read() was
+/// swallowed here and replaced with a vector of NaN (numeric) / empty strings
+/// (string) sized `nRows` — nRows being NAXIS2 from the BINTABLE header,
+/// i.e. attacker-controlled. A header declaring 1000 rows with only 3 real
+/// values on disk would silently succeed with 997 fabricated NaN rows and
+/// no error signal at all. Propagate the failure to the caller instead.
+std::expected<FitsTableColumn, QString> readColumn(CCfits::Column& col, long nRows)
 {
     FitsTableColumn out;
     out.name = QString::fromStdString(col.name());
@@ -54,25 +64,34 @@ FitsTableColumn readColumn(CCfits::Column& col, long nRows)
     const CCfits::ValueType vt = col.type();
     const bool isString = (vt == CCfits::Tstring || vt == CCfits::VTstring);
 
-    if (isString) {
-        std::vector<std::string> vals;
-        try {
+    try {
+        if (isString) {
+            std::vector<std::string> vals;
             col.read(vals, 1L, nRows);
-        } catch (const CCfits::FitsException&) {
-            vals.assign(static_cast<size_t>(nRows), std::string{});
-        }
-        for (const auto& s : vals)
-            out.values.append(QString::fromStdString(s));
-    } else {
-        std::vector<double> vals;
-        try {
+            for (const auto& s : vals)
+                out.values.append(QString::fromStdString(s));
+        } else {
+            std::vector<double> vals;
             col.read(vals, 1L, nRows);
-        } catch (const CCfits::FitsException&) {
-            vals.assign(static_cast<size_t>(nRows), std::numeric_limits<double>::quiet_NaN());
+            for (double v : vals)
+                out.values.append(v);
         }
-        for (double v : vals)
-            out.values.append(v);
+    } catch (const CCfits::FitsException& ex) {
+        return std::unexpected(
+            QStringLiteral("column '%1' declares %2 row(s) in the header but its data "
+                            "could not be read (%3)")
+                .arg(out.name).arg(nRows).arg(QString::fromStdString(ex.message())));
     }
+
+    // Cross-check the declared row count (NAXIS2) against what was actually
+    // read back — belt-and-suspenders in case a future CCfits/cfitsio
+    // version returns a short read without throwing.
+    if (static_cast<long>(out.values.size()) != nRows) {
+        return std::unexpected(
+            QStringLiteral("column '%1' declares %2 row(s) but only %3 were read back")
+                .arg(out.name).arg(nRows).arg(out.values.size()));
+    }
+
     return out;
 }
 
@@ -126,8 +145,14 @@ readFitsTable(const QString& filePath, const QString& hduName)
         result.nRows   = static_cast<int>(nRows);
         result.columns.reserve(static_cast<int>(colMap.size()));
 
-        for (auto& [colName, colPtr] : colMap)
-            result.columns.append(readColumn(*colPtr, nRows));
+        for (auto& [colName, colPtr] : colMap) {
+            auto colResult = readColumn(*colPtr, nRows);
+            if (!colResult)
+                return std::unexpected(
+                    QStringLiteral("BINTABLE '%1' in '%2': %3")
+                        .arg(result.hduName, filePath, colResult.error()));
+            result.columns.append(std::move(*colResult));
+        }
 
         spdlog::info("FitsTableReader: '{}' — {} rows × {} columns from '{}'",
                      result.hduName.toStdString(),
@@ -175,10 +200,18 @@ importDaophotTable(const QString& filePath, const QString& hduName)
 
     QVector<DetectedStar> stars;
     stars.reserve(tbl.nRows);
+    int skippedNonFinite = 0;
     for (int i = 0; i < tbl.nRows; ++i) {
+        const double x = xs[i].toDouble() - 1.0;   // FITS 1-based → 0-based pixels
+        const double y = ys[i].toDouble() - 1.0;
+        // AUD-INPUT-5 defense-in-depth: readColumn now refuses to fabricate
+        // NaN rows on a read failure, but a required position field can
+        // still legitimately be non-finite (e.g. TNULLn/blank cell). Skip
+        // rather than hand a NaN centroid downstream.
+        if (!std::isfinite(x) || !std::isfinite(y)) { ++skippedNonFinite; continue; }
         DetectedStar s;
-        s.x    = xs[i].toDouble() - 1.0;   // FITS 1-based → 0-based pixels
-        s.y    = ys[i].toDouble() - 1.0;
+        s.x    = x;
+        s.y    = y;
         s.flux = fluxes.isEmpty() ? 0.0  : fluxes[i].toDouble();
         s.a    = as_.isEmpty()    ? 2.0  : as_[i].toDouble();
         s.b    = bs_.isEmpty()    ? 2.0  : bs_[i].toDouble();
@@ -189,6 +222,9 @@ importDaophotTable(const QString& filePath, const QString& hduName)
         }
         stars.append(s);
     }
+    if (skippedNonFinite > 0)
+        spdlog::warn("importDaophotTable: skipped {} row(s) with non-finite X/Y in '{}'",
+                     skippedNonFinite, filePath.toStdString());
     spdlog::info("importDaophotTable: {} stars from '{}'", stars.size(), filePath.toStdString());
     return stars;
 }
@@ -225,9 +261,14 @@ readLocalCatalogTable(const QString& filePath,
     const double cosDec = std::cos(centerDec * M_PI / 180.0);
 
     QVector<CatalogStar> stars;
+    int skippedNonFinite = 0;
     for (int i = 0; i < tbl.nRows; ++i) {
         const double ra  = ras[i].toDouble();
         const double dec = decs[i].toDouble();
+        // AUD-INPUT-5 defense-in-depth: skip rows whose required RA/Dec are
+        // non-finite rather than letting a NaN cone-search comparison (which
+        // is always false) silently drop or corrupt catalog entries.
+        if (!std::isfinite(ra) || !std::isfinite(dec)) { ++skippedNonFinite; continue; }
         const double dra  = (ra - centerRA) * cosDec;
         const double ddec = dec - centerDec;
         if (dra*dra + ddec*ddec > maxR2) continue;
@@ -240,6 +281,9 @@ readLocalCatalogTable(const QString& filePath,
         s.id    = ids.isEmpty() ? QStringLiteral("L%1").arg(i) : ids[i].toString();
         stars.append(s);
     }
+    if (skippedNonFinite > 0)
+        spdlog::warn("readLocalCatalogTable: skipped {} row(s) with non-finite RA/Dec in '{}'",
+                     skippedNonFinite, filePath.toStdString());
     spdlog::info("readLocalCatalogTable: {}/{} stars in cone from '{}'",
                  stars.size(), tbl.nRows, filePath.toStdString());
     return stars;
@@ -290,18 +334,30 @@ importReductionTable(const QString& filePath, const QString& hduName)
 
     QVector<DetectedStar> stars;
     stars.reserve(tbl.nRows);
+    int skippedNonFinite = 0;
     for (int i = 0; i < tbl.nRows; ++i) {
-        DetectedStar s;
+        double x = -1.0, y = -1.0;
         if (hasPixel) {
-            s.x = xs[i].toDouble() - 1.0;   // FITS 1-based → 0-based
-            s.y = ys[i].toDouble() - 1.0;
-        } else {
-            s.x = -1.0;  // sky-only: off-canvas placeholder
-            s.y = -1.0;
+            x = xs[i].toDouble() - 1.0;   // FITS 1-based → 0-based
+            y = ys[i].toDouble() - 1.0;
         }
+        double ra = 0.0, dec = 0.0;
         if (hasSky) {
-            s.ra      = ras[i].toDouble();
-            s.dec     = decs[i].toDouble();
+            ra  = ras[i].toDouble();
+            dec = decs[i].toDouble();
+        }
+        // AUD-INPUT-5 defense-in-depth: skip rows whose required position
+        // field(s) — whichever of pixel/sky is actually present — are
+        // non-finite, rather than letting a NaN centroid/coordinate through.
+        if (hasPixel && (!std::isfinite(x) || !std::isfinite(y))) { ++skippedNonFinite; continue; }
+        if (hasSky   && (!std::isfinite(ra) || !std::isfinite(dec))) { ++skippedNonFinite; continue; }
+
+        DetectedStar s;
+        s.x = x;
+        s.y = y;
+        if (hasSky) {
+            s.ra      = ra;
+            s.dec     = dec;
             s.matched = true;
         }
         s.flux  = fluxes.isEmpty() ? 0.0  : fluxes[i].toDouble();
@@ -314,6 +370,9 @@ importReductionTable(const QString& filePath, const QString& hduName)
         }
         stars.append(s);
     }
+    if (skippedNonFinite > 0)
+        spdlog::warn("importReductionTable: skipped {} row(s) with non-finite position field(s) in '{}'",
+                     skippedNonFinite, filePath.toStdString());
     spdlog::info("importReductionTable: {} entries from '{}' (pixel={} sky={})",
                  stars.size(), filePath.toStdString(), hasPixel, hasSky);
     return stars;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Petrus Silva Costa
+
 #include "AstrometryClient.h"
 
 #include <QNetworkAccessManager>
@@ -15,6 +18,40 @@
 
 namespace core {
 
+namespace {
+// AUD-SEC-3: every outbound request needs a transfer timeout, or a server
+// that accepts the connection and never responds hangs busy_/state_ forever
+// (DoS of the plate-solving feature until process restart).
+constexpr int kHttpTimeoutMs = 30000;
+
+// AUD-SEC-4: true when `url` may carry the astrometry.net API key safely —
+// https:// always, or http:// restricted to loopback (a self-hosted local
+// instance, where no network eavesdropper can intercept the traffic).
+bool isSafeAstrometryUrlScheme(const QUrl& url)
+{
+    const QString scheme = url.scheme().toLower();
+    if (scheme == QLatin1String("https")) return true;
+    if (scheme != QLatin1String("http")) return false;
+    const QString host = url.host().toLower();
+    return host == QLatin1String("localhost")
+        || host == QLatin1String("127.0.0.1")
+        || host == QLatin1String("::1");
+}
+} // namespace
+
+void AstrometryClient::setBaseUrl(const QString& url)
+{
+    const QUrl parsed(url);
+    if (isSafeAstrometryUrlScheme(parsed)) {
+        baseUrl_ = url;
+        return;
+    }
+    spdlog::warn("AstrometryClient::setBaseUrl: rejected insecure URL '{}' "
+                 "(scheme must be https://, or http:// restricted to localhost) "
+                 "— keeping previous baseUrl '{}'",
+                 url.toStdString(), baseUrl_.toStdString());
+}
+
 AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
     : QObject(parent)
     , nam_(nam)
@@ -25,7 +62,9 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
         if (state_ == State::WaitingForJob) {
             // Poll submission → get job list
             const QUrl url(baseUrl_ + "/api/submissions/" + QString::number(submissionId_));
-            auto* reply = nam_->get(QNetworkRequest(url));
+            QNetworkRequest req(url);
+            req.setTransferTimeout(kHttpTimeoutMs);
+            auto* reply = nam_->get(req);
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
                 if (reply->error() != QNetworkReply::NoError) {
@@ -51,7 +90,9 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
         } else if (state_ == State::PollingJob) {
             // Poll job info → check status
             const QUrl url(baseUrl_ + "/api/jobs/" + QString::number(jobId_) + "/info");
-            auto* reply = nam_->get(QNetworkRequest(url));
+            QNetworkRequest req(url);
+            req.setTransferTimeout(kHttpTimeoutMs);
+            auto* reply = nam_->get(req);
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
                 if (reply->error() != QNetworkReply::NoError) {
@@ -126,6 +167,7 @@ void AstrometryClient::doLogin()
     QNetworkRequest req(QUrl(baseUrl_ + "/api/login"));
     req.setHeader(QNetworkRequest::ContentTypeHeader,
                   "application/x-www-form-urlencoded");
+    req.setTransferTimeout(kHttpTimeoutMs);
 
     const nlohmann::json j = {{"apikey", apiKey_.toStdString()}};
     const QByteArray body  = "request-json=" +
@@ -197,6 +239,7 @@ void AstrometryClient::doUpload()
     multiPart->append(filePart);
 
     QNetworkRequest req(QUrl(baseUrl_ + "/api/upload"));
+    req.setTransferTimeout(kHttpTimeoutMs);
     auto* reply  = nam_->post(req, multiPart);
     multiPart->setParent(reply);
     currentReply_ = reply;
@@ -235,7 +278,9 @@ void AstrometryClient::doDownloadWcs()
     emit progress(tr("Downloading WCS solution..."), 90);
 
     const QUrl url(baseUrl_ + "/wcs_file/" + QString::number(jobId_));
-    auto* reply  = nam_->get(QNetworkRequest(url));
+    QNetworkRequest req(url);
+    req.setTransferTimeout(kHttpTimeoutMs);
+    auto* reply  = nam_->get(req);
     currentReply_ = reply;
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {

@@ -77,6 +77,26 @@ build/bin/astrofind_ui_tests   # 23 UI integration tests
 
 Three pre-existing failures in `astrofind_tests` are known and tracked (network-dependent tests skipped in CI).
 
+### Git Hooks (fast local gate)
+
+AUD-CI-3: install the local `pre-commit` hook once per clone to build incrementally
+and run `ctest` before every commit; it catches a broken build/test on your machine
+instead of on the PR:
+
+```bash
+ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Works on Linux/macOS (native bash) and Windows (Git Bash, which is what runs git
+hooks there too). Emergency bypass: `SKIP_TESTS=1 git commit ...` (use sparingly:
+it is not a substitute for `--no-verify`, it just skips the local double-check).
+
+The heavier numerical audit (ASan/UBSan, cppcheck, clang-tidy, valgrind; items
+38.1-38.5) does not run in this hook. It runs in CI on `pull_request -> main` and
+on release tags only (`.github/workflows/audit.yml`, self-hosted runner), because
+it takes minutes, not seconds.
+
 ### Submitting Changes
 
 - Open a pull request with a clear description of the change and why it's needed.
@@ -162,6 +182,26 @@ build/bin/astrofind_ui_tests   # 23 testes de integração UI
 ```
 
 Três falhas pré-existentes em `astrofind_tests` são conhecidas e rastreadas (testes dependentes de rede ignorados em CI).
+
+### Git Hooks (gate rápido local)
+
+AUD-CI-3: instale o hook local `pre-commit` uma vez por clone para buildar
+incrementalmente e rodar `ctest` antes de cada commit; ele pega build/teste
+quebrado na sua máquina, antes do PR:
+
+```bash
+ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Funciona em Linux/macOS (bash nativo) e Windows (Git Bash, que é o que roda git
+hooks lá também). Bypass de emergência: `SKIP_TESTS=1 git commit ...` (usar com
+parcimônia: não substitui `--no-verify`, só pula a checagem local).
+
+A auditoria numérica pesada (ASan/UBSan, cppcheck, clang-tidy, valgrind; itens
+38.1-38.5) não roda neste hook. Ela roda em CI só em `pull_request -> main` e em
+tags de release (`.github/workflows/audit.yml`, runner self-hosted), porque leva
+minutos, não segundos.
 
 ### Enviando Alterações
 
