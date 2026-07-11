@@ -469,16 +469,18 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 | [AUD-CORR-3](#aud-corr-3) | 🟠 IMPORTANTE | ✅ Resolvido `120f72c` | Onda 2 |
 | [AUD-CORR-4](#aud-corr-4) | 🟠 IMPORTANTE | ✅ Resolvido `f41b007` (dead code removido + doc) | Onda 2 |
 | [AUD-CORR-5](#aud-corr-5) | 🟠 IMPORTANTE | ✅ Resolvido `02f0da1` (vaidade→oráculo) | Onda 2 |
-| [AUD-PROV-1](#aud-prov-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-PROV-2](#aud-prov-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-PROV-3-6](#aud-prov-3-6) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-DOC-1](#aud-doc-1) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-DOC-3](#aud-doc-3) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-DOC-4](#aud-doc-4) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-CI-3](#aud-ci-3) | 🟠 IMPORTANTE | 🔍 Pendente verificação | Onda 3 |
-| [AUD-CI-4](#aud-ci-4) | 🟠 IMPORTANTE | 🔍 Pendente verificação | Onda 3 |
-| [AUD-TEST-2](#aud-test-2) | 🟠 IMPORTANTE | ❌ Pendente | Onda 3 |
-| [AUD-SEC-4](#aud-sec-4) | 🟠 IMPORTANTE (plausível) | ❌ Pendente | Onda 3 |
+| [AUD-PROV-1](#aud-prov-1) | 🟠 IMPORTANTE | ✅ Resolvido `6dedadc` (NOTICE; decisão: atribuir WCSLIB) | Onda 3 |
+| [AUD-PROV-2](#aud-prov-2) | 🟠 IMPORTANTE | ✅ Resolvido `6dedadc` | Onda 3 |
+| [AUD-PROV-3-6](#aud-prov-3-6) | 🟠 IMPORTANTE | ✅ Resolvido `6dedadc` (NOTICE 254 linhas + README) | Onda 3 |
+| [AUD-DOC-1](#aud-doc-1) | 🟠 IMPORTANTE | ✅ Resolvido `209e275` | Onda 3 |
+| [AUD-DOC-3](#aud-doc-3) | 🟠 IMPORTANTE | ✅ Resolvido `e75518a` (SPDX 127/127, compila) | Onda 3 |
+| [AUD-DOC-4](#aud-doc-4) | 🟠 IMPORTANTE | ✅ Resolvido `df1d883` (RAW/PDS4 → ❌ honesto) | Onda 3 |
+| [AUD-CI-3](#aud-ci-3) | 🟠 IMPORTANTE | ✅ Resolvido `e31dc4a` (audit.yml docker/fedora:42, PR→main) | Onda 3 |
+| [AUD-CI-4](#aud-ci-4) | 🟠 IMPORTANTE | ✅ Resolvido `7cfdf56` | Onda 3 |
+| [AUD-TEST-2](#aud-test-2) | 🟠 IMPORTANTE | ✅ Resolvido `498db3c` (fixtures sintéticas, 10 SKIP→rodam) | Onda 3 |
+| [AUD-TEST-3](#aud-test-3) | 🟠 IMPORTANTE (novo) | ✅ Resolvido `f808732` (cobre loaders/table) | Onda 3 |
+| [AUD-SEC-4](#aud-sec-4) | 🟠 IMPORTANTE (plausível) | ✅ Resolvido `cc5e62b` (enforce https) | Onda 3 |
+| [AUD-CCFITS-ASAN](#aud-ccfits-asan) | 🟢 COSMÉTICO (novo) | ❌ Pendente (UB CCfits aborta `[bintable]` só sob ASan; fix: `-fno-sanitize=undefined` na ccfits_lib) | Onda 4 |
 | [AUD-SEC-5](#aud-sec-5) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
 | [AUD-CI-2](#aud-ci-2) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
 | [AUD-CORR-6](#aud-corr-6) | 🟢 COSMÉTICO | ❌ Pendente | Onda 4 |
