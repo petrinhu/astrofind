@@ -305,4 +305,67 @@ inline bool writeSynthBinTable(const QString& path,
     return true;
 }
 
+/// Write a BINTABLE with required X/Y/MAG (fixed "1E") columns plus an
+/// *optional* variable-length ("1PE", heap-stored) FLUX column whose rows are
+/// left unwritten (zero-length heap arrays for every row) — regression
+/// fixture for AUD-INPUT-7 (OOB read hypothesis: an optional column shorter
+/// than nRows being indexed by row number in
+/// importDaophotTable/readLocalCatalogTable/importReductionTable).
+///
+/// A TFORM='P'/'Q' descriptor column is represented by CCfits as a
+/// ColumnVectorData<T>, not a ColumnData<T>; FitsTableReader::readColumn()
+/// only knows how to pull a std::vector<double>/<string> out of a *scalar*
+/// ColumnData<T> column, so CCfits::Column::read(std::vector<double>&,...)
+/// throws Column::WrongColumnType for a P/Q column — readFitsTable()
+/// propagates that as a clean std::unexpected instead of ever handing back a
+/// short/misaligned FitsTableColumn. This fixture exists to prove that
+/// behavior empirically (rather than by source reading alone) and to guard
+/// against a future CCfits/cfitsio upgrade silently changing it.
+inline bool writeSynthBinTableWithVarLenOptionalColumn(const QString& path,
+                                                         long nRows,
+                                                         QString* errOut = nullptr)
+{
+    QFile::remove(path);
+    fitsfile* fptr = nullptr;
+    int status = 0;
+
+    fits_create_file(&fptr, path.toLocal8Bit().constData(), &status);
+    long emptyAxes[1] = { 0 };
+    fits_create_img(fptr, BYTE_IMG, 0, emptyAxes, &status); // empty primary
+
+    char ttypeX[] = "X", ttypeY[] = "Y", ttypeMag[] = "MAG", ttypeFlux[] = "FLUX";
+    char tformScalar[] = "1E";
+    char tformVarLen[] = "1PE";
+    char tunit[] = "";
+    char* ttype[4]  = { ttypeX, ttypeY, ttypeMag, ttypeFlux };
+    char* tforms[4] = { tformScalar, tformScalar, tformScalar, tformVarLen };
+    char* tunits[4] = { tunit, tunit, tunit, tunit };
+    fits_create_tbl(fptr, BINARY_TBL, nRows, 4, ttype, tforms, tunits,
+                     "TESTTBL", &status);
+
+    std::vector<float> xs(static_cast<size_t>(nRows));
+    std::vector<float> ys(static_cast<size_t>(nRows));
+    std::vector<float> mags(static_cast<size_t>(nRows));
+    for (long i = 0; i < nRows; ++i) {
+        xs[static_cast<size_t>(i)]   = 10.0f + static_cast<float>(i);
+        ys[static_cast<size_t>(i)]   = 20.0f + static_cast<float>(i);
+        mags[static_cast<size_t>(i)] = 15.0f + 0.01f * static_cast<float>(i);
+    }
+    fits_write_col(fptr, TFLOAT, 1, 1, 1, nRows, xs.data(),   &status);
+    fits_write_col(fptr, TFLOAT, 2, 1, 1, nRows, ys.data(),   &status);
+    fits_write_col(fptr, TFLOAT, 3, 1, 1, nRows, mags.data(), &status);
+    // Column 4 (FLUX, "1PE") is intentionally left unwritten: every row gets
+    // a zero-length heap descriptor. Real-world equivalent: a DAOPHOT/IRAF
+    // table where an optional column exists in the header but a producer
+    // wrote no data for some/all rows.
+
+    const int saveStatus = status;
+    fits_close_file(fptr, &status);
+    if (saveStatus) {
+        if (errOut) *errOut = cfitsioErrorString(saveStatus);
+        return false;
+    }
+    return true;
+}
+
 } // namespace testutil

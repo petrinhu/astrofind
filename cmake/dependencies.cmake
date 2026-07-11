@@ -158,6 +158,33 @@ if(NOT TARGET CCfits::CCfits)
             )
         else()
             message(STATUS "Bundled CCfits not found — downloading CCfits 2.7 via FetchContent ...")
+            # AUD-SEC-2 residual (2026-07-10): this fallback is only reached
+            # when originals/CCfits.tar.gz is missing -- the committed build
+            # always ships that tarball, so this path is not exercised by CI
+            # today. Attempted to pin GIT_TAG below to a commit SHA (same
+            # treatment as the 6 deps fixed in AUD-SEC-2 / db864ea), but
+            # verification via `git ls-remote` shows the repository itself
+            # does not exist:
+            #   $ git ls-remote https://github.com/HEASARC/CCfits.git
+            #   fatal: repository 'https://github.com/HEASARC/CCfits.git/' not found
+            #   $ curl -s https://api.github.com/repos/HEASARC/CCfits -> 404
+            #   $ curl -s https://api.github.com/orgs/HEASARC/repos      -> no "CCfits" entry
+            #     (HEASARC's only FITS-adjacent repo on GitHub is heasarc/cfitsio;
+            #     CCfits itself is only distributed from
+            #     https://heasarc.gsfc.nasa.gov/fitsio/CCfits/, not git-clonable)
+            # There is an unofficial mirror (github.com/OpenSpace/CCfits) but it
+            # carries no tags and its content was not diffed byte-for-byte
+            # against originals/CCfits.tar.gz in this pass, so pointing GIT_TAG
+            # at an unverified mirror commit would be inventing a pin, not
+            # closing one -- left as GIT_TAG v2.7 (unpinned, matching its
+            # pre-existing behavior) rather than fabricate a SHA. Net effect:
+            # this fallback was already broken (a 404 git clone) before this
+            # note and still is; the residual risk it protects against
+            # (moving tag / maintainer compromise) does not apply because the
+            # target does not exist to be compromised. Recommended follow-up
+            # (not done here): replace GIT_REPOSITORY with a verified mirror
+            # URL + full commit SHA, or drop the fallback entirely and require
+            # originals/CCfits.tar.gz.
             FetchContent_Declare(
                 ccfits_dl
                 GIT_REPOSITORY https://github.com/HEASARC/CCfits.git
