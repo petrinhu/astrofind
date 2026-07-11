@@ -168,31 +168,44 @@ std::expected<FitsImage, QString> loadSer(const QString& filePath)
     SerHeader hdr{};
     f.read(reinterpret_cast<char*>(&hdr), sizeof(SerHeader));
 
-    if (hdr.imageWidth == 0 || hdr.imageHeight == 0 || hdr.frameCount == 0)
+    // AUD-INPUT-6: SerHeader is #pragma pack(1) — its uint32_t members are not
+    // naturally aligned in memory. Binding a reference to them (which is what
+    // fmt/spdlog's variadic templates and, on some Qt builds, QString::arg()
+    // do internally) is UB per the C++ object model (the reference type
+    // implies alignof(uint32_t)==4) and aborts under UBSan halt-on-error.
+    // Copy each field to a properly-aligned local BEFORE it is ever passed to
+    // logging/formatting; all later uses of these four fields in this
+    // function go through the locals below, never through `hdr.` directly.
+    const uint32_t serImageWidth  = hdr.imageWidth;
+    const uint32_t serImageHeight = hdr.imageHeight;
+    const uint32_t serPixelDepth  = hdr.pixelDepth;
+    const uint32_t serFrameCount  = hdr.frameCount;
+
+    if (serImageWidth == 0 || serImageHeight == 0 || serFrameCount == 0)
         return std::unexpected(QObject::tr("Invalid SER header (zero dimensions): %1").arg(filePath));
     // Validate the raw uint32_t values BEFORE narrowing to int: a header with
     // the sign bit set (e.g. 0xFFFFFFFF/0x80000010) must be rejected here,
     // not after static_cast<int> turns it into a negative width/height.
-    if (hdr.imageWidth > kMaxSerDim || hdr.imageHeight > kMaxSerDim)
+    if (serImageWidth > kMaxSerDim || serImageHeight > kMaxSerDim)
         return std::unexpected(
             QObject::tr("SER dimensions out of range (%1x%2, max %3): %4")
-                .arg(hdr.imageWidth).arg(hdr.imageHeight).arg(kMaxSerDim).arg(filePath));
-    if (hdr.pixelDepth != 8 && hdr.pixelDepth != 16)
+                .arg(serImageWidth).arg(serImageHeight).arg(kMaxSerDim).arg(filePath));
+    if (serPixelDepth != 8 && serPixelDepth != 16)
         return std::unexpected(QObject::tr("Unsupported SER pixel depth %1 in: %2")
-            .arg(hdr.pixelDepth).arg(filePath));
+            .arg(serPixelDepth).arg(filePath));
 
     FitsImage img;
     img.filePath  = filePath;
     img.fileName  = QFileInfo(filePath).fileName();
-    img.width     = static_cast<int>(hdr.imageWidth);
-    img.height    = static_cast<int>(hdr.imageHeight);
+    img.width     = static_cast<int>(serImageWidth);
+    img.height    = static_cast<int>(serImageHeight);
     img.observer  = QString::fromLatin1(hdr.observer,   sizeof(hdr.observer)).trimmed();
     img.telescope = QString::fromLatin1(hdr.telescope, sizeof(hdr.telescope)).trimmed();
 
     const bool isRgb   = (hdr.colorID == SER_RGB || hdr.colorID == SER_BGR);
     const bool isBayer = (hdr.colorID >= SER_BAYER_RGGB && hdr.colorID <= SER_BAYER_BGGR);
     const int  channels = isRgb ? 3 : 1;
-    const int  bps      = static_cast<int>(hdr.pixelDepth) / 8;   // bytes per sample
+    const int  bps      = static_cast<int>(serPixelDepth) / 8;   // bytes per sample
     const qint64 frameBytes = static_cast<qint64>(img.width) * img.height * channels * bps;
 
     QByteArray raw = f.read(frameBytes);
@@ -202,7 +215,7 @@ std::expected<FitsImage, QString> loadSer(const QString& filePath)
                 .arg(frameBytes).arg(filePath));
 
     // Pixel data endianness: big-endian when littleEndian==0 on a LE machine
-    const bool needSwap = (hdr.pixelDepth == 16) && (hdr.littleEndian == 0);
+    const bool needSwap = (serPixelDepth == 16) && (hdr.littleEndian == 0);
 
     const size_t n = static_cast<size_t>(img.width) * img.height;
 
@@ -261,14 +274,14 @@ std::expected<FitsImage, QString> loadSer(const QString& filePath)
         img.data = readSamples(raw.constData(), n);
     }
 
-    if (hdr.frameCount > 1)
+    if (serFrameCount > 1)
         spdlog::warn("SER file has {} frames — only frame 1 loaded from: {}",
-            hdr.frameCount, img.fileName.toStdString());
+            serFrameCount, img.fileName.toStdString());
 
     computeAutoStretch(img);
     spdlog::info("Loaded SER: {}  {}x{}  {}  frames={}",
         img.fileName.toStdString(), img.width, img.height,
-        img.isColor ? "color" : "mono", hdr.frameCount);
+        img.isColor ? "color" : "mono", serFrameCount);
     return img;
 }
 
