@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # AstroFind Installer — install.sh
-# Version 0.9.0-beta
+# Version 0.9.0
 # =============================================================================
 # Usage:
 #   ./install.sh           # interactive (auto-detect locale)
@@ -13,12 +13,12 @@
 set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
-readonly VERSION="0.9.0-beta"
+readonly VERSION="0.9.0"
 readonly REPO="petrinhu/astrofind"
 readonly BASE_URL="https://codeberg.org/${REPO}/releases/download/v${VERSION}"
 readonly RPM_FILE="astrofind-0.9.0-0.beta1.x86_64.rpm"
 readonly DEB_FILE="astrofind_0.9.0~beta-1_amd64.deb"
-readonly ARCH_FILE="astrofind-0.9.0-beta-arch-PKGBUILD.tar.gz"
+readonly ARCH_FILE="astrofind-0.9.0-arch-PKGBUILD.tar.gz"
 
 readonly BINARY="/usr/bin/AstroFind"
 readonly DESKTOP_SRC="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/../astrofind.desktop"
