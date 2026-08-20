@@ -448,6 +448,8 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 
 ## 7. Tabela de rastreamento de remediação
 
+> **⚠️ NÃO É A FONTE DA VERDADE (aviso 2026-08-20).** Os 37 achados desta tabela foram **fundidos na tabela única do [`TODO.md`](TODO.md)** — inclusive `AUD-TEST-3` e `AUD-CCFITS-ASAN`, que só existiam aqui. Esta tabela vira retrato congelado do dossiê: **o status corrente de cada achado se lê no `TODO.md`**, não aqui. O projeto tem UMA tabela de pendências.
+>
 > Status inicial: todos ❌ Pendente. A fase de remediação está sob decisão do líder. Os itens TODO correspondentes estão em [`TODO.md`](TODO.md).
 
 | ID | Severidade | Status remediação | Item TODO |
