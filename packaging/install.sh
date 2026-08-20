@@ -15,7 +15,7 @@ set -euo pipefail
 # ─── Constants ────────────────────────────────────────────────────────────────
 readonly VERSION="0.9.0"
 readonly REPO="petrinhu/astrofind"
-readonly BASE_URL="https://codeberg.org/${REPO}/releases/download/v${VERSION}"
+readonly BASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}"
 readonly RPM_FILE="astrofind-0.9.0-0.beta1.x86_64.rpm"
 readonly DEB_FILE="astrofind_0.9.0~beta-1_amd64.deb"
 readonly ARCH_FILE="astrofind-0.9.0-arch-PKGBUILD.tar.gz"

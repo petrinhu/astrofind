@@ -4,7 +4,7 @@ Version:        0.9.0
 Release:        1%{?dist}
 Summary:        Modern asteroid detection software for citizen science (IASC/MPC workflow)
 License:        AGPL-3.0-or-later
-URL:            https://codeberg.org/petrinhu/astrofind
+URL:            https://github.com/petrinhu/astrofind
 BuildArch:      x86_64
 # Disable auto-dependency detection — binary is pre-built and deps are explicit
 AutoReqProv:    no

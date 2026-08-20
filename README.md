@@ -7,7 +7,7 @@
 
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.9.0-orange)](https://codeberg.org/petrinhu/astrofind/releases/latest)
+[![Release](https://img.shields.io/badge/release-v0.9.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
 [![Build](https://github.com/petrinhu/astrofind/actions/workflows/build.yml/badge.svg)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
 [![Audit](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml/badge.svg)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
@@ -211,7 +211,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -243,7 +243,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -538,8 +538,7 @@ Ver [`NOTICE`](NOTICE) para a licença e o copyright de cada item acima.
 
 ---
 
-Repository: [github.com/petrinhu/astrofind](https://github.com/petrinhu/astrofind);
-mirror: [codeberg.org/petrinhu/astrofind](https://codeberg.org/petrinhu/astrofind)
+Repository: [github.com/petrinhu/astrofind](https://github.com/petrinhu/astrofind)
 
 *Last reviewed / última revisão: 2026-07-10. Owner: Petrus Silva Costa
 ([@petrinhu](https://github.com/petrinhu))*

@@ -6,7 +6,7 @@ pkgrel=1
 epoch=0
 pkgdesc="Modern asteroid detection software for citizen science (IASC/MPC workflow)"
 arch=('x86_64')
-url="https://codeberg.org/petrinhu/astrofind"
+url="https://github.com/petrinhu/astrofind"
 license=('AGPL-3.0-or-later')
 depends=(
     'qt6-base'
@@ -26,8 +26,8 @@ makedepends=(
     'eigen'
     'mesa'
 )
-# Source from Codeberg tag archive
-source=("${pkgname}-${pkgver}.tar.gz::https://codeberg.org/petrinhu/astrofind/archive/v0.9.0.tar.gz")
+# Source from GitHub tag archive
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/petrinhu/astrofind/archive/refs/tags/v0.9.0.tar.gz")
 sha256sums=('SKIP')
 
 build() {

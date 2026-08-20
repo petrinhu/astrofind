@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: astrofind
 Upstream-Contact: Petrus Silva Costa <petrinhu@yahoo.com.br>
-Source: https://codeberg.org/petrinhu/astrofind
+Source: https://github.com/petrinhu/astrofind
 
 Files: *
 Copyright: 2024-2026 Petrus Silva Costa <petrinhu@yahoo.com.br>
