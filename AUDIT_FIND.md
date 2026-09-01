@@ -1,7 +1,9 @@
-# AUDIT_FIND — Dossiê de Auditoria AstroFind
+# AUDIT_FIND - Dossiê de Auditoria Eventual AstroFind
 
-> Livro de auditoria interna consolidado, pronto para entrega a auditor externo.
-> Cada achado tem ID estável (`AUD-<LENTE>-<n>`), severidade adjudicada, âncora por símbolo/arquivo, repro executável e remediação. Referência por símbolo/função — nunca por linha viva (linha aparece só no repro).
+> Livro de auditoria interna consolidado (2026-09-01), pronto para entrega a auditor externo.
+> Cada achado tem ID estável (`AUD-<LENTE>-<n>`), severidade adjudicada, âncora por símbolo/arquivo, evidência e remediação sugerida.
+> Referência viva é por símbolo/função. Número de arquivo:linha aparece só no repro (snapshot datado).
+> Este arquivo sucede o dossiê de 2026-07-10 no mesmo path; o git guarda o retrato de julho. Não é reimpressão.
 
 ---
 
@@ -9,54 +11,79 @@
 
 | Campo | Valor |
 |---|---|
-| **Projeto** | AstroFind |
-| **Versão** | v0.9.0 |
-| **Licença** | AGPL-3.0 |
-| **Stack** | Qt6 / C++23, CMake |
-| **Porte de código** | ~26k LOC (`src/core` + `src/ui`) |
-| **Dependências** | cfitsio, Eigen3, fftw3 + bundled: SEP, CCfits, quazip, spdlog, nlohmann_json, Catch2 |
-| **Data da auditoria** | 2026-07-10 |
-| **Tipo** | Auditoria read-only (nenhuma alteração em `src/` ou `tests/`) |
-
-### Escopo
-
-Auditoria de robustez a input hostil de arquivo, corretude numérica/astronômica (WCS, refração, fotometria, cadeia de frames ICRS→CIRS→topocêntrica), memory safety, segurança/segredos/supply-chain, proveniência/licenças, e higiene de CI/documentação/testes. O maior stake do produto é científico: coordenadas medidas são submetidas ao **Minor Planet Center (MPC)**.
+| **Projeto** | AstroFind (repo `astrometrica`) |
+| **HEAD SHA** | `0940509243f1bbf8d2958bb373ac2e298fdd9c6d` |
+| **HEAD data** | 2026-08-20 11:18:28 -0300 (`chore(ci): migra do Codeberg para o GitHub como host único`) |
+| **Data desta auditoria** | 2026-09-01 (`01/09/26 - 08:16:19`, America/Recife) |
+| **Tipo** | EVENTUAL NOVA do estado atual (pós Ondas 1-4 e release v0.9.0). READ-ONLY: nenhuma correção de `src/` / `tests/` / CMake. Sem git add/commit/push nesta fase. |
+| **Versão de produto** | v0.9.0 |
+| **Licença** | AGPL-3.0-or-later |
+| **Stack** | Qt6 / C++23, CMake, cfitsio, fftw3 + bundled SEP, CCfits, quazip, spdlog, nlohmann_json, Catch2 |
+| **Porte** | desktop single-binary; `src/core` 53 cpp/h, `src/ui` 73 cpp/h, `src/main.cpp`; `tests/` 20 cpp + `synthetic_fits.h`; 11 workflows |
+| **Stake** | alto: output astrométrico ao Minor Planet Center (MPC); arquivo de terceiro (FITS/SER/XISF/TIFF/PNG/ZIP); reimplementação com `originals/Astrometrica.exe` |
 
 ### Método (três papéis independentes)
 
-1. **Finder** (Sonnet 5) — uma passada por lente (INPUT, CORR, MEM, SEC, PROV, CI/DOC/TEST), gerando candidatos.
-2. **Verificador adversarial** — agente DIFERENTE do finder, que **EXECUTA** o código e usa **astropy 8.0.1 como oráculo externo** para corretude WCS, imagens sintéticas reais para memory safety, e extratores reais para input hostil. Princípio operante: **"relatório de agente não é prova"**.
-3. **Orquestrador** — re-verifica independentemente: build ASan/UBSan próprio, spot-check das claims (símbolo/arquivo), e execução dos repros.
-
-Build de sanitizers usado: fresh em `scratchpad/build-asan2` (o `build/` do repo é órfão — RUNPATH aponta p/ `/home/petrus/.../projetos_dev/astrometrica`, resíduo de mudança de pasta). Suíte: 116 casos core (106 pass, 10 SKIP) + 23 UI, 4426 asserts verde.
+1. **Finder** (grok-4.5) - uma passada por lente (INPUT, MEM, SEC, PROV, CORR, CI, DOC, TEST), gerando candidatos em `/var/tmp/astrofind-audit-eventual-20260901/reports/F-*.md`. Relatório de finder **não** é prova.
+2. **Verificador adversarial** (agente DIFERENTE, grok-4.5) - EXECUTA repro, oráculo, `gitleaks`, `gh run`, mutação em cópia `/var/tmp`. Saídas `V-*.md`.
+3. **Orquestrador** - re-executou os CRÍTICOS (ver §1.1). **Internal-auditor** consolida este livro a partir dos V-*.md e da re-execução; não reabre finder vs verifier. Empate: prevalece o verificador que executou + a re-execução do orquestrador.
 
 ### Disciplina read-only
 
-Nenhum arquivo de produção (`src/`, `tests/`) foi editado. Nenhum `git add/commit/push`. Os únicos artefatos escritos por esta fase são este livro (`AUDIT_FIND.md`) e a tabela de remediação (`TODO.md`).
+Nenhum arquivo de produção (`src/`, `tests/`) foi editado. Nenhum `git add/commit/push` nesta fase. Working tree permanece `M astrofind.desktop` + untracked `audit_completa_eventual.md` (intocados). `TODO.md` não foi editado (fase seguinte).
 
-### Calibração de porte
+### Calibração de porte e taxonomia
 
-AstroFind é aplicação técnica de nicho (astrometria), single-binary desktop, sem multi-tenancy nem PII de terceiros no núcleo. A severidade seguiu [[AUDITORIAS]] sem inflar nem minimizar: CRÍTICO exige crash/corrupção/UB/vazamento explorável; IMPORTANTE é bug real de corretude/robustez sem exploit direto; COSMÉTICO é drift/estilo/defensivo inalcançável. O stake regulatório-científico (output ao MPC) puxa a corretude WCS e a robustez de input a bloqueadores de release.
+AstroFind é aplicação técnica de nicho (astrometria), single-binary desktop, sem multi-tenant, sem API REST, sem QML, sem MySQL de servidor. As 8 lentes da ordem do líder foram mantidas. Capítulos REST/LGPD-titular/QML/firmware não viraram lente própria (anti over-engineering; nenhum item da ordem foi cortado).
+
+Severidade (empate: verbatim do líder em `audit_completa_eventual.md`):
+
+| Classe | Significado |
+|---|---|
+| CRÍTICO | crash / corrupção / RCE / UB / vazamento explorável. Output errado ao MPC = corrupção científica = CRÍTICO. |
+| IMPORTANTE | bug real de corretude ou robustez, sem exploit direto. |
+| COSMÉTICO | drift de doc, mina defensiva não-alcançável, estilo. |
+
+Manual plugin AUDITORIAS (Crítico bloqueia release; Importante = antes do próximo marco; Cosmético = incremental) só desempataria se o verbatim fosse silente. Não inflar "violação de arquitetura" a CRÍTICO sem crash/corrupção/UB/RCE/vazamento explorável.
+
+CONFIRMADO = repro executado **ou** fato de código inequívoco re-lido no blob HEAD + verifier. Sem repro = PLAUSÍVEL, seção separada. IDs de julho não foram reusados para bug novo.
+
+Frase-guarda L-21 (aplicada; não cortou WCS, loaders nem formatos): uso/contagem de uso no repositório do consumidor NUNCA corta escopo, desenho ou qualidade de um produto feito para distribuição - dor do consumidor é evidência de lacuna, jamais prova de que o que ele não usa pode sair; "ninguém usa X" é afirmação sobre UM repositório, nunca sobre o mundo; regra de paridade: se o motor/biblioteca substituído aceita, o produto novo aceita também - paridade completa, não o mínimo medido no único consumidor conhecido.
+
+### FATO vs INFERÊNCIA (L-18)
+
+**FATO** neste livro: comando/log/md5/`git show HEAD:<arquivo>` / tabela de V-*.md / re-execução do orquestrador. **INFERÊNCIA** está marcada. Achado que não está num V-*.md **não entra**.
+
+### 1.1 Re-verificação do orquestrador (CRÍTICOS)
+
+| ID | Comando / medição | Resultado | Veredito |
+|---|---|---|---|
+| AUD-INPUT-1 | `input_asan_harness loadFits naxis_4.fits` | Unsupported NAXIS=4; ASan silencioso | AINDA-FECHADO |
+| AUD-INPUT-2 | FITS 2880 B, 100k×100k | ceiling 20000; RSS baixo | AINDA-FECHADO |
+| AUD-INPUT-8 | `loadSpectrum1D spec_naxis1_1e8.fits` | aloca a partir de header 2880 B; controle 2-D barrado. md5 harness `d96c17485bf68a23a926f12320d214c2` | CONFIRMADO |
+| AUD-MEM-2 | `mem_asan_harness mem2` | nullopt, vivo, EXIT 0 | AINDA-FECHADO |
+| AUD-MEM-6 | `mem_asan_harness mem6` | ASan heap-buffer-overflow `Calibration.cpp:291` `subtractBackground`, EXIT 134; controlo 128×128 OK. md5 `a4c5b9807a9c17368a73f86f91b4d185` | CONFIRMADO |
+| AUD-MEM-5 | programa de tamanhos FFT | 50×100 nc_fwd=2550 vs nc_plan=2600 UNDER-ALLOC. Overflow FFT ASan **não executado** (`fftw3.h` ausente, L-51) | CONFIRMADO (aritmética) |
+| AUD-CORR-1 | `wcs_harness` × astropy 8.0.1 | CAR/MER/GLS/AIT ref = 180.0 (não 270) | AINDA-FECHADO |
+| AUD-TEST-5 | Catch2 filtro com vírgula no nome | "No tests ran" exit 0 (falso-verde) | CONFIRMADO |
+
+Limitações da re-execução: `fftw-devel` AUSENTE; cmake ASan do produto não configurou; harnesses parciais. Freeze `astrofind_tests` em `build/` é de **2026-03-22**, STALE vs HEAD; **não** foi usado como prova da suíte atual.
 
 ---
 
 ## 2. Sumário executivo
 
-**Contagem:** **4 CRÍTICOS**, **~18 IMPORTANTES**, **4 COSMÉTICOS**, **5 PLAUSÍVEIS**.
+**Contagem desta eventual (IDs novos CONFIRMADOS):** **3 CRÍTICOS**, **25 IMPORTANTES**, **10 COSMÉTICOS**, **4 PLAUSÍVEIS** (IDs próprios). DOC-9 é gêmeo L-17 de PROV-9 (um primário + ponte; não infla a conta).
 
-Os 4 CRÍTICOS, em uma frase cada:
+**Re-teste de julho (não reconta como novo):** 5 CRÍTICOS de produto **AINDA-FECHADOS** (INPUT-1, INPUT-2, CORR-1, MEM-2, MEM-3). **AINDA-ABERTOS:** MEM-1 (leak SEP no binário linkado), SEC-1 (residual `.runner`), MEM-4 residual (= INPUT-8), INPUT-gaps, MEM-gaps. **REGREDIU:** CI-3 (mesmo fato que CI-5: `audit.yml` `runs-on: docker`, 9 cancelled). INPUT-4/5/6/7: guards no tree, **não re-executados** nesta onda.
 
-- **[AUD-INPUT-1](#aud-input-1)** — um `.fits` de ~3 KB com `NAXIS≥4` provoca stack-buffer-overflow dentro do cfitsio (arrays de 3 elementos sem teto superior).
-- **[AUD-INPUT-2](#aud-input-2)** — um `.fits` de 2880 bytes com dimensões mentirosas (`NAXIS1=NAXIS2=100000`) dispara alocação de ~40 GB e exceção não capturada → `std::terminate()`.
-- **[AUD-CORR-1](#aud-corr-1)** — projeções WCS não-zenitais (CAR/MER/GLS/AIT) reportam coordenada celeste ~90° errada com eixos RA/Dec trocados, e esse output vai ao MPC.
-- **[AUD-MEM-2](#aud-mem-2)** (com **[AUD-MEM-3](#aud-mem-3)**) — um pixel `NaN`/`Inf` numa estrela mede-se via `static_cast<int>(round(NaN))` → INT_MIN → signed-overflow abort, alcançável pelo pipeline real de medição.
+Os 3 CRÍTICOS novos, em uma frase cada:
 
-**Veredito geral (honesto):** a base é madura e disciplinada (RAII limpo no código próprio, suíte de 4426 asserts verde, fórmulas astronômicas numericamente corretas onde medidas), **mas contém duas classes de bug sério que a suíte de testes não pega**:
+- **AUD-INPUT-8** - `loadSpectrum1D` aloca `vector<float>(NAXIS1)` a partir de um FITS de 2880 B com header mentiroso; o path 2-D irmão já é barrado pelo teto de INPUT-2.
+- **AUD-MEM-6** - `subtractBackground` lê fora de `tileVal` quando um eixo tem uma só tile (128×64, tile 64); ASan heap-buffer-overflow, EXIT 134.
+- **AUD-MEM-5** - `forwardFFT` aloca `w*(h/2+1)` e planeja FFTW `h*(w/2+1)`; em CCD portrait (50×100) o buffer fica 50 complexos curto. Overflow ASan de `fftw_execute` não foi rodado (sem `fftw3.h`).
 
-1. **Input hostil de arquivo** — qualquer `.fits`/`.ser`/BINTABLE de terceiro pode causar crash ou UB ao abrir (AUD-INPUT-1/2/3/5, AUD-MEM-2/4). A superfície de entrada não é validada antes de chamar cfitsio / redimensionar buffers.
-2. **Corretude WCS não-TAN** — 7 das 8 projeções nunca foram testadas por valor absoluto (só round-trip, que é invariante necessário-mas-não-suficiente); 4 delas produzem coordenada errada que segue ao MPC (AUD-CORR-1/2).
-
-Ambas as classes têm consequência de alto stake: **output cientificamente errado indo ao MPC**, e **crash ao abrir arquivo de terceiro**. Não há CRÍTICO de segurança com exploit direto, mas há riscos estruturais (token vivo `.runner`, supply-chain sem pin de SHA) e um débito sistêmico de proveniência/atribuição de licenças (WCSLIB, SEP) que requer decisão jurídica. **Recomendação:** não taggear release até fechar a Onda 1 (os 4 CRÍTICOS + `.runner`).
+**Veredito geral (honesto):** a remediação de julho segurou os quatro CRÍTICOS de produto que iam ao crash/MPC (repro hostil + oráculo astropy + mutação). O livro de 2026-07-10 **não** pode ser lido como "curado": (1) três CRÍTICOS novos na superfície que a Onda 1 não fechou (espectro 1-D, fundo em crop, FFT portrait); (2) o patch SEP está na fonte e **não** no `libsep_lib.a` linkado; (3) o portão `audit.yml` nunca correu com sucesso no GitHub após o cutover (9 cancelled, 0 success); (4) a suíte Catch2 HEAD **não** pega INPUT-1/2 nem MEM-2/3 (mutação do guard NAXIS deixa 13/13 verdes). Não há CRÍTICO de RCE nesta passagem. **Não** taggear release até fechar INPUT-8, MEM-6 e (com `fftw-devel`) o runtime de MEM-5, e religar o portão ASan no GitHub.
 
 ---
 
@@ -64,436 +91,600 @@ Ambas as classes têm consequência de alto stake: **output cientificamente erra
 
 | ID | Título | Severidade | Status | Lente | Âncora (símbolo/arquivo) |
 |---|---|:---:|:---:|:---:|---|
-| [AUD-INPUT-1](#aud-input-1) | Stack-buffer-overflow via NAXIS>3 | 🔴 CRÍTICO | CONFIRMADO | INPUT | `loadFits*` / `FitsImage.cpp` |
-| [AUD-INPUT-2](#aud-input-2) | Alocação sem teto por header mentiroso | 🔴 CRÍTICO | CONFIRMADO | INPUT | `loadFits*` / `FitsImage.cpp` |
-| [AUD-CORR-1](#aud-corr-1) | Projeções não-zenitais 90° erradas → MPC | 🔴 CRÍTICO | CONFIRMADO | CORR | `nativePoleAngle`/`nativeToCelestial` |
-| [AUD-MEM-2](#aud-mem-2) | NaN/Inf → cast→INT_MIN→overflow abort | 🔴 CRÍTICO | CONFIRMADO | MEM | `findCentroid`/`aperturePhotometry` |
-| [AUD-MEM-3](#aud-mem-3) | Guard de sanidade contornável por NaN | 🔴 CRÍTICO | CONFIRMADO | MEM | `findCentroidElliptical`/`findCentroidPsf` |
-| [AUD-SEC-1](#aud-sec-1) | Token vivo `.runner` mundo-legível | 🟠 IMPORTANTE | CONFIRMADO | SEC | `.runner` (raiz) |
-| [AUD-SEC-2](#aud-sec-2) | 6 deps FetchContent sem pin de SHA | 🟠 IMPORTANTE | CONFIRMADO | SEC | `cmake/dependencies.cmake` |
-| [AUD-SEC-3](#aud-sec-3) | Clients HTTP sem timeout/cancel | 🟠 IMPORTANTE | CONFIRMADO | SEC | `AstrometryClient`/`CatalogClient`/`HorizonsClient` |
-| [AUD-PROV-1](#aud-prov-1) | Proveniência WCSLIB não atribuída (LGPL) | 🟠 IMPORTANTE | CONFIRMADO | PROV | comentário `FitsImage.cpp` |
-| [AUD-PROV-2](#aud-prov-2) | SEP (LGPL) sem NOTICE | 🟠 IMPORTANTE | CONFIRMADO | PROV | `sep` bundled |
-| [AUD-PROV-3-6](#aud-prov-3-6) | Ausência sistêmica de NOTICE/THIRD_PARTY | 🟠 IMPORTANTE | CONFIRMADO | PROV | QuaZip/spdlog/json/FFTW3/cfitsio |
-| [AUD-MEM-1](#aud-mem-1) | Leak 44B/chamada em SEP (upstream) | 🟠 IMPORTANTE | CONFIRMADO | MEM | `sep convert_to_catalog` |
-| [AUD-MEM-4](#aud-mem-4) | RGB multi-ext sem re-validação pós-cast | 🟠 IMPORTANTE | PLAUSÍVEL | MEM | `FitsImage.cpp` RGB path / `Spectrum1D.cpp` |
-| [AUD-INPUT-3](#aud-input-3) | SER loader sem checagem de sinal | 🟠 IMPORTANTE | CONFIRMADO | INPUT | `ImageLoader::loadSer` |
-| [AUD-INPUT-4](#aud-input-4) | Symlink não filtrado na extração | 🟠 IMPORTANTE | CONFIRMADO | INPUT | `expandArchive`/`expandZip` |
-| [AUD-INPUT-5](#aud-input-5) | BINTABLE NAXIS2 mentiroso → linhas NaN | 🟠 IMPORTANTE | CONFIRMADO | INPUT | `FitsTableReader::readColumn` |
-| [AUD-CORR-2](#aud-corr-2) | 7/8 projeções sem teste de valor absoluto | 🟠 IMPORTANTE | CONFIRMADO | CORR | `tests/` WCS |
-| [AUD-CORR-3](#aud-corr-3) | `applyRefractionCorrection` sem testes | 🟠 IMPORTANTE | CONFIRMADO | CORR | `Astronomy.cpp` |
-| [AUD-CORR-4](#aud-corr-4) | Aberração/prec/nut sem teste + dead code | 🟠 IMPORTANTE | CONFIRMADO | CORR | `Astronomy.cpp` |
-| [AUD-CORR-5](#aud-corr-5) | Testes de fotometria circulares | 🟠 IMPORTANTE | CONFIRMADO | CORR | `test_photometry.cpp` |
-| [AUD-CI-3](#aud-ci-3) | Auditoria numérica nunca roda em CI | 🟠 IMPORTANTE | CONFIRMADO | CI | workflows |
-| [AUD-CI-4](#aud-ci-4) | `qa-wsl2.yml` órfão (alvo removido) | 🟠 IMPORTANTE | CONFIRMADO | CI | `.github/workflows/qa-wsl2.yml` |
-| [AUD-DOC-1](#aud-doc-1) | Drift doc-vs-código na refração | 🟠 IMPORTANTE | CONFIRMADO | DOC | `docs/technical-reference.md` §5 |
-| [AUD-DOC-3](#aud-doc-3) | 0/127 arquivos com SPDX | 🟠 IMPORTANTE | CONFIRMADO | DOC | `src/` |
-| [AUD-DOC-4](#aud-doc-4) | Feature-fantasma RAW/PDS4 (#21) | 🟠 IMPORTANTE | CONFIRMADO | DOC | `src/` (ausente) |
-| [AUD-TEST-2](#aud-test-2) | Cobertura fantasma (10 SKIP) | 🟠 IMPORTANTE | CONFIRMADO | TEST | `test_fits_functional.cpp` |
-| [AUD-SEC-5](#aud-sec-5) | ApiKeyStore fallback plain-text (avisado) | 🟢 COSMÉTICO | CONFIRMADO | SEC | `ApiKeyStore` |
-| [AUD-CI-2](#aud-ci-2) | 12 arquivos CI = ruído CRLF | 🟢 COSMÉTICO | CONFIRMADO | CI | workflows |
-| [AUD-CORR-6](#aud-corr-6) | Constante FWHM imprecisa (0.0077%) | 🟢 COSMÉTICO | CONFIRMADO | CORR | `Centroid.cpp` |
-| [AUD-INPUT-6](#aud-input-6) | UB de alinhamento em log de struct packed | 🟢 COSMÉTICO | CONFIRMADO | INPUT | `ImageLoader.cpp` |
-| [AUD-SEC-4](#aud-sec-4) | Downgrade TLS por config sem enforcement | 🟠 IMPORTANTE | PLAUSÍVEL | SEC | QSettings URLs |
-| [AUD-INPUT-7](#aud-input-7) | OOB read em colunas opcionais BINTABLE | — | PLAUSÍVEL | INPUT | `FitsTableReader` |
-| [AUD-PROV-8](#aud-prov-8) | GDL/NEMO/Siril não auditados linha-a-linha | — | PLAUSÍVEL | PROV | README credits |
-| [AUD-INPUT-gaps](#aud-input-gaps) | Gaps de input (RAW/PDS4/QImage/XISF) | — | PLAUSÍVEL | INPUT | vários |
-| [AUD-MEM-gaps](#aud-mem-gaps) | Gaps de memória não re-rodados | — | PLAUSÍVEL | MEM | `Calibration.cpp` etc |
+| [AUD-INPUT-1](#aud-input-1) | Stack-buffer-overflow via NAXIS>3 | CRÍTICO | AINDA-FECHADO | INPUT | `loadFits*` / `kMaxImageAxes` |
+| [AUD-INPUT-2](#aud-input-2) | Alocação sem teto por header mentiroso | CRÍTICO | AINDA-FECHADO | INPUT | `validateImageDims` |
+| [AUD-CORR-1](#aud-corr-1) | Projeções não-zenitais 90° erradas → MPC | CRÍTICO | AINDA-FECHADO | CORR | `celestialPole` / `pixToSky` |
+| [AUD-MEM-2](#aud-mem-2) | NaN/Inf → cast→INT_MIN→overflow abort | CRÍTICO | AINDA-FECHADO | MEM | `findCentroid` / `aperturePhotometry` |
+| [AUD-MEM-3](#aud-mem-3) | Guard de sanidade contornável por NaN | CRÍTICO | AINDA-FECHADO | MEM | `findCentroidElliptical` / `findCentroidPsf` |
+| [AUD-INPUT-8](#aud-input-8) | Spectrum1D aloca NAXIS1 mentiroso | CRÍTICO | CONFIRMADO | INPUT | `core::loadSpectrum1D` |
+| [AUD-MEM-6](#aud-mem-6) | OOB `tileVal` em `subtractBackground` | CRÍTICO | CONFIRMADO | MEM | `core::subtractBackground` |
+| [AUD-MEM-5](#aud-mem-5) | FFT under-alloc quando `h>w` | CRÍTICO | CONFIRMADO (aritmética; ASan FFT não executado) | MEM | `forwardFFT` / `ImageStacker.cpp` |
+| [AUD-MEM-1](#aud-mem-1) | Leak SEP `convert_to_catalog` no binário linkado | IMPORTANTE | AINDA-ABERTO | MEM | `sep convert_to_catalog` / `libsep_lib.a` |
+| [AUD-CI-3](#aud-ci-3) | Auditoria numérica nunca roda em CI | IMPORTANTE | REGREDIU | CI | `audit.yml` (mesmo fato [AUD-CI-5](#aud-ci-5)) |
+| [AUD-CI-5](#aud-ci-5) | `runs-on: docker` / residual Forgejo | IMPORTANTE | CONFIRMADO | CI | `.github/workflows/audit.yml` |
+| [AUD-INPUT-9](#aud-input-9) | XISF sem teto de eixo FITS | IMPORTANTE | CONFIRMADO | INPUT | `loadXisf` |
+| [AUD-SEC-6](#aud-sec-6) | SetupWizard grava API key sem ApiKeyStore | IMPORTANTE | CONFIRMADO (código; 0644 PLAUSÍVEL) | SEC | `SetupWizard::ApiKeyPage::save` |
+| [AUD-SEC-7](#aud-sec-7) | `.runner` residual em disco (Codeberg) | IMPORTANTE | CONFIRMADO (presença; validade PLAUSÍVEL) | SEC | `.runner` (gitignore + mode 600) |
+| [AUD-SEC-8](#aud-sec-8) | Sem scanner de secret em hook/CI | IMPORTANTE | CONFIRMADO | SEC | `scripts/pre-commit` / workflows |
+| [AUD-SEC-10](#aud-sec-10) | KooEngine/MPCORB sem timeout | IMPORTANTE | CONFIRMADO (gap; hang PLAUSÍVEL) | SEC | `KooEngine::queryField` |
+| [AUD-SEC-11](#aud-sec-11) | `cancel()` não aborta poll `get` | IMPORTANTE | CONFIRMADO (código; fantasma PLAUSÍVEL) | SEC | `AstrometryClient` poll |
+| [AUD-SEC-12](#aud-sec-12) | Horizons `COMMAND` com input cru | IMPORTANTE | CONFIRMADO (construção; parse PLAUSÍVEL) | SEC | `HorizonsClient::query` |
+| [AUD-SEC-13](#aud-sec-13) | Save de URL sem `isSafe*` | IMPORTANTE | CONFIRMADO | SEC | `SettingsDialog` URLs |
+| [AUD-PROV-10](#aud-prov-10) | 23 rótulos de menu idênticos ao exe | IMPORTANTE | CONFIRMADO | PROV | `MainWindow.cpp` `tr("…")` |
+| [AUD-CORR-7](#aud-corr-7) | Refração sempre após WCS plate-solved | IMPORTANTE | CONFIRMADO (política; erro ° PLAUSÍVEL) | CORR | `MainWindow_measurement.cpp` |
+| [AUD-CORR-8](#aud-corr-8) | Extinção MPC inline; função morta | IMPORTANTE | CONFIRMADO | CORR | `applyExtinctionCorrection` vs inline |
+| [AUD-CORR-10](#aud-corr-10) | LONPOLE/LATPOLE/PV1_* não lidos | IMPORTANTE | CONFIRMADO (código; delta PLAUSÍVEL) | CORR | parse WCS `FitsImage.cpp` |
+| [AUD-CORR-11](#aud-corr-11) | Catch2 WCS sem polo sul / Dec− | IMPORTANTE | CONFIRMADO (suíte; código OK no oráculo) | CORR | `tests/` `[wcs]` |
+| [AUD-CORR-12](#aud-corr-12) | Zero testes Ephemeris/KooEngine | IMPORTANTE | CONFIRMADO | CORR | `tests/` (ausência) |
+| [AUD-CORR-13](#aud-corr-13) | JD trunca sub-segundo de DATE-OBS | IMPORTANTE | CONFIRMADO (truncamento; mag PLAUSÍVEL) | CORR | `QDateTime::secsTo` |
+| [AUD-CORR-14](#aud-corr-14) | ADES `sys=ICRF` sem assert; "apparent" | IMPORTANTE | CONFIRMADO | CORR | `AdesReport.cpp` |
+| [AUD-CI-6](#aud-ci-6) | Pop 22.04 / Zorin 17 mentem a base | IMPORTANTE | CONFIRMADO | CI | `qa-pop-os-22.yml` / `qa-zorin-17.yml` |
+| [AUD-CI-7](#aud-ci-7) | Gate omite clang-tidy | IMPORTANTE | CONFIRMADO | CI | `audit.yml` Gate on critical findings |
+| [AUD-DOC-5](#aud-doc-5) | SECURITY.md "tudo corrigido" | IMPORTANTE | CONFIRMADO | DOC | `SECURITY.md` |
+| [AUD-DOC-6](#aud-doc-6) | Help anuncia RAW/PDS4 | IMPORTANTE | CONFIRMADO | DOC | `help_en.html` / `help_pt_br.html` |
+| [AUD-DOC-8](#aud-doc-8) | Help: cadeia ICRS→CIRS com aberração/nutação | IMPORTANTE | CONFIRMADO | DOC | Help glossário CIRS |
+| [AUD-TEST-4](#aud-test-4) | Suíte não pega INPUT-1/2 nem MEM-2/3 | IMPORTANTE | CONFIRMADO | TEST | `tests/` (ausência + mutação M1) |
+| [AUD-TEST-5](#aud-test-5) | Catch2 vírgula no nome = falso-verde | IMPORTANTE | CONFIRMADO | TEST | nomes `TEST_CASE` (L-45) |
+| [AUD-TEST-6](#aud-test-6) | SER/XISF/QImage/Spectrum1D/archives sem teste | IMPORTANTE | CONFIRMADO | TEST | `tests/*.cpp` |
+| [AUD-SEC-1](#aud-sec-1) | Token `.runner` (julho) | IMPORTANTE | AINDA-ABERTO (residual; ver SEC-7) | SEC | `.runner` |
+| [AUD-SEC-2](#aud-sec-2) | Pins FetchContent | IMPORTANTE | AINDA-FECHADO (6 pins) + residual CCfits | SEC | `cmake/dependencies.cmake` |
+| [AUD-INPUT-3](#aud-input-3) | SER sinal/teto | IMPORTANTE | AINDA-FECHADO | INPUT | `loadSer` |
+| [AUD-CORR-2](#aud-corr-2) | Teste absoluto WCS | IMPORTANTE | AINDA-FECHADO (residual → CORR-11) | CORR | `tests/` `[wcs]` |
+| [AUD-CORR-3](#aud-corr-3) | Testes de refração | IMPORTANTE | AINDA-FECHADO (residual → CORR-7) | CORR | `[refraction]` |
+| [AUD-CORR-4](#aud-corr-4) | Aberração/prec/nut | IMPORTANTE | AINDA-FECHADO | CORR | `Astronomy.cpp` |
+| [AUD-CORR-5](#aud-corr-5) | Fotometria oráculo | IMPORTANTE | AINDA-FECHADO (residual → CORR-8) | CORR | `[AUD-CORR-5]` |
+| [AUD-PROV-1](#aud-prov-1) | NOTICE WCSLIB | IMPORTANTE | AINDA-FECHADO | PROV | `NOTICE` §1 |
+| [AUD-PROV-2](#aud-prov-2) | NOTICE SEP | IMPORTANTE | AINDA-FECHADO (residual → PROV-13) | PROV | `NOTICE` §2 |
+| [AUD-PROV-3-6](#aud-prov-3-6) | NOTICE deps | IMPORTANTE | AINDA-FECHADO | PROV | `NOTICE` §§3-8 |
+| [AUD-DOC-1](#aud-doc-1) | Bennett doc↔código | IMPORTANTE | AINDA-FECHADO | DOC | `docs/technical-reference.md` §5 |
+| [AUD-DOC-3](#aud-doc-3) | SPDX 127/127 | IMPORTANTE | AINDA-FECHADO | DOC | `src/**/*.{cpp,h}` |
+| [AUD-DOC-4](#aud-doc-4) | RAW/PDS4 honestos (CLAUDE+src) | IMPORTANTE | AINDA-FECHADO (gêmeos → DOC-6/7) | DOC | `CLAUDE.md` 21.1/21.2 |
+| [AUD-TEST-2](#aud-test-2) | SKIP fantasma | IMPORTANTE | AINDA-FECHADO | TEST | `synthetic_fits.h` |
+| [AUD-TEST-3](#aud-test-3) | Loaders cube/HDU/bintable | IMPORTANTE | AINDA-FECHADO | TEST | `test_fits_loaders.cpp` |
+| [AUD-CI-4](#aud-ci-4) | `qa-wsl2.yml` órfão | IMPORTANTE | AINDA-FECHADO | CI | workflows |
+| [AUD-SEC-3](#aud-sec-3) | HTTP timeout nos 3 clients | IMPORTANTE | AINDA-FECHADO (gêmeo → SEC-10) | SEC | `setTransferTimeout` |
+| [AUD-SEC-4](#aud-sec-4) | Enforce https | IMPORTANTE | AINDA-FECHADO (gêmeo → SEC-13) | SEC | `isSafe*UrlScheme` |
+| [AUD-MEM-4](#aud-mem-4) | RGB/Spectrum1D teto | IMPORTANTE | AINDA-ABERTO (residual = INPUT-8) | MEM | `loadSpectrum1D` |
+| [AUD-SEC-9](#aud-sec-9) | Sem SBOM/syft no tree | COSMÉTICO | CONFIRMADO | SEC | CMake/workflows (ausência) |
+| [AUD-PROV-9](#aud-prov-9) | Eigen citado, zero uso (primário; gêmeo DOC-9) | COSMÉTICO | CONFIRMADO | PROV | About/packaging/CONTRIBUTING |
+| [AUD-DOC-9](#aud-doc-9) | Eigen fantasma (gêmeo L-17 de PROV-9) | COSMÉTICO | CONFIRMADO | DOC | ver [AUD-PROV-9](#aud-prov-9) |
+| [AUD-PROV-11](#aud-prov-11) | README "every item above" falso | COSMÉTICO | CONFIRMADO | PROV | `README.md` Acknowledgments |
+| [AUD-PROV-12](#aud-prov-12) | NOTICE MiniZip/fmt fino | COSMÉTICO | CONFIRMADO (impacto empacote PLAUSÍVEL) | PROV | `NOTICE` |
+| [AUD-PROV-13](#aud-prov-13) | Sem LGPL full in-tree | COSMÉTICO | CONFIRMADO | PROV | `git ls-files` licenças |
+| [AUD-CORR-9](#aud-corr-9) | FWHM 2.355 em Overlay/Centroid.h | COSMÉTICO | CONFIRMADO | CORR | `Overlay.h` / `Centroid.h` |
+| [AUD-CI-8](#aud-ci-8) | Endurecimento em 1 de N workflows | COSMÉTICO | CONFIRMADO | CI | `permissions` / STEP_SUMMARY |
+| [AUD-CI-9](#aud-ci-9) | pre-commit local não armado | COSMÉTICO | CONFIRMADO | CI | `.git/hooks/pre-commit` |
+| [AUD-DOC-7](#aud-doc-7) | CHANGELOG 0.5.0 RAW/PDS sem errata | COSMÉTICO | CONFIRMADO | DOC | `CHANGELOG.md` `[0.5.0]` |
+| [AUD-TEST-7](#aud-test-7) | Nome Catch2 frouxo vs assert estrito | COSMÉTICO | CONFIRMADO | TEST | `test_star_detector.cpp` |
+| [AUD-SEC-5](#aud-sec-5) | ApiKeyStore 0600 | COSMÉTICO | AINDA-FECHADO (bypass = SEC-6) | SEC | `ApiKeyStore::write` |
+| [AUD-CI-2](#aud-ci-2) | CRLF nos yml | COSMÉTICO | AINDA-FECHADO | CI | 11 workflows CR=0 |
+| [AUD-CORR-6](#aud-corr-6) | Constante FWHM Centroid.cpp | COSMÉTICO | AINDA-FECHADO (gêmeo → CORR-9) | CORR | `kFwhmPerSigma` |
+| [AUD-INPUT-6](#aud-input-6) | UB alinhamento SER | COSMÉTICO | NÃO RE-TESTADO | INPUT | `ImageLoader.cpp` locals packed |
+| [AUD-CCFITS-ASAN](#aud-ccfits-asan) | `[bintable]` sob ASan | COSMÉTICO | AINDA-FECHADO (artefato) / PLAUSÍVEL (runtime) | TEST | `ccfits_lib` `-fno-sanitize=undefined` |
+| [AUD-PROV-8](#aud-prov-8) | GDL/NEMO/Siril risco aceito | - | AINDA-FECHADO | PROV | `NOTICE` §9 |
+| [AUD-INPUT-4](#aud-input-4) | Symlink na extração | IMPORTANTE | NÃO RE-TESTADO | INPUT | `expandArchive` / `expandZip` |
+| [AUD-INPUT-5](#aud-input-5) | BINTABLE NAXIS2 | IMPORTANTE | NÃO RE-TESTADO | INPUT | `FitsTableReader` |
+| [AUD-INPUT-7](#aud-input-7) | OOB coluna opcional | - | NÃO RE-TESTADO | INPUT | `FitsTableReader` |
+| [AUD-INPUT-gaps](#aud-input-gaps) | Gaps RAW/PDS4/QImage/XISF | - | AINDA-ABERTO | INPUT | vários |
+| [AUD-MEM-gaps](#aud-mem-gaps) | Gaps tooling memória | - | AINDA-ABERTO | MEM | valgrind/cppcheck/tidy |
+| [AUD-INPUT-10](#aud-input-10) | `loadQImage` sem teto | IMPORTANTE | PLAUSÍVEL | INPUT | `loadQImage` |
+| [AUD-INPUT-11](#aud-input-11) | SER produto 400e6 px | IMPORTANTE | PLAUSÍVEL | INPUT | `kMaxSerDim` |
+| [AUD-INPUT-12](#aud-input-12) | BINTABLE `nRows` sem teto | IMPORTANTE | PLAUSÍVEL | INPUT | `FitsTableReader::readColumn` |
+| [AUD-MEM-7](#aud-mem-7) | ClumpFind sem `isfinite` | IMPORTANTE | PLAUSÍVEL | MEM | `detectStars` blended |
 
 ---
 
 ## 4. Achados CONFIRMADOS por severidade
 
-### 4.1 🔴 CRÍTICOS
+### 4.1 CRÍTICOS novos
 
-<a id="aud-input-1"></a>
-### AUD-INPUT-1 — Stack-buffer-overflow em cfitsio via NAXIS>3 não validado
+<a id="aud-input-8"></a>
+### AUD-INPUT-8 - `loadSpectrum1D` aloca a partir de header 1-D mentiroso
 
-- **Severidade:** 🔴 CRÍTICO — CONFIRMADO (finder + orquestrador)
-- **Âncora:** `core::loadFits` / `loadFitsHdu` / `loadFitsCube` em `src/core/FitsImage.cpp` (arrays `long naxes[3]` / `long fpixel[3]`; guard só `if (naxis < 2)`, sem teto superior; chamada `fits_read_pix`).
-- **Failure concreto:** um FITS de ~2.9–5.7 KB só-header com `NAXIS=4` (ou 5/6/10/50) passa a validação; cfitsio (`ffgpxv`) opera no NAXIS real e escreve além dos 3 elementos reservados na pilha. ASan reporta `stack-buffer-overflow ... in ffgpxv.part.0`, frame `FitsImage.cpp:787`. Limiar: NAXIS=3 OK, ≥4 overflow 100%. Em Release sem ASan = UB explorável / crash confiável.
-- **Repro:** `QT_QPA_PLATFORM=offscreen $SCRATCH/harness/fits_harness $SCRATCH/fits_hostile/naxisN_4.fits` (+ variantes `--hdu`, `--cube`). Reproduzido pelo orquestrador independentemente.
-- **Remediação:** rejeitar `naxis > 3` antes de qualquer chamada cfitsio nos 3 call sites.
-- **Confirmado por:** finder + orquestrador (execução independente).
+- **Severidade:** CRÍTICO - CONFIRMADO (V-INPUT + re-execução orquestrador)
+- **Âncora:** `core::loadSpectrum1D` em `src/core/Spectrum1D.cpp` (blob HEAD). Rejeita só `N <= 0`; em seguida `std::vector<float> raw(static_cast<size_t>(N))` **antes** de `fits_read_pix`, sem `kMaxImagePixels` / `validateImageDims` / `QFileInfo::size()`. Caller UI: `MainWindow_io.cpp` (quando `loadFits` falha em `.fits`/`.fit`/`.fts`); `grep catch(` no caller = vazio (finder; não reaberto).
+- **Failure concreto:** FITS 2880 B, NAXIS=1, NAXIS1=100000000 → ASan soft RSS limit (256 Mb vs 417 Mb) no frame `loadSpectrum1D` / `Spectrum1D.cpp:65`; MAXRSS ~427-461 MiB. N=250000000 → MAXRSS ~990 MiB, depois erro de leitura. Controle 2-D com o mesmo NAXIS1 é rejeitado por teto 20000 (`loadFits`, RSS ~39 MiB). Sanidade NAXIS1=8: OK. Classe irmã de AUD-INPUT-2 (OOM / `bad_alloc` → terminate em slot Qt) para N ainda maior.
+- **Repro:** `ASAN_OPTIONS=detect_leaks=0:halt_on_error=0:soft_rss_limit_mb=256:hard_rss_limit_mb=800 input_asan_harness loadSpectrum1D hostile/spec_naxis1_1e8.fits`. Harness md5 `d96c17485bf68a23a926f12320d214c2`. Fonte `Spectrum1D.cpp` md5 blob HEAD `cf9164b927b7320b8c79f11c34974609`.
+- **Remediação sugerida:** teto em `loadSpectrum1D` espelhando `validateImageDims` / produto máximo + cross-check `QFileInfo::size()`; nunca alocar antes de validar; try/catch no caller UI. Cruzamento: [AUD-MEM-4](#aud-mem-4) residual = este ID.
+- **Confirmado por:** V-INPUT + orquestrador.
 
-<a id="aud-input-2"></a>
-### AUD-INPUT-2 — Alocação não controlada por header mentiroso (DoS / crash por exceção não capturada)
+<a id="aud-mem-6"></a>
+### AUD-MEM-6 - heap-buffer-overflow em `subtractBackground` (uma tile no eixo)
 
-- **Severidade:** 🔴 CRÍTICO — CONFIRMADO
-- **Âncora:** `core::loadFits` / `loadFitsHdu` / `loadFitsCube` (`FitsImage.cpp`) — `img.data.resize(planeSize)` / `frames.reserve(D)`; width/height/D só checados `>0`, sem teto nem cross-check com tamanho do arquivo.
-- **Failure concreto:** um FITS de 2880 bytes com `NAXIS1=NAXIS2=100000` tenta alocar ~40 GB antes de ler qualquer pixel. ASan: `hard rss limit exhausted` (>1.2 GB RSS real). Sem ASan → `std::bad_alloc`/`std::length_error` que NINGUÉM captura (`grep catch(` em todos os call sites de UI + `main` = zero) → exceção escapa de slot Qt → `std::terminate()`. Alcançável por qualquer ponto de entrada (abrir, drag&drop, dark/flat, blink, comparar sessão).
-- **Repro:** `fits_harness $SCRATCH/fits_hostile/01_huge_naxis_100000.fits`.
-- **Remediação:** validar `width*height*canais*sizeof(float)` (e `D`) contra teto configurável e/ou `QFileInfo::size()`; try/catch nos resize; nunca deixar exceção escapar de slot Qt.
-- **Confirmado por:** finder + orquestrador.
+- **Severidade:** CRÍTICO - CONFIRMADO (V-MEM + re-execução orquestrador)
+- **Âncora:** `core::subtractBackground` em `src/core/Calibration.cpp`. Com `nTX==1` ou `nTY==1`, `tx0`/`ty0` clampam via `nTX-2`/`nTY-2` e **sempre** leem `tx1=tx0+1`, `ty1=ty0+1` em `tileVal` de tamanho `nTX*nTY`. Default `tileSize=64` (`Calibration.h`).
+- **Failure concreto:** `FitsImage` 128×64, `subtractBackground(img, 64)` sob ASan: `heap-buffer-overflow` READ size 4 em `Calibration.cpp:291`; região de 8 bytes (`nTX*nTY = 2` floats). EXIT 134. Aritmética: W=128 H=64 tile=64 → nTX=2 nTY=1; `ty1=1` lê `tileVal[ty1*nTX+…]` fora. Controlo 128×128 tile 64 (`nTX=nTY=2`): EXIT 0, ASan silencioso. cppcheck **não** reportou o OOB (falso negativo estático).
+- **Repro:** `mem_asan_harness mem6`. md5 `a4c5b9807a9c17368a73f86f91b4d185`.
+- **Remediação sugerida:** se `nTX<2` ou `nTY<2`, usar vizinho constante / não interpolar além de `nTX*nTY-1`; clamp `tx1 < nTX` e `ty1 < nTY`; teste 128×64 e 64×128. Este OOB é distinto do gap julho (float→int no denominador, refutado por análise).
+- **Confirmado por:** V-MEM + orquestrador.
 
-<a id="aud-corr-1"></a>
-### AUD-CORR-1 — Projeções cilíndricas/pseudo reportam coordenada ~90° errada (output vai ao MPC)
+<a id="aud-mem-5"></a>
+### AUD-MEM-5 - `forwardFFT` aloca `w*(h/2+1)` e planeja `h*(w/2+1)`
 
-- **Severidade:** 🔴 CRÍTICO — CONFIRMADO (finder + verificador adversarial via astropy 8.0.1 + orquestrador analítico)
-- **Âncora:** `nativePoleAngle()` (`src/core/FitsImage.cpp`) retorna 90°/270° no `default:` (não-zenital); `nativeToCelestial()` usa CRVAL como polo nativo — válido só para zenitais (θ₀=90°: TAN/SIN/ARC/STG). Para cilíndricas (θ₀=0°: CAR, MER, GLS/SFL, AIT) o ponto de referência está no equador nativo; φ_p correto = 0°/180°, não 90°/270° (Calabretta & Greisen 2002, WCS Paper II eq. 9).
-- **Failure concreto (medido):** com CRVAL=(180,0), CRPIX=(512,512), CD diagonal — pixel de referência → código dá **(270.000000, 0.0)** vs oráculo astropy **(180.000000, 0.0)**. Erro exato **+90°** em RA. +100px em X move Dec (deveria mover RA) → **eixos RA/Dec trocados**. TAN (controle) bate com astropy até 6 casas. O round-trip fecha (invertível-mas-errado) — por isso passou despercebido pela suíte.
-- **Stake:** máximo — output vai ao **Minor Planet Center**.
-- **Repro:** `python3 $SCRATCH/oracle_wcs.py` (astropy) vs `$SCRATCH/delta_wcs` (linkado a `libastrofind_core.a`). 4 confirmações independentes.
-- **Remediação:** derivar (α_p, δ_p, φ_p) do polo celeste conforme WCS Paper II eqs 8–10 para θ₀≠90°; ou delegar a rotação ao WCSLIB (que o próprio comentário do código cita). Adicionar teste de VALOR ABSOLUTO (ref pixel → CRVAL) para as 8 projeções (ver [AUD-CORR-2](#aud-corr-2)).
-- **Confirmado por:** finder + verificador adversarial (astropy) + orquestrador (análise).
+- **Severidade:** CRÍTICO - CONFIRMADO (aritmética executada + fato de código inequívoco no blob). Overflow ASan de `fftw_execute` = **não executado** (`fftw3.h` ausente, L-51).
+- **Âncora:** `forwardFFT` em `src/core/ImageStacker.cpp`: aloca `w*(h/2+1)` e chama `fftw_plan_dft_r2c_2d(h, w, …)`. `phaseCorrelation` documenta e usa o tamanho **correto** `h*(w/2+1)`.
+- **Failure concreto (medido):** programa `mem5_fft_sizes` (sem link FFTW): `w=50 h=100` → nc_fwd=2550 vs nc_plan=2600, delta=50 UNDER-ALLOC; `w=100 h=50` OVER-ALLOC; `w=32 h=32` EQUAL (a suíte usa 32×32). `w=1080 h=1920` UNDER-ALLOC 840. **INFERÊNCIA (não observada sob ASan):** com `h>w`, FFTW escreveria além do buffer. L-21: CCD portrait é entrada real.
+- **Repro (aritmética):** `/var/tmp/astrofind-audit-eventual-20260901/hostile/mem5_fft_sizes`. Runtime `stackImages` portrait sob ASan: **não executado**.
+- **Remediação sugerida:** alocar `h*(w/2+1)` em `forwardFFT` (mesmo contrato de `phaseCorrelation`); teste 50×100 e 1080×1920; não confiar em 32×32. Re-teste ASan exige `fftw-devel`.
+- **Confirmado por:** V-MEM (aritmética) + orquestrador. Não promover o crash FFT a CONFIRMADO-runtime.
 
-<a id="aud-mem-2"></a>
-### AUD-MEM-2 — Pixel NaN/Inf → `static_cast<int>` → INT_MIN → signed overflow abort
+### 4.2 CRÍTICOS de julho ainda abertos / residual
 
-- **Severidade:** 🔴 CRÍTICO — CONFIRMADO (finder + verificador adversarial com imagem real)
-- **Âncora:** `core::findCentroid` (`Centroid.cpp:63`, `static_cast<int>(std::round(cx))`) e `core::aperturePhotometry` (`Photometry.cpp:29`); cadeia real `MainWindow::onPixelClicked` → `runMeasurePipeline` (`MainWindow_measurement.cpp:60-131`) SEM guard `isfinite`.
-- **Failure concreto:** uma "estrela" com um único pixel `+Inf` (valor FITS float legítimo — pixel saturado/mascarado; a feature #13 admite NaN em FITS reais) → soma ponderada `Inf/Inf = NaN` → `static_cast<int>(round(NaN))` aborta em `Centroid.cpp:63` ANTES da fotometria. Sob build oficial de auditoria (`-fno-sanitize-recover`) = abort do processo. Nenhum teste cobre NaN/Inf.
-- **Repro:** `$SCRATCH/delta_nan_centroid` (imagem sintética com 1 pixel Inf) e `$SCRATCH/delta_direct_nan` (chamada direta).
-- **Remediação:** guard `if (!std::isfinite(cx)||!std::isfinite(cy)) return nullopt/unexpected;` na entrada de `aperturePhotometry`/`computeDifferentialZeroPoint`/`findCentroid`/`findCentroidPsf`/`findCentroidElliptical`.
-- **Confirmado por:** finder + verificador adversarial (imagem real).
-
-<a id="aud-mem-3"></a>
-### AUD-MEM-3 — Guard de sanidade de centroide contornável por NaN (parte do AUD-MEM-2)
-
-- **Severidade:** 🔴 CRÍTICO — CONFIRMADO
-- **Âncora:** `findCentroidElliptical` (`Centroid.cpp:361`, `if (p[0]<x0||p[0]>x1||...)`) e `findCentroidPsf` (`Centroid.cpp:179`).
-- **Failure concreto:** o guard de sanidade é contornável por NaN — comparação IEEE-754 com NaN é sempre `false`, deixando NaN/Inf passar. Vetor real: o seed de moments já nasce NaN (ver [AUD-MEM-2](#aud-mem-2)). Gap sistêmico: `Astronomy`/`Calibration`/`FitsImage` USAM `std::isfinite`; `Centroid`/`Photometry` (as duas unidades com ajuste iterativo LM) NÃO — inconsistência de padrão.
-- **Remediação:** trocar por `if (!std::isfinite(p[0])||!std::isfinite(p[1])||p[0]<x0||...) return seed;`.
-- **Confirmado por:** finder + verificador adversarial.
-
-### 4.2 🟠 IMPORTANTES
-
-<a id="aud-sec-1"></a>
-### AUD-SEC-1 — Token vivo do forgejo-runner em `.runner` mundo-legível
-
-- **Severidade adjudicada:** 🟠 IMPORTANTE (com remediação URGENTE) — CONFIRMADO
-- **⚠ Divergência de severidade:** o **CI-finder classificou CRÍTICO** (exposição do segredo); o **orquestrador adjudicou IMPORTANTE** porque nunca vazou ao git (risco estrutural, sem gate técnico, mas sem exposição consumada).
-- **Âncora:** `.runner` (raiz do repo).
-- **Failure concreto:** token vivo do forgejo-runner em `.runner`, untracked E fora do `.gitignore`, perm 644 (mundo-legível). Nunca commitado (gitleaks `--all` limpo em 59 commits — só não vazou por disciplina, sem gate técnico). Um `git add -A` de rotina o exporia. `address=codeberg.org`, token de 40 chars. Nota: também está num diretório sincronizado (IDrive) — já fora do trust boundary do git.
-- **Remediação:** adicionar `.runner`/`.runner*` ao `.gitignore`; `chmod 600`; rotacionar o token no Codeberg por precaução; pre-commit gitleaks + secret-scan em CI.
-- **Confirmado por:** CI-finder + orquestrador.
-
-<a id="aud-sec-2"></a>
-### AUD-SEC-2 — 6 deps FetchContent com GIT_TAG móvel sem pin de commit SHA
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `cmake/dependencies.cmake`.
-- **Failure concreto:** 6 deps FetchContent com `GIT_TAG` móvel SEM pin de commit SHA nem `URL_HASH` (spdlog v1.14.1, nlohmann_json v3.11.3, cfitsio 4.6.3, quazip v1.4, sep v1.2.1, Catch2 v3.6.0), todas `GIT_SHALLOW`. Tag re-pointing / mantenedor comprometido = supply-chain (CWE-1357, SLSA).
-- **Remediação:** pinar por commit SHA completo ou `URL`+`URL_HASH` SHA256; gerar SBOM (syft); documentar política de deps.
-- **Confirmado por:** finder (leitura de `cmake/dependencies.cmake`).
-
-<a id="aud-sec-3"></a>
-### AUD-SEC-3 — Clients HTTP sem timeout / cancel (DoS de disponibilidade)
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `AstrometryClient` / `CatalogClient` / `HorizonsClient`.
-- **Failure concreto:** só `MpcSubmit` tem `setTransferTimeout`; os outros três não. `CatalogClient`/`HorizonsClient` também não têm `cancel()`. Servidor que aceita conexão e nunca responde (proxy/captive/MITM) pendura `busy_=true` para sempre → funcionalidade morta até reiniciar.
-- **Remediação:** `setTransferTimeout` nos 3; watchdog/cancel espelhando `MpcSubmit`.
-- **Confirmado por:** finder + orquestrador (grep).
-
-<a id="aud-prov-1"></a>
-### AUD-PROV-1 — Proveniência WCSLIB não atribuída (dever LGPL)
-
-- **Severidade adjudicada:** 🟠 IMPORTANTE (compliance) — CONFIRMADO (comentário verbatim pelo orquestrador)
-- **⚠ Divergência de severidade:** o **PROV-finder classificou CRÍTICO-compliance**; o **orquestrador adjudicou IMPORTANTE** pela taxonomia (sem crash/UB). **Requer decisão jurídica — encaminhar ao CLO/jurídico.**
-- **Âncora:** comentário em `FitsImage.cpp` (função do pipeline WCS): *"Projection formulas adapted from WCSLIB 8.2 (prj.c, Calabretta, CSIRO ATNF)."*
-- **Failure concreto:** WCSLIB é LGPL-3.0-or-later. Sem NOTICE, sem copyright de Calabretta, e o README credita NEMO para a mesma funcionalidade (contradição interna). Não é incompatibilidade bloqueante (AGPL fornece fonte), mas é dever de atribuição LGPL não cumprido + proveniência não apurada. Cross-ref [AUD-CORR-1](#aud-corr-1) — esse mesmo código WCS está bugado.
-- **Remediação:** apurar se derivou de paper (público) ou de `prj.c` (código LGPL); se código, criar NOTICE + copyright + texto LGPL; alinhar README.
-- **Confirmado por:** PROV-finder + orquestrador (verbatim).
-
-<a id="aud-prov-2"></a>
-### AUD-PROV-2 — SEP (LGPL-3.0) linkado sem NOTICE
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `sep` (kbarbary/sep v1.2.1) bundled.
-- **Failure concreto:** núcleo LGPL-3.0 (Emmanuel Bertin, herdado do SExtractor), linkado estático via glob `*.c`, sem NOTICE nem texto LGPL. Compat com AGPL OK (LGPLv3 §4 satisfeito por fonte disponível), mas dever de atribuição pendente.
-- **Remediação:** NOTICE listando SEP (LGPL-3.0 + partes MIT), copyright Bertin/SEP developers, cópia da LGPL-3.0.
-- **Confirmado por:** finder + orquestrador (header LGPL).
-
-<a id="aud-prov-3-6"></a>
-### AUD-PROV-3/4/5/6 — Ausência sistêmica de NOTICE/THIRD_PARTY
-
-- **Severidade:** 🟠 IMPORTANTE (agregado "sem NOTICE") — CONFIRMADO
-- **Âncora:** QuaZip / spdlog / nlohmann_json / FFTW3 / cfitsio / CCfits; README.
-- **Failure concreto:** QuaZip (LGPL-2.1 + exceção de linkagem estática — compat explícita, mas texto ausente); spdlog/nlohmann_json (MIT exige reproduzir aviso — não cumprido, só link no README); FFTW3 (GPL-2.0+, compat, sem licença no README); cfitsio/CCfits (permissiva NASA, boa prática incluir). O README não tem coluna de licença de nenhuma dep.
-- **Remediação:** gerar NOTICE consolidado (todas as deps distribuídas no binário) + coluna de licença no README.
-- **Confirmado por:** finder + orquestrador.
+Nenhum dos 5 CRÍTICOS de produto de julho **REGREDIU**. Ver [§4.6](#46-re-teste-julho). Residual de memória de julho que **não** fechou:
 
 <a id="aud-mem-1"></a>
-### AUD-MEM-1 — Leak de 44 bytes por chamada de detectStars (bug upstream SEP)
+### AUD-MEM-1 - leak SEP ainda no binário linkado (AINDA-ABERTO)
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `sep convert_to_catalog` (`build/_deps/sep-src/src/extract.c:1094-1103`).
-- **Failure concreto:** leak de 44 bytes / 6 alocações em toda chamada bem-sucedida de `detectStars`. A causa NÃO é o AstroFind (`StarDetector.cpp:134` chama `sep_catalog_free` corretamente) — é bug UPSTREAM em SEP: duplo `QMALLOC` de `cflux`/`flux` sobrescreve a 1ª alocação. Presente também no `main` atual do upstream. Cresce com nº fontes × frames em sessão longa/blink.
-- **Repro:** `astrofind_tests` sob LeakSanitizer → `44 byte(s) leaked ... convert_to_catalog`.
-- **Remediação:** patch local no `FetchContent_Populate` (string REPLACE removendo as linhas duplicadas) ou PR upstream; repactar `libsep_lib.a`.
-- **Confirmado por:** finder + orquestrador (LSan).
+- **Severidade:** IMPORTANTE (não sobe a CRÍTICO: leak por chamada, não crash/RCE) - CONFIRMADO residual
+- **Âncora:** `sep convert_to_catalog` (`extract.c:1094-1095`); `core::detectStars` chama `sep_catalog_free` (StarDetector.cpp). Patch versionado `cmake/patches/sep-leak-fix.patch`. `PATCH_COMMAND … || true` em `cmake/dependencies.cmake:105`.
+- **Failure concreto:** LSan no harness `mem1` (gaussiana 64×64, 1 estrela): Direct leak 4+4 B em `convert_to_catalog`. Valgrind no freeze PLAIN `[stardetector]` (5 estrelas): 40 B definitely lost (20 B cflux + 20 B flux). Fonte em `build/_deps/sep-src` já sem o par duplicado (mtime 2026-07-10). `libsep_lib.a` (mtime 2026-03-21) compilado a partir de `projetos_dev/.../sep-src` (DWARF); **pré-patch**. O archive linkado **não** foi rebuildado após o patch de julho.
+- **Repro:** `ASAN_OPTIONS=detect_leaks=1 mem_asan_harness mem1`; valgrind `astrofind_tests` filtro sem vírgula `StarDetector: detects stars in synthetic image`.
+- **Remediação sugerida:** rebuild de `libsep_lib.a` a partir do `_deps` patcheado; remover `|| true` do `PATCH_COMMAND` (falha de patch tem de quebrar o configure); LSan `detect_leaks=1` no portão CI.
+- **Confirmado por:** V-MEM. Não é AINDA-FECHADO.
 
 <a id="aud-mem-4"></a>
-### AUD-MEM-4 — Caminho RGB multi-extensão sem re-validação após cast
+### AUD-MEM-4 - residual Spectrum1D (AINDA-ABERTO = INPUT-8)
 
-- **Severidade:** 🟠 IMPORTANTE — PLAUSÍVEL (classe confirmada por [AUD-INPUT-2](#aud-input-2))
-- **Âncora:** `FitsImage.cpp:673-679` (RGB path) e `Spectrum1D.cpp`.
-- **Failure concreto:** o caminho multi-extensão RGB valida `axes>0` como `long` mas NÃO re-valida após `static_cast<int>` (diferente do path single-image que re-checa). NAXIS perto de 2³¹ → width/height negativo → planeSize negativo → `resize(size_t enorme)` → `length_error` não capturado → terminate. Idem `Spectrum1D.cpp` (NAXIS1 sem teto).
-- **Remediação:** validar teto antes do cast nos 5 locais; padronizar o guard pós-cast do single-image path.
-- **Confirmado por:** finder (classe da mesma família de AUD-INPUT-2; caso RGB específico não fabricado).
+RGB/`validateImageDims` barram o equivalente 2-D ([AUD-INPUT-2](#aud-input-2) AINDA-FECHADO). Metade Spectrum1D do achado de julho permanece e foi re-medida como [AUD-INPUT-8](#aud-input-8). Não duplicar o CRÍTICO.
 
-<a id="aud-input-3"></a>
-### AUD-INPUT-3 — SER loader sem checagem de sinal após cast
+### 4.3 IMPORTANTES novos
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `ImageLoader::loadSer` (`ImageLoader.cpp`).
-- **Failure concreto:** checa `imageWidth`/`imageHeight` só `==0`, sem checar sinal após cast (diferente do path FITS). Um `.ser` com `width=0xFFFFFFFF`/`0x80000010` → `cannot create std::vector larger than max_size()` não capturado → crash-DoS ao abrir.
-- **Repro:** `fits_harness $SCRATCH/fits_hostile/ser_width_int32_wrap.ser --imageloader`.
-- **Remediação:** validar `>0 && <TETO` antes do cast, igual ao FITS.
-- **Confirmado por:** finder + orquestrador.
+<a id="aud-input-9"></a>
+### AUD-INPUT-9 - XISF aceita eixo acima do teto FITS
 
-<a id="aud-input-4"></a>
-### AUD-INPUT-4 — Symlink não filtrado na extração de arquivo (leitura arbitrária / DoS)
+- **Severidade:** IMPORTANTE - CONFIRMADO
+- **Âncora:** `loadXisf` / `ImageLoader.cpp` (geometry `toInt()`; guard só `<=0` / canais; sem `validateImageDims` / `kMaxImagePixels`).
+- **Failure concreto:** XISF truncado 50000:50000:1 fail-clean por truncagem (mitigação parcial). Geometry **20001:20001:1** (acima de `kMaxImageDim=20000`) + payload UInt8 ~400 MiB: ASan hard RSS limit 1536 Mb vs 1729 Mb, MAXRSS ~1,7 GiB. L-21: produto para distribuição não pode deixar XISF mais frouxo que FITS.
+- **Repro:** `input_asan_harness loadImage hostile/xisf_geom_20001.xisf` com `hard_rss_limit_mb=1536`.
+- **Remediação sugerida:** aplicar `validateImageDims` / `kMaxImagePixels` em `loadXisf` **antes** de alocar; teste 20001 vs 20000.
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `expandArchive` (libarchive) e `expandZip` (unzip CLI).
-- **Failure concreto:** os dois extratores achatam o NOME (path traversal `../` está OK — testado negativo), mas não filtram o TIPO da entrada. Uma entrada symlink com nome `.fits` apontando p/ `/etc/passwd` (ou `~/.ssh/id_rsa`, ou FIFO p/ travar) é recriada e devolvida a `loadImage()`, que segue o link.
-- **Repro:** `tar`/`zip --symlinks` com `evil.fits -> /etc/passwd`; confirmado empiricamente nos dois extratores.
-- **Remediação:** rejeitar entradas com `filetype != AE_IFREG` (libarchive); no unzip checar `file --mime-type`/`O_NOFOLLOW`, ou trocar por QuaZip (já linkado) com checagem de tipo.
-- **Confirmado por:** finder + orquestrador (empírico).
-
-<a id="aud-input-5"></a>
-### AUD-INPUT-5 — BINTABLE com NAXIS2 mentiroso → linhas fantasma NaN silenciosas
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `FitsTableReader::readColumn` (`FitsTableReader.cpp`).
-- **Failure concreto:** o `catch (CCfits::FitsException)` substitui a coluna inteira por um vetor de NaN do tamanho DECLARADO (controlado pelo atacante) e retorna SUCESSO. Header dizendo 1000 linhas (3 reais) → 1000 "estrelas" NaN entram em `importDaophotTable`/`readLocalCatalogTable`/`importIrafTable` sem `isfinite` check nem aviso. Perde inclusive as 3 linhas válidas.
-- **Repro:** `table_harness_nosan $SCRATCH/fits_hostile/table_declared_1000_actual_3_lied.fits`.
-- **Remediação:** propagar erro em vez de fabricar NaN; cross-check `tbl->rows()` vs dados reais; filtrar linhas NaN na importação.
-- **Confirmado por:** finder + orquestrador.
-
-<a id="aud-corr-2"></a>
-### AUD-CORR-2 — 7/8 projeções WCS sem teste de valor absoluto
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `tests/` (WCS).
-- **Failure concreto:** o teste de round-trip WCS cobre só TAN (`PlateSolution` nunca seta `.projection` → default TAN); 7/8 projeções sem teste (`grep projection`/`WcsProjection` em `tests/` = zero). Round-trip é invariante necessário-mas-não-suficiente: CAR fecha em 8.6e-11px enquanto o valor absoluto está 90° errado ([AUD-CORR-1](#aud-corr-1)). Faltou oráculo de valor absoluto.
-- **Pré-req:** depende de [AUD-CORR-1](#aud-corr-1) corrigido para ficar verde.
-- **Remediação:** teste `[wcs]` parametrizado nas 8 projeções: (a) `pixToSky(crpix)==crval` sub-arcseg, (b) 1–2 pixels vs WCSLIB/astropy.
-- **Confirmado por:** finder + orquestrador.
-
-<a id="aud-corr-3"></a>
-### AUD-CORR-3 — `applyRefractionCorrection` sem testes (única correção de frame no output MPC)
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `Astronomy.cpp::applyRefractionCorrection` (aplicada via `MainWindow_measurement.cpp:79-88`).
-- **Failure concreto:** é a única correção de frame realmente aplicada à coord do MPC e tem ZERO testes. Numericamente correta onde medida (1.746′ a 30°; corta <1°; guard NaN OK), MAS: inverter o sinal (linha 86) compila e passa 100% da suíte (mutation confirmado). O gate `isSpaceTelescope` mora só no caller, sem teste, burlável por outro caller.
-- **Remediação:** testes `[refraction]` com geometria conhecida + gate no nível do pipeline; considerar mover `isSpaceTelescope` p/ dentro da função.
-- **Confirmado por:** finder + verificador adversarial (mutation).
-
-<a id="aud-corr-4"></a>
-### AUD-CORR-4 — Aberração/precessão/nutação sem teste + dead code
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `Astronomy.cpp` (aberração, precessão, nutação, Sol, eclíptica, galáctica).
-- **Failure concreto:** fórmulas corretas (medidas vs Meeus/oráculos: aberração max=20.4954″=κ; precessão 46.13″/ano; nutação 17.2″), mas ZERO testes. Pior: `applyPrecessionJ2000ToDate` e `applyNutation` NÃO são chamadas em `src/` (dead code); aberração só p/ logging. A cadeia ICRS→CIRS→topocêntrica (item 12) está implementada mas NÃO conectada ao pipeline. Regressão de sinal/unidade passaria verde.
-- **Remediação:** testes com oráculo externo (Meeus/SOFA/Horizons) p/ cada conversão; decidir se conecta ou remove o dead code.
-- **Confirmado por:** finder + verificador adversarial.
-
-<a id="aud-corr-5"></a>
-### AUD-CORR-5 — Testes de fotometria circulares (vaidade)
-
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `test_photometry.cpp:70,135` vs `Photometry.cpp:74`.
-- **Failure concreto:** os testes de `magInst` são circulares/vaidade (asserta `magInst == -2.5·log10(flux)` = exatamente a fórmula do código). Zero-point (`zp=mag-magInst`) e extinção (`-k·X`) só têm testes de guarda (nullopt), nenhum com valores conhecidos → flip de sinal passa verde. Classificação oráculo-vs-vaidade: GMST/airmass/proper-motion/angular-dist são bons oráculos; WCS round-trip e magInst/fluxFrac são self-consistency/vaidade. Problema é o CONJUNTO AUSENTE, não os 17+18 existentes.
-- **Remediação:** substituir asserts circulares por caso com fluxo+ZP conhecidos → mag esperada externa; testar sinal de ZP e extinção.
-- **Confirmado por:** finder + verificador adversarial.
-
+<a id="aud-ci-5"></a>
 <a id="aud-ci-3"></a>
-### AUD-CI-3 — Auditoria numérica (itens 38.x) nunca roda em CI
+### AUD-CI-5 / AUD-CI-3 - `audit.yml` `runs-on: docker` (REGREDIU o gap de julho)
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** os 12 workflows GitHub Actions.
-- **Failure concreto:** os itens 38.1–38.5 (marcados ✅) NUNCA rodam em CI. Nenhum dos 12 workflows referencia cppcheck/clang-tidy/fsanitize/valgrind/target audit (grep vazio). Foi rodada uma vez manualmente; sem gate contínuo → regressão de UB/leak passaria despercebida (exatamente o que AUD-INPUT-1/2 e AUD-MEM-2 demonstram que ainda existe).
-- **Remediação:** job nightly `cmake --build build --target audit` + build ASan+UBSan rodando a suíte, falhando em severidade crítica.
-- **Confirmado por:** finder + orquestrador.
+- **Severidade:** IMPORTANTE - CI-5 CONFIRMADO; CI-3 **REGREDIU**. **Mesmo fato:** não duplicar o crash. CI-3 é o ID de julho; CI-5 é a medição 2026-09-01 no host GitHub.
+- **Âncora:** `.github/workflows/audit.yml` L55 `runs-on: docker`; comentário L11-12 `forgejo-runner.service` / label `docker`. Commit `0940509` removeu `.forgejo/` e **não** tocou `audit.yml`.
+- **Failure concreto:** `gh run list` no SHA HEAD = 10 runs success (build + 9 qa). Numerical Audit **não disparou** neste push (trigger: PR→main, tags `v*`, `workflow_dispatch`). Histórico `audit.yml`: `{cancelled: 9}`, 0 success, 0 failure. Run `29138252749`: `The job has exceeded the maximum execution time while awaiting a runner for 24h0m0s`; `labels:["docker"]`, `runner_name:""`, `steps:[]`. YAML + `cmake/audit.cmake` existem; o portão nunca foi visto vermelho por sanitizer (L-36). Residual Forgejo no comentário (L-29: host único = GitHub).
+- **Remediação sugerida:** `runs-on` hosted GitHub (`ubuntu-24.04` ou label que exista); apagar menção `forgejo-runner`; disparar o job e **provar vermelho** com sabotagem de estreia (L-36). Cruzamento: [AUD-CI-7](#aud-ci-7) (mesmo após o runner, clang-tidy continua fora do gate).
 
-<a id="aud-ci-4"></a>
-### AUD-CI-4 / AUD-DOC-2 — `qa-wsl2.yml` órfão (alvo removido, workflow vivo)
+<a id="aud-sec-6"></a>
+### AUD-SEC-6 - SetupWizard grava `astrometry/apiKey` sem `ApiKeyStore`
 
-- **Severidade:** 🟠 IMPORTANTE (CI) / 🟢 COSMÉTICO (doc) — CONFIRMADO
-- **Âncora:** `.github/workflows/qa-wsl2.yml`.
-- **Failure concreto:** a doc removeu o alvo WSL2 (commit 1ebfb7a) mas o workflow continua em push/PR, buildando+testando 116+23 casos a cada commit para um alvo descontinuado. Custo de CI real.
-- **Remediação:** deletar `qa-wsl2.yml` ou mover para `workflow_dispatch`-only.
-- **Confirmado por:** finder + orquestrador.
+- **Severidade:** IMPORTANTE - CONFIRMADO (fato de código). Efeito 0644 no conf = PLAUSÍVEL (wizard GUI não rodado).
+- **Âncora:** `git show HEAD:src/ui/SetupWizard.cpp`: `ApiKeyPage::save` faz `s.setValue("astrometry/apiKey", …)`; zero menção a `ApiKeyStore`. `SettingsDialog` / `MainWindow_reduction` usam `ApiKeyStore::write` (que chama `restrictSettingsFilePermissions`).
+- **Remediação sugerida:** wizard chamar `ApiKeyStore::write`; não gravar a chave via `QSettings` cru.
 
-<a id="aud-doc-1"></a>
-### AUD-DOC-1 — Drift doc-vs-código na refração atmosférica
+<a id="aud-sec-7"></a>
+### AUD-SEC-7 - arquivo `.runner` ainda em disco (residual de SEC-1)
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `docs/technical-reference.md` §5 vs `Astronomy.cpp::applyRefractionCorrection`.
-- **Failure concreto:** a doc §5 descreve fórmula primária com correção de pressão/temperatura (R0=60.4″, P0=1013.25, T0=283K) acima de 15° + Bennett abaixo. O código implementa APENAS Bennett incondicional p/ alt≥1°, sem branch de 15°, sem parâmetros P/T (a função nem os recebe). A correção meteorológica documentada não existe.
-- **Remediação:** alinhar doc ao código (Bennett universal) ou implementar P/T se desejado.
-- **Confirmado por:** finder + orquestrador.
+- **Severidade:** IMPORTANTE - CONFIRMADO (presença). Validade do token no Codeberg = PLAUSÍVEL (não verificável só por disco). **L-28:** valor do token omitido; só path/mode/rule.
+- **Âncora:** `.runner` na raiz. `git check-ignore` casa `.gitignore:75:.runner*`. `stat` mode **600**. Não rastreado. gitleaks `--all` (109 commits) **no leaks found**. gitleaks `--no-git`: 1 finding, RuleID `generic-api-key`, File `.runner`, StartLine 6, Fingerprint `.runner:generic-api-key:6`, Secret_len 40. `address` = `https://codeberg.org`. `systemctl is-active forgejo-runner.service` = inactive. Remote só GitHub.
+- **Cruzamento:** [AUD-SEC-1](#aud-sec-1) permanece AINDA-ABERTO (controles git presentes; credencial residual + [AUD-SEC-8](#aud-sec-8) sem scanner). Não republicar o segredo.
+- **Remediação sugerida:** apagar `.runner` local após confirmar que o runner Codeberg está morto; rotacionar/revogar o token no host antigo (decisão do líder); não versionar o valor.
 
-<a id="aud-doc-3"></a>
-### AUD-DOC-3 — 0/127 arquivos com SPDX-License-Identifier
+<a id="aud-sec-8"></a>
+### AUD-SEC-8 - zero scanner de secret em hook/CI
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO (overlap [AUD-PROV-3-6](#aud-prov-3-6))
-- **Âncora:** `src/` (127 arquivos).
-- **Failure concreto:** 0/127 arquivos em `src/` com `SPDX-License-Identifier` apesar de AGPL-3.0. Sem NOTICE/THIRD_PARTY. Conformidade REUSE zero.
-- **Remediação:** adicionar header SPDX aos 127 arquivos; gerar NOTICE.
-- **Confirmado por:** finder + orquestrador.
+- **Severidade:** IMPORTANTE - CONFIRMADO (ausência re-medida)
+- **Âncora:** `rg gitleaks|trufflehog|detect-secrets|secret.scan` em `scripts/` e `.github/` = vazio. `scripts/pre-commit` = build+ctest; bypass `SKIP_TESTS=1`.
+- **Remediação sugerida:** gitleaks (ou equivalente) no pre-commit e num job GitHub; L-28 no histórico (`git log --all -p`), não só `git grep`.
 
-<a id="aud-doc-4"></a>
-### AUD-DOC-4 — Feature-fantasma: RAW DSLR / PDS4 marcados ✅ sem implementação
+<a id="aud-sec-10"></a>
+### AUD-SEC-10 - `KooEngine` e downloads MPCORB/DAILY sem `setTransferTimeout`
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO (grep pelo orquestrador)
-- **Âncora:** `src/` (implementação ausente); item #21 da tabela.
-- **Failure concreto:** o item #21 marca ✅ suporte a RAW DSLR (.cr2/.nef/.arw via libraw) e PDS/PDS4, mas `grep libraw|LibRaw|PDS4|.cr2|.nef|.arw` em `src/` = VAZIO. Não há implementação. Status ✅ incorreto.
-- **Remediação:** confirmar com dev; corrigir status na tabela ou implementar.
-- **Confirmado por:** orquestrador (grep).
+- **Severidade:** IMPORTANTE - CONFIRMADO (gap de código). Hang contra host real = **não executado** (PLAUSÍVEL).
+- **Âncora:** `KooEngine::queryField`: `nam_->get` sem timeout, sem cancel de reply; `busy_=true` antes do get. Gêmeos: MPCORB/DAILY em `MainWindow_measurement.cpp` e `SetupWizard.cpp`. Os três clients de julho (Astrometry/Catalog/Horizons) **têm** timeout ([AUD-SEC-3](#aud-sec-3) AINDA-FECHADO). L-17: remediação não propagou ao 4º client.
+- **Remediação sugerida:** `setTransferTimeout` + guardar `QNetworkReply*` + `cancel()` em `KooEngine` e nos downloads UI, espelhando `MpcSubmit`.
 
-<a id="aud-test-2"></a>
-### AUD-TEST-2 — Cobertura fantasma: 10 casos fazem SKIP condicionados a caminho de máquina do dev
+<a id="aud-sec-11"></a>
+### AUD-SEC-11 - poll de astrometry.net: `get` não vai a `currentReply_`
 
-- **Severidade:** 🟠 IMPORTANTE — CONFIRMADO
-- **Âncora:** `test_fits_functional.cpp` (item 48).
-- **Failure concreto:** 10 casos fazem SKIP condicionados a arquivos FITS Pan-STARRS hardcoded em `/tmp/fits_test/` (caminho de máquina do dev), NUNCA provisionados em CI. Catch2 conta SKIP como pass → a tabela diz "10 ✅" mas 0/10 executam fora da máquina do autor. Confirmado no baseline do orquestrador (10 SKIPPED).
-- **Remediação:** versionar fixtures pequenas/sintéticas no repo apontando p/ dentro do repo; ou marcar honestamente como "manual-only" na tabela.
-- **Confirmado por:** finder + orquestrador (baseline).
+- **Severidade:** IMPORTANTE - CONFIRMADO (código). Progresso fantasma em runtime = PLAUSÍVEL.
+- **Âncora:** timer WaitingForJob/PollingJob: `auto* reply = nam_->get(req)` **não** atribuído a `currentReply_`; `cancel()` só `pollTimer_->stop()` + `abort` de `currentReply_`.
+- **Remediação sugerida:** toda `get` de poll em `currentReply_`; `cancel()` aborta o reply vivo.
 
-### 4.3 🟢 COSMÉTICOS
+<a id="aud-sec-12"></a>
+### AUD-SEC-12 - Horizons `COMMAND` interpola `target_` do usuário
 
-<a id="aud-sec-5"></a>
-### AUD-SEC-5 — ApiKeyStore fallback plain-text (avisado ao usuário)
+- **Severidade:** IMPORTANTE - CONFIRMADO (construção). Quebra de gramática Horizons = PLAUSÍVEL (payload não enviado).
+- **Âncora:** `HorizonsClient::query`: `COMMAND = "'%1'".arg(target_)`; timeout 30 s presente; URL base https fixa.
+- **Remediação sugerida:** allowlist / escape de `target`; rejeitar aspas e `;`.
 
-- **Severidade:** 🟢 COSMÉTICO — CONFIRMADO
-- **Âncora:** `ApiKeyStore`.
-- **Failure concreto:** fallback plain-text em QSettings (perm 644) quando sem qt6keychain. MAS avisado ao usuário (badge amarelo em `SettingsDialog` + migração automática p/ keychain). Não é fallback silencioso. Chave não presente na conf atual.
-- **Remediação:** `chmod 600` no arquivo de config, ou cifrar o valor no fallback.
-- **Confirmado por:** finder.
+<a id="aud-sec-13"></a>
+### AUD-SEC-13 - save de URL sem `isSafe*`
 
-<a id="aud-ci-2"></a>
-### AUD-CI-2 — 12 arquivos de CI "modificados" = 100% ruído CRLF→LF
+- **Severidade:** IMPORTANTE - CONFIRMADO (fato de código)
+- **Âncora:** save grava `astrometry/baseUrl`, `catalog/vizierServer`, `mpc/submitUrl` sem `isSafe*` (`isSafe` count em SettingsDialog = 0). Reset VizieR = hostname nu `vizier.cfa.harvard.edu`. Apply em `MainWindow_settings.cpp` usa setters (que rejeitam não-https). [AUD-SEC-4](#aud-sec-4) AINDA-FECHADO nos clients; este é o gêmeo save-time.
+- **Remediação sugerida:** validar no save com as mesmas `isSafe*`; não gravar URL que o setter recusaria.
 
-- **Severidade:** 🟢 COSMÉTICO — CONFIRMADO (orquestrador)
-- **Âncora:** `build.yml` + 10 `qa-*.yml` + `runner-config.yml`.
-- **Failure concreto:** os 12 arquivos "modificados" são 100% ruído CRLF→LF (`git diff --ignore-space-at-eol` = 0 linhas; 11 com CR). `.gitattributes` já força `eol=lf`. Nenhum gate alterado.
-- **Remediação:** `git add --renormalize .` / `git checkout --` para limpar o working tree.
-- **Confirmado por:** orquestrador.
+<a id="aud-prov-10"></a>
+### AUD-PROV-10 - paridade textual forte de menus com Astrometrica.exe
 
-<a id="aud-corr-6"></a>
-### AUD-CORR-6 — Constante FWHM imprecisa (0.0077%)
+- **Severidade:** IMPORTANTE - CONFIRMADO (23 identidades exatas; finder inflou 27 por substring)
+- **Âncora:** `tr("…")` em `src/ui/MainWindow.cpp` vs `originals/Astrometrica.exe.strings.txt` (local, gitignored). scancode **não executado**.
+- **Failure concreto:** 23 rótulos de menu com identidade **exata** (ex. `&Moving Object Detection...`, `&Data Reduction...`, `&Blink Images`). 4 near-matches só substring (`View &Standard Toolbar` vs `&Standard Toolbar`, etc.). Nenhum símbolo de algoritmo AstroFind no strings do exe; erros distintivos do exe (`LinLsqFit`, `Unhandeled`, `Peihelion`) **ausentes** de `src/` ([AUD-PROV-8](#aud-prov-8) não reabre). Risco clean-room/UX-string, não cópia de motor.
+- **Remediação sugerida:** decisão do líder/CLO: reescrever `tr(...)` de menu para redação própria, ou documentar paridade UX como risco aceito (não misturar com PROV-8).
 
-- **Severidade:** 🟢 COSMÉTICO — CONFIRMADO
-- **Âncora:** `Centroid.cpp:88,89,181,364,365`.
-- **Failure concreto:** constante FWHM = 2.355 em vez de 2.3548200 (2√(2ln2)). Erro 0.0077%, irrelevante na prática. O ângulo θ da PSF elíptica está correto (rad→deg, normalizado).
-- **Remediação:** usar 2.354820045.
-- **Confirmado por:** finder.
+<a id="aud-corr-7"></a>
+### AUD-CORR-7 - política: refração sempre após `pixToSky`, inclusive plate-solved
 
-<a id="aud-input-6"></a>
-### AUD-INPUT-6 — UB de alinhamento em log de struct packed
+- **Severidade:** IMPORTANTE - CONFIRMADO (gap de política / cobertura). Erro em graus / ~1.75′ = **PLAUSÍVEL** (harness de estrelas refratadas × catálogo ICRS **não executado**). **Não** CRÍTICO sem ângulo medido.
+- **Âncora:** blob `MainWindow_measurement.cpp` SHA `0f64ef93…`: se `img.wcs.solved` → `pixToSky` → `raFinal`/`decFinal`; depois, se `!img.isSpaceTelescope && img.jd > 2400000` → **sempre** `applyRefractionCorrection`. Sem ramo header-WCS vs plate-solve. Doc `technical-reference.md` manda não reaplicar aberração/precessão/nutação (plate-solve absorve) e **aplicar** refração antes do ADES/MPC. `[refraction]` cobre Bennett, não a política.
+- **Remediação sugerida:** decidir (líder) se plate-solved ICRS deve ou não receber Bennett; testar o ramo; não inventar o Δ agora.
 
-- **Severidade:** 🟢 COSMÉTICO — CONFIRMADO
-- **Âncora:** `ImageLoader.cpp:251`.
-- **Failure concreto:** `hdr.frameCount` (struct `#pragma pack(1)`) passado por referência a `spdlog::info`. Dispara em todo `.ser` sob UBSan; x86 tolera, quebraria em ARM strict-align.
-- **Remediação:** copiar campo p/ local antes de logar.
-- **Confirmado por:** finder + orquestrador (UBSan).
+<a id="aud-corr-8"></a>
+### AUD-CORR-8 - extinção do MPC é inline na UI; `applyExtinctionCorrection` morta
+
+- **Severidade:** IMPORTANTE - CONFIRMADO
+- **Âncora:** `applyExtinctionCorrection` só em definição + testes. Pipeline MPC: `extCorr = -kExt * airmass` em `MainWindow_measurement.cpp:154` e soma em `obs.mag` (:178-185). Comentário em `test_photometry.cpp:401-402` admite que o inline UI não tem unit.
+- **INFERÊNCIA:** mutação do sinal no inline deixaria `[AUD-CORR-5]` verde (rede na função morta). Mutação do inline não executada nesta onda; fato de código basta.
+- **Remediação sugerida:** religar a função no pipeline **ou** testar o inline; uma fonte de verdade.
+
+<a id="aud-corr-10"></a>
+### AUD-CORR-10 - parse WCS não lê LONPOLE/LATPOLE/PV1_*
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (código). Delta vs astropy com LONPOLE não-default = PLAUSÍVEL (oráculo não rodado).
+- **Âncora:** leitura WCS em `FitsImage.cpp` popula CRVAL/CRPIX/CD/CTYPE; grep HEAD de LONPOLE = só comentários de default. Zero teste LONPOLE em `tests/`.
+- **Remediação sugerida:** ler os cards e alimentar `celestialPole`; oráculo astropy com LONPOLE=90/180. L-21: não cortar FITS com polo não-default.
+
+<a id="aud-corr-11"></a>
+### AUD-CORR-11 - Catch2 `[wcs]` sem polo sul e sem Dec negativa nas 5 projeções
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (buraco de suíte). Código **não** regrediu: oráculo H3 `poleS_*` e `south_*` ×8 projeções OK vs astropy 8.0.1.
+- **Âncora:** Catch2 HEAD: near-pole só `dec=89.9`; Dec negativa absoluta só TAN/CAR/AIT.
+- **Remediação sugerida:** acrescentar `dec=-89.9` e sul nas 8 projeções na suíte (não só no harness eventual).
+
+<a id="aud-corr-12"></a>
+### AUD-CORR-12 - zero testes de Ephemeris/KooEngine
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (ausência)
+- **Âncora:** `rg Ephemeris|KooEngine|solveKepler|computeEphemeris` em `tests/` = vazio. Correção numérica **não verificada**.
+- **Remediação sugerida:** oráculo Horizons/Meeus para `solveKepler` / efeméride; não cortar KOO por "suíte atual não usa" (L-21).
+
+<a id="aud-corr-13"></a>
+### AUD-CORR-13 - JD a partir de DATE-OBS trunca sub-segundo
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (truncamento). Magnitude no ADES/refração = PLAUSÍVEL (fixture `.5` s × astropy Time **não executada**).
+- **Âncora:** `FitsImage.cpp` ~701-704: `jd = 2451545.0 + j2000.secsTo(dateObs)/86400.0 + expTime/172800.0`. `QDateTime::secsTo` devolve segundos inteiros. Sem `MJD-OBS`/`DATE-AVG` no parse.
+- **Remediação sugerida:** usar fração (msecs / `MJD-OBS`); teste DATE-OBS com `.5` s vs astropy.
+
+<a id="aud-corr-14"></a>
+### AUD-CORR-14 - ADES escreve `ICRF` sem assert; comentário "apparent"
+
+- **Severidade:** IMPORTANTE - CONFIRMADO
+- **Âncora:** XML/PSV escrevem `ICRF` (`AdesReport.cpp:224-226`). Comentário: "topocentric apparent place in the ICRF". `rg ICRF|sys` em `test_ades_report.cpp` = vazio. Doc: ICRF porque o plate-solve é ICRS, **não** porque aplica aberração ([AUD-CORR-4](#aud-corr-4) / [AUD-DOC-8](#aud-doc-8)).
+- **Remediação sugerida:** assert de `sys`; alinhar comentário à prática (aberração só log).
+
+<a id="aud-ci-6"></a>
+### AUD-CI-6 - Pop!_OS 22.04 e Zorin 17 rodam Ubuntu 24.04
+
+- **Severidade:** IMPORTANTE - CONFIRMADO
+- **Âncora:** `qa-pop-os-22.yml` / `qa-zorin-17.yml`: comentário `# IMAGE USED: ubuntu:22.04`, claims Qt 6.4 / GCC 12; `image: ubuntu:24.04`; echo ainda imprime `(via ubuntu:22.04)`. Commit `67bcc92` trocou a imagem sem alinhar comentários.
+- **Failure concreto (`gh run view --log` no SHA HEAD):** Pop `32379357823` e Zorin `32379357723`: `PRETTY_NAME="Ubuntu 24.04.4 LTS"`, GCC 13.3.0. L-21: não apagar Pop/Zorin por duplicata; corrigir honestidade ou repor base 22.04 real.
+- **Remediação sugerida:** alinhar nome/comentário/echo à imagem real, **ou** restaurar aproximação 22.04 se o produto ainda declara.
+
+<a id="aud-ci-7"></a>
+### AUD-CI-7 - gate de `audit.yml` não lê clang-tidy
+
+- **Severidade:** IMPORTANTE - CONFIRMADO
+- **Âncora:** step "Gate on critical findings" parseia só `asan_tests.txt`, `cppcheck.xml`, `valgrind.xml`. `mentions clang_tidy.txt? False`. Ausência de cppcheck/valgrind = `::warning` (não FAIL); só ASan ausente falha duro. `cmake/audit.cmake`: cppcheck `--error-exitcode=0`; clang-tidy `|| true`; valgrind `--error-exitcode=0`. Item 38.4 no nome do workflow.
+- **Remediação sugerida:** gate ler `clang_tidy.txt`; error-exitcode honesto; L-36: provar o gate vermelho.
+
+<a id="aud-doc-5"></a>
+### AUD-DOC-5 - SECURITY.md afirma que o dossiê está 100% corrigido
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (efeito de trust; não só drift)
+- **Âncora:** `SECURITY.md` L34-36 EN "every issue listed there has already been fixed and released"; L69-72 PT equivalente. Last-reviewed 2026-07-10. `TODO.md` ainda marca `AUD-INPUT-gaps` e `AUD-MEM-gaps` como `🟡 Parcial` (leitura nesta sessão; este livro **não** editou TODO).
+- **Remediação sugerida:** retratar a frase; apontar para IDs abertos por âncora.
+
+<a id="aud-doc-6"></a>
+### AUD-DOC-6 - Help in-app anuncia RAW DSLR e PDS4
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (feature-fantasma user-facing; gêmeo L-17 de [AUD-DOC-4](#aud-doc-4))
+- **Âncora:** `help_en.html` L417-418; `help_pt_br.html` L421-422. `rg libraw|PDS4|.cr2` em `src/` = 0. Key Features do mesmo Help **omite** RAW/PDS (inconsistência interna).
+- **Remediação sugerida:** remover os itens do Help ou marcar "não implementado", como `CLAUDE.md` 21.1/21.2.
+
+<a id="aud-doc-8"></a>
+### AUD-DOC-8 - Help descreve cadeia ICRS→CIRS com aberração e nutação
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (claim científico no Help)
+- **Âncora:** Help EN L281 / PT L283 "cadeia completa"; glossário CIRS EN L1300-1301 "including annual aberration and nutation … ADES". `technical-reference.md` §6 (AUD-CORR-4): precessão/nutação removidas; aberração só logada; correção de frame real = refração.
+- **Remediação sugerida:** alinhar Help à prática; não vender correção que não entra no RA/Dec exportado.
+
+<a id="aud-test-4"></a>
+### AUD-TEST-4 - suíte Catch2 não regressa os CRÍTICOS de julho
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (gap de suíte; produto INPUT-1/2 e MEM-2/3 AINDA-FECHADOS no código)
+- **Âncora:** `tests/`: sem `AUD-INPUT-1/2`, `AUD-MEM-2/3`; sem NAXIS=4 / teto 100000; sem `isfinite` em centroid. Tags `[regression]`: só INPUT-5 e INPUT-7.
+- **Failure concreto (mutação L-27, cópia `/var/tmp`):** 4 sites `naxis > kMaxImageAxes` → `naxis > 999`; `[loaders]` 13/13 verde, EXIT 0. Probe NAXIS=4: HEAD "Unsupported NAXIS=4"; M1 "Error reading pixel data … (bad first element number)". O guard deixou de rejeitar cedo; a suíte não notou.
+- **Remediação sugerida:** casos hostis NAXIS=4, 100k×100k, pixel +Inf no centroide, **vistos falhar** (L-35) antes de fechar.
+
+<a id="aud-test-5"></a>
+### AUD-TEST-5 - nome Catch2 com vírgula parte o filtro (falso-verde)
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (V-TEST + orquestrador H4). 19/186 `TEST_CASE` com vírgula.
+- **Âncora:** L-45. Exemplo: `WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections`.
+- **Failure concreto:** `corr_catch_tests "WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections"` → Filters parte em dois; `No tests ran`; EXIT 0. Controle por tag `[wcs]` lista o caso. Risco se CI/script filtrar por nome; tags evitam hoje.
+- **Remediação sugerida:** remover vírgulas dos nomes; filtro por tag.
+
+<a id="aud-test-6"></a>
+### AUD-TEST-6 - loaders SER/XISF/QImage/Spectrum1D/archives sem `TEST_CASE`
+
+- **Severidade:** IMPORTANTE - CONFIRMADO (gap; L-21)
+- **Âncora:** `loadSer` / `loadXisf` / `loadQImage` / `loadSpectrum1D` / `expandZip` / `expandArchive` / `importReductionTable`: 0 casos em `tests/*.cpp` (só comentário para a última). [AUD-TEST-3](#aud-test-3) cobriu cube/HDU/bintable.
+- **Remediação sugerida:** T1 por loader; hostis de [AUD-INPUT-8](#aud-input-8)/[AUD-INPUT-9](#aud-input-9) na suíte.
+
+### 4.4 COSMÉTICOS novos
+
+<a id="aud-sec-9"></a>
+### AUD-SEC-9 - sem SBOM no tree / sem job syft
+
+CONFIRMADO ausência (`ls` SBOM* vazio; `rg syft|sbom|spdx|cyclonedx` em CMake/workflows vazio nesta passagem). Residual da remediação [AUD-SEC-2](#aud-sec-2) (pins OK; SBOM não nasceu). Remediação: target/job syft; não é crash.
+
+<a id="aud-prov-9"></a>
+<a id="aud-doc-9"></a>
+### AUD-PROV-9 (primário) / AUD-DOC-9 (gêmeo L-17) - Eigen citado, zero uso
+
+- **Severidade:** COSMÉTICO - CONFIRMADO
+- **FATO:** `#include` / `Eigen::` / `find_package(Eigen*)` em `src/`, `cmake/`, `CMakeLists.txt` = vazio. NOTICE/README/INSTALL **não** listam Eigen. Citações órfãs: `AboutDialog.cpp:131`, `CONTRIBUTING.md:34,49`, `CLAUDE.md` stack, `packaging/debian/control` `libeigen3-dev`, `packaging/rpm/astrofind.spec` `eigen3-devel`, `packaging/arch/PKGBUILD` `'eigen'`, `packaging/install.sh:201-202`, Help créditos EN/PT, i18n About. V-DOC ampliou a superfície (L-17); **um** primário (PROV-9) + ponte DOC-9. Não é dep fantasma no binário; é atribuição falsa / BuildRequires inútil.
+- **Remediação sugerida:** uma varredura: About, Help, CONTRIBUTING, CLAUDE stack, packaging, i18n. Não deixar gêmeo.
+
+<a id="aud-prov-11"></a>
+### AUD-PROV-11 - README "every item above" / "cada item acima" não cobre a tabela
+
+CONFIRMADO: README L506/L537. NOTICE tem Siril/GDL/NEMO/WCSLIB; **ausentes** Astrometrica/Herbert Raab, find_orb, umbrella2, astrometry.net, IRAF, Boost.Astronomy. Overclaim documental.
+
+<a id="aud-prov-12"></a>
+### AUD-PROV-12 - NOTICE MiniZip/fmt incompleto
+
+CONFIRMADO gap fino (MiniZip sem texto zlib; fmt só URL). Impacto em pacote instalado PLAUSÍVEL.
+
+<a id="aud-prov-13"></a>
+### AUD-PROV-13 - nenhum texto LGPL full rastreado
+
+CONFIRMADO: `LICENSE` = AGPL; hyperlinks no NOTICE. Residual de PROV-2. Cópia em `build/_deps` não é fonte de distribuição versionada.
+
+<a id="aud-corr-9"></a>
+### AUD-CORR-9 - FWHM 2.355 residual (gêmeo L-17 de CORR-6)
+
+CONFIRMADO: `Overlay.h:36` `2.355 * (a+b)*0.5`; `Centroid.h:49` doc 2.355. `Centroid.cpp` já `2.354820045` ([AUD-CORR-6](#aud-corr-6) AINDA-FECHADO).
+
+<a id="aud-ci-8"></a>
+### AUD-CI-8 - endurecimento em 1 de N (L-17)
+
+CONFIRMADO inventário: `permissions:` só `audit.yml` (1/11); `GITHUB_STEP_SUMMARY` 0/11; `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` nos 9 qa-*, ausente em `build.yml` e `audit.yml`.
+
+<a id="aud-ci-9"></a>
+### AUD-CI-9 - hook pre-commit não instalado neste clone
+
+CONFIRMADO: `scripts/pre-commit` existe; `test -e .git/hooks/pre-commit` exit 1. Higiene local; bypass `SKIP_TESTS=1`.
+
+<a id="aud-doc-7"></a>
+### AUD-DOC-7 - CHANGELOG `[0.5.0]` RAW/PDS sem errata em `[0.9.0]`
+
+CONFIRMADO. Cosmético (histórico); o claim vivo no Help é [AUD-DOC-6](#aud-doc-6).
+
+<a id="aud-test-7"></a>
+### AUD-TEST-7 - nome `returns stars or succeeds` vs `CHECK(size()==0)`
+
+CONFIRMADO higiene. Assert **não** circular.
+
+### 4.5 Encapsulamento core (negativo)
+
+V-CI: `#include` de fitsio/CCfits/sep/nlohmann/spdlog/Eigen/fftw/quazip/archive em `src/core/*.h` = vazio. Sem achado. CONFIRMADO negativo.
+
+### 4.6 Re-teste julho
+
+Só veredito. Detalhe original vive no blob git de 2026-07-10.
+
+| ID | Veredito 2026-09-01 | Evidência curta |
+|---|---|---|
+| AUD-INPUT-1 | AINDA-FECHADO | NAXIS 4/5/10 → Unsupported; ASan silencioso; RSS~39M. Orquestrador. |
+| AUD-INPUT-2 | AINDA-FECHADO | 100k×100k → ceiling 20000; RSS~39M. Orquestrador. |
+| AUD-INPUT-3 | AINDA-FECHADO | SER sign/0xFFFFFFFF → out of range |
+| AUD-INPUT-4 | NÃO RE-TESTADO | Guard no tree; harness sem expandZip/Archive |
+| AUD-INPUT-5 | NÃO RE-TESTADO | Freeze Catch2/spdlog shared ausentes; teste `[AUD-INPUT-5]` existe |
+| AUD-INPUT-6 | NÃO RE-TESTADO | Locals packed no HEAD; SER válido UBSan dedicado não rodado |
+| AUD-INPUT-7 | NÃO RE-TESTADO | Idem INPUT-5; guard + teste existem |
+| AUD-INPUT-gaps | AINDA-ABERTO | RAW/PDS4 rg vazio; XISF via INPUT-9; QImage ainda aberto |
+| AUD-MEM-1 | AINDA-ABERTO | ver [§4.2](#aud-mem-1) |
+| AUD-MEM-2 | AINDA-FECHADO | nullopt vivo; mutação dual-guard → UBSan signed overflow. Orquestrador. |
+| AUD-MEM-3 | AINDA-FECHADO | PSF/elíptico + clicks NaN/Inf rejeitam |
+| AUD-MEM-4 | AINDA-ABERTO | residual = INPUT-8 |
+| AUD-MEM-gaps | AINDA-ABERTO | tools rodados; cppcheck não viu MEM-6; tidy sem fftw |
+| AUD-CORR-1 | AINDA-FECHADO | 80/80 astropy 8.0.1; mutação CAR→270 prova a rede. Orquestrador. |
+| AUD-CORR-2 | AINDA-FECHADO | `[wcs]` 7 cases / 226 asserts; residual → CORR-11 |
+| AUD-CORR-3 | AINDA-FECHADO | `[refraction]` 4/29; residual política → CORR-7 |
+| AUD-CORR-4 | AINDA-FECHADO | `[aberration]` 2/33; dead code continua ausente |
+| AUD-CORR-5 | AINDA-FECHADO | `[AUD-CORR-5]` 4/17; residual inline → CORR-8 |
+| AUD-CORR-6 | AINDA-FECHADO | `kFwhmPerSigma = 2.354820045`; gêmeo → CORR-9 |
+| AUD-SEC-1 | AINDA-ABERTO | gitignore+600+histórico limpo; residual disco = SEC-7; sem scanner = SEC-8 |
+| AUD-SEC-2 | AINDA-FECHADO (6 pins MATCH=YES) | residual CCfits URL 404 + `GIT_TAG v2.7`; bundle `originals/CCfits.tar.gz` presente |
+| AUD-SEC-3 | AINDA-FECHADO | timeout nos 3; gêmeo → SEC-10 |
+| AUD-SEC-4 | AINDA-FECHADO | `isSafe*`; gêmeo save → SEC-13 |
+| AUD-SEC-5 | AINDA-FECHADO (ApiKeyStore) | bypass wizard = SEC-6 |
+| AUD-PROV-1 | AINDA-FECHADO | NOTICE §1 + FitsImage.cpp:27 |
+| AUD-PROV-2 | AINDA-FECHADO | NOTICE §2 + pin/patch; residual → PROV-13 |
+| AUD-PROV-3-6 | AINDA-FECHADO | pins cmake ↔ NOTICE §§3-8 |
+| AUD-PROV-8 | AINDA-FECHADO | sem cópia literal algoritmo/erros; risco aceito; menus = PROV-10 |
+| AUD-CI-2 | AINDA-FECHADO | CR=0 / CRLF=0 nos 11 yml |
+| AUD-CI-3 | REGREDIU | ver [AUD-CI-5](#aud-ci-5) |
+| AUD-CI-4 | AINDA-FECHADO | `qa-wsl2.yml` ausente; `gh workflow list` sem WSL |
+| AUD-DOC-1 | AINDA-FECHADO | Bennett alinhado doc↔código |
+| AUD-DOC-3 | AINDA-FECHADO | SPDX 127 encontrados / 127 analisados / 127 com / 0 sem |
+| AUD-DOC-4 | AINDA-FECHADO (CLAUDE+src) | gêmeos Help/CHANGELOG → DOC-6/7 |
+| AUD-TEST-2 | AINDA-FECHADO | 0 `SKIP(` código; `[functional]` completo não rodado (fftw) |
+| AUD-TEST-3 | AINDA-FECHADO | 13 `[loaders]` verdes; mutação `loadFitsCube` → 1 failed |
+| AUD-CCFITS-ASAN | AINDA-FECHADO (CMake/tag) | 7 `[bintable]` plain OK; runtime ASan **não** re-provado |
 
 ---
 
-## 5. PLAUSÍVEIS (não fechados)
+## 5. PLAUSÍVEIS (separados; sem repro observável nesta onda)
 
-<a id="aud-sec-4"></a>
-### AUD-SEC-4 — Downgrade TLS por config sem enforcement https
+Não promover a CONFIRMADO. Não misturar com §4.
 
-- **Severidade:** 🟠 IMPORTANTE — PLAUSÍVEL
-- 3 URLs configuráveis (`astrometry/baseUrl`, `catalog/vizierServer`, `mpc/submitUrl`) lidas de QSettings sem validação de esquema → podem ser rebaixadas p/ `http://` (envia API key/ADES/catálogo sem TLS). Sem bypass de `sslErrors` (bom). Exige acesso local à conf ou engenharia social. Tooltip avisa mas não faz enforcement.
-- **Falta para fechar:** demonstrar cenário de exploração realista (acesso à conf) e confirmar que a chave/ADES realmente trafega em claro no downgrade.
-- **Remediação:** validar `url.scheme()=="https"` (allowlist http para localhost).
+<a id="aud-input-10"></a>
+### AUD-INPUT-10 - `loadQImage` sem teto pós-Qt
 
-<a id="aud-input-7"></a>
-### AUD-INPUT-7 — OOB read em colunas opcionais de BINTABLE
+V-INPUT: TIFF/PNG 16-bit enorme **não fabricado**. Código sem `validateImageDims` após `QImage` válido (finder). IMPORTANTE preliminar.
 
-- OOB read em colunas opcionais (`FitsTableReader` guarda com `.isEmpty()` em vez de `i<col.size()`); heap de vetor-variável TFORM P/Q corrompido → OOB.
-- **Falta para fechar:** não fabricado por time-box — construir o `.fits` com TFORM P/Q e coluna opcional curta, rodar sob ASan. Fix defensivo recomendado.
+<a id="aud-input-11"></a>
+### AUD-INPUT-11 - SER aceita 20000² = 400e6 px (> `kMaxImagePixels` 200e6)
 
-<a id="aud-prov-8"></a>
-### AUD-PROV-8 — GDL/NEMO/Siril não auditados linha-a-linha
+V-INPUT: payload multi-GB **não fabricado**. INPUT-3 (sinal) fechado; paridade de produto aberta. L-21.
 
-- README credita GDL/NEMO/Siril (GPL/LGPL) como "aprendemos de" para StarDetector/ImageStacker/Centroid; não auditado linha-a-linha vs esses repos (só WCSLIB e SOFA no escopo desta rodada).
-- **Falta para fechar:** rodar scancode-toolkit / diff estrutural contra esses repos numa próxima rodada.
+<a id="aud-input-12"></a>
+### AUD-INPUT-12 - BINTABLE `nRows` sem teto
 
-<a id="aud-input-gaps"></a>
-### AUD-INPUT-gaps — Gaps de input não cobertos
+V-INPUT: harness não linkou `FitsTableReader`/CCfits. Guards INPUT-5/7 no tree.
 
-- RAW/PDS4 (não existe — ver [AUD-DOC-4](#aud-doc-4)); QImage TIFF/PNG (plugins Qt); XISF overflow teórico; catálogos locais Gaia/UCAC (herda [AUD-INPUT-5](#aud-input-5)).
-- **Falta para fechar:** fabricar inputs hostis específicos para cada formato e rodar sob ASan.
+<a id="aud-mem-7"></a>
+### AUD-MEM-7 - ClumpFind `round(star.x/y)` sem `isfinite`
 
-<a id="aud-mem-gaps"></a>
-### AUD-MEM-gaps — Gaps de memória não re-rodados nesta sessão
+V-MEM: `detectStars` com NaN/Inf, `detectBlended=true`: processo vivo, n=0 estrelas; path blended **não exercitado**. `StarDetector.cpp:156-158` sem `isfinite` (count 0). Dominó MEM-2 aberto até forçar `DetectedStar` não-finito.
 
-- `Calibration.cpp:276` float→int (`fx`/`fy` Inf se `tileCx[1]==tileCx[0]`); Valgrind/cppcheck/clang-tidy não re-rodados nesta sessão.
-- **Falta para fechar:** rodar Valgrind + cppcheck + clang-tidy num build limpo e triar os achados.
+### Efeitos PLAUSÍVEIS de IDs já CONFIRMADOS (não são IDs novos)
+
+- Hang HTTP de [AUD-SEC-10](#aud-sec-10) contra SkyBoT/MPC reais: **não executado**.
+- Token Codeberg de [AUD-SEC-7](#aud-sec-7) ainda válido: desconhecido.
+- Conf 0644 pós-wizard ([AUD-SEC-6](#aud-sec-6)); progresso fantasma ([AUD-SEC-11](#aud-sec-11)); parse Horizons ([AUD-SEC-12](#aud-sec-12)).
+- Ângulo de double-refraction ([AUD-CORR-7](#aud-corr-7)); delta LONPOLE ([AUD-CORR-10](#aud-corr-10)); magnitude sub-segundo ([AUD-CORR-13](#aud-corr-13)).
+- Overflow FFT ASan de [AUD-MEM-5](#aud-mem-5): aritmética CONFIRMADA; `fftw_execute` **não executado**.
+- Runtime ASan de [AUD-CCFITS-ASAN](#aud-ccfits-asan): flag `-fno-sanitize=undefined` presente; suíte sob sanitizer **não** re-rodada.
+
+Nenhum candidato dos V-*.md foi REFUTADO no mérito (só a contagem 27 de PROV-10 corrigida para 23).
 
 ---
 
 ## 6. Veredito por lente
 
-- **AUD-INPUT — COM PROBLEMA GRAVE.** 2 CRÍTICOS (stack overflow, alloc sem teto) tornam qualquer `.fits` de poucos KB um vetor de crash. Bloqueadores de release. A lente desmentiu honestamente um falso-positivo do escopo (`naxes[2]`).
+- **INPUT - COM PROBLEMA GRAVE (novo).** INPUT-1/2/3 AINDA-FECHADOS no path 2-D/SER. **AUD-INPUT-8** reabre a classe DoS no espectro 1-D. **AUD-INPUT-9** quebra paridade de teto no XISF. Gaps QImage/SER-produto/BINTABLE-nRows PLAUSÍVEIS. RAW/PDS4 continuam ausentes (honesto).
 
-- **AUD-CORR — COM PROBLEMA GRAVE.** 1 CRÍTICO (90° errado ao MPC) + camada inteira de correção de frame sem oráculo de valor absoluto. Maior stake científico do produto.
+- **MEM - COM PROBLEMA GRAVE (novo).** MEM-2/3 AINDA-FECHADOS. **AUD-MEM-6** é heap-OOB alcançável em crop/guia. **AUD-MEM-5** é under-alloc FFT inequívoco em portrait (runtime FFT não executado). **AUD-MEM-1** leak ainda no `.a` linkado. MEM-7 PLAUSÍVEL. cppcheck não substitui ASan.
 
-- **AUD-MEM — COM PROBLEMA.** 1 CRÍTICO alcançável (NaN/Inf → abort) + leak upstream SEP; o código próprio é disciplinado em RAII (dominós fftw/fits/archive limpos).
+- **CORR - SEM REGRESSÃO DO +90°; COM DÉBITO DE POLÍTICA.** CORR-1 AINDA-FECHADO (80/80 astropy + mutação vermelha). Nenhum CORR de julho REGREDIU. Novos são política/suíte/parse (CORR-7 **não** é CRÍTICO sem ângulo). Efeméride sem teste (CORR-12).
 
-- **AUD-SEC — RAZOÁVEL.** Sem CRÍTICO com exploit direto; `.runner` e supply-chain são riscos estruturais; sem bypass SSL; keychain avisado.
+- **SEC - RAZOÁVEL, COM RESIDUAL.** Pins 6/6 MATCH. HTTPS enforcement no client OK. Sem leak no histórico git. `.runner` gitignored mode 600 mas **ainda no disco** (gitleaks `--no-git` 1 finding). Wizard contorna ApiKeyStore. 4º client HTTP (Koo) sem timeout. Sem scanner, sem SBOM. Hang real **não executado**.
 
-- **AUD-PROV — SEM BLOQUEIO, COM DÉBITO.** Sem incompatibilidade de licença bloqueante, MAS proveniência WCSLIB não-atribuída (requer jurídico) + ausência sistêmica de NOTICE.
+- **PROV - NOTICE DE JULHO SEGUE; UX-STRING NOVO.** PROV-1/2/3-6/8 AINDA-FECHADOS. PROV-10 (23 menus) é o achado novo de clean-room. Eigen órfão (PROV-9). scancode ausente.
 
-- **AUD-CI/DOC/TEST — HIGIENE PENDENTE.** Auditoria fora do CI, cobertura fantasma (10 SKIP + feature RAW inexistente), drift de refração, 0 SPDX.
+- **CI - PORTÃO DE AUDITORIA MORTO NO GITHUB.** CI-3 REGREDIU = CI-5. 10 jobs do push de migração verdes **não** provam ASan/cppcheck/tidy/valgrind. Pop/Zorin mentem 22.04. Gate omite clang-tidy. CRLF e WSL2 fechados. Matrix qa-distro **não disparada** nesta eventual (leitura + `gh`).
+
+- **DOC - CLAUDE/SPDX/Bennett OK; Help e SECURITY NÃO.** DOC-1/3/4 AINDA-FECHADOS no eixo que julho fechou. Help ainda vende RAW/PDS4 e CIRS com aberração. SECURITY.md mente o estado do dossiê.
+
+- **TEST - LOADERS FITS OK; CRÍTICOS SEM REDE.** TEST-2/3 AINDA-FECHADOS (mutação cube vermelha). TEST-4: mutação do guard NAXIS deixa a suíte verde. TEST-5: falso-verde L-45 CONFIRMADO. SER/XISF/Spectrum1D sem caso. Freeze mar/2026 **não** julga HEAD.
 
 ---
 
 ## 7. Tabela de rastreamento de remediação
 
-> **⚠️ NÃO É A FONTE DA VERDADE (aviso 2026-08-20).** Os 37 achados desta tabela foram **fundidos na tabela única do [`TODO.md`](TODO.md)** — inclusive `AUD-TEST-3` e `AUD-CCFITS-ASAN`, que só existiam aqui. Esta tabela vira retrato congelado do dossiê: **o status corrente de cada achado se lê no `TODO.md`**, não aqui. O projeto tem UMA tabela de pendências.
->
-> Status inicial: todos ❌ Pendente. A fase de remediação está sob decisão do líder. Os itens TODO correspondentes estão em [`TODO.md`](TODO.md).
+Status desta eventual. A fase de correção e o WSJF no `TODO.md` são posteriores (este livro **não** editou `TODO.md`).
 
-| ID | Severidade | Status remediação | Item TODO |
-|---|:---:|:---:|:---:|
-| [AUD-INPUT-1](#aud-input-1) | 🔴 CRÍTICO | ✅ Resolvido `0463796` | Onda 1 |
-| [AUD-INPUT-2](#aud-input-2) | 🔴 CRÍTICO | ✅ Resolvido `f3a7534`+`1d0fe30` | Onda 1 |
-| [AUD-CORR-1](#aud-corr-1) | 🔴 CRÍTICO | ✅ Resolvido `9d3e43b` (astropy 168/168) | Onda 1 |
-| [AUD-MEM-2](#aud-mem-2) | 🔴 CRÍTICO | ✅ Resolvido `2dfc872`+`b3295c8` | Onda 1 |
-| [AUD-MEM-3](#aud-mem-3) | 🔴 CRÍTICO | ✅ Resolvido `44d6f22` | Onda 1 |
-| [AUD-SEC-1](#aud-sec-1) | 🟠 IMPORTANTE | ✅ Resolvido `1a9ff5b` + token rotacionado | Onda 1 |
-| [AUD-INPUT-3](#aud-input-3) | 🟠 IMPORTANTE | ✅ Resolvido `f610898` | Onda 2 |
-| [AUD-INPUT-4](#aud-input-4) | 🟠 IMPORTANTE | ✅ Resolvido `554e0aa` (hardlink refutado) | Onda 2 |
-| [AUD-INPUT-5](#aud-input-5) | 🟠 IMPORTANTE | ✅ Resolvido `2801ea8` | Onda 2 |
-| [AUD-MEM-1](#aud-mem-1) | 🟠 IMPORTANTE | ✅ Resolvido `7c06e73` (patch SEP, leak sumiu) | Onda 2 |
-| [AUD-MEM-4](#aud-mem-4) | 🟠 IMPORTANTE | ✅ Resolvido `f3a7534`+`1d0fe30` (junto do INPUT-2) | Onda 1 |
-| [AUD-SEC-2](#aud-sec-2) | 🟠 IMPORTANTE | ✅ Resolvido `db864ea` (6 SHAs; CCfits-fallback pendente) | Onda 2 |
-| [AUD-SEC-3](#aud-sec-3) | 🟠 IMPORTANTE | ✅ Resolvido `2c31dda` | Onda 2 |
-| [AUD-CORR-2](#aud-corr-2) | 🟠 IMPORTANTE | ✅ Resolvido `0be641b` (mutação prova que pega o +90°) | Onda 2 |
-| [AUD-CORR-3](#aud-corr-3) | 🟠 IMPORTANTE | ✅ Resolvido `120f72c` | Onda 2 |
-| [AUD-CORR-4](#aud-corr-4) | 🟠 IMPORTANTE | ✅ Resolvido `f41b007` (dead code removido + doc) | Onda 2 |
-| [AUD-CORR-5](#aud-corr-5) | 🟠 IMPORTANTE | ✅ Resolvido `02f0da1` (vaidade→oráculo) | Onda 2 |
-| [AUD-PROV-1](#aud-prov-1) | 🟠 IMPORTANTE | ✅ Resolvido `6dedadc` (NOTICE; decisão: atribuir WCSLIB) | Onda 3 |
-| [AUD-PROV-2](#aud-prov-2) | 🟠 IMPORTANTE | ✅ Resolvido `6dedadc` | Onda 3 |
-| [AUD-PROV-3-6](#aud-prov-3-6) | 🟠 IMPORTANTE | ✅ Resolvido `6dedadc` (NOTICE 254 linhas + README) | Onda 3 |
-| [AUD-DOC-1](#aud-doc-1) | 🟠 IMPORTANTE | ✅ Resolvido `209e275` | Onda 3 |
-| [AUD-DOC-3](#aud-doc-3) | 🟠 IMPORTANTE | ✅ Resolvido `e75518a` (SPDX 127/127, compila) | Onda 3 |
-| [AUD-DOC-4](#aud-doc-4) | 🟠 IMPORTANTE | ✅ Resolvido `df1d883` (RAW/PDS4 → ❌ honesto) | Onda 3 |
-| [AUD-CI-3](#aud-ci-3) | 🟠 IMPORTANTE | ✅ Resolvido `e31dc4a` (audit.yml docker/fedora:42, PR→main) | Onda 3 |
-| [AUD-CI-4](#aud-ci-4) | 🟠 IMPORTANTE | ✅ Resolvido `7cfdf56` | Onda 3 |
-| [AUD-TEST-2](#aud-test-2) | 🟠 IMPORTANTE | ✅ Resolvido `498db3c` (fixtures sintéticas, 10 SKIP→rodam) | Onda 3 |
-| [AUD-TEST-3](#aud-test-3) | 🟠 IMPORTANTE (novo) | ✅ Resolvido `f808732` (cobre loaders/table) | Onda 3 |
-| [AUD-SEC-4](#aud-sec-4) | 🟠 IMPORTANTE (plausível) | ✅ Resolvido `cc5e62b` (enforce https) | Onda 3 |
-| [AUD-CCFITS-ASAN](#aud-ccfits-asan) | 🟢 COSMÉTICO (novo) | ✅ Resolvido `52c94b3` ([bintable] roda sob ASan; suíte 5477 verde) | Onda 4 |
-| [AUD-SEC-5](#aud-sec-5) | 🟢 COSMÉTICO | ✅ Resolvido `756cb12` (config 0600) | Onda 4 |
-| [AUD-CI-2](#aud-ci-2) | 🟢 COSMÉTICO | ✅ Resolvido `d946b02` (renormalize) | Onda 4 |
-| [AUD-CORR-6](#aud-corr-6) | 🟢 COSMÉTICO | ✅ Resolvido `e88cc54` (2.354820045) | Onda 4 |
-| [AUD-INPUT-6](#aud-input-6) | 🟢 COSMÉTICO | ✅ Resolvido `f12a463` (.ser não aborta sob UBSan) | Onda 4 |
-| [AUD-INPUT-7](#aud-input-7) | Plausível | ✅ Resolvido `8ca5730` (guard defensivo `i<col.size()`; repro TFORM=1PE prova que já era inalcançável via CCfits, mas guard fica) | Onda 4 |
-| [AUD-PROV-8](#aud-prov-8) | Plausível | ✅ Resolvido `a196275` (NOTICE §9 — risco documentado/aceito, não deep-audit) | Onda 4 |
-| [AUD-INPUT-gaps](#aud-input-gaps) | Plausível | ❌ Pendente | Onda 4 |
-| [AUD-MEM-gaps](#aud-mem-gaps) | Plausível | 🔍 Parcial — `Calibration.cpp:274-277` analisado e refutado (tileSize clamp ≥8 + nTX>1⇒W>tileSize garante denominador `tileCx[1]-tileCx[0] ≥ 4.5`, nunca 0; código não alterado). Valgrind/cppcheck/clang-tidy ainda não re-rodados nesta sessão | Onda 4 |
+| ID | Severidade | Status remediação | Nota |
+|---|:---:|:---:|---|
+| AUD-INPUT-1 | CRÍTICO | AINDA-FECHADO | repro 2026-09-01 fail-clean |
+| AUD-INPUT-2 | CRÍTICO | AINDA-FECHADO | ceiling 20000 |
+| AUD-CORR-1 | CRÍTICO | AINDA-FECHADO | astropy 80/80; mutação 90° |
+| AUD-MEM-2 | CRÍTICO | AINDA-FECHADO | nullopt vivo |
+| AUD-MEM-3 | CRÍTICO | AINDA-FECHADO | clicks NaN rejeitados |
+| AUD-INPUT-8 | CRÍTICO | ❌ pendente | novo |
+| AUD-MEM-6 | CRÍTICO | ❌ pendente | novo |
+| AUD-MEM-5 | CRÍTICO | ❌ pendente | aritmética CONFIRMADA; ASan FFT não executado |
+| AUD-MEM-1 | IMPORTANTE | AINDA-ABERTO | leak no `.a` pré-patch |
+| AUD-CI-3 | IMPORTANTE | REGREDIU | mesmo fato CI-5 |
+| AUD-CI-5 | IMPORTANTE | ❌ pendente | `runs-on: docker` |
+| AUD-INPUT-9 | IMPORTANTE | ❌ pendente | |
+| AUD-SEC-6 | IMPORTANTE | ❌ pendente | |
+| AUD-SEC-7 | IMPORTANTE | ❌ pendente | residual SEC-1; não publicar token |
+| AUD-SEC-8 | IMPORTANTE | ❌ pendente | |
+| AUD-SEC-10 | IMPORTANTE | ❌ pendente | hang não executado |
+| AUD-SEC-11 | IMPORTANTE | ❌ pendente | |
+| AUD-SEC-12 | IMPORTANTE | ❌ pendente | |
+| AUD-SEC-13 | IMPORTANTE | ❌ pendente | |
+| AUD-PROV-10 | IMPORTANTE | ❌ pendente | 23 identidades |
+| AUD-CORR-7 | IMPORTANTE | ❌ pendente | não CRÍTICO |
+| AUD-CORR-8 | IMPORTANTE | ❌ pendente | |
+| AUD-CORR-10 | IMPORTANTE | ❌ pendente | |
+| AUD-CORR-11 | IMPORTANTE | ❌ pendente | suíte |
+| AUD-CORR-12 | IMPORTANTE | ❌ pendente | |
+| AUD-CORR-13 | IMPORTANTE | ❌ pendente | |
+| AUD-CORR-14 | IMPORTANTE | ❌ pendente | |
+| AUD-CI-6 | IMPORTANTE | ❌ pendente | |
+| AUD-CI-7 | IMPORTANTE | ❌ pendente | |
+| AUD-DOC-5 | IMPORTANTE | ❌ pendente | |
+| AUD-DOC-6 | IMPORTANTE | ❌ pendente | |
+| AUD-DOC-8 | IMPORTANTE | ❌ pendente | |
+| AUD-TEST-4 | IMPORTANTE | ❌ pendente | |
+| AUD-TEST-5 | IMPORTANTE | ❌ pendente | |
+| AUD-TEST-6 | IMPORTANTE | ❌ pendente | |
+| AUD-SEC-1 | IMPORTANTE | AINDA-ABERTO | ver SEC-7/8 |
+| AUD-SEC-2 | IMPORTANTE | AINDA-FECHADO + residual CCfits | 6 pins MATCH; URL 404 |
+| AUD-INPUT-3 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-CORR-2 | IMPORTANTE | AINDA-FECHADO | residual CORR-11 |
+| AUD-CORR-3 | IMPORTANTE | AINDA-FECHADO | residual CORR-7 |
+| AUD-CORR-4 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-CORR-5 | IMPORTANTE | AINDA-FECHADO | residual CORR-8 |
+| AUD-PROV-1 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-PROV-2 | IMPORTANTE | AINDA-FECHADO | residual PROV-13 |
+| AUD-PROV-3-6 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-DOC-1 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-DOC-3 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-DOC-4 | IMPORTANTE | AINDA-FECHADO | gêmeos DOC-6/7 |
+| AUD-TEST-2 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-TEST-3 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-CI-4 | IMPORTANTE | AINDA-FECHADO | |
+| AUD-SEC-3 | IMPORTANTE | AINDA-FECHADO | gêmeo SEC-10 |
+| AUD-SEC-4 | IMPORTANTE | AINDA-FECHADO | gêmeo SEC-13 |
+| AUD-MEM-4 | IMPORTANTE | AINDA-ABERTO | = INPUT-8 |
+| AUD-SEC-9 | COSMÉTICO | ❌ pendente | |
+| AUD-PROV-9 | COSMÉTICO | ❌ pendente | primário Eigen; gêmeo DOC-9 |
+| AUD-DOC-9 | COSMÉTICO | ❌ pendente | ponte L-17 → PROV-9 |
+| AUD-PROV-11 | COSMÉTICO | ❌ pendente | |
+| AUD-PROV-12 | COSMÉTICO | ❌ pendente | |
+| AUD-PROV-13 | COSMÉTICO | ❌ pendente | |
+| AUD-CORR-9 | COSMÉTICO | ❌ pendente | |
+| AUD-CI-8 | COSMÉTICO | ❌ pendente | |
+| AUD-CI-9 | COSMÉTICO | ❌ pendente | |
+| AUD-DOC-7 | COSMÉTICO | ❌ pendente | |
+| AUD-TEST-7 | COSMÉTICO | ❌ pendente | |
+| AUD-SEC-5 | COSMÉTICO | AINDA-FECHADO | bypass = SEC-6 |
+| AUD-CI-2 | COSMÉTICO | AINDA-FECHADO | |
+| AUD-CORR-6 | COSMÉTICO | AINDA-FECHADO | gêmeo CORR-9 |
+| AUD-INPUT-6 | COSMÉTICO | NÃO RE-TESTADO | |
+| AUD-CCFITS-ASAN | COSMÉTICO | AINDA-FECHADO (artefato) | runtime ASan PLAUSÍVEL |
+| AUD-PROV-8 | - | AINDA-FECHADO | risco aceito |
+| AUD-INPUT-4 | IMPORTANTE | NÃO RE-TESTADO | |
+| AUD-INPUT-5 | IMPORTANTE | NÃO RE-TESTADO | |
+| AUD-INPUT-7 | - | NÃO RE-TESTADO | |
+| AUD-INPUT-gaps | - | AINDA-ABERTO | |
+| AUD-MEM-gaps | - | AINDA-ABERTO | MEM-6 saiu daqui como ID próprio |
+| AUD-INPUT-10 | IMPORTANTE | PLAUSÍVEL | sem remediação até repro |
+| AUD-INPUT-11 | IMPORTANTE | PLAUSÍVEL | |
+| AUD-INPUT-12 | IMPORTANTE | PLAUSÍVEL | |
+| AUD-MEM-7 | IMPORTANTE | PLAUSÍVEL | |
+
+Nenhum CRÍTICO novo ficou sem plano de remediação sugerido (§4.1). A implementação é fase posterior, sob o líder.
 
 ---
 
-## 8. Parecer de prontidão
+## 8. Limitações (honesto)
 
-**Onda 1 RESOLVIDA em 2026-07-10** (branch `audit-remediation-onda1`, pushada; implementer ≠ reviewer adversarial ≠ orquestrador; suíte ASan/UBSan 100% verde; WCS validado vs astropy nas 8 projeções). Os 4 CRÍTICOS + `.runner` + AUD-MEM-4 estão fechados. **Bloqueadores de release removidos** — falta o merge à `main` (com CI) e as Ondas 2-4. Registro histórico do risco original: os CRÍTICOS de input hostil ([AUD-INPUT-1/2](#aud-input-1)) e de memória ([AUD-MEM-2](#aud-mem-2)) causavam crash/UB ao abrir arquivo de terceiro; o CRÍTICO de corretude ([AUD-CORR-1](#aud-corr-1)) punha coordenada errada no MPC. Duas divergências de severidade ficam registradas para o auditor externo: [AUD-SEC-1](#aud-sec-1) (CI-finder=CRÍTICO vs adjudicado IMPORTANTE) e [AUD-PROV-1](#aud-prov-1) (PROV-finder=CRÍTICO-compliance vs adjudicado IMPORTANTE, requer jurídico). O restante é débito de robustez, corretude testável, higiene de CI/doc e proveniência de licenças — endereçável nas Ondas 2–4.
+1. **`fftw-devel` AUSENTE** (L-51: não instalado). cmake ASan do produto não configurou. Harnesses parciais. Suíte ASan completa = **não executado**. Runtime FFT de [AUD-MEM-5](#aud-mem-5) = **não executado**. `[functional]` completo (ImageStacker) = **não executado**. clang-tidy de ImageStacker falhou (`fftw3.h`).
+2. **Freeze `astrofind_tests`** em `build/` (md5 `3978071e96747031fdae7170372ab774`, mtime **2026-03-22**) é STALE vs HEAD. Não julga a suíte atual. Catch2/spdlog shared às vezes ausentes sem `LD_LIBRARY_PATH`.
+3. **Matrix 9 qa-distro não disparada** nesta eventual (cada um é container = trabalho pesado). CI usou YAML + `gh run` do SHA `0940509`.
+4. **Hang HTTP** contra SkyBoT/MPC/Horizons/astrometry.net **não executado**. Gap de código CONFIRMADO; hang observável PLAUSÍVEL.
+5. **scancode** ausente; **syft** não gerou SBOM nesta passagem; **reuse lint** não rodado (SPDX contado item-a-item: 127/127/127/0).
+6. Mutação só em `/var/tmp` (L-27). Repo IDrive intocado. Sem `isolation: worktree` (L-55). UI offscreen / `XDG_RUNTIME_DIR` isolado (L-50). Sem screenshot na sessão viva.
+7. INPUT-4/5/6/7 e CCFITS sob ASan: sem repro 2026-09-01. Não declarar AINDA-FECHADO nem REGREDIU.
+
+---
+
+## 9. Parecer de prontidão para auditor externo
+
+Os quatro CRÍTICOS de produto de 2026-07-10 (NAXIS, alocação 2-D, WCS +90°, NaN centroid) **continuam fechados** no HEAD `0940509`, com repro hostil, oráculo astropy 8.0.1 e mutação que prova a rede de CORR-1 e MEM-2. Isso é FATO desta eventual, não confiança no `TODO.md`.
+
+O produto **não** está pronto para um auditor que pergunte "a Onda 1 segurou tudo?": três CRÍTICOS novos (espectro 1-D, OOB de fundo, FFT portrait), leak SEP ainda no binário que o processo carrega, portão `audit.yml` morto no GitHub, Help/SECURITY desalinhados, suíte que não pega os guards que julho vendeu como fechados.
+
+Divergências registradas (finder vs verifier; prevalece o verifier + orquestrador): CORR-7 não é CRÍTICO (sem ângulo); PROV-10 são 23 identidades, não 27; MEM-5 overflow ASan não foi promovido a runtime CONFIRMADO; CI-3 e CI-5 são o mesmo fato; DOC-9 e PROV-9 são o mesmo Eigen (L-17).
+
+**Recomendação:** não tratar v0.9.0 como fechado frente a este livro. Remediação e `TODO.md` são a fase seguinte, sob decisão do líder.
