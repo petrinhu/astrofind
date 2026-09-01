@@ -8,7 +8,7 @@
 
 ## Ondas: histórico e fila atual
 
-> **Onda E1** (bloqueadores, 2026-09-01): AUD-INPUT-8, AUD-MEM-6, AUD-MEM-5 (runtime ASan pede `fftw-devel`; L-51 ainda sem autorização do líder; não bloqueia INPUT-8/MEM-6), AUD-CI-5 + AUD-CI-3 (ponte, mesmo fato).
+> **Onda E1** (bloqueadores, 2026-09-01): AUD-INPUT-8, AUD-MEM-6, AUD-MEM-5 (`fftw-devel` instalado; overflow ASan CONFIRMADO; código ainda aberto), AUD-CI-5 + AUD-CI-3 (ponte, mesmo fato).
 > **Onda E2:** AUD-INPUT-9 (teto XISF, gêmeo INPUT-8), AUD-MEM-1 (rebuild SEP), AUD-TEST-4 (regressão dos CRÍTICOS; pré-req INPUT-8 no caso espectro), AUD-SEC-6, AUD-SEC-8, AUD-CORR-8.
 > **Onda E3:** resto IMPORTANTE (SEC-7/1/10/11/12/13, CORR-7/10/11/12/13/14, DOC-5/6/8, TEST-5/6, PROV-10, CI-6/7, INPUT-gaps, MEM-gaps).
 > **Onda E4:** COSMÉTICOS + PLAUSÍVEIS.
@@ -28,7 +28,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | AUD-INPUT-8 | E1 | Auditoria | Teto em `loadSpectrum1D` espelhando `validateImageDims` + `QFileInfo::size()`; não alocar NAXIS1 mentiroso; try/catch no caller UI. Residual de AUD-MEM-4 (não duplicar MEM-4). Severidade: CRÍTICO. Eventual 2026-09-01 CONFIRMADO. Ref: [AUD-INPUT-8](AUDIT_FIND.md#aud-input-8) | Alta | - | Média | ⏳ Pendente | - |
 | AUD-MEM-6 | E1 | Auditoria | Clamp `tx1 < nTX` e `ty1 < nTY` em `subtractBackground`; ramo nTX<2/nTY<2 sem interpolar fora de `tileVal`. Teste 128x64 e 64x128 tile 64 sob ASan. Severidade: CRÍTICO. Eventual 2026-09-01 CONFIRMADO (EXIT 134). Ref: [AUD-MEM-6](AUDIT_FIND.md#aud-mem-6) | Alta | - | Média | ⏳ Pendente | - |
-| AUD-MEM-5 | E1 | Auditoria | `forwardFFT` alocar `h*(w/2+1)` (mesmo contrato de `phaseCorrelation`); teste 50x100 e 1080x1920. Runtime ASan de `fftw_execute` pede `fftw-devel` (L-51: líder ainda não autorizou instalar; aritmética já CONFIRMADA). Não bloqueia INPUT-8/MEM-6. Severidade: CRÍTICO. Ref: [AUD-MEM-5](AUDIT_FIND.md#aud-mem-5) | Alta | fftw-devel (L-51, não autorizado) | Média | ⏳ Pendente | - |
+| AUD-MEM-5 | E1 | Auditoria | `forwardFFT` alocar `h*(w/2+1)` (mesmo contrato de `phaseCorrelation`); teste 50x100 e 1080x1920. fftw-devel instalado 2026-09-01 (`fftw-devel-3.3.10-17.fc44`). Overflow ASan CONFIRMADO no path `stackImages` FFT 50x100: EXIT 134, READ `crossPowerSpectrum` ImageStacker.cpp:52, alocação `forwardFFT` L34, 40800 B = 2550 complexos; harness md5 `9191cb6c1c0d9a8770ed63996eb5a3e6`. Código ainda não corrigido. Severidade: CRÍTICO. Ref: [AUD-MEM-5](AUDIT_FIND.md#aud-mem-5) | Alta | - | Média | ⏳ Pendente | - |
 | AUD-CI-5 | E1 | Auditoria | `audit.yml`: `runs-on` hosted GitHub (label `docker` morto); apagar menção `forgejo-runner`; disparar e provar o portão vermelho (L-36). Mesmo fato que AUD-CI-3. Severidade: IMPORTANTE. Eventual 2026-09-01 CONFIRMADO (9 cancelled, 0 success). Ref: [AUD-CI-5](AUDIT_FIND.md#aud-ci-5) | Alta | - | Baixa | ⏳ Pendente | - |
 | AUD-CI-3 | E1 | Auditoria | REGREDIU 2026-09-01: auditoria numérica não roda no GitHub. Mesmo fato que AUD-CI-5 (não implementar de novo; esta linha fecha quando CI-5 fechar). Commit julho `e31dc4a` não basta. Severidade: IMPORTANTE. Ref: [AUD-CI-3](AUDIT_FIND.md#aud-ci-3) | Alta | AUD-CI-5 | Baixa | ⏳ Pendente | - |
 | AUD-INPUT-9 | E2 | Auditoria | Aplicar `validateImageDims` / `kMaxImagePixels` em `loadXisf` antes de alocar; teste geometry 20001 vs teto FITS 20000. Gêmeo L-17/L-21 de INPUT-8 (paridade de teto). Severidade: IMPORTANTE. Ref: [AUD-INPUT-9](AUDIT_FIND.md#aud-input-9) | Alta | AUD-INPUT-8 | Média | ⏳ Pendente | - |

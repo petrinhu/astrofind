@@ -63,11 +63,11 @@ Frase-guarda L-21 (aplicada; não cortou WCS, loaders nem formatos): uso/contage
 | AUD-INPUT-8 | `loadSpectrum1D spec_naxis1_1e8.fits` | aloca a partir de header 2880 B; controle 2-D barrado. md5 harness `d96c17485bf68a23a926f12320d214c2` | CONFIRMADO |
 | AUD-MEM-2 | `mem_asan_harness mem2` | nullopt, vivo, EXIT 0 | AINDA-FECHADO |
 | AUD-MEM-6 | `mem_asan_harness mem6` | ASan heap-buffer-overflow `Calibration.cpp:291` `subtractBackground`, EXIT 134; controlo 128×128 OK. md5 `a4c5b9807a9c17368a73f86f91b4d185` | CONFIRMADO |
-| AUD-MEM-5 | programa de tamanhos FFT | 50×100 nc_fwd=2550 vs nc_plan=2600 UNDER-ALLOC. Overflow FFT ASan **não executado** (`fftw3.h` ausente, L-51) | CONFIRMADO (aritmética) |
+| AUD-MEM-5 | `mem5_asan_harness under` (50×100) | EXIT 134, ASan heap-buffer-overflow READ `crossPowerSpectrum` `ImageStacker.cpp:52`, alocação `forwardFFT` L34, 40800 B = 2550×16. Controlo equal/over EXIT 0. md5 harness `9191cb6c1c0d9a8770ed63996eb5a3e6`. fftw-devel-3.3.10-17.fc44 instalado. | CONFIRMADO (overflow ASan + aritmética) |
 | AUD-CORR-1 | `wcs_harness` × astropy 8.0.1 | CAR/MER/GLS/AIT ref = 180.0 (não 270) | AINDA-FECHADO |
 | AUD-TEST-5 | Catch2 filtro com vírgula no nome | "No tests ran" exit 0 (falso-verde) | CONFIRMADO |
 
-Limitações da re-execução: `fftw-devel` AUSENTE; cmake ASan do produto não configurou; harnesses parciais. Freeze `astrofind_tests` em `build/` é de **2026-03-22**, STALE vs HEAD; **não** foi usado como prova da suíte atual.
+Limitações da re-execução: cmake ASan do produto não configurou; harnesses parciais. `fftw-devel` passou a estar presente em 2026-09-01 (runtime MEM-5 executado; ver §1.1). Freeze `astrofind_tests` em `build/` é de **2026-03-22**, STALE vs HEAD; **não** foi usado como prova da suíte atual.
 
 ---
 
@@ -81,9 +81,9 @@ Os 3 CRÍTICOS novos, em uma frase cada:
 
 - **AUD-INPUT-8** - `loadSpectrum1D` aloca `vector<float>(NAXIS1)` a partir de um FITS de 2880 B com header mentiroso; o path 2-D irmão já é barrado pelo teto de INPUT-2.
 - **AUD-MEM-6** - `subtractBackground` lê fora de `tileVal` quando um eixo tem uma só tile (128×64, tile 64); ASan heap-buffer-overflow, EXIT 134.
-- **AUD-MEM-5** - `forwardFFT` aloca `w*(h/2+1)` e planeja FFTW `h*(w/2+1)`; em CCD portrait (50×100) o buffer fica 50 complexos curto. Overflow ASan de `fftw_execute` não foi rodado (sem `fftw3.h`).
+- **AUD-MEM-5** - `forwardFFT` aloca `w*(h/2+1)` e planeja FFTW `h*(w/2+1)`; CCD portrait 50×100 no path `stackImages` FFT aborta sob ASan (primeiro trap: READ em `crossPowerSpectrum`).
 
-**Veredito geral (honesto):** a remediação de julho segurou os quatro CRÍTICOS de produto que iam ao crash/MPC (repro hostil + oráculo astropy + mutação). O livro de 2026-07-10 **não** pode ser lido como "curado": (1) três CRÍTICOS novos na superfície que a Onda 1 não fechou (espectro 1-D, fundo em crop, FFT portrait); (2) o patch SEP está na fonte e **não** no `libsep_lib.a` linkado; (3) o portão `audit.yml` nunca correu com sucesso no GitHub após o cutover (9 cancelled, 0 success); (4) a suíte Catch2 HEAD **não** pega INPUT-1/2 nem MEM-2/3 (mutação do guard NAXIS deixa 13/13 verdes). Não há CRÍTICO de RCE nesta passagem. **Não** taggear release até fechar INPUT-8, MEM-6 e (com `fftw-devel`) o runtime de MEM-5, e religar o portão ASan no GitHub.
+**Veredito geral (honesto):** a remediação de julho segurou os quatro CRÍTICOS de produto que iam ao crash/MPC (repro hostil + oráculo astropy + mutação). O livro de 2026-07-10 **não** pode ser lido como "curado": (1) três CRÍTICOS novos na superfície que a Onda 1 não fechou (espectro 1-D, fundo em crop, FFT portrait); (2) o patch SEP está na fonte e **não** no `libsep_lib.a` linkado; (3) o portão `audit.yml` nunca correu com sucesso no GitHub após o cutover (9 cancelled, 0 success); (4) a suíte Catch2 HEAD **não** pega INPUT-1/2 nem MEM-2/3 (mutação do guard NAXIS deixa 13/13 verdes). Não há CRÍTICO de RCE nesta passagem. **Não** taggear release até fechar INPUT-8, MEM-6 e MEM-5 (overflow ASan já CONFIRMADO; código ainda aberto), e religar o portão ASan no GitHub.
 
 ---
 
@@ -98,7 +98,7 @@ Os 3 CRÍTICOS novos, em uma frase cada:
 | [AUD-MEM-3](#aud-mem-3) | Guard de sanidade contornável por NaN | CRÍTICO | AINDA-FECHADO | MEM | `findCentroidElliptical` / `findCentroidPsf` |
 | [AUD-INPUT-8](#aud-input-8) | Spectrum1D aloca NAXIS1 mentiroso | CRÍTICO | CONFIRMADO | INPUT | `core::loadSpectrum1D` |
 | [AUD-MEM-6](#aud-mem-6) | OOB `tileVal` em `subtractBackground` | CRÍTICO | CONFIRMADO | MEM | `core::subtractBackground` |
-| [AUD-MEM-5](#aud-mem-5) | FFT under-alloc quando `h>w` | CRÍTICO | CONFIRMADO (aritmética; ASan FFT não executado) | MEM | `forwardFFT` / `ImageStacker.cpp` |
+| [AUD-MEM-5](#aud-mem-5) | FFT under-alloc quando `h>w` | CRÍTICO | CONFIRMADO (overflow ASan + aritmética) | MEM | `forwardFFT` / `crossPowerSpectrum` |
 | [AUD-MEM-1](#aud-mem-1) | Leak SEP `convert_to_catalog` no binário linkado | IMPORTANTE | AINDA-ABERTO | MEM | `sep convert_to_catalog` / `libsep_lib.a` |
 | [AUD-CI-3](#aud-ci-3) | Auditoria numérica nunca roda em CI | IMPORTANTE | REGREDIU | CI | `audit.yml` (mesmo fato [AUD-CI-5](#aud-ci-5)) |
 | [AUD-CI-5](#aud-ci-5) | `runs-on: docker` / residual Forgejo | IMPORTANTE | CONFIRMADO | CI | `.github/workflows/audit.yml` |
@@ -201,12 +201,13 @@ Os 3 CRÍTICOS novos, em uma frase cada:
 <a id="aud-mem-5"></a>
 ### AUD-MEM-5 - `forwardFFT` aloca `w*(h/2+1)` e planeja `h*(w/2+1)`
 
-- **Severidade:** CRÍTICO - CONFIRMADO (aritmética executada + fato de código inequívoco no blob). Overflow ASan de `fftw_execute` = **não executado** (`fftw3.h` ausente, L-51).
-- **Âncora:** `forwardFFT` em `src/core/ImageStacker.cpp`: aloca `w*(h/2+1)` e chama `fftw_plan_dft_r2c_2d(h, w, …)`. `phaseCorrelation` documenta e usa o tamanho **correto** `h*(w/2+1)`.
-- **Failure concreto (medido):** programa `mem5_fft_sizes` (sem link FFTW): `w=50 h=100` → nc_fwd=2550 vs nc_plan=2600, delta=50 UNDER-ALLOC; `w=100 h=50` OVER-ALLOC; `w=32 h=32` EQUAL (a suíte usa 32×32). `w=1080 h=1920` UNDER-ALLOC 840. **INFERÊNCIA (não observada sob ASan):** com `h>w`, FFTW escreveria além do buffer. L-21: CCD portrait é entrada real.
-- **Repro (aritmética):** `/var/tmp/astrofind-audit-eventual-20260901/hostile/mem5_fft_sizes`. Runtime `stackImages` portrait sob ASan: **não executado**.
-- **Remediação sugerida:** alocar `h*(w/2+1)` em `forwardFFT` (mesmo contrato de `phaseCorrelation`); teste 50×100 e 1080×1920; não confiar em 32×32. Re-teste ASan exige `fftw-devel`.
-- **Confirmado por:** V-MEM (aritmética) + orquestrador. Não promover o crash FFT a CONFIRMADO-runtime.
+- **Severidade:** CRÍTICO - CONFIRMADO (overflow ASan + aritmética). Código **não** remediado.
+- **Âncora:** `forwardFFT` em `src/core/ImageStacker.cpp`: aloca `nc = w*(h/2+1)` e chama `fftw_plan_dft_r2c_2d(h, w, ...)`. `phaseCorrelation` usa o tamanho **correto** `h*(w/2+1)` ao chamar `crossPowerSpectrum`. Blob verificado: git object `c09ecf69c2cf693691fb31da9603a6fed40e59f8`.
+- **Failure concreto (medido):** aritmética 50×100: nc_fwd=2550 vs nc_plan=2600 UNDER-ALLOC. Runtime ASan (`01/09/26 - 09:01:42`, orquestrador; V-MEM5): `mem5_asan_harness under` EXIT 134; `heap-buffer-overflow` **READ** em `crossPowerSpectrum` `ImageStacker.cpp:52`; região 40800 B = 2550×16 alocada em `forwardFFT` L34 via `allocComplex`; stack `stackImages` AlignMode::FFT L333 → `phaseCorrelation` L88. Controlo `equal` 32×32 e `over` 100×50: EXIT 0, ASan silencioso. 1080×1920 não executado (50×100 já conclusivo). L-21: CCD portrait é entrada real.
+- **Primeiro trap:** READ em `crossPowerSpectrum`. **FATO:** `libfftw3.so` do sistema **não** está instrumentada; WRITE em `fftw_execute` pode existir e não ter sido o primeiro hit. Isso não enfraquece o overflow: o buffer de `forwardFFT` é curto demais para o plano e para o `nc` que `phaseCorrelation` consome.
+- **Repro:** `mem5_asan_harness under`. Harness md5 `9191cb6c1c0d9a8770ed63996eb5a3e6`. Pacote `fftw-devel-3.3.10-17.fc44.x86_64`. Fonte: `/var/tmp/astrofind-audit-eventual-20260901/reports/V-MEM5.md`.
+- **Remediação sugerida:** alocar `h*(w/2+1)` em `forwardFFT` (mesmo contrato de `phaseCorrelation`); teste 50×100 (e 1080×1920) sob ASan; não confiar em 32×32.
+- **Confirmado por:** V-MEM (aritmética) + V-MEM5 (runtime ASan) + re-execução do orquestrador.
 
 ### 4.2 CRÍTICOS de julho ainda abertos / residual
 
@@ -549,7 +550,7 @@ V-MEM: `detectStars` com NaN/Inf, `detectBlended=true`: processo vivo, n=0 estre
 - Token Codeberg de [AUD-SEC-7](#aud-sec-7) ainda válido: desconhecido.
 - Conf 0644 pós-wizard ([AUD-SEC-6](#aud-sec-6)); progresso fantasma ([AUD-SEC-11](#aud-sec-11)); parse Horizons ([AUD-SEC-12](#aud-sec-12)).
 - Ângulo de double-refraction ([AUD-CORR-7](#aud-corr-7)); delta LONPOLE ([AUD-CORR-10](#aud-corr-10)); magnitude sub-segundo ([AUD-CORR-13](#aud-corr-13)).
-- Overflow FFT ASan de [AUD-MEM-5](#aud-mem-5): aritmética CONFIRMADA; `fftw_execute` **não executado**.
+- WRITE em `fftw_execute` no mesmo under-alloc de [AUD-MEM-5](#aud-mem-5): **INFERÊNCIA** (lib do sistema sem ASan; primeiro hit foi READ em `crossPowerSpectrum`).
 - Runtime ASan de [AUD-CCFITS-ASAN](#aud-ccfits-asan): flag `-fno-sanitize=undefined` presente; suíte sob sanitizer **não** re-rodada.
 
 Nenhum candidato dos V-*.md foi REFUTADO no mérito (só a contagem 27 de PROV-10 corrigida para 23).
@@ -560,7 +561,7 @@ Nenhum candidato dos V-*.md foi REFUTADO no mérito (só a contagem 27 de PROV-1
 
 - **INPUT - COM PROBLEMA GRAVE (novo).** INPUT-1/2/3 AINDA-FECHADOS no path 2-D/SER. **AUD-INPUT-8** reabre a classe DoS no espectro 1-D. **AUD-INPUT-9** quebra paridade de teto no XISF. Gaps QImage/SER-produto/BINTABLE-nRows PLAUSÍVEIS. RAW/PDS4 continuam ausentes (honesto).
 
-- **MEM - COM PROBLEMA GRAVE (novo).** MEM-2/3 AINDA-FECHADOS. **AUD-MEM-6** é heap-OOB alcançável em crop/guia. **AUD-MEM-5** é under-alloc FFT inequívoco em portrait (runtime FFT não executado). **AUD-MEM-1** leak ainda no `.a` linkado. MEM-7 PLAUSÍVEL. cppcheck não substitui ASan.
+- **MEM - COM PROBLEMA GRAVE (novo).** MEM-2/3 AINDA-FECHADOS. **AUD-MEM-6** é heap-OOB alcançável em crop/guia. **AUD-MEM-5** é under-alloc FFT em portrait, overflow ASan CONFIRMADO no path `stackImages` FFT (primeiro trap: `crossPowerSpectrum`). **AUD-MEM-1** leak ainda no `.a` linkado. MEM-7 PLAUSÍVEL. cppcheck não substitui ASan.
 
 - **CORR - SEM REGRESSÃO DO +90°; COM DÉBITO DE POLÍTICA.** CORR-1 AINDA-FECHADO (80/80 astropy + mutação vermelha). Nenhum CORR de julho REGREDIU. Novos são política/suíte/parse (CORR-7 **não** é CRÍTICO sem ângulo). Efeméride sem teste (CORR-12).
 
@@ -589,7 +590,7 @@ Status desta eventual. A fase de correção e o WSJF no `TODO.md` são posterior
 | AUD-MEM-3 | CRÍTICO | AINDA-FECHADO | clicks NaN rejeitados |
 | AUD-INPUT-8 | CRÍTICO | ❌ pendente | novo |
 | AUD-MEM-6 | CRÍTICO | ❌ pendente | novo |
-| AUD-MEM-5 | CRÍTICO | ❌ pendente | aritmética CONFIRMADA; ASan FFT não executado |
+| AUD-MEM-5 | CRÍTICO | ❌ pendente | overflow ASan CONFIRMADO (READ `crossPowerSpectrum`); código aberto |
 | AUD-MEM-1 | IMPORTANTE | AINDA-ABERTO | leak no `.a` pré-patch |
 | AUD-CI-3 | IMPORTANTE | REGREDIU | mesmo fato CI-5 |
 | AUD-CI-5 | IMPORTANTE | ❌ pendente | `runs-on: docker` |
@@ -669,7 +670,7 @@ Nenhum CRÍTICO novo ficou sem plano de remediação sugerido (§4.1). A impleme
 
 ## 8. Limitações (honesto)
 
-1. **`fftw-devel` AUSENTE** (L-51: não instalado). cmake ASan do produto não configurou. Harnesses parciais. Suíte ASan completa = **não executado**. Runtime FFT de [AUD-MEM-5](#aud-mem-5) = **não executado**. `[functional]` completo (ImageStacker) = **não executado**. clang-tidy de ImageStacker falhou (`fftw3.h`).
+1. **`fftw-devel` instalado** em 2026-09-01 (`fftw-devel-3.3.10-17.fc44.x86_64`). Runtime ASan de [AUD-MEM-5](#aud-mem-5) **executado** (harness; não o cmake ASan do produto). Suíte ASan completa do produto = **não executado**. `[functional]` Catch2 completo = **não executado**. clang-tidy de ImageStacker na onda H2 falhou por `fftw3.h` ausente **naquela** passagem.
 2. **Freeze `astrofind_tests`** em `build/` (md5 `3978071e96747031fdae7170372ab774`, mtime **2026-03-22**) é STALE vs HEAD. Não julga a suíte atual. Catch2/spdlog shared às vezes ausentes sem `LD_LIBRARY_PATH`.
 3. **Matrix 9 qa-distro não disparada** nesta eventual (cada um é container = trabalho pesado). CI usou YAML + `gh run` do SHA `0940509`.
 4. **Hang HTTP** contra SkyBoT/MPC/Horizons/astrometry.net **não executado**. Gap de código CONFIRMADO; hang observável PLAUSÍVEL.
@@ -685,6 +686,6 @@ Os quatro CRÍTICOS de produto de 2026-07-10 (NAXIS, alocação 2-D, WCS +90°, 
 
 O produto **não** está pronto para um auditor que pergunte "a Onda 1 segurou tudo?": três CRÍTICOS novos (espectro 1-D, OOB de fundo, FFT portrait), leak SEP ainda no binário que o processo carrega, portão `audit.yml` morto no GitHub, Help/SECURITY desalinhados, suíte que não pega os guards que julho vendeu como fechados.
 
-Divergências registradas (finder vs verifier; prevalece o verifier + orquestrador): CORR-7 não é CRÍTICO (sem ângulo); PROV-10 são 23 identidades, não 27; MEM-5 overflow ASan não foi promovido a runtime CONFIRMADO; CI-3 e CI-5 são o mesmo fato; DOC-9 e PROV-9 são o mesmo Eigen (L-17).
+Divergências registradas (finder vs verifier; prevalece o verifier + orquestrador): CORR-7 não é CRÍTICO (sem ângulo); PROV-10 são 23 identidades, não 27; MEM-5 overflow ASan **foi** promovido a runtime CONFIRMADO em 2026-09-01 (primeiro trap = READ `crossPowerSpectrum`, não `fftw_execute`); CI-3 e CI-5 são o mesmo fato; DOC-9 e PROV-9 são o mesmo Eigen (L-17).
 
 **Recomendação:** não tratar v0.9.0 como fechado frente a este livro. Remediação e `TODO.md` são a fase seguinte, sob decisão do líder.
