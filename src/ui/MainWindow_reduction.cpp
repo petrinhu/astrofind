@@ -880,6 +880,11 @@ void MainWindow::onKnownObjectOverlay()
 
     disconnect(catalogClient_, nullptr, this, nullptr);
     disconnect(kooEngine_,     nullptr, this, nullptr);
+    // AUD-SEC-10: a new overlay request supersedes a SkyBoT query still in
+    // flight (the cancelled one is dropped silently) instead of being ignored
+    // by queryField() while busy.
+    if (kooEngine_->isBusy())
+        kooEngine_->cancel();
 
     connect(catalogClient_, &core::CatalogClient::starsReady,
             this, &MainWindow::onCatalogReady);

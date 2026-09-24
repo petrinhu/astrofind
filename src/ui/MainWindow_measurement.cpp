@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Petrus Silva Costa
 
 #include "MainWindow_p.h"
+#include "core/NetworkSafety.h"
 
 // ─── Undo commands ───────────────────────────────────────────────────────────
 
@@ -361,6 +362,36 @@ void MainWindow::onFitAllWindows()
 
 // ─── Internet slots ───────────────────────────────────────────────────────────
 
+namespace {
+// AUD-SEC-10: status-bar "Cancel" button for an MPC download. The reply is the
+// connection context, so a click after the reply is gone is a no-op; the
+// finished() handler removes the button. `userCancelled` lets that handler
+// tell a user abort from a transfer timeout (Qt aborts the reply for both).
+QToolButton* addDownloadCancelButton(QStatusBar* sb, QNetworkReply* reply,
+                                     const std::shared_ptr<bool>& userCancelled)
+{
+    auto* btn = new QToolButton(sb);
+    btn->setText(MainWindow::tr("Cancel"));
+    btn->setToolTip(MainWindow::tr("Cancel the download"));
+    sb->addPermanentWidget(btn);
+    QObject::connect(btn, &QToolButton::clicked, reply, [reply, userCancelled]() {
+        *userCancelled = true;
+        reply->abort();
+    });
+    return btn;
+}
+
+// AUD-SEC-10: user-facing reason for a failed MPC download.
+QString downloadErrorReason(const QNetworkReply* reply)
+{
+    const auto err = reply->error();
+    if (err == QNetworkReply::OperationCanceledError || err == QNetworkReply::TimeoutError)
+        return MainWindow::tr("no data received for %1 s")
+            .arg(core::kHttpTransferTimeoutMs / 1000);
+    return reply->errorString();
+}
+} // namespace
+
 void MainWindow::onDownloadMpcOrb()
 {
     const auto btn = QMessageBox::question(this, tr("Download MPCORB"),
@@ -391,8 +422,14 @@ void MainWindow::onDownloadMpcOrb()
         return;
     }
 
-    auto* reply = nam_->get(QNetworkRequest(
-        QUrl(QStringLiteral("https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT"))));
+    // AUD-SEC-10: transfer timeout (resets on every received chunk, so a slow
+    // but alive 200 MB download is not cut off) + a status-bar cancel button.
+    QNetworkRequest req(
+        QUrl(QStringLiteral("https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT")));
+    req.setTransferTimeout(core::kHttpTransferTimeoutMs);
+    auto* reply = nam_->get(req);
+    auto userCancelled = std::make_shared<bool>(false);
+    auto* cancelBtn = addDownloadCancelButton(statusBar(), reply, userCancelled);
 
     // Track speed
     auto elapsed = std::make_shared<QElapsedTimer>();
@@ -431,16 +468,23 @@ void MainWindow::onDownloadMpcOrb()
         });
 
     connect(reply, &QNetworkReply::finished, this,
-        [this, reply, destPath, outFile, progressBar]() {
+        [this, reply, destPath, outFile, progressBar, cancelBtn, userCancelled]() {
             reply->deleteLater();
             outFile->close();
             statusBar()->removeWidget(progressBar);
             progressBar->deleteLater();
+            statusBar()->removeWidget(cancelBtn);
+            cancelBtn->deleteLater();
 
             if (reply->error() != QNetworkReply::NoError) {
                 outFile->remove();
                 delete outFile;
-                logPanel_->appendError(tr("Download failed: %1").arg(reply->errorString()));
+                if (*userCancelled) {
+                    logPanel_->appendInfo(tr("MPCORB.DAT download cancelled"));
+                    statusBar()->showMessage(tr("Download cancelled"), 4000);
+                    return;
+                }
+                logPanel_->appendError(tr("Download failed: %1").arg(downloadErrorReason(reply)));
                 statusBar()->showMessage(tr("Download failed"), 4000);
                 return;
             }
@@ -465,13 +509,26 @@ void MainWindow::onUpdateMpcOrb()
     statusBar()->showMessage(tr("Downloading DAILY.DAT…"));
     logPanel_->appendInfo(tr("Downloading DAILY.DAT from MPC…"));
 
-    auto* reply = nam_->get(QNetworkRequest(
-        QUrl(QStringLiteral("https://www.minorplanetcenter.net/iau/MPCORB/DAILY.DAT"))));
+    // AUD-SEC-10: transfer timeout + status-bar cancel button (as MPCORB above)
+    QNetworkRequest req(
+        QUrl(QStringLiteral("https://www.minorplanetcenter.net/iau/MPCORB/DAILY.DAT")));
+    req.setTransferTimeout(core::kHttpTransferTimeoutMs);
+    auto* reply = nam_->get(req);
+    auto userCancelled = std::make_shared<bool>(false);
+    auto* cancelBtn = addDownloadCancelButton(statusBar(), reply, userCancelled);
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, dailyPath, mpcOrbPath]() {
+    connect(reply, &QNetworkReply::finished, this,
+            [this, reply, dailyPath, mpcOrbPath, cancelBtn, userCancelled]() {
         reply->deleteLater();
+        statusBar()->removeWidget(cancelBtn);
+        cancelBtn->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {
-            logPanel_->appendWarning(tr("DAILY.DAT download failed: %1").arg(reply->errorString()));
+            if (*userCancelled) {
+                logPanel_->appendInfo(tr("DAILY.DAT download cancelled"));
+                statusBar()->showMessage(tr("Download cancelled"), 3000);
+                return;
+            }
+            logPanel_->appendWarning(tr("DAILY.DAT download failed: %1").arg(downloadErrorReason(reply)));
             statusBar()->showMessage(tr("Update failed"), 3000);
             return;
         }

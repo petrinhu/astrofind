@@ -16,6 +16,7 @@ add_executable(astrofind_tests
     test_photometry.cpp
     test_robustness.cpp
     test_url_scheme_guard.cpp
+    test_network_safety.cpp
 )
 
 target_link_libraries(astrofind_tests PRIVATE

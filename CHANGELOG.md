@@ -50,6 +50,38 @@ primeiro.
   that the client rejected; it is now the real TAP endpoint, and the old value is
   replaced on load. 🇧🇷 O padrão mostrado era um hostname sem esquema, rejeitado pelo
   cliente; agora é o endpoint TAP real, e o valor antigo é substituído ao abrir.
+- **Network timeouts and cancel / Timeouts de rede e cancelamento (AUD-SEC-10).** 🇬🇧 The
+  SkyBoT known-object query and the MPCORB.DAT / DAILY.DAT downloads now have the same 30 s
+  transfer timeout as the other clients (it restarts on every received chunk, so a slow but
+  alive download keeps going). The MPC downloads get a Cancel button in the status bar;
+  re-running the known-object overlay replaces a SkyBoT query still in flight; a timeout in
+  the Setup Wizard is reported as such instead of "Download cancelled".
+  🇧🇷 A consulta de objetos conhecidos ao SkyBoT e os downloads do MPCORB.DAT / DAILY.DAT
+  ganham o mesmo timeout de transferência de 30 s dos outros clientes (reinicia a cada bloco
+  recebido, então um download lento mas vivo continua). Os downloads do MPC ganham um botão
+  Cancelar na barra de status; refazer o overlay de objetos conhecidos substitui uma consulta
+  SkyBoT ainda pendente; no assistente, um timeout aparece como tal, e não como "Download
+  cancelado".
+- **Plate-solving cancel / Cancelar a redução astrométrica (AUD-SEC-11).** 🇬🇧 Cancel now
+  aborts the astrometry.net status poll in flight too, so no progress or error shows up after
+  cancelling; overlapping polls on a slow server are no longer stacked. 🇧🇷 Cancelar agora
+  aborta também a consulta de status ao astrometry.net em andamento: nenhum progresso ou erro
+  aparece depois do cancelamento, e consultas sobrepostas num servidor lento não se acumulam.
+- **Horizons target / Alvo do Horizons (AUD-SEC-12).** 🇬🇧 The target typed in Query JPL
+  Horizons is checked against an allowlist (letters, digits, space and `/ - ( ) . _`, up to
+  64 characters) before it goes into the `COMMAND` parameter; quotes, `;`, control characters
+  and similar input get a clear error and no request is sent. 🇧🇷 O alvo digitado em
+  Consultar JPL Horizons é validado por uma lista de permitidos (letras, dígitos, espaço e
+  `/ - ( ) . _`, até 64 caracteres) antes de entrar no parâmetro `COMMAND`; aspas, `;`,
+  caracteres de controle e afins recebem um erro claro e nenhuma requisição é enviada.
+- **Server URLs in Settings / URLs de servidor no Settings (AUD-SEC-13).** 🇬🇧 OK refuses to
+  save an astrometry.net server, VizieR mirror or MPC submission URL that the client would
+  reject (anything but https://, or http:// on localhost/127.0.0.1/::1): a warning names
+  the field and the dialog stays open. The clients and the dialog share one check.
+  🇧🇷 O OK se recusa a gravar URL de servidor astrometry.net, espelho VizieR ou envio ao MPC
+  que o cliente rejeitaria (qualquer coisa além de https://, ou http:// em
+  localhost/127.0.0.1/::1): um aviso indica o campo e o diálogo continua aberto. Os clientes
+  e o diálogo usam a mesma verificação.
 
 ### Added / Adicionado
 

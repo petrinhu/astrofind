@@ -8,9 +8,11 @@
 #include <QObject>
 #include <QVector>
 #include <QString>
+#include <QPointer>
 #include <QFutureWatcher>
 
 class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace core {
 
@@ -29,6 +31,11 @@ public:
     void queryField(double ra, double dec, double radiusDeg, double jd);
 
     bool isBusy() const noexcept { return busy_; }
+
+    /// AUD-SEC-10: abort the in-flight SkyBoT request (if any) and reset busy
+    /// state. The cancelled request is dropped silently: no failed() and no
+    /// offline MPCORB fallback (a timeout, by contrast, still falls back).
+    void cancel();
 
     // ── Offline fallback configuration ──────────────────────────────────────
     void setMpcOrbPath(const QString& path)  { mpcOrbPath_ = path; }
@@ -57,6 +64,7 @@ private:
     void startOfflineScan();
 
     QNetworkAccessManager* nam_;
+    QPointer<QNetworkReply> currentReply_;   ///< AUD-SEC-10: for cancel()
     bool busy_ = false;
 
     // Offline fallback

@@ -3773,6 +3773,31 @@ Baixe primeiro via Internet → Baixar MPCOrb.</translation>
         <source>Session reset</source>
         <translation>Sessão resetada</translation>
     </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="375" />
+        <source>Cancel the download</source>
+        <translation>Cancelar o download</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="389" />
+        <source>no data received for %1 s</source>
+        <translation>nenhum dado recebido em %1 s</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="483" />
+        <source>MPCORB.DAT download cancelled</source>
+        <translation>Download do MPCORB.DAT cancelado</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="484" />
+        <source>Download cancelled</source>
+        <translation>Download cancelado</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="527" />
+        <source>DAILY.DAT download cancelled</source>
+        <translation>Download do DAILY.DAT cancelado</translation>
+    </message>
 </context>
 <context>
     <name>MasterFrameDialog</name>
@@ -4343,6 +4368,11 @@ quando o serviço SkyBoT não está acessível (~200 MB).</translation>
         <location filename="../src/core/Spectrum1D.cpp" line="29" />
         <source>Empty spectrum (NAXIS1=0)</source>
         <translation>Espectro vazio (NAXIS1=0)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SetupWizard.cpp" line="341" />
+        <source>no data received for %1 s</source>
+        <translation>nenhum dado recebido em %1 s</translation>
     </message>
 </context>
 <context>
@@ -5910,6 +5940,42 @@ ou coloridas (NAXIS3)</translation>
         <source>FITS BINTABLE (*.fits *.fit *.fts);;All files (*)</source>
         <translation>FITS BINTABLE (*.fits *.fit *.fts);;Todos os arquivos (*)</translation>
     </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1400" />
+        <source>Plate-solving server URL</source>
+        <translation>URL do servidor de redução astrométrica</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1401" />
+        <source>VizieR mirror URL</source>
+        <translation>URL do espelho VizieR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1402" />
+        <source>MPC submission URL</source>
+        <translation>URL de envio ao MPC</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1417" />
+        <source>Insecure server URL</source>
+        <translation>URL de servidor insegura</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1418" />
+        <source>%1 is not accepted:
+%2
+
+Use an https:// URL (plain http:// is allowed only for localhost, 127.0.0.1 or ::1).</source>
+        <translation>%1 não é aceita:
+%2
+
+Use uma URL https:// (http:// simples só é permitido para localhost, 127.0.0.1 ou ::1).</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1421" />
+        <source>(empty)</source>
+        <translation>(vazia)</translation>
+    </message>
 </context>
 <context>
     <name>SetupWizard</name>
@@ -6329,6 +6395,19 @@ ou coloridas (NAXIS3)</translation>
         <location filename="../src/core/HorizonsClient.cpp" line="119" />
         <source>Could not parse Horizons ephemeris for "%1"</source>
         <translation>Não foi possível analisar a efeméride do Horizons para "%1"</translation>
+    </message>
+    <message>
+        <location filename="../src/core/HorizonsClient.cpp" line="68" />
+        <source>Invalid Horizons target: use an MPC number, name or designation (letters, digits, spaces and / - ( ) . _ only).</source>
+        <translation>Alvo do Horizons inválido: use um número MPC, nome ou designação (apenas letras, dígitos, espaços e / - ( ) . _).</translation>
+    </message>
+</context>
+<context>
+    <name>core::KooEngine</name>
+    <message>
+        <location filename="../src/core/KooEngine.cpp" line="103" />
+        <source>SkyBoT did not respond within %1 s</source>
+        <translation>O SkyBoT não respondeu em %1 s</translation>
     </message>
 </context>
 <context>

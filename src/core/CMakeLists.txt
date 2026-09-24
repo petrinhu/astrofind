@@ -34,6 +34,8 @@ add_library(astrofind_core STATIC
     AstapSolver.h
     HorizonsClient.cpp
     HorizonsClient.h
+    NetworkSafety.cpp
+    NetworkSafety.h
     ApiKeyStore.cpp
     ApiKeyStore.h
     SessionComparator.cpp
