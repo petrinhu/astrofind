@@ -101,7 +101,29 @@ jobs:
           zypper search -t package qt6 | grep -E "qt6-base|qt6-charts|qt6-opengl|qt6-tools" | head -20
           echo ""
 
-      # ── 3. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
+      # ── 3. SYNC IMAGE TO CURRENT SNAPSHOT (zypper dup) ──────────────────────
+      # Tumbleweed is rolling: every snapshot is effectively a new release, and
+      # `refresh` above only re-reads the repo metadata — it does NOT upgrade
+      # packages already baked into the `opensuse/tumbleweed` image layer. When
+      # that image is older than the day's repo snapshot, an install can pull
+      # a *new* dependency (e.g. qt6-base-devel -> libmount-devel) that is
+      # version-pinned against a libmount1 newer than what the stale image
+      # ships, and `zypper install` refuses rather than upgrading the base lib
+      # (measured 2026-09-24, run 36070845314: "libmount-devel-2.42.2 requires
+      # libmount1 = 2.42.2, but this requirement cannot be provided" while the
+      # image already had libmount1-2.42.3). openSUSE's own upgrade guidance
+      # for Tumbleweed is `zypper dup` (dist-upgrade), never plain `install`/
+      # `update`, precisely because it resolves the whole package set against
+      # the current snapshot instead of patching one package in isolation —
+      # see https://en.opensuse.org/SDB:Upgrade_Tumbleweed and
+      # https://en.opensuse.org/Portal:Tumbleweed. `--allow-downgrade` covers
+      # the rarer case where the stale image is briefly ahead of a still-
+      # propagating mirror for one package.
+      - name: "⬆️  Sync image to current Tumbleweed snapshot (zypper dup)"
+        run: |
+          zypper --non-interactive dup --allow-downgrade
+
+      # ── 4. INSTALL BUILD DEPENDENCIES ───────────────────────────────────────
       - name: "📦  Install build dependencies"
         run: |
           echo "── Installing required packages ────────────────────────────────"
@@ -141,11 +163,11 @@ jobs:
             echo "  Qt6Core: not found via pkg-config"
           echo ""
 
-      # ── 4. CHECKOUT ─────────────────────────────────────────────────────────
+      # ── 5. CHECKOUT ─────────────────────────────────────────────────────────
       - name: "📥  Checkout source"
         uses: actions/checkout@v4
 
-      # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      # ── 6. FETCHCONTENT CACHE ────────────────────────────────────────────────
       - name: "💾  Restore FetchContent cache"
         uses: actions/cache@v4
         with:
@@ -153,7 +175,7 @@ jobs:
           key: fetchcontent-opensuse-tw-${{ hashFiles('cmake/dependencies.cmake') }}
           restore-keys: fetchcontent-opensuse-tw-
 
-      # ── 6. CMAKE CONFIGURE ──────────────────────────────────────────────────
+      # ── 7. CMAKE CONFIGURE ──────────────────────────────────────────────────
       - name: "⚙️   CMake configure"
         run: |
           echo "── CMake configure ─────────────────────────────────────────────"
@@ -167,7 +189,7 @@ jobs:
             build/CMakeCache.txt | sort
           echo ""
 
-      # ── 7. BUILD ─────────────────────────────────────────────────────────────
+      # ── 8. BUILD ─────────────────────────────────────────────────────────────
       - name: "🔨  Build (verbose)"
         run: |
           echo "── Building all targets ────────────────────────────────────────"
@@ -184,7 +206,7 @@ jobs:
           ldd build/bin/AstroFind | grep -i qt
           echo ""
 
-      # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
+      # ── 9. CORE UNIT TESTS ───────────────────────────────────────────────────
       - name: "🧪  Core unit tests (116 cases, no display required)"
         run: |
           echo "── Running astrofind_tests ─────────────────────────────────────"
@@ -193,7 +215,7 @@ jobs:
           build/bin/astrofind_tests --reporter console --verbosity high
           echo ""
 
-      # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
+      # ── 10. UI INTEGRATION TESTS ─────────────────────────────────────────────
       - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
         env:
           QT_QPA_PLATFORM: offscreen
@@ -206,7 +228,7 @@ jobs:
           build/bin/astrofind_ui_tests --reporter console --verbosity high
           echo ""
 
-      # ── 10. SUMMARY ──────────────────────────────────────────────────────────
+      # ── 11. SUMMARY ──────────────────────────────────────────────────────────
       - name: "📋  Summary"
         if: always()
         run: |
