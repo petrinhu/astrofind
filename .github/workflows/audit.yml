@@ -99,6 +99,12 @@ jobs:
       DEBUGINFOD_URLS: ${{ matrix.debuginfod }}
 
     steps:
+      # Slug for cache key and artifact name; first so a failed install still
+      # uploads under the right name.
+      - name: "Cache key"
+        id: key
+        run: echo "slug=$(echo '${{ matrix.image }}' | tr '/:' '--')" >> "$GITHUB_OUTPUT"
+
       # ── 1. SYSTEM INFO ──────────────────────────────────────────────────────
       - name: "System information"
         run: |
@@ -113,7 +119,9 @@ jobs:
       # qt6-qtbase-devel and needs libasan/libubsan separately; on Arch and
       # CachyOS the sanitizer runtimes come with gcc and clang-tidy with clang.
       # zlib dev files: QuaZip (pulled in because Core5Compat is installed)
-      # needs them, and minimal images do not ship them.
+      # needs them, and minimal Fedora/Debian images do not ship them. Not
+      # listed for pacman: zlib-ng-compat (already in the Arch/CachyOS base)
+      # provides zlib with headers, and naming zlib conflicts with it.
       - name: "Install build + audit toolchain (dnf)"
         if: matrix.family == 'fedora'
         run: |
@@ -131,7 +139,7 @@ jobs:
           pacman -Syu --noconfirm --needed \
             cmake ninja gcc git pkgconf file procps-ng \
             qt6-base qt6-charts qt6-tools qt6-5compat \
-            cfitsio fftw libarchive zlib \
+            cfitsio fftw libarchive \
             mesa libxkbcommon \
             clang cppcheck valgrind debuginfod
           # Which repo the C library came from matters for valgrind symbols
@@ -164,10 +172,6 @@ jobs:
       # ── 4. FETCHCONTENT CACHE ────────────────────────────────────────────────
       # Keyed per image: _deps holds sources plus sub-builds made by that
       # distro's compiler, so they must not be shared across the matrix.
-      - name: "Cache key"
-        id: key
-        run: echo "slug=$(echo '${{ matrix.image }}' | tr '/:' '--')" >> "$GITHUB_OUTPUT"
-
       - name: "Restore FetchContent cache"
         uses: actions/cache@v4
         with:
