@@ -3,6 +3,11 @@
 
 #include "ImageLoader.h"
 #include "FitsImage.h"
+#include "PdsLoader.h"
+
+#ifdef ASTROFIND_HAS_LIBRAW
+#include <libraw/libraw.h>
+#endif
 
 #include <QImage>
 #include <QFile>
@@ -14,6 +19,8 @@
 #include <algorithm>
 #include <cstring>
 #include <cmath>
+#include <exception>
+#include <memory>
 
 namespace core {
 namespace {
@@ -443,6 +450,153 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
     return img;
 }
 
+
+// ─── DSLR RAW loader (item 21.1, LibRaw) ─────────────────────────────────────
+//
+// Astrometry wants linear, unprocessed data: the CFA mosaic straight from the
+// sensor (no gamma, no white balance, no black subtraction — same convention
+// as a raw FITS). The luminance plane used for detection/centroiding is the
+// 2x2 superpixel mean (R + 2G + B)/4 of each Bayer block, which removes the
+// colour checkerboard a plain CFA frame would feed into star detection (the
+// approach recommended by Siril and the BAA DSLR astrometry guide).
+// Non-Bayer sensors (Fuji X-Trans, Foveon, linear DNG) go through LibRaw's own
+// linear 16-bit processing instead.
+
+#ifdef ASTROFIND_HAS_LIBRAW
+
+/// Bayer pattern index for demosaicBayer (0=RGGB 1=GRBG 2=GBRG 3=BGGR) from the
+/// colours of the top-left 2x2 block of the visible area, or -1 if not a plain
+/// RGB Bayer mosaic.
+int bayerPatternOf(LibRaw& rp)
+{
+    const char* cdesc = rp.imgdata.idata.cdesc;
+    auto name = [&](int r, int c) -> char {
+        const int idx = rp.COLOR(r, c);
+        return (idx >= 0 && idx < 4) ? cdesc[idx] : '?';
+    };
+    char pat[5] = {name(0, 0), name(0, 1), name(1, 0), name(1, 1), 0};
+    const QByteArray p(pat);
+    if (p == "RGGB") return 0;
+    if (p == "GRBG") return 1;
+    if (p == "GBRG") return 2;
+    if (p == "BGGR") return 3;
+    return -1;
+}
+
+void fillRawMetadata(LibRaw& rp, FitsImage& img)
+{
+    const auto& other = rp.imgdata.other;
+    img.expTime    = other.shutter > 0.0f ? static_cast<double>(other.shutter) : 0.0;
+    img.origin     = QStringLiteral("%1 %2").arg(QString::fromLatin1(rp.imgdata.idata.make),
+                                                 QString::fromLatin1(rp.imgdata.idata.model)).trimmed();
+    img.saturation = rp.imgdata.color.maximum > 0 ? static_cast<double>(rp.imgdata.color.maximum)
+                                                  : img.saturation;
+    if (other.timestamp > 0) {
+        // EXIF DateTimeOriginal is the camera's wall clock (usually local time,
+        // time zone unknown). LibRaw turns it into time_t with mktime(), so the
+        // local-time view recovers the wall clock; it is flagged ambiguous so the
+        // UI warns before the time reaches an MPC report.
+        const QDateTime wall = QDateTime::fromSecsSinceEpoch(static_cast<qint64>(other.timestamp));
+        img.dateObs = QDateTime(wall.date(), wall.time(), QTimeZone(0));
+        img.dateObsAmbiguous = true;
+        const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), QTimeZone(0));
+        img.jd = 2451545.0 + static_cast<double>(j2000.secsTo(img.dateObs)) / 86400.0
+                 + img.expTime / 172800.0;
+    }
+}
+
+std::expected<FitsImage, QString> loadDslrRawImpl(const QString& filePath)
+{
+    // LibRaw is large (hundreds of KB): never on the stack.
+    auto rp = std::make_unique<LibRaw>();
+    int ret = rp->open_file(QFile::encodeName(filePath).constData());
+    if (ret != LIBRAW_SUCCESS)
+        return std::unexpected(QObject::tr("Cannot open RAW file '%1': %2")
+                                   .arg(filePath, QString::fromLatin1(libraw_strerror(ret))));
+
+    const auto& S = rp->imgdata.sizes;
+    QString err;
+    if (!validateLoaderDims(S.width, S.height, 1, filePath, err))
+        return std::unexpected(err);
+
+    ret = rp->unpack();
+    if (ret != LIBRAW_SUCCESS)
+        return std::unexpected(QObject::tr("Cannot decode RAW file '%1': %2")
+                                   .arg(filePath, QString::fromLatin1(libraw_strerror(ret))));
+
+    FitsImage img;
+    img.filePath = filePath;
+    img.fileName = QFileInfo(filePath).fileName();
+    img.width    = S.width;
+    img.height   = S.height;
+    const size_t n = static_cast<size_t>(S.width) * static_cast<size_t>(S.height);
+
+    const int pattern = rp->imgdata.rawdata.raw_image ? bayerPatternOf(*rp) : -1;
+    try {
+        if (pattern >= 0) {
+            // Plain Bayer: copy the visible CFA area, demosaic for display only.
+            const unsigned short* raw = rp->imgdata.rawdata.raw_image;
+            const size_t pitch = S.raw_pitch / sizeof(unsigned short);
+            std::vector<float> cfa(n);
+            for (int y = 0; y < S.height; ++y) {
+                const unsigned short* row = raw + static_cast<size_t>(y + S.top_margin) * pitch
+                                                + S.left_margin;
+                float* out = cfa.data() + static_cast<size_t>(y) * S.width;
+                for (int x = 0; x < S.width; ++x) out[x] = static_cast<float>(row[x]);
+            }
+            demosaicBayer(cfa, S.width, S.height, pattern, img.dataR, img.dataG, img.dataB);
+        } else {
+            // X-Trans / Foveon / linear DNG: LibRaw linear 16-bit, raw colour space.
+            auto& P = rp->imgdata.params;
+            P.gamm[0] = P.gamm[1] = 1.0;
+            P.no_auto_bright = 1;
+            P.output_bps     = 16;
+            P.output_color   = 0;      // raw camera colour space, no matrix
+            P.use_camera_wb  = 0;
+            P.use_auto_wb    = 0;
+            ret = rp->dcraw_process();
+            if (ret != LIBRAW_SUCCESS)
+                return std::unexpected(QObject::tr("Cannot process RAW file '%1': %2")
+                                           .arg(filePath, QString::fromLatin1(libraw_strerror(ret))));
+            std::unique_ptr<libraw_processed_image_t, void (*)(libraw_processed_image_t*)>
+                mem(rp->dcraw_make_mem_image(&ret), LibRaw::dcraw_clear_mem);
+            if (!mem || mem->type != LIBRAW_IMAGE_BITMAP || mem->bits != 16 || mem->colors < 1)
+                return std::unexpected(QObject::tr("Unsupported RAW layout in '%1'").arg(filePath));
+            img.width  = mem->width;
+            img.height = mem->height;
+            if (!validateLoaderDims(img.width, img.height, 1, filePath, err))
+                return std::unexpected(err);
+            const size_t m = static_cast<size_t>(img.width) * static_cast<size_t>(img.height);
+            const auto* px = reinterpret_cast<const unsigned short*>(mem->data);
+            const int ch = mem->colors;
+            img.dataR.resize(m); img.dataG.resize(m); img.dataB.resize(m);
+            for (size_t i = 0; i < m; ++i) {
+                img.dataR[i] = px[i * ch];
+                img.dataG[i] = px[i * ch + (ch > 1 ? 1 : 0)];
+                img.dataB[i] = px[i * ch + (ch > 2 ? 2 : 0)];
+            }
+        }
+        const size_t m = img.dataR.size();
+        img.data.resize(m);
+        for (size_t i = 0; i < m; ++i)
+            img.data[i] = 0.25f * (img.dataR[i] + 2.0f * img.dataG[i] + img.dataB[i]);
+    } catch (const std::exception& e) {
+        return std::unexpected(QObject::tr("Out of memory loading RAW file '%1': %2")
+                                   .arg(filePath, QString::fromLocal8Bit(e.what())));
+    }
+    img.isColor = true;
+    fillRawMetadata(*rp, img);
+
+    computeAutoStretch(img);
+    spdlog::info("Loaded RAW: {}  {}x{}  camera='{}'  {}  exp={}s",
+                 img.fileName.toStdString(), img.width, img.height, img.origin.toStdString(),
+                 pattern >= 0 ? "Bayer CFA (superpixel luminance)" : "LibRaw linear 16-bit",
+                 img.expTime);
+    return img;
+}
+
+#endif // ASTROFIND_HAS_LIBRAW
+
 } // anonymous namespace
 
 // ─── loadImage (public dispatcher) ───────────────────────────────────────────
@@ -464,9 +618,49 @@ std::expected<FitsImage, QString> loadImage(const QString& filePath)
      || ext == "bmp"  || ext == "jpg" || ext == "jpeg")
         return loadQImage(filePath);
 
+    if (ext == "img" || ext == "lbl")
+        return loadPds3(filePath);
+
+    if (ext == "xml" && isPds4Label(filePath))
+        return loadPds4(filePath);
+
+    if (isDslrRawExtension(ext))
+        return loadDslrRaw(filePath);
+
     return std::unexpected(
         QObject::tr("Unsupported image format '.%1' — "
-                    "supported: fits, ser, xisf, tiff, tif, png, bmp, jpg").arg(ext));
+                    "supported: fits, ser, xisf, tiff, tif, png, bmp, jpg, "
+                    "PDS3 (img/lbl), PDS4 (xml), DSLR RAW").arg(ext));
+}
+
+bool isDslrRawExtension(const QString& ext)
+{
+    static const QStringList kRaw = {
+        "cr2", "cr3", "crw", "nef", "nrw", "arw", "srf", "sr2", "orf", "rw2",
+        "raf", "pef", "dng", "srw", "3fr", "erf", "kdc", "mrw", "x3f", "iiq",
+        "mef", "mos", "rwl",
+    };
+    return kRaw.contains(ext.toLower());
+}
+
+bool hasDslrRawSupport() noexcept
+{
+#ifdef ASTROFIND_HAS_LIBRAW
+    return true;
+#else
+    return false;
+#endif
+}
+
+std::expected<FitsImage, QString> loadDslrRaw(const QString& filePath)
+{
+#ifdef ASTROFIND_HAS_LIBRAW
+    return loadDslrRawImpl(filePath);
+#else
+    return std::unexpected(
+        QObject::tr("DSLR RAW support is not available in this build of AstroFind "
+                    "(compiled without LibRaw): %1").arg(filePath));
+#endif
 }
 
 } // namespace core

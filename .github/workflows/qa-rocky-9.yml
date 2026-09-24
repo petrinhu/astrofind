@@ -130,6 +130,7 @@ jobs:
             cfitsio-devel \
             fftw-devel \
             libarchive-devel \
+            LibRaw-devel \
             mesa-libGL-devel \
             libxkbcommon-devel || true
           # Try optional Qt6 modules separately (may not be in EPEL 9)

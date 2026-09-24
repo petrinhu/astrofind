@@ -20,6 +20,7 @@ Build-Depends:
  libfftw3-dev,
  libeigen3-dev,
  libarchive-dev,
+ libraw-dev,
  libgl-dev,
  libxkbcommon-dev
 Standards-Version: 4.6.2

@@ -7,33 +7,34 @@
 
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.9.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
-[![Build](https://github.com/petrinhu/astrofind/actions/workflows/build.yml/badge.svg)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
-[![Audit](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml/badge.svg)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
+[![Release](https://img.shields.io/badge/release-v1.1.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/build.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
+[![Audit](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=audit&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
 <!-- Stack -->
-[![C++23](https://img.shields.io/badge/C%2B%2B-23-00599C?logo=cplusplus&logoColor=white)](CMakeLists.txt)
-[![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)](https://www.qt.io/)
-[![CMake](https://img.shields.io/badge/CMake-%E2%89%A53.20-064F8C?logo=cmake)](CMakeLists.txt)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-00599C?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/23)
+[![Qt6](https://img.shields.io/badge/Qt6-6.4%2B-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qt-6/)
+[![CMake](https://img.shields.io/badge/CMake-%E2%89%A53.22-064F8C?logo=cmake)](CMakeLists.txt)
 [![Platform](https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&logoColor=black)](INSTALL.md)
 
 <!-- Quality -->
-[![Tests](https://img.shields.io/badge/tests-5480%20assertions%20passing-brightgreen)](#testing--testes)
+[![Tests](https://img.shields.io/badge/tests-206%20cases%20passing-brightgreen)](#testing--testes)
 [![ASan/UBSan](https://img.shields.io/badge/ASan%2FUBSan-clean-success)](.github/workflows/audit.yml)
 [![cppcheck](https://img.shields.io/badge/cppcheck-clean-success)](.github/workflows/audit.yml)
 [![clang-tidy](https://img.shields.io/badge/clang--tidy-checked-success)](.github/workflows/audit.yml)
 
-<!-- QA matrix, validated distros -->
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04-E95420?logo=ubuntu&logoColor=white)](docs/qa-distros.md)
-[![Debian](https://img.shields.io/badge/Debian-12-A81D33?logo=debian&logoColor=white)](docs/qa-distros.md)
-[![Fedora](https://img.shields.io/badge/Fedora-latest-51A2DA?logo=fedora&logoColor=white)](docs/qa-distros.md)
-[![Arch Linux](https://img.shields.io/badge/Arch%20Linux-rolling-1793D1?logo=archlinux&logoColor=white)](docs/qa-distros.md)
-[![Manjaro](https://img.shields.io/badge/Manjaro-rolling-35BF5C?logo=manjaro&logoColor=white)](docs/qa-distros.md)
-[![openSUSE](https://img.shields.io/badge/openSUSE-Tumbleweed-73BA25?logo=opensuse&logoColor=white)](docs/qa-distros.md)
-[![Rocky Linux](https://img.shields.io/badge/Rocky%20Linux-9-10B981?logo=rockylinux&logoColor=white)](docs/qa-distros.md)
-[![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22-87CF3E?logo=linuxmint&logoColor=white)](docs/qa-distros.md)
-[![Pop!_OS](https://img.shields.io/badge/Pop!__OS-22.04-48B9C7?logo=popos&logoColor=white)](docs/qa-distros.md)
-[![Zorin OS](https://img.shields.io/badge/Zorin%20OS-17-0CC1F3)](docs/qa-distros.md)
+<!-- QA matrix, validated distros: live CI status on main (green "passing" = build + tests OK); Fedora and CachyOS run in the audit matrix -->
+[![Ubuntu](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-ubuntu-24.yml?branch=main&label=Ubuntu%2024.04&logo=ubuntu&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-ubuntu-24.yml)
+[![Debian](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-debian-12.yml?branch=main&label=Debian%2012&logo=debian&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-debian-12.yml)
+[![Fedora](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=Fedora%2044&logo=fedora&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
+[![CachyOS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=CachyOS)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
+[![Arch Linux](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-arch.yml?branch=main&label=Arch%20Linux&logo=archlinux&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-arch.yml)
+[![Manjaro](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-manjaro.yml?branch=main&label=Manjaro&logo=manjaro&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-manjaro.yml)
+[![openSUSE](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-opensuse-tw.yml?branch=main&label=openSUSE%20Tumbleweed&logo=opensuse&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-opensuse-tw.yml)
+[![Rocky Linux](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-rocky-9.yml?branch=main&label=Rocky%20Linux%209&logo=rockylinux&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-rocky-9.yml)
+[![Linux Mint](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-mint-22.yml?branch=main&label=Linux%20Mint%2022&logo=linuxmint&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-mint-22.yml)
+[![Pop!_OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-pop-os-22.yml?branch=main&label=Pop!_OS%2022.04&logo=popos&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-pop-os-22.yml)
+[![Zorin OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-zorin-17.yml?branch=main&label=Zorin%20OS%2017)](https://github.com/petrinhu/astrofind/actions/workflows/qa-zorin-17.yml)
 
 <!-- Community -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
@@ -80,13 +81,12 @@ across a sequence of frames, measures their position and brightness, and exports
 result as an **ADES** report (Astrometry Data Exchange Standard, the XML/PSV format the
 MPC requires for submissions).
 
-> **⚠️ Beta software, not yet validated with real observatory FITS files.**
-> All features are implemented, the full numerical audit (ASan/UBSan, Valgrind, cppcheck,
-> clang-tidy) is clean, and the test suite passes on 11 Linux distributions, but
-> end-to-end validation with real telescope imagery has not been performed yet. Verify
-> astrometry, photometry, and ADES report results independently before submitting to the
-> MPC. Real-world test reports and feedback are very welcome; see
-> [Contributing](#contributing--contribuindo).
+> **⚠️ Validate before you submit.** The test suite passes on 11 Linux distributions and
+> the numerical audit (ASan/UBSan, Valgrind, cppcheck, clang-tidy) runs on every pull
+> request, but an end-to-end validation against real observatory images is still to be
+> published, and a few audit items are open (see [`TODO.md`](TODO.md)). Check astrometry,
+> photometry and the ADES report independently before submitting to the MPC. Real-world
+> test reports are very welcome; see [Contributing](#contributing--contribuindo).
 
 > *"To my son Guga, a Linux user like me,*
 > *who had no good option for finding asteroids."*
@@ -102,13 +102,13 @@ longo de uma sequência de quadros, mede sua posição e brilho, e exporta o res
 relatório **ADES** (Astrometry Data Exchange Standard, o formato XML/PSV exigido pelo MPC
 para submissões).
 
-> **⚠️ Software em fase beta, ainda não validado com arquivos FITS reais de observatório.**
-> Todas as funcionalidades estão implementadas, a auditoria numérica completa (ASan/UBSan,
-> Valgrind, cppcheck, clang-tidy) está limpa, e a suíte de testes passa em 11 distribuições
-> Linux, mas a validação ponta a ponta com imagens reais de telescópio ainda não foi
-> realizada. Verifique de forma independente os resultados de astrometria, fotometria e
-> relatórios ADES antes de qualquer submissão ao MPC. Relatos de testes com dados reais e
-> feedback são muito bem-vindos; veja [Contribuindo](#contributing--contribuindo).
+> **⚠️ Valide antes de submeter.** A suíte de testes passa em 11 distribuições Linux e a
+> auditoria numérica (ASan/UBSan, Valgrind, cppcheck, clang-tidy) roda em todo pull
+> request, mas uma validação ponta a ponta com imagens reais de observatório ainda não foi
+> publicada, e alguns itens da auditoria seguem abertos (veja [`TODO.md`](TODO.md)).
+> Confira astrometria, fotometria e o relatório ADES de forma independente antes de
+> submeter ao MPC. Relatos de testes com dados reais são muito bem-vindos; veja
+> [Contribuindo](#contributing--contribuindo).
 
 > *"Para meu filho Guga, usuário de Linux como eu,*
 > *que estava sem uma boa opção para buscar asteroides."*
@@ -120,29 +120,35 @@ para submissões).
 ### 🇬🇧 English
 
 - **Star detection and measurement**: automated star detection (SEP / Source Extractor),
-  moment centroids, and elliptical **PSF** (Point Spread Function, the blur profile a
-  point of light forms on the sensor) fitting via Levenberg-Marquardt, which reveals coma
-  and tracking errors from the star's shape.
-- **Astrometry / WCS**: full **WCS** (World Coordinate System, the mapping between pixel
-  and sky coordinates) pipeline across 8 projections (TAN, SIN, ARC, STG, CAR, MER, GLS,
-  AIT), online plate solving via astrometry.net, offline via ASTAP, atmospheric refraction
-  correction, and ICRS to CIRS to topocentric conversion for sub-arcsecond report
-  residuals.
+  streak and blended-source detection, and elliptical **PSF** (Point Spread Function, the
+  blur profile a point of light forms on the sensor) fitting via Levenberg-Marquardt for
+  the measured object, which also reveals coma and tracking errors from the star's shape.
+- **Astrometry / WCS**: **WCS** (World Coordinate System, the mapping between pixel and sky
+  coordinates) in 8 projections (TAN, SIN, ARC, STG, CAR, MER, GLS, AIT); plate solving
+  online via astrometry.net or offline via ASTAP (images that already carry a WCS are kept);
+  reference stars from UCAC4 or Gaia DR3 (VizieR, with proper motion to the image epoch) or a
+  local FITS catalog; atmospheric refraction correction (Bennett, skipped for space
+  telescopes). Reported positions are ICRF.
 - **Photometry**: aperture and differential **photometry** (brightness measurement) with
-  zero-point calibration, airmass/extinction correction, light-curve and growth-curve
-  dialogs.
-- **Moving-object detection**: tracklet linking across 3 or more images, streak/trail
-  detection for fast movers and satellites, Track and Stack alignment, and image stacking
-  (Add / Average / Median / Sigma-clipped with FFT sub-pixel registration).
-- **Reporting**: ADES 2022 XML/PSV generation, MPC report preview and direct submission,
-  Solar System body identification (IMCCE SkyBoT, JPL Horizons).
+  zero-point from catalog stars, airmass/extinction correction, light-curve and
+  growth-curve dialogs.
+- **Moving-object detection**: automatic candidate search across 3 or more images, blink
+  comparison, streak/trail detection for fast movers and satellites, Track and Stack along
+  a motion vector, and image stacking (Add / Average / Median, aligned by stars or FFT
+  phase correlation).
+- **Known objects and reporting**: known asteroids/comets in the field from IMCCE SkyBoT
+  (or offline from MPCORB.DAT), JPL Horizons ephemerides, ADES 2022 XML/PSV report with
+  preview, and submission to the MPC by HTTP or e-mail.
 - **File formats**: FITS (single/multi-HDU, RGB, temporal cubes), SER video, XISF
-  (PixInsight), TIFF/PNG/BMP/JPEG, and compressed archives (ZIP, TAR.*, 7Z, RAR).
+  (PixInsight), DSLR RAW (CR2/CR3/NEF/ARW/DNG/… via LibRaw, optional), NASA PDS3/PDS4,
+  TIFF/PNG/BMP/JPEG, and compressed archives (ZIP, TAR.*, 7Z, RAR).
 - **Image display**: zoom/pan/blink comparison across frames, multiple stretch/LUT modes,
   histogram and 2-D power-spectrum diagnostics.
-- **Calibration**: bias/dark/flat pipeline, calibration wizard, bad-pixel masking.
-- **Interface**: full bilingual UI (English / Brazilian Portuguese), Day/Night/Auto theme,
-  guided school workflow for students.
+- **Calibration**: dark/flat pipeline with master-frame builder, calibration wizard,
+  bad-pixel correction, sliding-median background removal.
+- **Interface**: bilingual UI (English / Brazilian Portuguese), Night/Day/Auto theme, a
+  six-step guided workflow panel (with an optional automatic mode), and school features
+  (teacher e-mail, shareable school configuration).
 
 See [`docs/technical-reference.md`](docs/technical-reference.md) for the full algorithm
 and coordinate-system reference, and the [Wiki](https://github.com/petrinhu/astrofind/wiki)
@@ -151,31 +157,36 @@ for the complete feature list and how-to guides.
 ### 🇧🇷 Português
 
 - **Detecção e medição de estrelas**: detecção automática de estrelas (SEP / Source
-  Extractor), centroides por momentos, e ajuste de **PSF** elíptica (Point Spread
-  Function, o perfil de borrão que um ponto de luz forma no sensor) via
-  Levenberg-Marquardt, que revela coma e erros de rastreamento pela forma da estrela.
-- **Astrometria / WCS**: pipeline **WCS** (World Coordinate System, o mapeamento entre
-  coordenadas de pixel e coordenadas celestes) completo em 8 projeções (TAN, SIN, ARC, STG,
-  CAR, MER, GLS, AIT), plate solving online via astrometry.net, offline via ASTAP, correção
-  de refração atmosférica, e conversão ICRS para CIRS para topocêntrico para resíduos de
-  relatório sub-arcseg.
+  Extractor), detecção de traços e de fontes sobrepostas, e ajuste de **PSF** elíptica
+  (Point Spread Function, o perfil de borrão que um ponto de luz forma no sensor) via
+  Levenberg-Marquardt no objeto medido, que também revela coma e erros de rastreamento
+  pela forma da estrela.
+- **Astrometria / WCS**: **WCS** (World Coordinate System, o mapeamento entre coordenadas
+  de pixel e coordenadas celestes) em 8 projeções (TAN, SIN, ARC, STG, CAR, MER, GLS, AIT);
+  plate solving online via astrometry.net ou offline via ASTAP (imagens que já têm WCS são
+  mantidas); estrelas de referência do UCAC4 ou Gaia DR3 (VizieR, com movimento próprio
+  levado à época da imagem) ou de um catálogo FITS local; correção de refração atmosférica
+  (Bennett, ignorada para telescópios espaciais). As posições reportadas são ICRF.
 - **Fotometria**: **fotometria** de abertura e diferencial (medição de brilho) com
-  calibração de zero-point, correção de massa de ar/extinção, diálogos de curva de luz e
-  curva de crescimento.
-- **Detecção de objetos em movimento**: ligação de tracklets em 3 ou mais imagens, detecção
-  de traço/streak para objetos rápidos e satélites, alinhamento Track and Stack, e
-  empilhamento de imagens (Adição / Média / Mediana / Sigma-clipped com registro sub-pixel
-  por FFT).
-- **Relatórios**: geração ADES 2022 XML/PSV, pré-visualização e submissão direta ao MPC,
-  identificação de corpos do Sistema Solar (IMCCE SkyBoT, JPL Horizons).
+  zero-point a partir das estrelas do catálogo, correção de massa de ar/extinção, diálogos
+  de curva de luz e curva de crescimento.
+- **Detecção de objetos em movimento**: busca automática de candidatos em 3 ou mais
+  imagens, comparação em blink, detecção de traço/streak para objetos rápidos e satélites,
+  Track and Stack ao longo de um vetor de movimento, e empilhamento de imagens (Adição /
+  Média / Mediana, alinhado por estrelas ou por correlação de fase FFT).
+- **Objetos conhecidos e relatórios**: asteroides/cometas conhecidos no campo pelo IMCCE
+  SkyBoT (ou offline pelo MPCORB.DAT), efemérides do JPL Horizons, relatório ADES 2022
+  XML/PSV com pré-visualização, e envio ao MPC por HTTP ou e-mail.
 - **Formatos de arquivo**: FITS (HDU único/multi-HDU, RGB, cubos temporais), vídeo SER,
-  XISF (PixInsight), TIFF/PNG/BMP/JPEG, e arquivos compactados (ZIP, TAR.*, 7Z, RAR).
+  XISF (PixInsight), RAW de DSLR (CR2/CR3/NEF/ARW/DNG/… via LibRaw, opcional), NASA
+  PDS3/PDS4, TIFF/PNG/BMP/JPEG, e arquivos compactados (ZIP, TAR.*, 7Z, RAR).
 - **Visualização de imagem**: zoom/pan/comparação em blink entre quadros, múltiplos modos
   de esticamento/LUT, diagnósticos de histograma e espectro de potência 2-D.
-- **Calibração**: pipeline bias/dark/flat, assistente de calibração, máscara de pixels
-  ruins.
-- **Interface**: UI bilíngue completa (inglês / português brasileiro), tema Dia/Noite/
-  Automático, fluxo guiado para escolas.
+- **Calibração**: pipeline dark/flat com construtor de master frames, assistente de
+  calibração, correção de pixels ruins, remoção de fundo por mediana deslizante.
+- **Interface**: UI bilíngue (inglês / português brasileiro), tema Noite/Dia/Automático,
+  painel de fluxo guiado em seis passos (com modo automático opcional) e recursos para
+  escolas (e-mail do professor, configuração da escola compartilhável).
 
 Veja [`docs/technical-reference.md`](docs/technical-reference.md) para a referência
 completa de algoritmos e sistemas de coordenadas, e a
@@ -188,17 +199,17 @@ funcionalidades e guias passo a passo.
 
 ### 🇬🇧 English
 
-Screenshots are being prepared for the [Wiki](https://github.com/petrinhu/astrofind/wiki).
-Until then, the fastest way to see the interface is to build it yourself (5 minutes, see
-[Installation](#installation--instalação)) or check the guided walkthrough once the Wiki is
-published.
+Screenshots are being prepared. Until then, the fastest way to see the interface is to
+install it (see [Installation](#installation--instalação)) and follow the
+[Quick Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start) in the Wiki, which
+describes every screen step by step.
 
 ### 🇧🇷 Português
 
-As capturas de tela estão sendo preparadas para a
-[Wiki](https://github.com/petrinhu/astrofind/wiki). Até lá, a forma mais rápida de ver a
-interface é compilando você mesmo (5 minutos, veja [Instalação](#installation--instalação))
-ou conferindo o passo a passo guiado assim que a Wiki for publicada.
+As capturas de tela estão sendo preparadas. Até lá, a forma mais rápida de ver a interface
+é instalar o programa (veja [Instalação](#installation--instalação)) e seguir o
+[Início Rápido](https://github.com/petrinhu/astrofind/wiki/Quick-Start) da Wiki, que
+descreve cada tela passo a passo.
 
 ---
 
@@ -211,7 +222,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -222,7 +233,7 @@ chmod +x install.sh
 |---|---|
 | Fedora / RHEL / Rocky Linux | `.rpm` |
 | Ubuntu / Debian / Mint / Pop!\_OS / Zorin | `.deb` |
-| Arch Linux / Manjaro | PKGBUILD tarball |
+| Arch Linux / Manjaro / CachyOS | PKGBUILD (built locally with `makepkg`) |
 
 Every exact command, per-distro dependency list, and build-from-source instructions are in
 **[INSTALL.md](INSTALL.md)**: keep that file as the single source of truth for install
@@ -243,7 +254,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -254,7 +265,7 @@ chmod +x install.sh
 |---|---|
 | Fedora / RHEL / Rocky Linux | `.rpm` |
 | Ubuntu / Debian / Mint / Pop!\_OS / Zorin | `.deb` |
-| Arch Linux / Manjaro | tarball PKGBUILD |
+| Arch Linux / Manjaro / CachyOS | PKGBUILD (compilado localmente com `makepkg`) |
 
 Todos os comandos exatos, dependências por distribuição e instruções de compilação a
 partir do código-fonte estão em **[INSTALL.md](INSTALL.md)**: mantenha esse arquivo como
@@ -274,28 +285,45 @@ cmake --build build --target AstroFind -j$(nproc)
 
 ### 🇬🇧 English
 
-1. Open a FITS file (**FITS** means Flexible Image Transport System, the standard
-   astronomical image format) or a folder of images.
-2. Run star detection and plate solving (online via astrometry.net or offline via ASTAP).
-3. Let AstroFind flag moving-object candidates across 3 or more frames.
-4. Click a candidate to measure its centroid and photometry.
-5. Export the ADES report and, once verified, submit it to the MPC.
+The **Workflow** panel on the left walks you through the same six steps:
 
-A full guided walkthrough with screenshots lives in the
-**[Wiki](https://github.com/petrinhu/astrofind/wiki)**.
+1. **File → Load Images…**: open 3 or more frames of the same field (FITS, or any format in
+   [Features](#features--recursos); **FITS** = Flexible Image Transport System, the
+   standard astronomical image format).
+2. **Astrometry → Data Reduction…** (`Ctrl+A`): calibration, star detection and plate
+   solving (online via astrometry.net, free API key, or offline via ASTAP).
+3. **Tools → Known Object Overlay** (`Ctrl+K`): reference stars and the known asteroids in
+   the field.
+4. **Tools → Blink Images** (`Ctrl+B`) or **Astrometry → Moving Object Detection…**
+   (`Ctrl+M`): find what moved.
+5. **Edit → Aperture Tool** (`A`) or the **Measure Object** button (`M`): click the object; check
+   the Verification dialog and accept.
+6. **File → View ADES Report File**: review the ADES report and, once verified, submit it
+   to the MPC.
+
+The [Wiki](https://github.com/petrinhu/astrofind/wiki) explains each step for absolute
+beginners, with a menu and settings reference.
 
 ### 🇧🇷 Português
 
-1. Abra um arquivo FITS (**FITS** significa Flexible Image Transport System, o formato
-   padrão de imagem astronômica) ou uma pasta de imagens.
-2. Rode a detecção de estrelas e o plate solving (online via astrometry.net ou offline via
-   ASTAP).
-3. Deixe o AstroFind sinalizar candidatos a objeto em movimento em 3 ou mais quadros.
-4. Clique num candidato para medir seu centroide e fotometria.
-5. Exporte o relatório ADES e, após verificação, envie ao MPC.
+O painel **Fluxo** à esquerda conduz pelos mesmos seis passos:
 
-Um passo a passo guiado com capturas de tela vive na
-**[Wiki](https://github.com/petrinhu/astrofind/wiki)**.
+1. **Arquivo → Carregar Imagens…**: abra 3 ou mais quadros do mesmo campo (FITS, ou qualquer
+   formato em [Recursos](#features--recursos); **FITS** = Flexible Image Transport System, o
+   formato padrão de imagem astronômica).
+2. **Astrometria → Redução de Dados…** (`Ctrl+A`): calibração, detecção de estrelas e plate
+   solving (online via astrometry.net, com chave de API gratuita, ou offline via ASTAP).
+3. **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`): estrelas de referência
+   e os asteroides conhecidos no campo.
+4. **Ferramentas → Piscar Imagens** (`Ctrl+B`) ou **Astrometria → Detecção de Objetos em
+   Movimento…** (`Ctrl+M`): encontre o que se moveu.
+5. **Editar → Ferramenta Abertura** (`A`) ou o botão **Medir Objeto** (`M`): clique no objeto; confira
+   o diálogo de Verificação e aceite.
+6. **Arquivo → Ver Arquivo de Relatório ADES**: revise o relatório ADES e, após verificação,
+   envie ao MPC.
+
+A [Wiki](https://github.com/petrinhu/astrofind/wiki) explica cada passo para iniciantes
+absolutos, com referência de menus e de configurações.
 
 ---
 
@@ -303,13 +331,15 @@ Um passo a passo guiado com capturas de tela vive na
 
 ### 🇬🇧 English
 
-C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.20+,
-cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
+C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
+cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; optional: LibRaw,
+libarchive, QuaZip, Qt6Keychain.
 
 ### 🇧🇷 Português
 
-C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.20+,
-cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
+C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
+cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; opcionais: LibRaw,
+libarchive, QuaZip, Qt6Keychain.
 
 ---
 
@@ -328,8 +358,8 @@ cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
 | spdlog | >= 1.11 | MIT | Logging (FetchContent) |
 | nlohmann/json | >= 3.11 | MIT | Project file serialisation (bundled) |
 | Qt6Keychain | any | LGPL-2.1 | Secure API key storage (dynamically linked, required at runtime) |
-| CMake | >= 3.20 | n/a | Build system, not distributed |
-| C++ | 23 | n/a | Compiler: GCC 13+ or Clang 16+, not distributed |
+| CMake | >= 3.22 | n/a | Build system, not distributed |
+| C++ | 23 | n/a | Compiler: GCC 12+ (Debian 12 is the oldest tested) or Clang 16+, not distributed |
 
 **Optional**
 
@@ -337,6 +367,7 @@ cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
 |------------|---------|-------|
 | QuaZip + Qt6Core5Compat | LGPL-2.1 + static-linking exception | ZIP archive extraction |
 | libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction |
+| LibRaw | LGPL-2.1 / CDDL-1.0 | DSLR RAW loading (optional) |
 | Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations |
 | ASTAP | proprietary freeware | Offline plate solver ([hnsky.org](https://www.hnsky.org/astap.htm)) |
 | CCfits | NASA permissive | Bundled C++ wrapper around cfitsio |
@@ -358,8 +389,8 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 | spdlog | >= 1.11 | MIT | Log (FetchContent) |
 | nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (bundled) |
 | Qt6Keychain | qualquer | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente, obrigatório em runtime) |
-| CMake | >= 3.20 | n/a | Sistema de build, não distribuído |
-| C++ | 23 | n/a | Compilador: GCC 13+ ou Clang 16+, não distribuído |
+| CMake | >= 3.22 | n/a | Sistema de build, não distribuído |
+| C++ | 23 | n/a | Compilador: GCC 12+ (o Debian 12 é o mais antigo testado) ou Clang 16+, não distribuído |
 
 **Opcionais**
 
@@ -367,6 +398,7 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 |-------------|---------|-------|
 | QuaZip + Qt6Core5Compat | LGPL-2.1 + exceção de linkagem estática | Extração de arquivos ZIP |
 | libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR |
+| LibRaw | LGPL-2.1 / CDDL-1.0 | Leitura de RAW de DSLR (opcional) |
 | Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts` |
 | ASTAP | freeware proprietário | Plate solver offline ([hnsky.org](https://www.hnsky.org/astap.htm)) |
 | CCfits | Permissiva NASA | Wrapper C++ do cfitsio, bundled |
@@ -386,14 +418,17 @@ ver [`NOTICE`](NOTICE). Nomes exatos de pacotes por distribuição: ver
 # Core tests (no display needed)
 ./build/bin/astrofind_tests
 
-# UI tests (requires a display)
+# UI tests (need a display, or run headless with QT_QPA_PLATFORM=offscreen)
 ./build/bin/astrofind_ui_tests
 ```
 
-The numerical audit build (ASan + UBSan) passes **5480 assertions across 159 test cases**,
-`detect_leaks=1` included. `audit.yml` runs ASan/UBSan, cppcheck, clang-tidy, and Valgrind
-on every pull request into `main` and on every release tag. See
-[`AUDIT_FIND.md`](AUDIT_FIND.md) for the full audit trail.
+The suites have **179 core test cases (38 515 assertions) and 27 UI test cases**, all
+passing on the 10 QA distributions. `audit.yml` rebuilds everything with ASan + UBSan
+(LeakSanitizer on) and also runs cppcheck, clang-tidy and Valgrind, on Fedora 44,
+CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every pull request into `main` and every
+release tag. Locally: `cmake --build build --target audit` (reports in `build/audit/`).
+See [`AUDIT_FIND.md`](AUDIT_FIND.md) for the audit trail and [`TODO.md`](TODO.md) for the
+open items.
 
 ### 🇧🇷 Português
 
@@ -401,14 +436,17 @@ on every pull request into `main` and on every release tag. See
 # Testes do núcleo (sem display)
 ./build/bin/astrofind_tests
 
-# Testes de UI (requer display)
+# Testes de UI (precisam de display, ou rode sem tela com QT_QPA_PLATFORM=offscreen)
 ./build/bin/astrofind_ui_tests
 ```
 
-A build de auditoria numérica (ASan + UBSan) passa em **5480 assertions em 159 casos de
-teste**, incluindo `detect_leaks=1`. O `audit.yml` roda ASan/UBSan, cppcheck, clang-tidy e
-Valgrind em todo pull request para a `main` e em toda tag de release. Veja
-[`AUDIT_FIND.md`](AUDIT_FIND.md) para o histórico completo de auditoria.
+As suítes têm **179 casos de teste do núcleo (38 515 asserções) e 27 casos de UI**, todos
+passando nas 10 distribuições de QA. O `audit.yml` recompila tudo com ASan + UBSan
+(LeakSanitizer ligado) e roda também cppcheck, clang-tidy e Valgrind, em Fedora 44,
+CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo pull request para a `main` e em toda tag
+de release. Localmente: `cmake --build build --target audit` (relatórios em
+`build/audit/`). Veja [`AUDIT_FIND.md`](AUDIT_FIND.md) para o histórico da auditoria e o
+[`TODO.md`](TODO.md) para os itens abertos.
 
 ---
 
@@ -421,7 +459,7 @@ Valgrind em todo pull request para a `main` e em toda tag de release. Veja
 | [`INSTALL.md`](INSTALL.md) | How-to | Exact install commands per distribution |
 | [`docs/technical-reference.md`](docs/technical-reference.md) | Reference | Algorithms and coordinate-system math (WCS, refraction, PSF, ADES) |
 | [`docs/qa-distros.md`](docs/qa-distros.md) | Reference | Multi-distro QA strategy and per-distro results |
-| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Guided walkthroughs, screenshots, day-to-day usage |
+| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Beginner-to-advanced guides: installation, first measurement, every menu and setting, troubleshooting (source in [`docs/wiki/`](docs/wiki/), published with `scripts/sync-wiki.sh`) |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How-to | Project layout, code style, how to submit a change |
 | [`CHANGELOG.md`](CHANGELOG.md) | Reference | Release notes per version |
 
@@ -432,7 +470,7 @@ Valgrind em todo pull request para a `main` e em toda tag de release. Veja
 | [`INSTALL.md`](INSTALL.md) | How-to | Comandos exatos de instalação por distribuição |
 | [`docs/technical-reference.md`](docs/technical-reference.md) | Reference | Matemática de algoritmos e sistemas de coordenadas (WCS, refração, PSF, ADES) |
 | [`docs/qa-distros.md`](docs/qa-distros.md) | Reference | Estratégia de QA multi-distro e resultados por distribuição |
-| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Passo a passo guiado, capturas de tela, uso do dia a dia |
+| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Guias do iniciante ao avançado: instalação, primeira medição, cada menu e configuração, solução de problemas (fonte em [`docs/wiki/`](docs/wiki/), publicada com `scripts/sync-wiki.sh`) |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How-to | Estrutura do projeto, estilo de código, como enviar uma mudança |
 | [`CHANGELOG.md`](CHANGELOG.md) | Reference | Notas de lançamento por versão |
 
@@ -501,7 +539,8 @@ Libraries used: [Qt6](https://github.com/qt/qtbase),
 [Catch2](https://github.com/catchorg/Catch2),
 [QuaZip](https://github.com/stachenov/quazip),
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain),
-[libarchive](https://www.libarchive.org/).
+[libarchive](https://www.libarchive.org/),
+[LibRaw](https://www.libraw.org/).
 
 See [`NOTICE`](NOTICE) for the license and copyright of every item above.
 
@@ -532,7 +571,8 @@ Bibliotecas utilizadas: [Qt6](https://github.com/qt/qtbase),
 [Catch2](https://github.com/catchorg/Catch2),
 [QuaZip](https://github.com/stachenov/quazip),
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain),
-[libarchive](https://www.libarchive.org/).
+[libarchive](https://www.libarchive.org/),
+[LibRaw](https://www.libraw.org/).
 
 Ver [`NOTICE`](NOTICE) para a licença e o copyright de cada item acima.
 
@@ -540,5 +580,5 @@ Ver [`NOTICE`](NOTICE) para a licença e o copyright de cada item acima.
 
 Repository: [github.com/petrinhu/astrofind](https://github.com/petrinhu/astrofind)
 
-*Last reviewed / última revisão: 2026-07-10. Owner: Petrus Silva Costa
+*Last reviewed / última revisão: 2026-09-24. Owner: Petrus Silva Costa
 ([@petrinhu](https://github.com/petrinhu))*

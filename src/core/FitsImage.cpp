@@ -1270,4 +1270,12 @@ QString saveWcsToFits(const QString& filePath, const PlateSolution& wcs)
     return {};
 }
 
+// Public wrapper so the non-FITS loaders (PDS, RAW) apply the SAME sanity
+// ceiling and file-size cross-check as loadFits (L-17: one ceiling for every
+// loader, no drift between twins).
+bool validateLoaderDims(long w, long h, long depth, const QString& filePath, QString& err)
+{
+    return validateImageDims(w, h, depth, filePath, err);
+}
+
 } // namespace core

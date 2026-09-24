@@ -46,6 +46,7 @@ on:
   pull_request:
     branches: [ main ]
   push:
+    branches: [ main ]    # keeps the README Fedora/CachyOS/Audit badges live
     tags:
       - 'v*'
   workflow_dispatch:
@@ -129,7 +130,7 @@ jobs:
             cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file \
             qt6-qtbase-devel qt6-qtcharts-devel \
             qt6-qttools-devel qt6-qt5compat-devel \
-            cfitsio-devel fftw-devel libarchive-devel zlib-devel \
+            cfitsio-devel fftw-devel libarchive-devel zlib-devel LibRaw-devel \
             mesa-libGL-devel libxkbcommon-devel \
             clang-tools-extra cppcheck valgrind
 
@@ -139,7 +140,7 @@ jobs:
           pacman -Syu --noconfirm --needed \
             cmake ninja gcc git pkgconf file procps-ng \
             qt6-base qt6-charts qt6-tools qt6-5compat \
-            cfitsio fftw libarchive \
+            cfitsio fftw libarchive libraw \
             mesa libxkbcommon \
             clang cppcheck valgrind debuginfod
           # Which repo the C library came from matters for valgrind symbols
@@ -154,7 +155,7 @@ jobs:
             cmake ninja-build gcc g++ git pkg-config file procps \
             qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
             qt6-tools-dev qt6-tools-dev-tools libqt6core5compat6-dev \
-            libcfitsio-dev libfftw3-dev libarchive-dev zlib1g-dev \
+            libcfitsio-dev libfftw3-dev libarchive-dev zlib1g-dev libraw-dev \
             libgl1-mesa-dev libxkbcommon-dev \
             clang-tidy cppcheck valgrind
 

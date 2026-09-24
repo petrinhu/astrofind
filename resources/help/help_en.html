@@ -414,8 +414,8 @@ kbd {
     <li><strong>SER</strong> — planetary video format (monochrome and color)</li>
     <li><strong>XISF</strong> — PixInsight native format</li>
     <li><strong>TIFF / PNG</strong> — 8 and 16-bit grayscale or RGB</li>
-    <li><strong>RAW DSLR</strong> — CR2, NEF, ARW via libraw (optional dependency)</li>
-    <li><strong>PDS / PDS4</strong> — NASA planetary format (.img + .lbl)</li>
+    <li><strong>RAW DSLR</strong> — CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF and other camera RAW files via LibRaw (optional build dependency). Data stay linear (no gamma, no white balance); star detection uses the 2×2 superpixel luminance of the Bayer mosaic. The time comes from the camera clock and is flagged ambiguous — check the camera time zone before reporting.</li>
+    <li><strong>PDS3 / PDS4</strong> — NASA Planetary Data System images: PDS3 <code>.img</code> with attached label or detached <code>.lbl</code>, and PDS4 <code>.xml</code> labels (2-D image arrays; a label pointing to FITS opens the FITS file). Mission images rarely carry a plate solution — plate-solve before measuring.</li>
     <li><strong>Archives</strong> — ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR: drop the archive, AstroFind extracts and loads all images inside</li>
   </ul>
 

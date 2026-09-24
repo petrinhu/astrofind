@@ -10,9 +10,9 @@ Coordenadas e Métodos Numéricos**
 > All equations use SI or astronomical units as noted. / Todas as equações usam
 > unidades SI ou astronômicas, conforme indicado.
 >
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v0.9.0+
+> **Applies to / Aplica-se a:** AstroFind v1.1.0+
 
 ---
 
@@ -139,6 +139,49 @@ followed by a 4-byte little-endian XML header length, then the XML block. The
 
 Pixel data at `offset` bytes from file start. AstroFind reads Float32 and UInt16.
 
+**DSLR RAW (LibRaw, optional):**
+
+Camera RAW files (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF, …) are decoded with LibRaw
+(`open_file` → `unpack`). For a plain RGB Bayer sensor AstroFind copies the visible area of the
+colour filter array (CFA) *without* gamma, white balance or black-level subtraction, so the
+values stay linear ADU like a raw FITS. The detection/centroiding plane is the 2×2 superpixel
+luminance of each Bayer block:
+
+$$L = \frac{R + 2G + B}{4}, \qquad G = \frac{G_1 + G_2}{2}$$
+
+which removes the colour checkerboard a raw CFA frame would otherwise feed into star
+detection. The Bayer pattern (RGGB/GRBG/GBRG/BGGR) is read from LibRaw's colour index of the
+top-left 2×2 block. Non-Bayer sensors (Fuji X-Trans, Foveon, linear DNG) go through LibRaw's
+linear 16-bit processing (`gamm = 1,1`, `no_auto_bright`, raw colour space). EXIF gives the
+exposure time and the timestamp; the timestamp is the camera's wall clock (time zone unknown),
+so the image is flagged `dateObsAmbiguous` and JD is computed at mid-exposure.
+
+**NASA PDS3 / PDS4:**
+
+*PDS3* labels use ODL (`KEY = VALUE`, ending at `END`). AstroFind reads the first top-level
+`OBJECT = IMAGE`: `LINES` (height), `LINE_SAMPLES` (width), `SAMPLE_TYPE` + `SAMPLE_BITS`
+(MSB/LSB signed/unsigned integers of 8–64 bits, IEEE reals of 32/64 bits), `SCALING_FACTOR`,
+`OFFSET`, `MISSING_CONSTANT` (→ NaN), `LINE_PREFIX_BYTES`/`LINE_SUFFIX_BYTES`. The data start
+is given by the `^IMAGE` pointer:
+
+| `^IMAGE` form | Byte offset of the first line |
+|---|---|
+| `n` | $(n-1)\cdot$`RECORD_BYTES` |
+| `n <BYTES>` | $n-1$ |
+| `"FILE.IMG"` | 0 in that file |
+| `("FILE.IMG", n)` | $(n-1)\cdot$`RECORD_BYTES` in that file |
+
+*PDS4* labels are XML. AstroFind reads the first `Array_2D_Image` of the
+`File_Area_Observational`: `offset` (bytes), `axis_index_order` ("Last Index Fastest"),
+`Element_Array/data_type` (e.g. `SignedMSB2`, `UnsignedLSB4`, `IEEE754MSBSingle`),
+`scaling_factor`, `value_offset`, `Axis_Array/elements` with `sequence_number` 1 = lines and
+2 = samples, and `Special_Constants/missing_constant`. A label whose data file is FITS is
+handed to the FITS loader.
+
+In both cases the physical value is $v = \text{raw}\cdot\text{scale} + \text{offset}$, and
+before anything is allocated the declared size is checked against the shared loader ceiling
+and against the file: `offset + lines·(prefix + samples·bytes + suffix) ≤ file size`.
+
 ### 🇧🇷 Português
 
 **SER:**
@@ -170,6 +213,50 @@ carrega:
 
 Os dados de pixel ficam no offset `offset` a partir do início do arquivo. O
 AstroFind lê Float32 e UInt16.
+
+**RAW de DSLR (LibRaw, opcional):**
+
+Arquivos RAW de câmera (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF, …) são decodificados com
+o LibRaw (`open_file` → `unpack`). Para um sensor Bayer RGB comum, o AstroFind copia a área
+visível do mosaico de filtros de cor (CFA) *sem* gama, balanço de branco ou subtração do nível
+de preto, então os valores continuam em ADU linear como num FITS bruto. O plano usado para
+detecção e centroide é a luminância por superpixel 2×2 de cada bloco Bayer:
+
+$$L = \frac{R + 2G + B}{4}, \qquad G = \frac{G_1 + G_2}{2}$$
+
+o que elimina o "xadrez" de cores que um CFA bruto passaria para a detecção de estrelas. O
+padrão Bayer (RGGB/GRBG/GBRG/BGGR) vem do índice de cor do LibRaw no bloco 2×2 do canto
+superior esquerdo. Sensores não Bayer (Fuji X-Trans, Foveon, DNG linear) passam pelo
+processamento linear de 16 bits do LibRaw (`gamm = 1,1`, `no_auto_bright`, espaço de cor da
+câmera). O EXIF fornece o tempo de exposição e o horário; o horário é o relógio da câmera (fuso
+desconhecido), então a imagem é marcada `dateObsAmbiguous` e a JD é calculada no meio da
+exposição.
+
+**NASA PDS3 / PDS4:**
+
+Rótulos *PDS3* usam ODL (`CHAVE = VALOR`, terminando em `END`). O AstroFind lê o primeiro
+`OBJECT = IMAGE` de nível superior: `LINES` (altura), `LINE_SAMPLES` (largura), `SAMPLE_TYPE` +
+`SAMPLE_BITS` (inteiros MSB/LSB com e sem sinal de 8 a 64 bits, reais IEEE de 32/64 bits),
+`SCALING_FACTOR`, `OFFSET`, `MISSING_CONSTANT` (→ NaN), `LINE_PREFIX_BYTES`/`LINE_SUFFIX_BYTES`.
+O início dos dados vem do ponteiro `^IMAGE`:
+
+| Forma do `^IMAGE` | Offset em bytes da primeira linha |
+|---|---|
+| `n` | $(n-1)\cdot$`RECORD_BYTES` |
+| `n <BYTES>` | $n-1$ |
+| `"ARQ.IMG"` | 0 nesse arquivo |
+| `("ARQ.IMG", n)` | $(n-1)\cdot$`RECORD_BYTES` nesse arquivo |
+
+Rótulos *PDS4* são XML. O AstroFind lê o primeiro `Array_2D_Image` da
+`File_Area_Observational`: `offset` (bytes), `axis_index_order` ("Last Index Fastest"),
+`Element_Array/data_type` (ex.: `SignedMSB2`, `UnsignedLSB4`, `IEEE754MSBSingle`),
+`scaling_factor`, `value_offset`, `Axis_Array/elements` com `sequence_number` 1 = linhas e
+2 = amostras, e `Special_Constants/missing_constant`. Um rótulo cujo arquivo de dados é FITS é
+repassado ao leitor FITS.
+
+Nos dois casos o valor físico é $v = \text{bruto}\cdot\text{escala} + \text{offset}$, e
+antes de alocar qualquer coisa o tamanho declarado é conferido contra o teto comum dos leitores
+e contra o arquivo: `offset + linhas·(prefixo + amostras·bytes + sufixo) ≤ tamanho do arquivo`.
 
 ---
 
@@ -1532,5 +1619,5 @@ permID |provID |trkSub|mode|stn|obsTime                |ra        |dec      |rms
 
 ---
 
-*AstroFind. Last updated / Última atualização: 2026-07-10, AstroFind v0.9.0.*
+*AstroFind. Last updated / Última atualização: 2026-09-24, AstroFind v1.1.0.*
 *Author / Autor: Petrus Silva Costa.*

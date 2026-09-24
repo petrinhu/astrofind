@@ -1,6 +1,6 @@
 # Contributing to AstroFind / Contribuindo com o AstroFind
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
 
 Thank you for your interest in contributing to AstroFind! / Obrigado pelo seu interesse em contribuir com o AstroFind!
@@ -28,12 +28,14 @@ Thank you for your interest in contributing to AstroFind! / Obrigado pelo seu in
 ### 🇬🇧 English
 
 ```
-C++ compiler supporting C++23 (GCC 13+ or Clang 17+)
-Qt 6.4+ (Core, Widgets, Concurrent, Charts, Network, Keychain)
-CMake 3.20+
-cfitsio, Eigen3, fftw3, spdlog, nlohmann_json
+C++ compiler supporting C++23 (GCC 12+ — Debian 12 is the oldest tested — or Clang 16+)
+Qt 6.4+ (Core, Gui, Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml)
+CMake 3.22+
+cfitsio, fftw3
+spdlog, nlohmann_json, SEP, Catch2 (fetched automatically by CMake FetchContent)
 CCfits (bundled, extracted automatically from originals/CCfits.tar.gz)
-libarchive (optional, for TAR.GZ/BZ2/XZ/7Z/RAR support)
+Optional: Qt6Keychain (secure API-key storage), Qt6Core5Compat (ZIP via QuaZip),
+          libarchive (TAR.GZ/BZ2/XZ/7Z/RAR), LibRaw (DSLR RAW files)
 ```
 
 Note for beginners: "bundled" means the library's source code ships inside this
@@ -43,12 +45,14 @@ extracts and builds it automatically as part of the project build.
 ### 🇧🇷 Português
 
 ```
-Compilador C++ com suporte a C++23 (GCC 13+ ou Clang 17+)
-Qt 6.4+ (Core, Widgets, Concurrent, Charts, Network, Keychain)
-CMake 3.20+
-cfitsio, Eigen3, fftw3, spdlog, nlohmann_json
+Compilador C++ com suporte a C++23 (GCC 12+ — o Debian 12 é o mais antigo testado — ou Clang 16+)
+Qt 6.4+ (Core, Gui, Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml)
+CMake 3.22+
+cfitsio, fftw3
+spdlog, nlohmann_json, SEP, Catch2 (baixados automaticamente pelo FetchContent do CMake)
 CCfits (empacotado, extraído automaticamente de originals/CCfits.tar.gz)
-libarchive (opcional, para suporte a TAR.GZ/BZ2/XZ/7Z/RAR)
+Opcionais: Qt6Keychain (armazenamento seguro da chave de API), Qt6Core5Compat (ZIP via
+           QuaZip), libarchive (TAR.GZ/BZ2/XZ/7Z/RAR), LibRaw (arquivos RAW de DSLR)
 ```
 
 Nota para iniciantes: "empacotado" (bundled) significa que o código-fonte da
@@ -123,14 +127,23 @@ build do projeto.
 
 ### 🇬🇧 English
 
-- Core files: add to `src/core/CMakeLists.txt` under `CORE_SOURCES` / `CORE_HEADERS`.
-- UI files: add to `src/ui/CMakeLists.txt` under `UI_SOURCES` / `UI_HEADERS`.
+- Core files: add the `.cpp` and `.h` to the `add_library(astrofind_core STATIC …)` list in
+  `src/core/CMakeLists.txt`.
+- UI files: add them to the `add_library(astrofind_ui STATIC …)` list in `src/ui/CMakeLists.txt`.
+- New tests: add the `test_*.cpp` to `tests/CMakeLists.txt` (`astrofind_tests` for core,
+  `astrofind_ui_tests` for UI). Catch2 test names must not contain commas (a comma breaks
+  name filtering: "No tests ran", exit 0 — AUD-TEST-5).
 - New Qt modules: add to `target_link_libraries` in the relevant `CMakeLists.txt`.
 
 ### 🇧🇷 Português
 
-- Arquivos core: adicionar em `src/core/CMakeLists.txt` em `CORE_SOURCES` / `CORE_HEADERS`.
-- Arquivos UI: adicionar em `src/ui/CMakeLists.txt` em `UI_SOURCES` / `UI_HEADERS`.
+- Arquivos core: adicionar o `.cpp` e o `.h` na lista do `add_library(astrofind_core STATIC …)`
+  em `src/core/CMakeLists.txt`.
+- Arquivos UI: adicionar na lista do `add_library(astrofind_ui STATIC …)` em
+  `src/ui/CMakeLists.txt`.
+- Testes novos: adicionar o `test_*.cpp` em `tests/CMakeLists.txt` (`astrofind_tests` para o
+  core, `astrofind_ui_tests` para a UI). Nomes de teste Catch2 não podem ter vírgula (a vírgula
+  quebra o filtro por nome: "No tests ran", saída 0 — AUD-TEST-5).
 - Novos módulos Qt: adicionar em `target_link_libraries` no `CMakeLists.txt` relevante.
 
 ---
@@ -178,13 +191,15 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j$(nproc)
 cd build && ctest --output-on-failure
 # or directly:
-build/bin/astrofind_tests      # 116 core tests
-build/bin/astrofind_ui_tests   # 23 UI integration tests
+build/bin/astrofind_tests      # 179 core test cases
+build/bin/astrofind_ui_tests   # 27 UI integration test cases (needs a display, or QT_QPA_PLATFORM=offscreen)
 ```
 
-Three pre-existing failures in `astrofind_tests` are known and tracked
-(network-dependent tests skipped in CI, "CI" = Continuous Integration, the automated
-build/test pipeline that runs on every push).
+Every test passes in CI ("CI" = Continuous Integration, the automated build/test pipeline
+that runs on every push) on 10 distributions, and the numerical audit (ASan/UBSan,
+cppcheck, clang-tidy, Valgrind) runs on Fedora, CachyOS, Arch, Ubuntu and Debian for every
+pull request into `main`. Run `cmake --build build --target audit` to get the same reports
+locally in `build/audit/`.
 
 ### 🇧🇷 Português
 
@@ -193,13 +208,15 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j$(nproc)
 cd build && ctest --output-on-failure
 # ou diretamente:
-build/bin/astrofind_tests      # 116 testes core
-build/bin/astrofind_ui_tests   # 23 testes de integração UI
+build/bin/astrofind_tests      # 179 casos de teste do core
+build/bin/astrofind_ui_tests   # 27 casos de integração de UI (precisa de display, ou QT_QPA_PLATFORM=offscreen)
 ```
 
-Três falhas pré-existentes em `astrofind_tests` são conhecidas e rastreadas (testes
-dependentes de rede ignorados no CI; "CI" = Integração Contínua, o pipeline
-automatizado de build/teste que roda a cada push).
+Todos os testes passam no CI ("CI" = Integração Contínua, o pipeline automatizado de
+build/teste que roda a cada push) em 10 distribuições, e a auditoria numérica (ASan/UBSan,
+cppcheck, clang-tidy, Valgrind) roda em Fedora, CachyOS, Arch, Ubuntu e Debian em todo pull
+request para a `main`. Rode `cmake --build build --target audit` para gerar os mesmos
+relatórios localmente em `build/audit/`.
 
 ---
 

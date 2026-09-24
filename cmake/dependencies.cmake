@@ -291,3 +291,46 @@ if(NOT ASTROFIND_HAS_LIBARCHIVE)
         "libarchive NOT found — TAR.GZ/BZ2/XZ/7Z/RAR extraction disabled.\n"
         "   To enable: sudo dnf install libarchive-devel")
 endif()
+
+# ─── LibRaw (DSLR RAW: CR2/CR3/NEF/ARW/DNG/...) — item 21.1 ─────────────────
+# Optional, like libarchive. Thread-safe flavour (libraw_r) preferred: images
+# may be loaded from worker threads. LGPL-2.1 / CDDL-1.0 (dual), linked
+# dynamically — compatible with AstroFind's AGPL-3.0.
+# Requires: sudo dnf install LibRaw-devel   (Debian/Ubuntu: libraw-dev,
+#           Arch/Manjaro/CachyOS: libraw, openSUSE: libraw-devel,
+#           Rocky 9: LibRaw-devel from the CRB repository)
+set(ASTROFIND_HAS_LIBRAW FALSE)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(LIBRAW QUIET libraw_r)
+    if(NOT LIBRAW_FOUND)
+        pkg_check_modules(LIBRAW QUIET libraw)
+    endif()
+    if(LIBRAW_FOUND)
+        add_library(libraw_iface INTERFACE)
+        target_include_directories(libraw_iface INTERFACE ${LIBRAW_INCLUDE_DIRS})
+        # Full paths (LINK_LIBRARIES), so no link_directories are needed.
+        target_link_libraries(libraw_iface INTERFACE ${LIBRAW_LINK_LIBRARIES})
+        add_library(libraw::libraw ALIAS libraw_iface)
+        set(ASTROFIND_HAS_LIBRAW TRUE)
+        message(STATUS "Found LibRaw ${LIBRAW_VERSION} — DSLR RAW loading enabled")
+    endif()
+endif()
+
+if(NOT ASTROFIND_HAS_LIBRAW)
+    find_library(LIBRAW_LIB NAMES raw_r raw)
+    find_path(LIBRAW_INCLUDE NAMES libraw/libraw.h)
+    if(LIBRAW_LIB AND LIBRAW_INCLUDE)
+        add_library(libraw_iface INTERFACE)
+        target_include_directories(libraw_iface INTERFACE ${LIBRAW_INCLUDE})
+        target_link_libraries(libraw_iface INTERFACE ${LIBRAW_LIB})
+        add_library(libraw::libraw ALIAS libraw_iface)
+        set(ASTROFIND_HAS_LIBRAW TRUE)
+        message(STATUS "Found LibRaw (find_library) — DSLR RAW loading enabled")
+    endif()
+endif()
+
+if(NOT ASTROFIND_HAS_LIBRAW)
+    message(STATUS
+        "LibRaw NOT found — DSLR RAW loading disabled (files are refused with a clear message).\n"
+        "   To enable: sudo dnf install LibRaw-devel")
+endif()

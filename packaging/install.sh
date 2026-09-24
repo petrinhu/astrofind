@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # AstroFind Installer — install.sh
-# Version 0.9.0
+# Version 1.1.0
 # =============================================================================
 # Usage:
 #   ./install.sh           # interactive (auto-detect locale)
@@ -13,12 +13,15 @@
 set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
-readonly VERSION="0.9.0"
+readonly VERSION="1.1.0"
 readonly REPO="petrinhu/astrofind"
 readonly BASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}"
-readonly RPM_FILE="astrofind-0.9.0-0.beta1.x86_64.rpm"
-readonly DEB_FILE="astrofind_0.9.0~beta-1_amd64.deb"
-readonly ARCH_FILE="astrofind-0.9.0-arch-PKGBUILD.tar.gz"
+# Asset names exactly as published on the GitHub release page.
+readonly RPM_FILE="astrofind-${VERSION}-1.x86_64.rpm"
+readonly DEB_FILE="astrofind_${VERSION}_amd64.deb"
+# Arch builds from the PKGBUILD kept in the repository at the release tag
+# (no Arch tarball is published as a release asset).
+readonly ARCH_PKGBUILD_URL="https://raw.githubusercontent.com/${REPO}/v${VERSION}/packaging/arch/PKGBUILD"
 
 readonly BINARY="/usr/bin/AstroFind"
 readonly DESKTOP_SRC="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/../astrofind.desktop"
@@ -777,34 +780,17 @@ install_deb() {
 
 # ─── Main package install: Arch PKGBUILD ──────────────────────────────────────
 install_arch() {
-    local pkg_file="${TMPDIR_WORK}/${ARCH_FILE}"
-    local url="${BASE_URL}/${ARCH_FILE}"
+    print_step "$(msg arch_build_info)"
+    local pkgbuild_dir="${TMPDIR_WORK}/arch_build"
+    mkdir -p "$pkgbuild_dir"
 
-    print_step "$(msg step_download): ${ARCH_FILE}"
-    if ! download_file "$url" "$pkg_file"; then
+    print_step "$(msg step_download): PKGBUILD"
+    if ! download_file "$ARCH_PKGBUILD_URL" "${pkgbuild_dir}/PKGBUILD"; then
         print_err "$(msg step_download_fail)"
-        print_info "$(msg step_download_manual) ${url}"
+        print_info "$(msg step_download_manual) ${ARCH_PKGBUILD_URL}"
         return 1
     fi
     print_ok "$(msg step_download_ok)"
-
-    print_step "$(msg arch_build_info)"
-    local build_dir="${TMPDIR_WORK}/arch_build"
-    mkdir -p "$build_dir"
-
-    if ! tar -xzf "$pkg_file" -C "$build_dir"; then
-        print_err "Failed to extract PKGBUILD tarball."
-        return 1
-    fi
-
-    # Find the PKGBUILD
-    local pkgbuild_dir
-    pkgbuild_dir=$(find "$build_dir" -name "PKGBUILD" -exec dirname {} \; | head -1)
-
-    if [[ -z "$pkgbuild_dir" ]]; then
-        print_err "PKGBUILD not found in archive."
-        return 1
-    fi
 
     # makepkg must NOT run as root
     if [[ "$IS_ROOT" == true ]]; then

@@ -1,12 +1,51 @@
 # Changelog
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
 > Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 All notable changes to AstroFind are documented here, most recent version first. /
 Todas as mudanças notáveis do AstroFind estão documentadas aqui, versão mais recente
 primeiro.
+
+---
+
+## [1.1.0] - 2026-09-24
+
+> **Why 1.1.0 and not 1.0.0 / Por que 1.1.0 e não 1.0.0:** 0.9.0 already had 1.0.0
+> maturity but was never tagged as such; this release adds new features on top of it, so it
+> is the next minor version. / A 0.9.0 já tinha maturidade de 1.0.0, mas nunca recebeu essa
+> tag; esta versão acrescenta funcionalidades sobre ela, então é a próxima versão minor.
+
+### 🇬🇧 English
+
+- **DSLR RAW loading (item 21.1)** via LibRaw (optional build dependency): CR2, CR3,
+  NEF, ARW, DNG, RAF, ORF, RW2, PEF and other camera RAW files. Data stay linear;
+  star detection uses the 2×2 superpixel luminance of the Bayer mosaic; exposure
+  and time come from EXIF (camera clock, flagged ambiguous). Builds without LibRaw
+  refuse RAW files with an explicit message. Erratum: `[0.5.0]` listed "RAW DSLR
+  (libraw)" but it was never implemented until now (AUD-DOC-4/DOC-7).
+- **NASA PDS images (item 21.2)**: PDS3 `.img` with attached label or detached
+  `.lbl`, and PDS4 `.xml` labels (2-D arrays, every numeric data type, scaling,
+  missing constants; a PDS4 label pointing to FITS opens the FITS file). Every
+  declared size is checked against the file before allocation. Erratum: `[0.5.0]`
+  listed "PDS format support" but it was never implemented until now.
+- Audit wave E1 fixes (PR #6): INPUT-8, MEM-6, MEM-5, MEM-1, CI-5.
+
+### 🇧🇷 Português
+
+- **Leitura de RAW de DSLR (item 21.1)** via LibRaw (dependência opcional de
+  compilação): CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF e outros RAW de câmera.
+  Dados lineares; a detecção de estrelas usa a luminância por superpixel 2×2 do
+  mosaico Bayer; exposição e horário vêm do EXIF (relógio da câmera, marcado como
+  ambíguo). Builds sem LibRaw recusam RAW com mensagem explícita. Errata: `[0.5.0]`
+  listava "RAW DSLR (libraw)", que só agora foi implementado (AUD-DOC-4/DOC-7).
+- **Imagens NASA PDS (item 21.2)**: PDS3 `.img` com rótulo embutido ou `.lbl`
+  separado, e rótulos PDS4 `.xml` (arrays 2-D, todos os tipos numéricos, escala,
+  constantes de ausência; um rótulo PDS4 que aponta para FITS abre o FITS). Todo
+  tamanho declarado é conferido contra o arquivo antes de alocar. Errata: `[0.5.0]`
+  listava "suporte ao formato PDS", que só agora foi implementado.
+- Correções da onda E1 da auditoria (PR #6): INPUT-8, MEM-6, MEM-5, MEM-1, CI-5.
 
 ---
 

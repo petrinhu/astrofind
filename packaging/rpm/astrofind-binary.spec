@@ -1,6 +1,6 @@
 Name:           astrofind
 # VERSION substituted by CI via sed
-Version:        0.9.0
+Version:        1.1.0
 Release:        1%{?dist}
 Summary:        Modern asteroid detection software for citizen science (IASC/MPC workflow)
 License:        AGPL-3.0-or-later
@@ -16,6 +16,7 @@ Requires:       qtkeychain-qt6
 Requires:       cfitsio
 Requires:       fftw >= 3.3
 Requires:       libarchive >= 3.5
+Requires:       LibRaw
 Requires:       mesa-libGL
 Requires:       libxkbcommon
 
@@ -49,6 +50,10 @@ cp -a %{staging}/. %{buildroot}/
 %{_datadir}/icons/hicolor/512x512/apps/astrofind.png
 
 %changelog
+* Thu Sep 24 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 1.1.0-1
+- DSLR RAW loading via LibRaw (CR2/CR3/NEF/ARW/DNG/...) and NASA PDS3/PDS4 images
+- Audit wave E1: spectrum/background/FFT memory-safety fixes, SEP leak patch applied
+- 1.0.0 was the maturity level of 0.9.0 and was never tagged separately
 * Sat Jul 11 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 0.9.0-1
 - Stable release: full internal security/robustness/correctness audit passed
 - Fixed License field (was stale LicenseRef-PolyForm-NC-1.0; repo migrated to AGPL-3.0-or-later)

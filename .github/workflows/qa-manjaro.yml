@@ -107,7 +107,6 @@ jobs:
           pacman-key --populate manjaro archlinux
           echo ""
           echo "── Synchronising package databases ─────────────────────────────"
-          # -Sy: sync databases only (no full upgrade, keeps image reproducible)
           # -Syu, never -Sy: syncing the database without upgrading and then
           # installing is a partial upgrade (unsupported on Arch). It broke the
           # link when cfitsio came built against a newer glibc than the image
@@ -139,7 +138,8 @@ jobs:
             qt6-tools \
             cfitsio \
             fftw \
-            libarchive
+            libarchive \
+            libraw
           echo ""
           echo "── Installed package versions ──────────────────────────────────"
           echo -n "cmake:       "; cmake --version | head -1
