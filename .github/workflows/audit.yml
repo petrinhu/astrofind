@@ -8,8 +8,11 @@ name: Numerical Audit (ASan/UBSan + cppcheck + clang-tidy + valgrind)
 #
 # WHY THIS RUNS HERE, AND ONLY HERE (canonical CI policy):
 #   - Heavy build + ASan/UBSan + valgrind is expensive (multi-build, minutes,
-#     not seconds). It runs on the self-hosted runner (`claudio`, label
-#     `docker`, `forgejo-runner.service`), never on a volunteer/hosted runner.
+#     not seconds). It runs on a GitHub-hosted runner (`ubuntu-24.04`, same
+#     label as build.yml) inside a fedora:42 container. AUD-CI-5 / AUD-CI-3:
+#     the old self-hosted label `docker` no longer exists after the move to
+#     GitHub as the single host, so every run sat queued 24h and was
+#     cancelled — the gate never ran once.
 #   - Trigger is intentionally narrow: pull_request -> main, and release tags.
 #     NOT on every feature-branch push — that would make CI a bottleneck
 #     (>10-20min gate people learn to skip) for a check whose whole point is
@@ -52,7 +55,7 @@ permissions:
 jobs:
   numerical-audit:
     name: Numerical audit · fedora:42 · ASan/UBSan + cppcheck + clang-tidy + valgrind
-    runs-on: docker
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
 
     container:
