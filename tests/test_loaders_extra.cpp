@@ -257,14 +257,31 @@ QByteArray octal(qint64 value, int width)   // width includes the trailing NUL
     return QByteArray::number(value, 8).rightJustified(width - 1, '0') + '\0';
 }
 
-/// One ustar entry: typeflag '0' regular, '2' symlink (linkname), '6' FIFO.
+/// One ustar entry: typeflag '0' regular, '1' hardlink (linkname), '2' symlink
+/// (linkname), '6' FIFO.
+///
+/// AUD-INPUT-4 twin (mutation review, 2026-09-24): a hardlink entry made by a
+/// REAL tar tool (GNU tar, bsdtar; verified empirically with all of ustar,
+/// pax and gnu formats) leaves the `mode` field as plain permission bits
+/// (e.g. "0000644") with NO S_IFREG bit set — libarchive then reports
+/// archive_entry_filetype() == 0 (unknown), which the pre-existing
+/// "!= AE_IFREG" check already rejects on its own, so a hardlink entry built
+/// that way never reaches the hardlink-specific check at all. A HOSTILE tar
+/// is not bound by what real tar tools write, though: setting the S_IFREG
+/// bit in the mode field by hand (mode "0100644") makes libarchive report
+/// archive_entry_filetype() == AE_IFREG for a typeflag='1' entry while
+/// archive_entry_hardlink() still returns the link target (verified with a
+/// standalone libarchive probe, 2026-09-24) -- exactly the bypass the
+/// hardlink-specific check exists for. `tarEntry('1', ...)` sets that bit so
+/// the hostile-archive test below actually reaches AE_IFREG, the same way a
+/// crafted attack tar would.
 QByteArray tarEntry(const QByteArray& name, char typeflag, const QByteArray& data = {},
                     const QByteArray& linkname = {})
 {
     QByteArray h(512, '\0');
     auto put = [&](int off, const QByteArray& v) { std::memcpy(h.data() + off, v.constData(), v.size()); };
     put(0, name.left(99));
-    put(100, octal(typeflag == '2' ? 0777 : 0644, 8));
+    put(100, octal(typeflag == '2' ? 0777 : (typeflag == '1' ? 0100644 : 0644), 8));
     put(108, octal(0, 8));
     put(116, octal(0, 8));
     put(124, octal(typeflag == '0' ? data.size() : 0, 12));
@@ -784,14 +801,18 @@ TEST_CASE("extractArchiveImages refuses symlink and FIFO entries and path traver
 TEST_CASE("extractArchiveImages refuses a TAR hardlink entry pointing outside destDir",
           "[archive][hostile]")
 {
-    // A ustar hardlink entry (typeflag '1') reports archive_entry_filetype()
-    // == AE_IFREG -- it looks like a plain file to a filetype-only check --
-    // but archive_write_disk() resolves archive_entry_hardlink() with
-    // link(2) using the ORIGINAL (unflattened) target name, never the
+    // tarEntry('1', ...) crafts the mode field's S_IFREG bit by hand (real
+    // tar tools never set it for a hardlink entry) so archive_entry_filetype()
+    // reports AE_IFREG here -- bypassing the pre-existing "!= AE_IFREG"
+    // filter, the way an actual hostile TAR would, not a real one (verified
+    // empirically 2026-09-24: GNU tar/ustar/pax/gnu formats leave the mode
+    // field as plain permission bits for a real hardlink, which the
+    // pre-existing filter already rejects on its own). With filetype spoofed
+    // to AE_IFREG, archive_write_disk() would resolve archive_entry_hardlink()
+    // with link(2) using the ORIGINAL (unflattened) target name, never the
     // flattened destPath this extractor computes for the entry's own
-    // pathname. A hostile TAR can name that target outside destDir and get
-    // a hard link to an arbitrary file created on disk under an innocuous
-    // "*.fits" name.
+    // pathname -- letting a hard link to an arbitrary file be created on
+    // disk under an innocuous "*.fits" name.
     QTemporaryDir dir;
     REQUIRE(dir.isValid());
     const QString secret = dir.filePath("secret.txt");

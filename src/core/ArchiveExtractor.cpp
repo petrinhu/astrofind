@@ -106,18 +106,23 @@ ArchiveExtraction extractArchiveImages(const QString& archivePath, const QString
             continue;
         }
 
-        // AUD-INPUT-4 twin (mutation review, 2026-09-24): a TAR hardlink
-        // entry reports filetype AE_IFREG (it looks like a plain file to the
-        // check above) but carries a second name via archive_entry_hardlink()
-        // that archive_write_disk() resolves with link(2) — the ORIGINAL,
-        // unflattened target name, never sanitised the way this entry's own
-        // pathname is flattened to destDir a few lines below. A hostile TAR
-        // can point that target outside destDir (e.g. "../../etc/passwd" or
-        // an absolute path) and get a hard link to it created on disk under
-        // an innocuous "*.fits" name — the same arbitrary-file exposure the
-        // symlink check above exists to prevent, just one filetype removed.
-        // Rejected exactly like symlink/FIFO/device: AE_IFREG alone is not
-        // enough, it must ALSO not be a hardlink.
+        // AUD-INPUT-4 twin (mutation review, 2026-09-24): a hardlink entry
+        // made by a REAL tar tool leaves the on-disk `mode` field as plain
+        // permission bits with no S_IFREG bit, so libarchive reports
+        // archive_entry_filetype() == 0 there and the check above already
+        // rejects it — verified empirically (GNU tar, ustar/pax/gnu formats).
+        // A HOSTILE tar is not bound by that convention: setting the S_IFREG
+        // bit in the mode field by hand makes libarchive report AE_IFREG for
+        // a hardlink entry too (also verified empirically, standalone
+        // libarchive probe), bypassing the check above. archive_write_disk()
+        // would then resolve archive_entry_hardlink() with link(2) using the
+        // ORIGINAL, unflattened target name — never sanitised the way this
+        // entry's own pathname is flattened to destDir a few lines below — so
+        // a hostile tar could point that target outside destDir and get a
+        // hard link to it created on disk under an innocuous "*.fits" name.
+        // This check is the belt to the above check's suspenders: AE_IFREG
+        // alone is not proof of "not a hardlink" once the mode field can be
+        // forged, so it must ALSO not be a hardlink.
         if (archive_entry_hardlink(entry) != nullptr) {
             out.skippedNonRegular.append(QString::fromUtf8(pathname));
             archive_read_data_skip(ar);
