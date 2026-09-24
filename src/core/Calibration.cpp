@@ -278,8 +278,13 @@ int subtractBackground(FitsImage& img, int tileSize)
 
             const int tx0 = std::max(0, std::min(nTX - 2, static_cast<int>(std::floor(fx))));
             const int ty0 = std::max(0, std::min(nTY - 2, static_cast<int>(std::floor(fy))));
-            const int tx1 = tx0 + 1;
-            const int ty1 = ty0 + 1;
+            // AUD-MEM-6: with a single tile on an axis (nTX==1 or nTY==1,
+            // e.g. 128x64 at tile 64) tx0/ty0 clamp to 0 and tx0+1/ty0+1
+            // would index past tileVal (size nTX*nTY). Clamp the far corner
+            // to the last tile: the interpolation degenerates to constant
+            // along that axis, which is the correct background model there.
+            const int tx1 = std::min(tx0 + 1, nTX - 1);
+            const int ty1 = std::min(ty0 + 1, nTY - 1);
 
             float u = fx - static_cast<float>(tx0);
             float v = fy - static_cast<float>(ty0);

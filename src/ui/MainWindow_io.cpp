@@ -4,6 +4,7 @@
 #include "MainWindow_p.h"
 
 #include <sys/stat.h>
+#include <exception>
 
 namespace {
 
@@ -94,12 +95,18 @@ void MainWindow::onLoadImages()
             // Try as 1-D FITS spectrum
             const QString ext = QFileInfo(path).suffix().toLower();
             if (ext == "fits" || ext == "fit" || ext == "fts") {
-                auto specResult = core::loadSpectrum1D(path);
-                if (specResult) {
-                    auto* dlg = new SpectrumDialog(*specResult, this);
-                    dlg->show();
-                    ++loaded;
-                    continue;
+                // AUD-INPUT-8: nothing thrown here may escape the Qt slot.
+                try {
+                    auto specResult = core::loadSpectrum1D(path);
+                    if (specResult) {
+                        auto* dlg = new SpectrumDialog(*specResult, this);
+                        dlg->show();
+                        ++loaded;
+                        continue;
+                    }
+                } catch (const std::exception& e) {
+                    logPanel_->appendError(tr("Failed to load spectrum %1: %2")
+                                               .arg(path, QString::fromLocal8Bit(e.what())));
                 }
             }
             logPanel_->appendError(tr("Failed to load %1: %2").arg(path, result.error()));

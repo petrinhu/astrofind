@@ -90,10 +90,14 @@ endif()
 # leak in convert_to_catalog() (src/extract.c) — cat->cflux/cat->flux get
 # allocated twice, leaking the first buffer (44B/6 allocs per detectStars()
 # call). Patched locally; see cmake/patches/sep-leak-fix.patch. PATCH_COMMAND
-# runs once right after the initial git clone (before the static-lib glob
-# below); "sh -c ... || true" makes it idempotent (a no-op with exit 0) if
-# FetchContent ever re-runs the patch step against an already-patched
-# checkout — plain patch(1) exits non-zero on replay ("previously applied").
+# runs right after the git clone (before the static-lib glob below), and again
+# whenever the command changes, so it must be idempotent: "git apply
+# --reverse --check" succeeds only on an already-patched tree (no-op),
+# otherwise "git apply" runs and any failure breaks the configure.
+# AUD-MEM-1: the previous "patch ... || true" silently skipped the fix on
+# every minimal CI image (no patch(1) installed: "command not found" was
+# swallowed), so the leak shipped in fresh builds, not only in a stale .a.
+# git is always present here (FetchContent clones with it).
 #
 # AUD-SEC-2: pinned SHA (see spdlog comment above for rationale). Verified:
 #   git ls-remote https://github.com/kbarbary/sep.git refs/tags/v1.2.1
@@ -102,7 +106,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/kbarbary/sep.git
     GIT_TAG        d6150a61a6c734d720f459a48dd2b8f15d92318f # v1.2.1
     GIT_SHALLOW    TRUE
-    PATCH_COMMAND  sh -c "patch -p1 -N -r - -i ${CMAKE_CURRENT_LIST_DIR}/patches/sep-leak-fix.patch || true"
+    PATCH_COMMAND  sh -c "git apply --reverse --check ${CMAKE_CURRENT_LIST_DIR}/patches/sep-leak-fix.patch 2>/dev/null || git apply ${CMAKE_CURRENT_LIST_DIR}/patches/sep-leak-fix.patch"
 )
 FetchContent_GetProperties(sep)
 if(NOT sep_POPULATED)
