@@ -2845,6 +2845,16 @@ Use the Measure tool (M) to click on moving objects first.</translation>
         <translation>Cannot open archive: %1 — %2</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="1457" />
+        <source>Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1</source>
+        <translation>Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="1492" />
+        <source>Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1</source>
+        <translation>Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="1475" />
         <source>No image files found in archive: %1</source>
         <translation>No image files found in archive: %1</translation>
@@ -4224,6 +4234,11 @@ when the SkyBoT service is not reachable (~200 MB).</translation>
         <location filename="../src/core/ImageLoader.cpp" line="24" />
         <source>Cannot load image (unsupported or corrupt): %1</source>
         <translation>Cannot load image (unsupported or corrupt): %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core/ImageLoader.cpp" line="108" />
+        <source>Out of memory loading image '%1': %2</source>
+        <translation>Out of memory loading image '%1': %2</translation>
     </message>
     <message>
         <location filename="../src/core/ImageLoader.cpp" line="151" />

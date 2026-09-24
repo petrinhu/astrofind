@@ -2296,6 +2296,16 @@ Use a ferramenta Medir (M) para clicar nos objetos em movimento primeiro.</trans
         <translation>Não foi possível abrir o arquivo: %1 — %2</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="1457" />
+        <source>Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1</source>
+        <translation>Entrada não regular do arquivo compactado ignorada (link simbólico/hardlink/dispositivo/FIFO não permitido): %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="1492" />
+        <source>Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1</source>
+        <translation>Entrada não regular do ZIP ignorada (link simbólico/dispositivo/FIFO não permitido): %1</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="1475" />
         <source>No image files found in archive: %1</source>
         <translation>Nenhum arquivo de imagem encontrado no arquivo compactado: %1</translation>
@@ -4258,6 +4268,11 @@ quando o serviço SkyBoT não está acessível (~200 MB).</translation>
         <location filename="../src/core/ImageLoader.cpp" line="24" />
         <source>Cannot load image (unsupported or corrupt): %1</source>
         <translation>Não foi possível carregar a imagem (formato não suportado ou corrompida): %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core/ImageLoader.cpp" line="108" />
+        <source>Out of memory loading image '%1': %2</source>
+        <translation>Memória insuficiente ao carregar a imagem '%1': %2</translation>
     </message>
     <message>
         <location filename="../src/core/ImageLoader.cpp" line="151" />
