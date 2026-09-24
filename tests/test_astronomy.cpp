@@ -4,7 +4,14 @@
 #include "core/Astronomy.h"
 #include "core/FitsImage.h"
 
+#include <fitsio.h>
+
+#include <QTemporaryDir>
+#include <QFile>
+
 #include <cmath>
+#include <limits>
+#include <vector>
 
 using Catch::Matchers::WithinAbs;
 using Catch::Matchers::WithinRel;
@@ -794,6 +801,119 @@ TEST_CASE("WCS: CAR with LONPOLE=180 has no valid pole and falls back to the pro
     wcsDefault.pixToSky(600.0, 500.0, raDef, decDef);
     CHECK_THAT(ra,  WithinAbs(raDef,  1e-9));
     CHECK_THAT(dec, WithinAbs(decDef, 1e-9));
+}
+
+// ─── WCS: LONPOLE/LATPOLE/PV1_3 read from a REAL FITS header (AUD-CORR-10) ──
+//
+// Mutation review (2026-09-24) found that every LONPOLE/LATPOLE test above
+// only exercised PlateSolution::pixToSky() with the fields set directly in
+// C++ — nothing forced the LONPOLE/PV1_3 cards through loadFits()/
+// readHeader() (FitsImage.cpp ~839-871). Setting `wcs.lonpole = NaN` in that
+// parsing code would still pass every test above yet break real files. These
+// two write an actual FITS file to disk (cfitsio) with the WCS cards and
+// load it back through the public core::loadFits() entry point.
+
+namespace {
+/// Minimal single-HDU FITS image with a CD-matrix WCS and, optionally,
+/// LONPOLE/LATPOLE/PV1_3/PV1_4 cards -- exactly the keywords readHeader()
+/// reads at FitsImage.cpp ~839-871.
+bool writeWcsPoleFits(const QString& path, double crval1, double crval2,
+                       double crpix1, double crpix2,
+                       double lonpole, double latpole,
+                       double pv13, double pv14,
+                       QString* errOut = nullptr)
+{
+    QFile::remove(path);
+    fitsfile* fptr = nullptr;
+    int status = 0;
+    fits_create_file(&fptr, path.toLocal8Bit().constData(), &status);
+    long naxes[2] = { 4, 4 };
+    fits_create_img(fptr, FLOAT_IMG, 2, naxes, &status);
+    std::vector<float> pixels(16, 0.0f);
+    fits_write_img(fptr, TFLOAT, 1, static_cast<LONGLONG>(pixels.size()),
+                   pixels.data(), &status);
+
+    char ctype1[] = "RA---TAN";
+    char ctype2[] = "DEC--TAN";
+    fits_write_key(fptr, TSTRING, "CTYPE1", ctype1, nullptr, &status);
+    fits_write_key(fptr, TSTRING, "CTYPE2", ctype2, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRVAL1", &crval1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRVAL2", &crval2, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRPIX1", &crpix1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRPIX2", &crpix2, nullptr, &status);
+    double cd1_1 = -1.0 / 3600.0, cd1_2 = 0.0, cd2_1 = 0.0, cd2_2 = 1.0 / 3600.0;
+    fits_write_key(fptr, TDOUBLE, "CD1_1", &cd1_1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CD1_2", &cd1_2, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CD2_1", &cd2_1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CD2_2", &cd2_2, nullptr, &status);
+    if (std::isfinite(lonpole)) fits_write_key(fptr, TDOUBLE, "LONPOLE", &lonpole, nullptr, &status);
+    if (std::isfinite(latpole)) fits_write_key(fptr, TDOUBLE, "LATPOLE", &latpole, nullptr, &status);
+    if (std::isfinite(pv13))    fits_write_key(fptr, TDOUBLE, "PV1_3",   &pv13,    nullptr, &status);
+    if (std::isfinite(pv14))    fits_write_key(fptr, TDOUBLE, "PV1_4",   &pv14,    nullptr, &status);
+
+    const int saveStatus = status;
+    fits_close_file(fptr, &status);
+    if (saveStatus) {
+        if (errOut) *errOut = QStringLiteral("cfitsio status %1").arg(saveStatus);
+        return false;
+    }
+    return true;
+}
+} // namespace
+
+TEST_CASE("loadFits reads LONPOLE from a real FITS header and applies it to pixToSky",
+          "[astronomy][wcs][fits]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("lonpole.fits");
+
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    QString err;
+    REQUIRE(writeWcsPoleFits(path, 45.0, -30.0, 500.0, 500.0,
+                              /*lonpole=*/0.0, /*latpole=*/nan,
+                              /*pv13=*/nan, /*pv14=*/nan, &err));
+
+    auto result = core::loadFits(path);
+    REQUIRE(result.has_value());
+    CHECK_THAT(result->wcs.lonpole, WithinAbs(0.0, 1e-12));
+
+    // Same oracle as the direct-construction test above (crval=(45,-30),
+    // LONPOLE=0, crpix=(500,500), pixel (600,500)): astropy 8.0.1, verified
+    // locally 2026-09-24.
+    double ra = 0.0, dec = 0.0;
+    result->wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(45.032075011604306, 1e-6));
+    CHECK_THAT(dec, WithinAbs(-29.999996112399224, 1e-6));
+}
+
+TEST_CASE("loadFits: PV1_3 overrides LONPOLE from a real FITS header as in WCSLIB",
+          "[astronomy][wcs][fits]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("pv13.fits");
+
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    QString err;
+    // LONPOLE=180 alone (no PV1_3) reproduces the "negative Dec field" default
+    // (RA=44.967924988395694 for this exact geometry, per the existing
+    // "negative Dec field" test in this file); PV1_3=0 must WIN and steer the
+    // result to the LONPOLE=0 oracle instead, proving precedence is read from
+    // the file, not just honoured when set directly in C++.
+    REQUIRE(writeWcsPoleFits(path, 45.0, -30.0, 500.0, 500.0,
+                              /*lonpole=*/180.0, /*latpole=*/nan,
+                              /*pv13=*/0.0, /*pv14=*/nan, &err));
+
+    auto result = core::loadFits(path);
+    REQUIRE(result.has_value());
+    CHECK_THAT(result->wcs.lonpole, WithinAbs(0.0, 1e-12));   // PV1_3, not LONPOLE=180
+
+    double ra = 0.0, dec = 0.0;
+    result->wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(45.032075011604306, 1e-6));
+    CHECK_THAT(dec, WithinAbs(-29.999996112399224, 1e-6));
+    CHECK(std::abs(ra - 44.967924988395694) > 0.01);   // NOT the LONPOLE=180 result
 }
 
 // ─── WCS: southern near-pole field, all 8 projections (AUD-CORR-11) ─────────
