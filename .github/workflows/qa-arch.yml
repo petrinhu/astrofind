@@ -90,7 +90,11 @@ jobs:
       - name: "🔄  Sync package database"
         run: |
           echo "── Synchronising package databases ─────────────────────────────"
-          pacman -Sy --noconfirm
+          # -Syu, never -Sy: syncing the database without upgrading and then
+          # installing is a partial upgrade (unsupported on Arch). It broke the
+          # link when cfitsio came built against a newer glibc than the image
+          # had (undefined sinh@GLIBC_2.44).
+          pacman -Syu --noconfirm
           echo ""
           echo "── Available packages in database ──────────────────────────────"
           pacman -Sl | wc -l
