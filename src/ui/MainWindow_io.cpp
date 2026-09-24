@@ -663,14 +663,18 @@ void MainWindow::autoFillSettingsFromSession()
     const core::FitsImage& img0 = session_->image(0);
 
     // ── Câmera — pixel scale e saturação ─────────────────────────────────────
+    // The setting is the UNBINNED scale (the reduction multiplies it by each
+    // image's binning), while img0.pixScale* is the scale of the binned image.
     if (settings_.value(QStringLiteral("camera/pixelScaleX"), 0.0).toDouble() == 0.0
             && img0.pixScaleX > 0.0) {
-        settings_.setValue(QStringLiteral("camera/pixelScaleX"), img0.pixScaleX);
-        logPanel_->appendInfo(tr("  Auto-fill: escala X = %1\"/px (FITS)").arg(img0.pixScaleX, 0, 'f', 4));
+        const double sx = img0.pixScaleX / std::max(1, img0.binningX);
+        settings_.setValue(QStringLiteral("camera/pixelScaleX"), sx);
+        logPanel_->appendInfo(tr("  Auto-fill: escala X = %1\"/px (FITS)").arg(sx, 0, 'f', 4));
     }
     if (settings_.value(QStringLiteral("camera/pixelScaleY"), 0.0).toDouble() == 0.0
             && img0.pixScaleY > 0.0) {
-        settings_.setValue(QStringLiteral("camera/pixelScaleY"), img0.pixScaleY);
+        settings_.setValue(QStringLiteral("camera/pixelScaleY"),
+                           img0.pixScaleY / std::max(1, img0.binningY));
     }
     if (settings_.value(QStringLiteral("camera/saturation"), 0.0).toDouble() == 0.0
             && img0.saturation > 0.0 && img0.saturation < 1e9) {

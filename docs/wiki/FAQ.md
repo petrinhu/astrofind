@@ -37,9 +37,9 @@ projects. If you distribute a modified version, or offer one as a network servic
 publish its source code under the same license. See the `LICENSE` file in the repository for
 the exact terms.
 
-> ⚠️ **Watch out:** **Help → About…** correctly says "AGPL-3.0". **Help → Registration…**
-> shows "Registration — N/A (MIT open source)". That MIT text is an old leftover. The license is
-> AGPL-3.0.
+> 💡 **Note:** **Help → About…** and **Help → Registration…** both say "AGPL-3.0"
+> ("Registration — not needed (free software, AGPL-3.0)"). In 1.1.0 and earlier, Registration
+> still showed an old "MIT open source" text; the license was already AGPL-3.0.
 
 For schools there are extra helpers: **File → Exportar Configuração da Escola…** (a teacher
 saves all settings to an `.ini` file) and **File → Importar Configuração da Escola…** (students
@@ -52,9 +52,9 @@ aulas e projetos pagos. Se você distribuir uma versão modificada, ou oferecê-
 pela rede, precisa publicar o código-fonte dela sob a mesma licença. Veja o arquivo `LICENSE`
 no repositório para os termos exatos.
 
-> ⚠️ **Atenção:** **Ajuda → Sobre…** mostra corretamente "AGPL-3.0". **Ajuda → Registro…**
-> mostra "Registro — N/D (código aberto MIT)". Esse texto de MIT é uma sobra antiga. A licença é
-> AGPL-3.0.
+> 💡 **Nota:** **Ajuda → Sobre…** e **Ajuda → Registro…** dizem "AGPL-3.0" ("Registro — não é
+> necessário (software livre, AGPL-3.0)"). Na 1.1.0 e anteriores, o Registro ainda mostrava um
+> texto antigo "código aberto MIT"; a licença já era AGPL-3.0.
 
 Para escolas há recursos extras: **Arquivo → Exportar Configuração da Escola…** (o professor
 salva todas as configurações num arquivo `.ini`) e **Arquivo → Importar Configuração da
@@ -165,7 +165,7 @@ reduzir, sobrepor objetos conhecidos, piscar, medir, reportar. Principais difere
 
 🇬🇧 **English**
 Usually a **FITS** file (`.fits`, `.fit` or `.fts`), the standard format for astronomical
-images (see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary)). Open it with **File → Load Images…** (`Ctrl+L`, but see the shortcut clash under "What are the most common problems?" below).
+images (see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary)). Open it with **File → Load Images…** (`Ctrl+L`; in 1.1.0 and earlier this key could do nothing, see "What are the most common problems?" below).
 AstroFind also reads:
 
 - SER video (`.ser`) and PixInsight XISF (`.xisf`);
@@ -185,7 +185,7 @@ Full details: [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-For
 🇧🇷 **Português**
 Normalmente um arquivo **FITS** (`.fits`, `.fit` ou `.fts`), o formato padrão de imagens
 astronômicas (veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary)). Abra com **Arquivo → Carregar Imagens…**
-(`Ctrl+L`, mas veja o conflito de atalho em "Quais são os problemas mais comuns?" abaixo).
+(`Ctrl+L`; na 1.1.0 e anteriores essa tecla podia não fazer nada, veja "Quais são os problemas mais comuns?" abaixo).
 O AstroFind também lê:
 
 - vídeo SER (`.ser`) e XISF do PixInsight (`.xisf`);
@@ -631,9 +631,11 @@ What to do:
 
 > ⚠️ **Watch out:** "Time Zone:" in **Settings → Observer** does **not** correct image times; it
 > is stored but not used in the calculations. "Time Offset:" only accepts −999…999 seconds, so
-> it cannot fix an error of whole hours. AstroFind may also fill "Time Offset:" automatically
-> with longitude/15 (an hours value, although the field says seconds). Check that field before a
-> reduction; see [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
+> it cannot fix an error of whole hours; it is meant for a small camera-clock error in seconds,
+> and it is applied only once, however many times you run the reduction. In 1.1.0 and earlier
+> AstroFind filled "Time Offset:" automatically with longitude/15 (an hours value); the next
+> version (after 1.1.0) no longer does, and resets such an old value to 0 once at start (with a
+> warning in the Log). See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 🇧🇷 **Português**
 Asteroides se movem, então o horário exato de cada imagem importa. O painel de Log mostra este
@@ -656,9 +658,11 @@ O que fazer:
 
 > ⚠️ **Atenção:** "Fuso horário:" em **Configurações → Observador** **não** corrige o horário
 > das imagens; ele é guardado mas não entra nos cálculos. "Deslocamento de tempo:" só aceita
-> −999…999 segundos, então não resolve um erro de horas inteiras. O AstroFind também pode
-> preencher "Deslocamento de tempo:" sozinho com longitude/15 (um valor em horas, embora o campo
-> diga segundos). Confira esse campo antes de uma redução; veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
+> −999…999 segundos, então não resolve um erro de horas inteiras; ele serve para um pequeno erro
+> do relógio da câmera em segundos, e é aplicado uma vez só, não importa quantas vezes você rode
+> a redução. Na 1.1.0 e anteriores o AstroFind preenchia "Deslocamento de tempo:" sozinho com
+> longitude/15 (um valor em horas); a próxima versão (depois da 1.1.0) não faz mais isso, e zera
+> esse valor antigo uma vez ao iniciar (com um aviso no Registro). Veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 ---
 
@@ -739,7 +743,7 @@ O AstroFind só escreve o formato **ADES** (XML e PSV). Detalhes: [Manual](https
 | **View ADES Report File** is greyed out | Run **Astrometry → Data Reduction…** (`Ctrl+A`) first |
 | "No observations yet." | Measure and accept at least one object first |
 | Report shows station `XXX` | "MPC Station Code:" is empty in **Settings → Observer** |
-| `Ctrl+L` does nothing | It is assigned twice (Load Images and Light Curve); use the menu or the toolbar |
+| `Ctrl+L` does nothing (1.1.0 and earlier) | It was assigned twice (Load Images and Light Curve); use the menu or the toolbar. Fixed in the next version (after 1.1.0): Light Curve is now `Ctrl+Shift+L` |
 | Verification window shows "Nenhum objeto conhecido próximo" | Normal when no known object is nearby |
 
 Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
@@ -754,7 +758,7 @@ Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu
 | **Ver Arquivo de Relatório ADES** está desativado | Rode **Astrometria → Redução de Dados…** (`Ctrl+A`) antes |
 | "Nenhuma observação ainda." | Meça e aceite pelo menos um objeto antes |
 | O relatório mostra a estação `XXX` | "Código de estação MPC:" está vazio em **Configurações → Observador** |
-| `Ctrl+L` não faz nada | O atalho está em dois lugares (Carregar Imagens e Curva de Luz); use o menu ou a barra de ferramentas |
+| `Ctrl+L` não faz nada (1.1.0 e anteriores) | O atalho estava em dois lugares (Carregar Imagens e Curva de Luz); use o menu ou a barra de ferramentas. Corrigido na próxima versão (depois da 1.1.0): a Curva de Luz agora é `Ctrl+Shift+L` |
 | A janela de Verificação mostra "Nenhum objeto conhecido próximo" | Normal quando não há objeto conhecido por perto |
 
 Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).

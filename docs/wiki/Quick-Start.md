@@ -220,8 +220,8 @@ da atmosfera.
 2. In the window "Load Astronomical Images", select **all** your images at once (Ctrl+click or
    Shift+click), then **Open**. ZIP files and other archives are unpacked automatically.
 
-> 🇬🇧 ⚠️ **Watch out:** the menu shows `Ctrl+L`, but `Ctrl+L` is also used by
-> Tools → Light Curve…. Because of this clash the key may do nothing. **Use the menu.**
+> 🇬🇧 💡 **Shortcut:** `Ctrl+L` also opens this window. In version 1.1.0 and earlier the same
+> key was also used by Tools → Light Curve… and could do nothing; there, use the menu.
 
 **What you should see:**
 - One window per image, arranged side by side. Thumbnails appear in the **Images** bar at the
@@ -242,9 +242,9 @@ images) or **Novo Projeto** (start over).
    (Ctrl+clique ou Shift+clique) e clique em **Abrir**. Arquivos ZIP e outros compactados são
    extraídos automaticamente.
 
-> 🇧🇷 ⚠️ **Atenção:** o menu mostra `Ctrl+L`, mas `Ctrl+L` também é usado por
-> Ferramentas → Curva de Luz…. Por causa desse conflito a tecla pode não fazer nada. **Use o
-> menu.**
+> 🇧🇷 💡 **Atalho:** `Ctrl+L` também abre esta janela. Na versão 1.1.0 e anteriores a mesma
+> tecla também era usada por Ferramentas → Curva de Luz… e podia não fazer nada; lá, use o
+> menu.
 
 **O que você deve ver:**
 - Uma janela por imagem, lado a lado. Miniaturas aparecem na barra **Imagens** embaixo.

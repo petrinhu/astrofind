@@ -363,6 +363,7 @@ void MainWindow::setupToolBar()
     actThemeToggle_->setShortcut(QKeySequence("Ctrl+Shift+T"));
     connect(actThemeToggle_, &QAction::triggered, this, &MainWindow::onToggleTheme);
     stdTb->addAction(actThemeToggle_);
+    addAction(actThemeToggle_);   // keep Ctrl+Shift+T working when the toolbar is hidden
 
     stdTb->addSeparator();
 

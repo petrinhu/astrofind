@@ -7,7 +7,8 @@ MPC-grade data out of it, and how to build, test and audit it from source. Most 
 user can follow. Unknown words are in the [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary). The full maths is in the repository file
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (we call it "TR" below). Where TR and the code disagree, this page says so and describes what
-the **code** does (AstroFind v1.1.0).
+the **code** does (AstroFind v1.1.0; where the next version (after 1.1.0) already behaves
+differently, for example in timing, the page says so).
 
 🇧🇷 **Para quem é esta página.** Observadores experientes (usuários do Astrometrica / MPC) e
 desenvolvedores que querem saber *como* o AstroFind calcula seus números, quais são os limites,
@@ -17,7 +18,8 @@ simples, para que um usuário intermediário acompanhe. Palavras desconhecidas e
 [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary). A matemática completa está no arquivo do repositório
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (chamado de "TR" abaixo). Onde o TR e o código divergem, esta página avisa e descreve o que o
-**código** faz (AstroFind v1.1.0).
+**código** faz (AstroFind v1.1.0; onde a próxima versão (depois da 1.1.0) já se comporta
+diferente, por exemplo no tempo, a página avisa).
 
 > ⚠️ **Watch out / Atenção** — 🇬🇧 AstroFind has **not yet been validated end to end with real
 > observatory data**. Check astrometry, photometry and the ADES report independently before
@@ -53,8 +55,8 @@ The strength of a spot compared to the noise decides if it counts.*
   (convolution) filter, at most **500** sources kept (the brightest by flux).
 - After SEP, the **Minimum FWHM:** filter removes sources that are too sharp (hot pixels,
   cosmic rays).
-  > ⚠️ The field shows "px", but the code divides the value by the pixel scale, so it is really
-  > read as **arcseconds**.
+  The value is in **arcseconds** (the field shows ″); the code divides it by the pixel scale.
+  (In 1.1.0 and earlier the field was wrongly labelled "px".)
 - Log line: `Image N: M stars found`.
 
 🇧🇷 **Português**
@@ -68,8 +70,8 @@ conhecida (SEP). A força do ponto em relação ao ruído decide se ele conta.*
   casado (convolução) 3×3, no máximo **500** fontes mantidas (as mais brilhantes em fluxo).
 - Depois do SEP, o filtro **FWHM mínimo:** remove fontes finas demais (pixels quentes, raios
   cósmicos).
-  > ⚠️ O campo mostra "px", mas o código divide o valor pela escala de pixel, então ele é lido
-  > de fato em **segundos de arco**.
+  O valor está em **segundos de arco** (o campo mostra ″); o código divide pela escala de
+  pixel. (Na 1.1.0 e anteriores o campo tinha o rótulo errado "px".)
 - Linha de log: `Image N: M stars found`.
 
 ### 1.2 Centroid and elliptical PSF / Centroide e PSF elíptica
@@ -518,7 +520,8 @@ barras. A tabela abaixo diz de onde vem cada campo, para você saber quais confe
 
 🇬🇧 **English**
 *In short: an asteroid moves, so a wrong clock means a wrong position. Read this section fully
-before you submit anything. AstroFind 1.1.0 has several time-handling traps.*
+before you submit anything. Version 1.1.0 had time-handling traps that the next version (after
+1.1.0) fixes; a note below says what changed.*
 
 **How the image time is read** (FITS):
 
@@ -540,34 +543,44 @@ before you submit anything. AstroFind 1.1.0 has several time-handling traps.*
 6. Known limitation (AUD-CORR-13, open): the conversion keeps **whole seconds** only, so a
    fractional part of DATE-OBS is dropped.
 
-**What Data Reduction then does to the JD** (every time you run it):
+**What Data Reduction then does to the JD:**
 
-- It adds **Settings → Observer → Time Offset:** as *seconds*.
-- It adds **Settings → Camera → ΔT (TT − UTC):** (default **68 s**) to convert to TT.
-- ⚠️ The ADES `obsTime` is written from this same adjusted JD and labelled `Z` (UTC). ADES
-  expects UTC. So, reading the 1.1.0 source, the default ΔT makes `obsTime` about **68 s late**.
-- ⚠️ The adjustment is applied again on every run, with no guard. Running Data Reduction twice
-  adds it twice.
-- ⚠️ When Time Offset is 0 at load time, AstroFind auto-fills it with *longitude / 15* (an
-  "hours" value), and the reduction then reads that number as seconds. Example: longitude −35°
-  gives −2.3, which is applied as −2.3 s.
+- It adds **Settings → Observer → Time Offset:** as *seconds* (a camera-clock correction).
+  This is done **once** per image: AstroFind remembers the correction already applied (it is
+  also saved in the `.gus` project), so re-running Data Reduction or re-opening a project
+  never adds it again. If you change the value, only the difference is applied.
+- It does **not** add ΔT. The JD stays **UTC**, and the ADES `obsTime` is written from it with
+  `Z`, as ADES expects.
+- **Settings → Camera → ΔT (TT − UTC):** (default **68 s**) is used only for the **offline**
+  MPCORB scan of known objects: the orbits are propagated in TT, so AstroFind adds ΔT to the
+  UTC JD for that calculation only. The online SkyBoT query is sent in UTC (as the IMCCE
+  documentation asks).
+- Time Offset is **never filled automatically**. On the first start of the next version
+  (after 1.1.0), a stored non-zero Time Offset is reset to 0 once, with a warning in the log,
+  because older versions filled it with a wrong value.
 - **Time Zone:** (`observer/timeZone`) is saved, but nothing in the pipeline uses it. It does
   **not** convert a local-time DATE-OBS.
 
-**Recommended procedure until this is fixed:**
+> ⚠️ **Version 1.1.0 and earlier (AUD-CORR-15).** There, Data Reduction added ΔT (68 s) and
+> Time Offset to the JD **on every run**, and the report still labelled the result UTC, so
+> `obsTime` came out about 68 s late (more after each re-run). Time Offset was also auto-filled
+> with *longitude / 15* (hours, then read as seconds; longitude −35° gave −2.3 s). If you are
+> still on 1.1.0: set **ΔT** and **Time Offset** to `0` before the first Data Reduction, run it
+> only once per loaded session, and reload the images if you already ran it.
+
+**Recommended procedure:**
 
 1. Make sure your acquisition software writes `DATE-OBS` in UTC with `Z` (or `TIMESYS='UTC'`).
    This is the only fully reliable path. If your camera writes local time, fix the headers
    before loading.
-2. Load the images, then open **File → Settings...** (`Ctrl+,`) / **Arquivo → Configurações...**:
-   - set **Camera → ΔT (TT − UTC):** to `0`;
-   - set **Observer → Time Offset:** to `0`, or to a real clock error in seconds, if you know
-     one. The range is −999…999 s.
-3. Run **Data Reduction** (`Ctrl+A`) **once** per loaded session.
+2. In **File → Settings...** (`Ctrl+,`) / **Arquivo → Configurações...**, leave
+   **Camera → ΔT (TT − UTC):** at its default, and set **Observer → Time Offset:** to `0`, or
+   to a real clock error in seconds if you know one. The range is −999…999 s.
+3. Run **Data Reduction** (`Ctrl+A`). Running it again is safe.
 4. For a single image, or a DSLR with a known clock error, you can type the correct
    mid-exposure JD in **Images → Edit Image Parameters...** / **Imagens → Editar Parâmetros da
-   Imagem...** (field "Julian Date:", 6 decimals ≈ 0.09 s). Do this *before* Data Reduction and
-   keep ΔT/Time Offset at 0.
+   Imagem...** (field "Julian Date:", 6 decimals ≈ 0.09 s). If the JD you type is already
+   corrected, keep Time Offset at 0.
 5. Before submitting, compare the `obsTime` in the ADES preview with the mid-exposure UTC you
    expect.
 
@@ -579,13 +592,15 @@ you chose.
 > difference. Then correct each frame's JD as in step 4. A 1 s error on an asteroid moving
 > 1″/s gives a 1″ error along its path.
 
-> 💡 **Time Precision.** The field says "h", but the code reads it as the **number of decimal
-> places** of the seconds in `obsTime`. The default 1.0 gives tenths of a second. Use 1 or 2;
-> more digits than your clock accuracy only look precise.
+> 💡 **Time Precision.** A whole number 0–3: the **number of decimal places** of the seconds in
+> `obsTime` (0 whole seconds, 1 tenths, 2 hundredths, 3 milliseconds). The default 1 gives
+> tenths of a second. Use 1 or 2; more digits than your clock accuracy only look precise. (In
+> 1.1.0 and earlier the field was wrongly labelled "h", with the same meaning.)
 
 🇧🇷 **Português**
 *Resumindo: um asteroide se move, então relógio errado = posição errada. Leia esta seção inteira
-antes de enviar qualquer coisa. O AstroFind 1.1.0 tem várias armadilhas no tratamento de tempo.*
+antes de enviar qualquer coisa. A versão 1.1.0 tinha armadilhas no tratamento de tempo que a
+próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
 
 **Como o horário da imagem é lido** (FITS):
 
@@ -607,34 +622,44 @@ antes de enviar qualquer coisa. O AstroFind 1.1.0 tem várias armadilhas no trat
 6. Limitação conhecida (AUD-CORR-13, aberta): a conversão guarda só **segundos inteiros**, então a
    fração de segundo do DATE-OBS é descartada.
 
-**O que a Redução de Dados faz depois com o JD** (toda vez que roda):
+**O que a Redução de Dados faz depois com o JD:**
 
-- Soma **Configurações → Observador → Deslocamento de tempo:** como *segundos*.
-- Soma **Configurações → Câmera → ΔT (TT − UTC):** (padrão **68 s**) para converter para TT.
-- ⚠️ O `obsTime` do ADES é escrito a partir desse mesmo JD ajustado e marcado com `Z` (UTC). O ADES
-  espera UTC. Então, lendo o código da 1.1.0, o ΔT padrão deixa o `obsTime` cerca de **68 s
-  atrasado**.
-- ⚠️ O ajuste é aplicado de novo a cada execução, sem proteção. Rodar a Redução de Dados duas
-  vezes soma duas vezes.
-- ⚠️ Quando o Deslocamento de tempo está em 0 no carregamento, o AstroFind o preenche com
-  *longitude / 15* (um valor em "horas"), e a redução lê esse número como segundos. Exemplo:
-  longitude −35° dá −2,3, aplicado como −2,3 s.
+- Soma **Configurações → Observador → Deslocamento de tempo:** como *segundos* (uma correção
+  do relógio da câmera). Isso é feito **uma vez** por imagem: o AstroFind lembra a correção já
+  aplicada (ela também fica salva no projeto `.gus`), então rodar a Redução de Dados de novo ou
+  reabrir um projeto nunca soma outra vez. Se você mudar o valor, só a diferença é aplicada.
+- **Não** soma o ΔT. O JD fica em **UTC**, e o `obsTime` do ADES é escrito a partir dele com
+  `Z`, como o ADES espera.
+- **Configurações → Câmera → ΔT (TT − UTC):** (padrão **68 s**) é usado só na busca
+  **offline** de objetos conhecidos pelo MPCORB: as órbitas são propagadas em TT, então o
+  AstroFind soma o ΔT ao JD UTC só para esse cálculo. A consulta online ao SkyBoT é enviada em
+  UTC (como pede a documentação do IMCCE).
+- O Deslocamento de tempo **nunca é preenchido sozinho**. Na primeira vez que a próxima versão
+  (depois da 1.1.0) abre, um Deslocamento de tempo diferente de 0 é zerado uma vez, com um
+  aviso no log, porque as versões antigas o preenchiam com um valor errado.
 - **Fuso horário:** (`observer/timeZone`) é salvo, mas nada no pipeline o usa. Ele **não**
   converte um DATE-OBS em hora local.
 
-**Procedimento recomendado até isso ser corrigido:**
+> ⚠️ **Versão 1.1.0 e anteriores (AUD-CORR-15).** Nelas, a Redução de Dados somava o ΔT (68 s)
+> e o Deslocamento de tempo ao JD **a cada execução**, e o relatório ainda marcava o resultado
+> como UTC, então o `obsTime` saía cerca de 68 s atrasado (mais a cada nova execução). O
+> Deslocamento de tempo também era preenchido sozinho com *longitude / 15* (horas, lidas depois
+> como segundos; longitude −35° dava −2,3 s). Se ainda usa a 1.1.0: ponha **ΔT** e
+> **Deslocamento de tempo** em `0` antes da primeira Redução de Dados, rode só uma vez por
+> sessão carregada e recarregue as imagens se já rodou.
+
+**Procedimento recomendado:**
 
 1. Garanta que o software de aquisição grave `DATE-OBS` em UTC com `Z` (ou `TIMESYS='UTC'`). Esse
    é o único caminho totalmente confiável. Se a câmera grava hora local, corrija os cabeçalhos
    antes de carregar.
-2. Carregue as imagens e abra **Arquivo → Configurações...** (`Ctrl+,`):
-   - ponha **Câmera → ΔT (TT − UTC):** em `0`;
-   - ponha **Observador → Deslocamento de tempo:** em `0`, ou num erro real de relógio em
-     segundos, se você souber. A faixa é −999…999 s.
-3. Rode a **Redução de Dados** (`Ctrl+A`) **uma vez** por sessão carregada.
+2. Em **Arquivo → Configurações...** (`Ctrl+,`), deixe **Câmera → ΔT (TT − UTC):** no padrão,
+   e ponha **Observador → Deslocamento de tempo:** em `0`, ou num erro real de relógio em
+   segundos, se você souber. A faixa é −999…999 s.
+3. Rode a **Redução de Dados** (`Ctrl+A`). Rodar de novo não causa problema.
 4. Para uma imagem só, ou uma DSLR com erro de relógio conhecido, você pode digitar o JD correto
    do meio da exposição em **Imagens → Editar Parâmetros da Imagem...** (campo "Julian Date:", 6
-   decimais ≈ 0,09 s). Faça isso *antes* da Redução de Dados e mantenha ΔT/Deslocamento em 0.
+   decimais ≈ 0,09 s). Se o JD digitado já está corrigido, mantenha o Deslocamento de tempo em 0.
 5. Antes de enviar, compare o `obsTime` na pré-visualização ADES com o UTC do meio da exposição
    que você espera.
 
@@ -646,9 +671,10 @@ escolhida.
 > GPS/NTP na tela do celular e anote a diferença. Depois corrija o JD de cada quadro como no passo
 > 4. Um erro de 1 s num asteroide que anda 1″/s vira 1″ de erro ao longo da trajetória.
 
-> 💡 **Precisão de tempo.** O campo diz "h", mas o código o lê como **número de casas decimais**
-> dos segundos no `obsTime`. O padrão 1,0 dá décimos de segundo. Use 1 ou 2; mais dígitos do que a
-> exatidão do seu relógio só parecem precisos.
+> 💡 **Precisão de tempo.** Um número inteiro de 0 a 3: o **número de casas decimais** dos
+> segundos no `obsTime` (0 segundos inteiros, 1 décimos, 2 centésimos, 3 milésimos). O padrão 1
+> dá décimos de segundo. Use 1 ou 2; mais dígitos do que a exatidão do seu relógio só parecem
+> precisos. (Na 1.1.0 e anteriores o campo tinha o rótulo errado "h", com o mesmo significado.)
 
 ---
 

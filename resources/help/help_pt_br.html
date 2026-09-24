@@ -1243,8 +1243,11 @@ kbd {
   <ul>
     <li><strong>Limiar de Detecção (σ)</strong> — SNR acima do fundo local necessário para uma detecção.
     Padrão: 5. Valores menores detectam fontes mais fracas, mas aumentam os falsos positivos.</li>
-    <li><strong>FWHM Mínimo (pixels)</strong> — Fontes menores que este valor são tratadas como pixels
-    quentes ou raios cósmicos e excluídas. Defina como aproximadamente 1,5 × o FWHM estelar nominal.</li>
+    <li><strong>FWHM Mínimo (″, segundos de arco)</strong> — Fontes menores que este valor são tratadas como pixels
+    quentes ou raios cósmicos e excluídas. O valor é dividido pela escala do pixel, então só é aplicado
+    quando a escala da imagem é conhecida. Padrão: 0,70″; aumente até mais ou menos metade do seu seeing
+    típico se pixels quentes forem detectados como estrelas. (A versão 1.1.0 e anteriores mostravam
+    “px” neste campo, mas o valor já era lido em segundos de arco.)</li>
     <li><strong>Raio da Abertura (pixels)</strong> — Raio da abertura fotométrica da ferramenta Abertura.
     Deve ser ~2 × FWHM para SNR ideal.</li>
     <li><strong>Anulo do Céu Interno/Externo (pixels)</strong> — Raios interno e externo do anulo para
