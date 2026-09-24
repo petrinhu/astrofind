@@ -10,6 +10,8 @@ add_executable(astrofind_tests
     test_ades_report.cpp
     test_fits_functional.cpp
     test_fits_loaders.cpp
+    test_pds_raw_loaders.cpp
+    test_hostile_regression.cpp
     test_astronomy.cpp
     test_photometry.cpp
     test_robustness.cpp

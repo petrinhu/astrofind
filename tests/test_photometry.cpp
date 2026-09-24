@@ -397,12 +397,11 @@ TEST_CASE("computeZeroPoint: ZP = mag_cat - mag_inst, with correct sign, for kno
 // ─── Extinction correction SIGN test (AUD-CORR-5) ────────────────────────────
 //
 // The atmospheric extinction correction (`photometry/extinctionCoeff` in
-// Settings, applied in MainWindow::runMeasurePipeline as
-// `extCorr = -kExt * airmass`) had no unit anywhere: it lives inline in UI
-// code. core::applyExtinctionCorrection() (added in this remediation,
-// Astronomy.h/.cpp) is the tested reference implementation of that same
-// convention: mag_corrected = mag_inst - k*X. This locks the SIGN so a flip
-// (+k*X instead of -k*X) fails here first.
+// Settings) is computed in MainWindow::runMeasurePipeline by calling
+// core::applyExtinctionCorrection() itself (AUD-CORR-8: the old inline
+// `extCorr = -kExt * airmass` is gone), so these cases test the code that
+// really feeds the MPC magnitude: mag_corrected = mag_inst - k*X. This locks
+// the SIGN so a flip (+k*X instead of -k*X) fails here first.
 
 TEST_CASE("applyExtinctionCorrection: X=2, k=0.2 gives exactly -0.4 mag correction",
           "[photometry][AUD-CORR-5]")

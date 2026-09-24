@@ -13,10 +13,14 @@
 
 #include "core/FitsImage.h"
 #include "core/FitsTableReader.h"
+#include "core/Spectrum1D.h"
 #include "synthetic_fits.h"
 
 #include <QTemporaryDir>
 #include <QDir>
+#include <QFile>
+
+#include <vector>
 
 using namespace testutil;
 
@@ -282,4 +286,85 @@ TEST_CASE("readLocalCatalogTable: needs RA/Dec columns, fails on X/Y-only table"
 
     auto result = core::readLocalCatalogTable(path, 180.0, 20.0, 5.0);
     REQUIRE_FALSE(result.has_value());
+}
+
+// ─── loadSpectrum1D (AUD-INPUT-8) ────────────────────────────────────────────
+
+namespace {
+
+/// Write a valid NAXIS=1 float spectrum of `n` channels.
+bool writeSpectrum1D(const QString& path, const std::vector<float>& flux)
+{
+    fitsfile* fptr = nullptr;
+    int status = 0;
+    QFile::remove(path);
+    fits_create_file(&fptr, path.toLocal8Bit().constData(), &status);
+    long naxes[1] = {static_cast<long>(flux.size())};
+    fits_create_img(fptr, FLOAT_IMG, 1, naxes, &status);
+    double crval = 4000.0, cdelt = 2.0;
+    fits_write_key(fptr, TDOUBLE, "CRVAL1", &crval, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CDELT1", &cdelt, nullptr, &status);
+    fits_write_img(fptr, TFLOAT, 1, static_cast<LONGLONG>(flux.size()),
+                   const_cast<float*>(flux.data()), &status);
+    fits_close_file(fptr, &status);
+    return status == 0;
+}
+
+/// Overwrite the NAXIS1 card value in place (header lies, file stays small).
+bool patchNaxis1(const QString& path, long declared)
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadWrite)) return false;
+    QByteArray hdr = f.read(2880);
+    const int pos = hdr.indexOf("NAXIS1  =");
+    if (pos < 0 || pos % 80 != 0) return false;
+    // Fixed-format integer: value right-justified in columns 11-30.
+    const QByteArray value = QByteArray::number(static_cast<qlonglong>(declared)).rightJustified(20, ' ');
+    f.seek(pos + 10);
+    return f.write(value) == 20;
+}
+
+} // namespace
+
+TEST_CASE("loadSpectrum1D reads a small valid spectrum", "[loaders][spectrum]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("spec8.fits");
+    REQUIRE(writeSpectrum1D(path, {1, 2, 3, 4, 5, 6, 7, 8}));
+
+    auto spec = core::loadSpectrum1D(path);
+    REQUIRE(spec.has_value());
+    REQUIRE(spec->flux.size() == 8);
+    CHECK(spec->flux[7] == Catch::Approx(8.0));
+    CHECK(spec->wavelength[0] == Catch::Approx(4000.0));
+    CHECK(spec->wavelength[1] == Catch::Approx(4002.0));
+}
+
+TEST_CASE("loadSpectrum1D rejects a lying NAXIS1 larger than the file", "[loaders][spectrum][hostile]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("spec_lying.fits");
+    REQUIRE(writeSpectrum1D(path, std::vector<float>(8, 1.0f)));
+    // 1e6 channels = 4 MB of float data declared in a 5760-byte file: under
+    // the channel ceiling, so only the file-size cross-check can reject it.
+    REQUIRE(patchNaxis1(path, 1'000'000));
+
+    auto spec = core::loadSpectrum1D(path);
+    REQUIRE_FALSE(spec.has_value());
+    CHECK(spec.error().contains("exceeds"));
+}
+
+TEST_CASE("loadSpectrum1D rejects NAXIS1 above the channel ceiling", "[loaders][spectrum][hostile]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("spec_1e8.fits");
+    REQUIRE(writeSpectrum1D(path, std::vector<float>(8, 1.0f)));
+    REQUIRE(patchNaxis1(path, 100'000'000)); // audit payload (AUD-INPUT-8)
+
+    auto spec = core::loadSpectrum1D(path);
+    REQUIRE_FALSE(spec.has_value());
+    CHECK(spec.error().contains("too large"));
 }

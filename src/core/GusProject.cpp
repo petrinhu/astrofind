@@ -145,6 +145,7 @@ static QJsonObject imageToJson(const FitsImage& img)
     o["expTime"]    = img.expTime;
     o["dateObs"]    = img.dateObs.toString(Qt::ISODateWithMs);
     o["jd"]         = img.jd;
+    o["clockCorrectionSec"] = img.clockCorrectionSec;
     o["filter"]     = img.filter;
     o["telescope"]  = img.telescope;
     o["observer"]   = img.observer;
@@ -191,6 +192,7 @@ static FitsImage imageFromJson(const QJsonObject& o)
     img.expTime     = o["expTime"].toDouble();
     img.dateObs     = QDateTime::fromString(o["dateObs"].toString(), Qt::ISODateWithMs);
     img.jd          = o["jd"].toDouble();
+    img.clockCorrectionSec = o["clockCorrectionSec"].toDouble(0.0);
     img.filter      = o["filter"].toString();
     img.telescope   = o["telescope"].toString();
     img.observer    = o["observer"].toString();

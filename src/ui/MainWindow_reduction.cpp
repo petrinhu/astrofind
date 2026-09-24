@@ -89,6 +89,9 @@ void MainWindow::onDataReduction()
     }
     // Apply effective location to the KOO engine for this reduction pass
     kooEngine_->setObserverLocation(site.lat, site.lon, site.alt);
+    // ΔT (TT − UTC) only feeds the offline MPCORB ephemeris; image times stay UTC.
+    kooEngine_->setDeltaTSeconds(
+        settings_.value(QStringLiteral("camera/deltaT"), 68.0).toDouble());
     {
         const QString mode = settings_.value(
             QStringLiteral("observer/locationMode"), QStringLiteral("fits")).toString();
@@ -110,12 +113,10 @@ void MainWindow::onDataReduction()
         core::FitsImage& img = session_->image(i);
 
         img.saturation = settings_.value(QStringLiteral("camera/saturation"), 60000).toDouble();
-        const double timeOffset = settings_.value(QStringLiteral("observer/timeOffset"), 0.0).toDouble();
-        if (timeOffset != 0.0 && img.jd > 0.0)
-            img.jd += timeOffset / 86400.0;
-        const double deltaT = settings_.value(QStringLiteral("camera/deltaT"), 68.0).toDouble();
-        if (img.jd > 0.0)
-            img.jd += deltaT / 86400.0;
+        // Clock correction in seconds, applied once (AUD-CORR-15). ΔT is NOT added:
+        // jd is reported as UTC in ADES obsTime.
+        core::applyClockCorrection(img,
+            settings_.value(QStringLiteral("observer/timeOffset"), 0.0).toDouble());
         if (img.pixScaleX == 0.0) {
             const double sx = settings_.value(QStringLiteral("camera/pixelScaleX"), 0.0).toDouble();
             const double sy = settings_.value(QStringLiteral("camera/pixelScaleY"), 0.0).toDouble();

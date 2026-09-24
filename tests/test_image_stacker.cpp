@@ -6,6 +6,8 @@
 
 #include <QPointF>
 
+#include <cmath>
+
 using Catch::Matchers::WithinAbs;
 
 static core::FitsImage makeFlat(int w, int h, float fill)
@@ -143,4 +145,35 @@ TEST_CASE("trackAndStack rejects empty input", "[stacker]")
     QVector<core::FitsImage> imgs;
     auto res = core::trackAndStack(imgs, 1.0, 0.0);
     REQUIRE_FALSE(res.has_value());
+}
+
+// ─── FFT alignment on non-square frames (AUD-MEM-5) ──────────────────────────
+// forwardFFT used to allocate w*(h/2+1) complexes for an (h, w) r2c plan that
+// writes h*(w/2+1): portrait frames (h > w) were under-allocated and the
+// cross-power spectrum read past the end. 32x32 cannot catch this.
+
+static void checkFftShift(int w, int h)
+{
+    const int dx = 3, dy = 5;
+    QVector<core::FitsImage> imgs;
+    imgs << makeSpot(w, h, w / 2, h / 2, 5000.0f)
+         << makeSpot(w, h, w / 2 + dx, h / 2 + dy, 5000.0f);
+
+    auto result = core::stackImages(imgs, core::StackMode::Average, core::AlignMode::FFT);
+    REQUIRE(result.has_value());
+    REQUIRE(result->image.width  == w);
+    REQUIRE(result->image.height == h);
+    REQUIRE(result->shifts.size() == 2);
+    CHECK_THAT(std::abs(result->shifts[1].x()), WithinAbs(dx, 0.6));
+    CHECK_THAT(std::abs(result->shifts[1].y()), WithinAbs(dy, 0.6));
+}
+
+TEST_CASE("stackImages FFT aligns a portrait frame (50x100)", "[stacker][fft]")
+{
+    checkFftShift(50, 100);
+}
+
+TEST_CASE("stackImages FFT aligns a landscape frame (100x50)", "[stacker][fft]")
+{
+    checkFftShift(100, 50);
 }

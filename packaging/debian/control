@@ -20,10 +20,11 @@ Build-Depends:
  libfftw3-dev,
  libeigen3-dev,
  libarchive-dev,
+ libraw-dev,
  libgl-dev,
  libxkbcommon-dev
 Standards-Version: 4.6.2
-Homepage: https://codeberg.org/petrinhu/astrofind
+Homepage: https://github.com/petrinhu/astrofind
 Rules-Requires-Root: no
 
 Package: astrofind

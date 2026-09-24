@@ -215,7 +215,7 @@ are compatible with AGPL-3.0 distribution of the combined work; full
 text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
 --------------------------------------------------------------------
-7. Qt6, Qt6Keychain, libarchive
+7. Qt6, Qt6Keychain, libarchive, LibRaw
 --------------------------------------------------------------------
 Component:   Qt6 (qt.io) — Widgets, OpenGL, Charts, Concurrent, Network,
              Sql, Xml, Core5Compat modules
@@ -231,6 +231,12 @@ License:     LGPL-2.1 (BSD-style exception clause, see upstream COPYING)
 Component:   libarchive (libarchive.org)
 Copyright:   Tim Kientzle and libarchive contributors
 License:     BSD 2-Clause / 3-Clause (per-file; see upstream COPYING)
+
+Component:   LibRaw (libraw.org) — optional, DSLR RAW decoding
+Copyright:   LibRaw LLC (info@libraw.org); based on dcraw by Dave Coffin
+License:     dual LGPL-2.1 or CDDL-1.0 (recipient's choice); AstroFind uses
+             it under LGPL-2.1, dynamically linked from the system package.
+             Full text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
 
 --------------------------------------------------------------------
 8. Catch2 — test framework (build/test-time only, not distributed)

@@ -1,8 +1,8 @@
 # AstroFind: Installation Instructions / Instruções de Instalação
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v0.9.0+
+> **Applies to / Aplica-se a:** AstroFind v1.1.0+
 
 ---
 
@@ -28,11 +28,11 @@
 
 ### 🇬🇧 English (binary packages, recommended)
 
-Download the universal installer from the
-[latest release](https://codeberg.org/petrinhu/astrofind/releases/latest):
+Download the universal installer for the release you want (here v1.1.0; the
+[releases page](https://github.com/petrinhu/astrofind/releases) lists every tag):
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -45,26 +45,26 @@ interactive interface.
 
 #### Direct package download
 
-Replace `v0.9.0` with the tag of the release you want.
+Replace `v1.1.0`/`1.1.0` with the release you want.
 
 **Fedora / RHEL / Rocky Linux (RPM package):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-1.x86_64.rpm
-sudo rpm -i astrofind-0.9.0-1.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind-1.1.0-1.x86_64.rpm
+sudo dnf install ./astrofind-1.1.0-1.x86_64.rpm
 ```
 
 Dependencies not bundled in the RPM (install separately):
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive mesa-libGL libxkbcommon
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive LibRaw mesa-libGL libxkbcommon
 ```
 
 **Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (DEB package):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind_0.9.0_amd64.deb
-sudo apt-get install ./astrofind_0.9.0_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind_1.1.0_amd64.deb
+sudo apt-get install ./astrofind_1.1.0_amd64.deb
 ```
 
 `apt-get install ./file.deb` resolves dependencies automatically.
@@ -73,9 +73,8 @@ sudo apt-get install ./astrofind_0.9.0_amd64.deb
 manager):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-arch-PKGBUILD.tar.gz
-tar xzf astrofind-0.9.0-arch-PKGBUILD.tar.gz
-cd astrofind-arch
+mkdir astrofind-arch && cd astrofind-arch
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
@@ -84,11 +83,11 @@ package.
 
 ### 🇧🇷 Português (pacotes binários, recomendado)
 
-Baixe o instalador universal da
-[última versão](https://codeberg.org/petrinhu/astrofind/releases/latest):
+Baixe o instalador universal da versão desejada (aqui v1.1.0; a
+[página de releases](https://github.com/petrinhu/astrofind/releases) lista todas as tags):
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -101,26 +100,26 @@ interativa bilíngue (EN/PT-BR).
 
 #### Download direto do pacote
 
-Substitua `v0.9.0` pela tag da versão desejada.
+Substitua `v1.1.0`/`1.1.0` pela versão desejada.
 
 **Fedora / RHEL / Rocky Linux (pacote RPM):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-1.x86_64.rpm
-sudo rpm -i astrofind-0.9.0-1.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind-1.1.0-1.x86_64.rpm
+sudo dnf install ./astrofind-1.1.0-1.x86_64.rpm
 ```
 
 Dependências não incluídas no RPM (instalar separadamente):
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive mesa-libGL libxkbcommon
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive LibRaw mesa-libGL libxkbcommon
 ```
 
 **Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (pacote DEB):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind_0.9.0_amd64.deb
-sudo apt-get install ./astrofind_0.9.0_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind_1.1.0_amd64.deb
+sudo apt-get install ./astrofind_1.1.0_amd64.deb
 ```
 
 `apt-get install ./arquivo.deb` resolve dependências automaticamente.
@@ -129,9 +128,8 @@ sudo apt-get install ./astrofind_0.9.0_amd64.deb
 pacotes do Arch):**
 
 ```bash
-curl -LO https://codeberg.org/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-arch-PKGBUILD.tar.gz
-tar xzf astrofind-0.9.0-arch-PKGBUILD.tar.gz
-cd astrofind-arch
+mkdir astrofind-arch && cd astrofind-arch
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
@@ -199,11 +197,11 @@ cmake --build build -j$(nproc)
 sudo dnf install \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
+
+> Qt Network, Sql, Xml, Concurrent and OpenGL come inside `qt6-qtbase-devel` on Fedora;
+> there are no separate `qt6-qtnetwork-devel`/`qt6-qtopengl-devel` packages.
 
 **Optional:**
 
@@ -211,6 +209,7 @@ sudo dnf install \
 sudo dnf install \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist \
     valgrind cppcheck clang-tools-extra
@@ -224,11 +223,11 @@ sudo dnf install \
 sudo dnf install \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
+
+> No Fedora, Qt Network, Sql, Xml, Concurrent e OpenGL vêm dentro do `qt6-qtbase-devel`;
+> não existem pacotes separados `qt6-qtnetwork-devel`/`qt6-qtopengl-devel`.
 
 **Opcionais:**
 
@@ -236,6 +235,7 @@ sudo dnf install \
 sudo dnf install \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist \
     valgrind cppcheck clang-tools-extra
@@ -273,6 +273,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -302,6 +303,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -333,6 +335,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -362,6 +365,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -398,6 +402,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -422,6 +427,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -430,9 +436,15 @@ sudo apt-get install -y \
 
 ## Pop!_OS 22.04
 
-> Item 55.7, Docker QA target. Pop!_OS 22.04 is based on Ubuntu 22.04 (Jammy). Qt 6.4
-> is available from the Ubuntu repos / Pop!_OS 22.04 é baseado no Ubuntu 22.04
-> (Jammy). Qt 6.4 está disponível nos repositórios do Ubuntu.
+> ⚠️ Pop!_OS 22.04 is based on Ubuntu 22.04 (Jammy), whose repositories ship **Qt 6.2**;
+> AstroFind needs **Qt 6.4+**, so these packages will not build it as-is. Use Pop!_OS 24.04
+> (Ubuntu 24.04 base, same commands as [Ubuntu 24.04](#ubuntu-2404-lts)), or install a newer
+> Qt yourself. The CI job named "Pop!_OS 22.04" actually runs in an `ubuntu:24.04` container
+> (AUD-CI-6). / Pop!_OS 22.04 é baseado no Ubuntu 22.04 (Jammy), cujos repositórios trazem
+> **Qt 6.2**; o AstroFind precisa de **Qt 6.4+**, então estes pacotes não o compilam como
+> estão. Use o Pop!_OS 24.04 (base Ubuntu 24.04, mesmos comandos do
+> [Ubuntu 24.04](#ubuntu-2404-lts)) ou instale um Qt mais novo por conta própria. O job de CI
+> chamado "Pop!_OS 22.04" roda, na verdade, num container `ubuntu:24.04` (AUD-CI-6).
 
 ### 🇬🇧 English
 
@@ -452,6 +464,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -474,6 +487,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -482,9 +496,12 @@ sudo apt-get install -y \
 
 ## Zorin OS 17
 
-> Item 55.9, Docker QA target. Zorin OS 17 is based on Ubuntu 22.04. Use the same
-> commands as Pop!_OS 22.04 / Zorin OS 17 é baseado no Ubuntu 22.04. Use os mesmos
-> comandos do Pop!_OS 22.04.
+> ⚠️ Zorin OS 17 is based on Ubuntu 22.04, whose repositories ship **Qt 6.2** (AstroFind
+> needs **Qt 6.4+**); same caveat as [Pop!_OS 22.04](#popos-2204). Zorin OS 18 (Ubuntu 24.04
+> base) can use the [Ubuntu 24.04](#ubuntu-2404-lts) commands. / O Zorin OS 17 é baseado no
+> Ubuntu 22.04, cujos repositórios trazem **Qt 6.2** (o AstroFind precisa de **Qt 6.4+**);
+> mesma ressalva do [Pop!_OS 22.04](#popos-2204). O Zorin OS 18 (base Ubuntu 24.04) pode
+> usar os comandos do [Ubuntu 24.04](#ubuntu-2404-lts).
 
 ### 🇬🇧 English
 
@@ -504,6 +521,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -526,6 +544,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -553,6 +572,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -575,6 +595,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -603,6 +624,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -623,6 +645,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -652,6 +675,7 @@ sudo zypper install -y \
 sudo zypper install -y \
     qt6-core5compat-devel \
     libarchive-devel \
+    libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist-devel \
     valgrind cppcheck clang-tools
@@ -675,6 +699,7 @@ sudo zypper install -y \
 sudo zypper install -y \
     qt6-core5compat-devel \
     libarchive-devel \
+    libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist-devel \
     valgrind cppcheck clang-tools
@@ -709,9 +734,6 @@ sudo dnf config-manager --set-enabled crb
 sudo dnf install -y \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
 
@@ -724,6 +746,7 @@ sudo dnf install -y \
 sudo dnf install -y \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     libsecret-devel \
     qt6-linguist
 ```
@@ -744,9 +767,6 @@ sudo dnf config-manager --set-enabled crb
 sudo dnf install -y \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
 
@@ -759,6 +779,7 @@ sudo dnf install -y \
 sudo dnf install -y \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     libsecret-devel \
     qt6-linguist
 ```
@@ -773,6 +794,7 @@ sudo dnf install -y \
 |------------|---------|---------|
 | QuaZip / Qt6Core5Compat | ZIP archive extraction | see distro section above |
 | libarchive | TAR.GZ/BZ2/XZ, 7Z, RAR extraction | see distro section above |
+| LibRaw | DSLR RAW loading (CR2/CR3/NEF/ARW/DNG/...) | see distro section above (Rocky 9: CRB repo) |
 | Qt6Keychain | Secure API key storage (falls back to QSettings if absent) | see distro section above |
 | Qt6LinguistTools | Recompile `.ts` translation files after editing | see distro section above |
 | ASTAP | Offline plate solver ("plate solving": figuring out which patch of sky an image shows, by matching star patterns to a catalog) | download from [hnsky.org](https://www.hnsky.org/astap.htm) |
@@ -786,6 +808,7 @@ sudo dnf install -y \
 |------------|---------|---------|
 | QuaZip / Qt6Core5Compat | Extração de arquivos ZIP | ver seção da distro acima |
 | libarchive | Extração de TAR.GZ/BZ2/XZ, 7Z, RAR | ver seção da distro acima |
+| LibRaw | Leitura de RAW de DSLR (CR2/CR3/NEF/ARW/DNG/...) | ver seção da distro acima (Rocky 9: repositório CRB) |
 | Qt6Keychain | Armazenamento seguro de chave de API (cai para QSettings se ausente) | ver seção da distro acima |
 | Qt6LinguistTools | Recompilar arquivos de tradução `.ts` após edição | ver seção da distro acima |
 | ASTAP | Plate solver offline ("plate solving": descobrir qual pedaço do céu uma imagem mostra, casando o padrão de estrelas com um catálogo) | baixar em [hnsky.org](https://www.hnsky.org/astap.htm) |

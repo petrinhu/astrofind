@@ -6,6 +6,10 @@ qt_add_executable(AstroFind
     ${CMAKE_SOURCE_DIR}/resources/resources.qrc
 )
 
+# Single source of truth for the version: project(VERSION ...) in the root
+# CMakeLists.txt (was a hard-coded string in main.cpp that drifted).
+target_compile_definitions(AstroFind PRIVATE ASTROFIND_VERSION="${PROJECT_VERSION}")
+
 # i18n — requires qt6-linguist (dnf install qt6-linguist)
 if(Qt6LinguistTools_FOUND)
     qt_add_translations(AstroFind

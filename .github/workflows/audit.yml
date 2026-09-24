@@ -8,8 +8,12 @@ name: Numerical Audit (ASan/UBSan + cppcheck + clang-tidy + valgrind)
 #
 # WHY THIS RUNS HERE, AND ONLY HERE (canonical CI policy):
 #   - Heavy build + ASan/UBSan + valgrind is expensive (multi-build, minutes,
-#     not seconds). It runs on the self-hosted runner (`claudio`, label
-#     `docker`, `forgejo-runner.service`), never on a volunteer/hosted runner.
+#     not seconds). It runs on GitHub-hosted runners (`ubuntu-24.04`, same
+#     label as build.yml), one container per target distro (matrix below:
+#     Fedora, CachyOS, Arch, Ubuntu, Debian). AUD-CI-5 / AUD-CI-3:
+#     the old self-hosted label `docker` no longer exists after the move to
+#     GitHub as the single host, so every run sat queued 24h and was
+#     cancelled — the gate never ran once.
 #   - Trigger is intentionally narrow: pull_request -> main, and release tags.
 #     NOT on every feature-branch push — that would make CI a bottleneck
 #     (>10-20min gate people learn to skip) for a check whose whole point is
@@ -42,6 +46,7 @@ on:
   pull_request:
     branches: [ main ]
   push:
+    branches: [ main ]    # keeps the README Fedora/CachyOS/Audit badges live
     tags:
       - 'v*'
   workflow_dispatch:
@@ -51,51 +56,129 @@ permissions:
 
 jobs:
   numerical-audit:
-    name: Numerical audit · fedora:42 · ASan/UBSan + cppcheck + clang-tidy + valgrind
-    runs-on: docker
+    name: Numerical audit · ${{ matrix.image }} · ASan/UBSan + cppcheck + clang-tidy + valgrind
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
 
+    # Same audit on the five distros the project targets. fail-fast off: a
+    # sanitizer hit on one toolchain must not hide what the others report.
+    #   fedora:44            — the maintainer's development distro (dnf)
+    #   cachyos/cachyos      — official CachyOS image (CachyOS repos and
+    #                          toolchain, not Arch renamed); baseline x86-64
+    #                          variant so it runs on any hosted runner CPU
+    #   archlinux:latest     — upstream Arch, rolling (newest GCC/Qt)
+    #   ubuntu:24.04         — LTS (apt)
+    #   debian:12            — oldest Qt/GCC the project supports
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: fedora:44
+            family: fedora
+          - image: cachyos/cachyos:latest
+            family: arch
+            debuginfod: https://debuginfod.cachyos.org https://debuginfod.archlinux.org
+          - image: archlinux:latest
+            family: arch
+            debuginfod: https://debuginfod.archlinux.org
+          - image: ubuntu:24.04
+            family: debian
+          - image: debian:12
+            family: debian
+
     container:
-      image: fedora:42
+      image: ${{ matrix.image }}
       options: --user root
 
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      # Arch and CachyOS ship a stripped ld.so, so valgrind aborts at startup
+      # ("a function redirection which is mandatory ... memcmp in
+      # ld-linux-x86-64.so.2"). Valgrind >= 3.19 fetches the missing symbols
+      # by build-id through debuginfod-find. Empty elsewhere: Fedora keeps
+      # the symbols and apt pulls libc6-dbg in as a valgrind recommendation.
+      DEBUGINFOD_URLS: ${{ matrix.debuginfod }}
+
     steps:
+      # Slug for cache key and artifact name; first so a failed install still
+      # uploads under the right name.
+      - name: "Cache key"
+        id: key
+        run: echo "slug=$(echo '${{ matrix.image }}' | tr '/:' '--')" >> "$GITHUB_OUTPUT"
+
       # ── 1. SYSTEM INFO ──────────────────────────────────────────────────────
       - name: "System information"
         run: |
-          echo "AstroFind — Numerical Audit (AUD-CI-3) on fedora:42"
+          echo "AstroFind — Numerical Audit (AUD-CI-3) on ${{ matrix.image }}"
           cat /etc/os-release
-          gcc --version | head -1 || true
           nproc
-          free -h
+          # minimal images may ship without procps
+          free -h 2>/dev/null || grep -E "MemTotal|MemAvailable" /proc/meminfo
 
       # ── 2. INSTALL TOOLCHAIN + AUDIT TOOLS ──────────────────────────────────
-      - name: "Install build + audit toolchain"
+      # Fedora ships Qt Network/Sql/Xml/Concurrent/OpenGL inside
+      # qt6-qtbase-devel and needs libasan/libubsan separately; on Arch and
+      # CachyOS the sanitizer runtimes come with gcc and clang-tidy with clang.
+      # zlib dev files: QuaZip (pulled in because Core5Compat is installed)
+      # needs them, and minimal Fedora/Debian images do not ship them. Not
+      # listed for pacman: zlib-ng-compat (already in the Arch/CachyOS base)
+      # provides zlib with headers, and naming zlib conflicts with it.
+      - name: "Install build + audit toolchain (dnf)"
+        if: matrix.family == 'fedora'
         run: |
           dnf install -y \
-            cmake ninja-build gcc-c++ git pkgconf-pkg-config file \
-            qt6-qtbase-devel qt6-qtcharts-devel qt6-qtopengl-devel \
-            qt6-qtnetwork-devel qt6-qtsql-devel qt6-qtxml-devel \
-            qt6-qtconcurrent-devel qt6-qttools-devel qt6-qt5compat-devel \
-            cfitsio-devel fftw-devel eigen3-devel libarchive-devel \
+            cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file \
+            qt6-qtbase-devel qt6-qtcharts-devel \
+            qt6-qttools-devel qt6-qt5compat-devel \
+            cfitsio-devel fftw-devel libarchive-devel zlib-devel LibRaw-devel \
             mesa-libGL-devel libxkbcommon-devel \
             clang-tools-extra cppcheck valgrind
-          echo -n "cmake:   "; cmake --version | head -1
-          echo -n "gcc:     "; gcc --version | head -1
-          echo -n "cppcheck: "; cppcheck --version
-          echo -n "clang-tidy: "; clang-tidy --version | head -1
-          echo -n "valgrind: "; valgrind --version
+
+      - name: "Install build + audit toolchain (pacman)"
+        if: matrix.family == 'arch'
+        run: |
+          pacman -Syu --noconfirm --needed \
+            cmake ninja gcc git pkgconf file procps-ng \
+            qt6-base qt6-charts qt6-tools qt6-5compat \
+            cfitsio fftw libarchive libraw \
+            mesa libxkbcommon \
+            clang cppcheck valgrind debuginfod
+          # Which repo the C library came from matters for valgrind symbols
+          # (CachyOS rebuilds glibc; Arch symbols do not match that build).
+          pacman -Qi glibc | grep -E "^(Version|Packager|Build Date)"
+
+      - name: "Install build + audit toolchain (apt)"
+        if: matrix.family == 'debian'
+        run: |
+          apt-get update
+          apt-get install -y \
+            cmake ninja-build gcc g++ git pkg-config file procps \
+            qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
+            qt6-tools-dev qt6-tools-dev-tools libqt6core5compat6-dev \
+            libcfitsio-dev libfftw3-dev libarchive-dev zlib1g-dev libraw-dev \
+            libgl1-mesa-dev libxkbcommon-dev \
+            clang-tidy cppcheck valgrind
+
+      - name: "Toolchain versions"
+        run: |
+          echo -n "cmake:      "; cmake --version | head -1
+          echo -n "gcc:        "; gcc --version | head -1
+          echo -n "cppcheck:   "; cppcheck --version
+          echo -n "clang-tidy: "; clang-tidy --version | grep -i version | head -1
+          echo -n "valgrind:   "; valgrind --version
 
       # ── 3. CHECKOUT ──────────────────────────────────────────────────────────
       - uses: actions/checkout@v4
 
       # ── 4. FETCHCONTENT CACHE ────────────────────────────────────────────────
+      # Keyed per image: _deps holds sources plus sub-builds made by that
+      # distro's compiler, so they must not be shared across the matrix.
       - name: "Restore FetchContent cache"
         uses: actions/cache@v4
         with:
           path: build/_deps
-          key: fetchcontent-audit-fedora42-${{ hashFiles('cmake/dependencies.cmake') }}
-          restore-keys: fetchcontent-audit-fedora42-
+          key: fetchcontent-audit-${{ steps.key.outputs.slug }}-${{ hashFiles('cmake/dependencies.cmake') }}
+          restore-keys: fetchcontent-audit-${{ steps.key.outputs.slug }}-
 
       # ── 5. CONFIGURE (plain build — required for a valid valgrind run) ──────
       - name: "CMake configure"
@@ -185,3 +268,12 @@ jobs:
             exit 1
           fi
           echo "Numerical audit gate: PASSED."
+
+      # ── 10. KEEP THE REPORTS ─────────────────────────────────────────────────
+      - name: "Upload audit reports"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-reports-${{ steps.key.outputs.slug }}
+          path: build/audit/
+          if-no-files-found: warn

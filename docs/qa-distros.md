@@ -1,8 +1,8 @@
 # AstroFind: QA Multi-Distro Documentation / Documentação de QA Multi-Distro
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v0.9.0+
+> **Applies to / Aplica-se a:** AstroFind v1.1.0+
 
 ---
 
@@ -35,9 +35,9 @@ the automated tests.
 
 All automated distro QA jobs run as GitHub Actions workflows ("workflow" = an
 automated recipe of steps that runs on a trigger, e.g. every push), each in a
-dedicated file under `.github/workflows/qa-<distro>.yml`. Jobs run
-**sequentially, not in parallel**, so the full log of each distro is visible and
-readable in the GitHub Actions UI before the next one starts.
+dedicated file under `.github/workflows/qa-<distro>.yml`. The workflows are
+independent and run **in parallel** on every push and pull request, each with its
+own complete, verbose log in the GitHub Actions UI.
 
 Each job:
 
@@ -48,9 +48,9 @@ Each job:
 3. Runs `cmake` configure with `--log-level=VERBOSE` so every `find_package()`
    search path is logged
 4. Builds with `--verbose` so every compile and link command is printed
-5. Runs `astrofind_tests` (116 core cases) with `--reporter console --verbosity
+5. Runs `astrofind_tests` (179 core cases) with `--reporter console --verbosity
    high`
-6. Runs `astrofind_ui_tests` (23 UI cases) with `QT_QPA_PLATFORM=offscreen` and
+6. Runs `astrofind_ui_tests` (27 UI cases) with `QT_QPA_PLATFORM=offscreen` and
    full output
 7. Prints a summary with distro name, compiler, Qt version, and CMake version
 
@@ -58,15 +58,16 @@ This level of verbosity is intentional: when a distro-specific failure occurs,
 the full context is immediately visible in the log without having to re-run
 with extra flags.
 
-**Sequential job ordering:**
+**Numerical audit matrix (`audit.yml`):**
 
-Jobs depend on each other via `needs:` so they execute one at a time:
-
-```
-ubuntu-24.04 -> debian-12 -> arch -> manjaro -> mint-22
-             -> opensuse-tw -> rocky-9
-             -> pop-os -> zorin (see notes below)
-```
+Separately from the QA jobs, the numerical audit (ASan/UBSan build + tests,
+cppcheck, clang-tidy, Valgrind, see `cmake/audit.cmake`) runs on every pull
+request into `main` and on release tags, as a matrix of five containers:
+`fedora:44` (the development distro), `cachyos/cachyos:latest` (official CachyOS
+image, CachyOS repositories and toolchain), `archlinux:latest`, `ubuntu:24.04` and
+`debian:12`. Arch and CachyOS ship a stripped `ld.so`, so the job sets
+`DEBUGINFOD_URLS` for Valgrind; the per-distro reports are uploaded as build
+artifacts.
 
 ### 🇧🇷 Português
 
@@ -79,9 +80,9 @@ conhecidos, e o que é e não é validado pelos testes automatizados.
 Todos os jobs de QA de distro automatizados rodam como workflows do GitHub
 Actions ("workflow" = uma receita automatizada de passos que roda a partir de um
 gatilho, ex.: a cada push), cada um num arquivo dedicado em
-`.github/workflows/qa-<distro>.yml`. Os jobs rodam **sequencialmente, não em
-paralelo**, para que o log completo de cada distro fique visível e legível na
-interface do GitHub Actions antes que o próximo comece.
+`.github/workflows/qa-<distro>.yml`. Os workflows são independentes e rodam **em
+paralelo** a cada push e pull request, cada um com seu próprio log completo e
+detalhado na interface do GitHub Actions.
 
 Cada job:
 
@@ -93,9 +94,9 @@ Cada job:
    caminho de busca de `find_package()` seja registrado em log
 4. Compila com `--verbose` para que todo comando de compilação e linkagem seja
    impresso
-5. Roda `astrofind_tests` (116 casos core) com `--reporter console --verbosity
+5. Roda `astrofind_tests` (179 casos core) com `--reporter console --verbosity
    high`
-6. Roda `astrofind_ui_tests` (23 casos de UI) com `QT_QPA_PLATFORM=offscreen` e
+6. Roda `astrofind_ui_tests` (27 casos de UI) com `QT_QPA_PLATFORM=offscreen` e
    saída completa
 7. Imprime um resumo com nome da distro, compilador, versão do Qt e versão do
    CMake
@@ -104,15 +105,16 @@ Esse nível de verbosidade é intencional: quando ocorre uma falha específica d
 distro, o contexto completo fica imediatamente visível no log, sem precisar
 rodar de novo com flags extras.
 
-**Ordenação sequencial dos jobs:**
+**Matriz de auditoria numérica (`audit.yml`):**
 
-Os jobs dependem uns dos outros via `needs:` para executarem um de cada vez:
-
-```
-ubuntu-24.04 -> debian-12 -> arch -> manjaro -> mint-22
-             -> opensuse-tw -> rocky-9
-             -> pop-os -> zorin (ver notas abaixo)
-```
+Separada dos jobs de QA, a auditoria numérica (build e testes com ASan/UBSan,
+cppcheck, clang-tidy, Valgrind, ver `cmake/audit.cmake`) roda em todo pull request
+para a `main` e nas tags de release, como uma matriz de cinco containers:
+`fedora:44` (a distro de desenvolvimento), `cachyos/cachyos:latest` (imagem oficial do
+CachyOS, com repositórios e toolchain do CachyOS), `archlinux:latest`, `ubuntu:24.04`
+e `debian:12`. Arch e CachyOS trazem o `ld.so` sem símbolos, então o job define
+`DEBUGINFOD_URLS` para o Valgrind; os relatórios de cada distro são publicados como
+artefatos.
 
 ---
 
@@ -127,8 +129,8 @@ The following is validated on every distro:
 | All required packages exist in official repos | `apt/pacman/zypper/dnf install` succeeds |
 | CMake 3.22+ configuration succeeds | `cmake -B build` exits 0 |
 | C++23 compilation succeeds | All `.cpp` files compile without error |
-| All 116 core unit tests pass | `astrofind_tests --reporter console` |
-| All 23 UI integration tests pass | `astrofind_ui_tests` with `QT_QPA_PLATFORM=offscreen` |
+| All 179 core unit tests pass | `astrofind_tests --reporter console` |
+| All 27 UI integration tests pass | `astrofind_ui_tests` with `QT_QPA_PLATFORM=offscreen` |
 | FetchContent resolves (spdlog, nlohmann/json, SEP, Catch2) | Part of CMake configure |
 | CCfits extracted from `originals/CCfits.tar.gz` | Part of CMake configure |
 | Optional `libarchive` available | Installed and linked |
@@ -153,8 +155,8 @@ O seguinte é validado em toda distro:
 | Todos os pacotes obrigatórios existem nos repositórios oficiais | `apt/pacman/zypper/dnf install` funciona |
 | Configuração do CMake 3.22+ funciona | `cmake -B build` sai com código 0 |
 | Compilação C++23 funciona | Todos os arquivos `.cpp` compilam sem erro |
-| Todos os 116 testes unitários core passam | `astrofind_tests --reporter console` |
-| Todos os 23 testes de integração de UI passam | `astrofind_ui_tests` com `QT_QPA_PLATFORM=offscreen` |
+| Todos os 179 testes unitários core passam | `astrofind_tests --reporter console` |
+| Todos os 27 testes de integração de UI passam | `astrofind_ui_tests` com `QT_QPA_PLATFORM=offscreen` |
 | FetchContent resolve (spdlog, nlohmann/json, SEP, Catch2) | Parte da configuração do CMake |
 | CCfits extraído de `originals/CCfits.tar.gz` | Parte da configuração do CMake |
 | `libarchive` opcional disponível | Instalado e linkado |
@@ -485,9 +487,11 @@ cfitsio fftw libarchive
 
 **Known issues / observations:**
 
-- The `archlinux:latest` image requires `pacman -Sy --noconfirm` before any
-  installs to sync the package database. Without this, installs fail with
-  "could not find package".
+- The `archlinux:latest` image needs its package database synced before any
+  install. The workflow uses `pacman -Syu --noconfirm` (full upgrade), never a
+  bare `-Sy` followed by `-S`: that is a partial upgrade, which once broke the
+  link with `undefined reference to sinh@GLIBC_2.44` when a new `cfitsio` met
+  the image's older glibc.
 - Arch does not use `pkg-config` entries for Qt6 in the same paths as
   Debian/Fedora. CMake's `find_package(Qt6)` uses the cmake config files
   instead, which is how AstroFind's CMakeLists.txt is written, no issues
@@ -550,7 +554,7 @@ cfitsio fftw libarchive
 
 **Problemas / observações conhecidas:**
 
-- A imagem `archlinux:latest` exige `pacman -Sy --noconfirm` antes de
+- A imagem `archlinux:latest` exige `pacman -Syu --noconfirm` (atualização completa, nunca `-Sy` seguido de `-S`, que é upgrade parcial e já quebrou o link com `sinh@GLIBC_2.44`) antes de
   qualquer instalação para sincronizar o banco de dados de pacotes. Sem isso,
   as instalações falham com "could not find package".
 - O Arch não usa entradas de `pkg-config` para o Qt6 nos mesmos caminhos que
@@ -624,7 +628,7 @@ cfitsio fftw libarchive
   Skipping this step causes "unknown trust" errors on fresh image pulls.
 - Manjaro uses its own mirror infrastructure. The container image ships with
   a Manjaro-specific `mirrorlist`. In CI, the first mirror may be slow or
-  unreliable; the `pacman -Sy` step may take 1-3 minutes.
+  unreliable; the `pacman -Syu` step may take 1-3 minutes.
 - `manjarolinux/base` Docker image is updated less frequently than a live
   Manjaro ISO. The container may be behind the latest stable snapshot by
   several weeks.
@@ -654,14 +658,13 @@ cfitsio fftw libarchive
 
 | Suite | Total | Passed | Skipped | Failed |
 |-------|-------|--------|---------|--------|
-| Core (`astrofind_tests`) | 116 | 106 | 10 | 0 |
-| UI (`astrofind_ui_tests`) | 23 | 23 | 0 | 0 |
-| Total assertions | 4426 | 4426 | -- | 0 |
+| Core (`astrofind_tests`) | 179 | 179 | 0 | 0 |
+| UI (`astrofind_ui_tests`) | 27 | 27 | 0 | 0 |
+| Total assertions | 38591 | 38591 | -- | 0 |
 
-The 10 skipped core tests are `test_fits_functional.cpp` cases F-01 through
-F-10, which require real FITS image files at `/tmp/fits_test/`. These are
-absent in all CI environments (including the primary Ubuntu CI job) and are
-skipped by design.
+(Run of 2026-09-24. The FITS functional cases no longer need real files in
+`/tmp/fits_test/`: fixtures are synthesized on disk by `tests/synthetic_fits.h`,
+so nothing is skipped.)
 
 **Observations from this run:**
 
@@ -719,7 +722,7 @@ cfitsio fftw libarchive
   trust" em pulls de imagem novos.
 - O Manjaro usa sua própria infraestrutura de mirrors. A imagem do container
   vem com uma `mirrorlist` específica do Manjaro. No CI, o primeiro mirror
-  pode ser lento ou não confiável; o passo `pacman -Sy` pode levar de 1 a 3
+  pode ser lento ou não confiável; o passo `pacman -Syu` pode levar de 1 a 3
   minutos.
 - A imagem Docker `manjarolinux/base` é atualizada com menos frequência que
   uma ISO Manjaro ao vivo. O container pode estar semanas atrás do último
@@ -752,14 +755,13 @@ cfitsio fftw libarchive
 
 | Suíte | Total | Passou | Pulados | Falhou |
 |-------|-------|--------|---------|--------|
-| Core (`astrofind_tests`) | 116 | 106 | 10 | 0 |
-| UI (`astrofind_ui_tests`) | 23 | 23 | 0 | 0 |
-| Total de assertions | 4426 | 4426 | -- | 0 |
+| Core (`astrofind_tests`) | 179 | 179 | 0 | 0 |
+| UI (`astrofind_ui_tests`) | 27 | 27 | 0 | 0 |
+| Total de assertions | 38591 | 38591 | -- | 0 |
 
-Os 10 testes core pulados são os casos F-01 a F-10 de
-`test_fits_functional.cpp`, que exigem arquivos de imagem FITS reais em
-`/tmp/fits_test/`. Estes estão ausentes em todos os ambientes de CI (incluindo
-o job de CI primário do Ubuntu) e são pulados por design.
+(Execução de 2026-09-24. Os casos funcionais de FITS não precisam mais de arquivos
+reais em `/tmp/fits_test/`: as fixtures são sintetizadas em disco por
+`tests/synthetic_fits.h`, então nada é pulado.)
 
 **Observações desta execução:**
 
@@ -1021,12 +1023,12 @@ cfitsio-devel fftw3-devel libarchive-devel
 
 ### 🇬🇧 English
 
-**Workflow file:** `.github/workflows/qa-pop-os.yml`
+**Workflow file:** `.github/workflows/qa-pop-os-22.yml`
 
 **Docker image:** There is no official Pop!_OS Docker image from System76. The
-image used is `ubuntu:22.04` (Jammy Jellyfish), the upstream base that
-Pop!_OS 22.04 is built from, with the System76 PPA added to approximate the
-Pop!_OS package state.
+image used is `ubuntu:24.04`, with no System76 PPA (AUD-CI-6: the workflow name
+says 22.04 but the container is 24.04; Pop!_OS's own 22.04 base is not
+reproduced). It validates the Ubuntu-family toolchain, not Pop!_OS itself.
 
 > **Limitation:** This is the closest reproducible CI approximation for
 > Pop!_OS 22.04. It does NOT include Pop!_OS's custom GNOME shell, recovery
@@ -1097,12 +1099,12 @@ the current Pop!_OS.
 
 ### 🇧🇷 Português
 
-**Arquivo de workflow:** `.github/workflows/qa-pop-os.yml`
+**Arquivo de workflow:** `.github/workflows/qa-pop-os-22.yml`
 
 **Imagem Docker:** Não existe imagem Docker oficial do Pop!_OS pelo System76.
-A imagem usada é `ubuntu:22.04` (Jammy Jellyfish), a base upstream sobre a
-qual o Pop!_OS 22.04 é construído, com o PPA do System76 adicionado para
-aproximar o estado de pacotes do Pop!_OS.
+A imagem usada é `ubuntu:24.04`, sem PPA do System76 (AUD-CI-6: o nome do
+workflow diz 22.04, mas o container é 24.04; a base 22.04 do Pop!_OS não é
+reproduzida). Ela valida o toolchain da família Ubuntu, não o Pop!_OS em si.
 
 > **Limitação:** Esta é a aproximação de CI reproduzível mais próxima para o
 > Pop!_OS 22.04. NÃO inclui o shell GNOME customizado do Pop!_OS, partição de
@@ -1350,8 +1352,8 @@ enable gcc-toolset-13`.
 **Workflow file:** `.github/workflows/qa-zorin-17.yml`
 
 **Docker image:** There is no official Zorin OS Docker image from Zorin
-Group. The image used is `ubuntu:22.04`, the upstream base that Zorin OS 17 is
-built from.
+Group. The image used is `ubuntu:24.04` (AUD-CI-6: Zorin OS 17 is based on
+22.04, so this validates the Ubuntu-family toolchain rather than Zorin itself).
 
 > **Limitation:** This is the closest reproducible CI approximation for
 > Zorin OS 17. Zorin OS 17 is based on Ubuntu 22.04 LTS with a customised
@@ -1412,8 +1414,8 @@ approximates the APT package base for Zorin OS users who need Qt 6.4+.
 **Arquivo de workflow:** `.github/workflows/qa-zorin-17.yml`
 
 **Imagem Docker:** Não existe imagem Docker oficial do Zorin OS pelo Zorin
-Group. A imagem usada é `ubuntu:22.04`, a base upstream sobre a qual o Zorin
-OS 17 é construído.
+Group. A imagem usada é `ubuntu:24.04` (AUD-CI-6: o Zorin OS 17 é baseado no
+22.04, então isto valida o toolchain da família Ubuntu, não o Zorin em si).
 
 > **Limitação:** Esta é a aproximação de CI reproduzível mais próxima para o
 > Zorin OS 17. O Zorin OS 17 é baseado no Ubuntu 22.04 LTS com um desktop
@@ -1485,8 +1487,10 @@ Qt 6.4+.
 | Linux Mint 22 | `linuxmintd/mint22-amd64` | Linux Mint project | Official minimal |
 | openSUSE TW | `opensuse/tumbleweed` | openSUSE project | Official |
 | Rocky Linux 9 | `rockylinux:9` | Rocky Linux project | Official |
-| Pop!_OS 22.04 | `ubuntu:22.04` + System76 PPA | -- | Approximation |
-| Zorin OS 17 | `ubuntu:22.04` | -- | Approximation |
+| Pop!_OS 22.04 | `ubuntu:24.04` | -- | Approximation (AUD-CI-6) |
+| Zorin OS 17 | `ubuntu:24.04` | -- | Approximation (AUD-CI-6) |
+| Fedora 44 (audit) | `fedora:44` | Fedora project | Official |
+| CachyOS (audit) | `cachyos/cachyos:latest` | CachyOS team | Official |
 
 ### 🇧🇷 Português
 
@@ -1499,9 +1503,11 @@ Qt 6.4+.
 | Linux Mint 22 | `linuxmintd/mint22-amd64` | Projeto Linux Mint | Mínima oficial |
 | openSUSE TW | `opensuse/tumbleweed` | Projeto openSUSE | Oficial |
 | Rocky Linux 9 | `rockylinux:9` | Projeto Rocky Linux | Oficial |
-| Pop!_OS 22.04 | `ubuntu:22.04` + PPA System76 | -- | Aproximação |
-| Zorin OS 17 | `ubuntu:22.04` | -- | Aproximação |
+| Pop!_OS 22.04 | `ubuntu:24.04` | -- | Aproximação (AUD-CI-6) |
+| Zorin OS 17 | `ubuntu:24.04` | -- | Aproximação (AUD-CI-6) |
+| Fedora 44 (auditoria) | `fedora:44` | Projeto Fedora | Oficial |
+| CachyOS (auditoria) | `cachyos/cachyos:latest` | Equipe CachyOS | Oficial |
 
 ---
 
-*AstroFind. Last updated / Última atualização: 2026-07-10, AstroFind v0.9.0.*
+*AstroFind. Last updated / Última atualização: 2026-09-24, AstroFind v1.1.0.*

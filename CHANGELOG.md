@@ -1,12 +1,103 @@
 # Changelog
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
 > Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 All notable changes to AstroFind are documented here, most recent version first. /
 Todas as mudanças notáveis do AstroFind estão documentadas aqui, versão mais recente
 primeiro.
+
+---
+
+## [Unreleased]
+
+### Fixed / Corrigido
+
+- **Observation time (AUD-CORR-15, critical).** 🇬🇧 Data Reduction no longer adds ΔT
+  (68 s by default) to the image Julian Date, so the ADES `obsTime` is UTC again instead
+  of ~68 s late (and 136 s after a second run). ΔT is now used only for the offline MPCORB
+  ephemeris (TT). The Time Offset setting is a camera-clock correction in **seconds**,
+  applied exactly once; it is no longer auto-filled with longitude/15 (hours). A stale
+  value from older versions is reset to 0 once, with a warning in the log.
+  🇧🇷 A Redução de Dados não soma mais o ΔT (68 s por padrão) ao Dia Juliano da imagem:
+  o `obsTime` do ADES volta a ser UTC, em vez de ~68 s atrasado (136 s na segunda
+  execução). O ΔT agora só entra na efeméride offline do MPCORB (TT). O Time Offset é uma
+  correção do relógio da câmera em **segundos**, aplicada uma única vez, e não é mais
+  preenchido com longitude/15 (horas). Um valor antigo é zerado uma vez, com aviso no log.
+- **Settings units / Unidades no Settings.** 🇬🇧 Pixel scale is labelled ″/px (it was °/px
+  and capped at 1); Minimum FWHM is labelled ″ (was px); Time Precision is 0–3 decimal
+  places of the seconds (was labelled hours). 🇧🇷 Escala de pixel em ″/px (era °/px e
+  limitada a 1); FWHM mínima em ″ (era px); Precisão de tempo = 0–3 casas decimais dos
+  segundos (o rótulo dizia horas).
+- **Shortcuts / Atalhos.** 🇬🇧 Light Curve moved to `Ctrl+Shift+L` (`Ctrl+L` is Load
+  Images); `Ctrl+Shift+T` was declared twice and did nothing, now toggles the theme.
+  🇧🇷 Curva de Luz passou para `Ctrl+Shift+L` (`Ctrl+L` é Carregar Imagens);
+  `Ctrl+Shift+T` estava declarado duas vezes e não fazia nada, agora alterna o tema.
+- **Help → Registration** 🇬🇧 no longer says "MIT" (the license is AGPL-3.0). 🇧🇷 não diz
+  mais "MIT" (a licença é AGPL-3.0).
+- **XISF size ceiling / Teto de tamanho no XISF (AUD-INPUT-9).** 🇬🇧 XISF geometry is checked
+  against the same axis/pixel ceiling and file size as FITS before any allocation.
+  🇧🇷 A geometria do XISF passa pelo mesmo teto de eixo/pixels e pela checagem do tamanho
+  do arquivo que o FITS, antes de qualquer alocação.
+- **API key from the Setup Wizard / Chave de API do assistente (AUD-SEC-6).** 🇬🇧 Stored
+  through the keychain (or a 0600 settings file), like Settings already did. 🇧🇷 Gravada
+  pelo chaveiro do sistema (ou num arquivo de configurações 0600), como o Settings já fazia.
+- **Extinction / Extinção (AUD-CORR-8).** 🇬🇧 The MPC magnitude uses the unit-tested
+  extinction function instead of a duplicated inline formula (same result). 🇧🇷 A magnitude
+  do MPC usa a função de extinção testada em vez de uma fórmula duplicada (mesmo resultado).
+- **VizieR mirror / Espelho VizieR.** 🇬🇧 The default shown in Settings was a bare hostname
+  that the client rejected; it is now the real TAP endpoint, and the old value is
+  replaced on load. 🇧🇷 O padrão mostrado era um hostname sem esquema, rejeitado pelo
+  cliente; agora é o endpoint TAP real, e o valor antigo é substituído ao abrir.
+
+### Added / Adicionado
+
+- 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in
+  `scripts/pre-commit` (AUD-SEC-8). Regression tests with hostile headers (NAXIS=4,
+  100000², lying sizes, XISF) and non-finite pixels in the centroids (AUD-TEST-4).
+  🇧🇷 Varredura de segredos: job gitleaks no CI sobre todo o histórico e passo gitleaks no
+  `scripts/pre-commit` (AUD-SEC-8). Testes de regressão com cabeçalhos hostis (NAXIS=4,
+  100000², tamanhos mentirosos, XISF) e pixels não finitos nos centroides (AUD-TEST-4).
+
+---
+
+## [1.1.0] - 2026-09-24
+
+> **Why 1.1.0 and not 1.0.0 / Por que 1.1.0 e não 1.0.0:** 0.9.0 already had 1.0.0
+> maturity but was never tagged as such; this release adds new features on top of it, so it
+> is the next minor version. / A 0.9.0 já tinha maturidade de 1.0.0, mas nunca recebeu essa
+> tag; esta versão acrescenta funcionalidades sobre ela, então é a próxima versão minor.
+
+### 🇬🇧 English
+
+- **DSLR RAW loading (item 21.1)** via LibRaw (optional build dependency): CR2, CR3,
+  NEF, ARW, DNG, RAF, ORF, RW2, PEF and other camera RAW files. Data stay linear;
+  star detection uses the 2×2 superpixel luminance of the Bayer mosaic; exposure
+  and time come from EXIF (camera clock, flagged ambiguous). Builds without LibRaw
+  refuse RAW files with an explicit message. Erratum: `[0.5.0]` listed "RAW DSLR
+  (libraw)" but it was never implemented until now (AUD-DOC-4/DOC-7).
+- **NASA PDS images (item 21.2)**: PDS3 `.img` with attached label or detached
+  `.lbl`, and PDS4 `.xml` labels (2-D arrays, every numeric data type, scaling,
+  missing constants; a PDS4 label pointing to FITS opens the FITS file). Every
+  declared size is checked against the file before allocation. Erratum: `[0.5.0]`
+  listed "PDS format support" but it was never implemented until now.
+- Audit wave E1 fixes (PR #6): INPUT-8, MEM-6, MEM-5, MEM-1, CI-5.
+
+### 🇧🇷 Português
+
+- **Leitura de RAW de DSLR (item 21.1)** via LibRaw (dependência opcional de
+  compilação): CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF e outros RAW de câmera.
+  Dados lineares; a detecção de estrelas usa a luminância por superpixel 2×2 do
+  mosaico Bayer; exposição e horário vêm do EXIF (relógio da câmera, marcado como
+  ambíguo). Builds sem LibRaw recusam RAW com mensagem explícita. Errata: `[0.5.0]`
+  listava "RAW DSLR (libraw)", que só agora foi implementado (AUD-DOC-4/DOC-7).
+- **Imagens NASA PDS (item 21.2)**: PDS3 `.img` com rótulo embutido ou `.lbl`
+  separado, e rótulos PDS4 `.xml` (arrays 2-D, todos os tipos numéricos, escala,
+  constantes de ausência; um rótulo PDS4 que aponta para FITS abre o FITS). Todo
+  tamanho declarado é conferido contra o arquivo antes de alocar. Errata: `[0.5.0]`
+  listava "suporte ao formato PDS", que só agora foi implementado.
+- Correções da onda E1 da auditoria (PR #6): INPUT-8, MEM-6, MEM-5, MEM-1, CI-5.
 
 ---
 
@@ -25,7 +116,7 @@ every item, is in [`AUDIT_FIND.md`](AUDIT_FIND.md).
 
 #### Security
 
-- `.runner` (a live Forgejo CI runner token accidentally left on disk) removed from
+- `.runner` (a live self-hosted CI runner token accidentally left on disk) removed from
   tracking and the token rotated.
 - All `FetchContent` dependencies (6 libraries fetched at build time) pinned to an
   exact commit SHA instead of a floating branch/tag, closing a supply-chain
@@ -132,7 +223,7 @@ de reprodução e commits de correção de cada item, está em
 
 #### Segurança
 
-- `.runner` (um token vivo do runner de CI do Forgejo deixado por acidente no disco)
+- `.runner` (um token vivo do runner de CI self-hosted deixado por acidente no disco)
   removido do rastreamento e o token foi rotacionado.
 - Todas as dependências via `FetchContent` (6 bibliotecas baixadas em tempo de
   build) foram fixadas num commit SHA exato em vez de uma branch/tag flutuante,
@@ -248,7 +339,7 @@ de reprodução e commits de correção de cada item, está em
 
 #### Added
 
-- Codeberg Actions release pipeline (`.forgejo/workflows/release.yml`): automated
+- Release pipeline (CI workflow, since replaced by GitHub Actions): automated
   RPM, DEB, Arch PKGBUILD tarball, and `install.sh` artifacts on every version tag
   push
 - `packaging/debian/control-binary`: binary-only DEB control template used by CI
@@ -291,7 +382,7 @@ reais.**
 
 #### Adicionado
 
-- Pipeline de release no Codeberg Actions (`.forgejo/workflows/release.yml`):
+- Pipeline de release (workflow de CI, depois substituído pelo GitHub Actions):
   geração automática de RPM, DEB, tarball PKGBUILD para Arch e `install.sh` a cada
   push de tag de versão
 - `packaging/debian/control-binary`: template de controle DEB binário usado pelo CI

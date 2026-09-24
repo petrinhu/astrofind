@@ -24,7 +24,7 @@ class KooEngine : public QObject {
 public:
     explicit KooEngine(QNetworkAccessManager* nam, QObject* parent = nullptr);
 
-    /// Query all known SSOs in a circle around (ra, dec) at the given Julian Date.
+    /// Query all known SSOs in a circle around (ra, dec) at the given Julian Date (UTC).
     /// radiusDeg is the search radius (degrees).
     void queryField(double ra, double dec, double radiusDeg, double jd);
 
@@ -34,6 +34,10 @@ public:
     void setMpcOrbPath(const QString& path)  { mpcOrbPath_ = path; }
     void setObserverLocation(double lat, double lon, double alt)
         { obsLat_ = lat; obsLon_ = lon; obsAlt_ = alt; }
+
+    /// ΔT = TT − UTC (s). queryField() takes a UTC Julian Date (as SkyBoT does);
+    /// the offline MPCORB propagation, whose elements are in TT, adds ΔT.
+    void setDeltaTSeconds(double s) { deltaTSec_ = s; }
 
     /// If true, run a local MPCORB scan when SkyBoT is not reachable.
     void setOfflineFallbackEnabled(bool enabled) { offlineFallback_ = enabled; }
@@ -61,6 +65,7 @@ private:
     double  obsLon_ = 0.0;
     double  obsAlt_ = 0.0;
     bool    offlineFallback_ = false;
+    double  deltaTSec_ = 0.0;
 
     // State saved for fallback retry
     double savedRa_  = 0.0;

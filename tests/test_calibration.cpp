@@ -103,3 +103,44 @@ TEST_CASE("applyFlat rejects all-zero flat", "[calibration]")
 
     REQUIRE_FALSE(core::applyFlat(img, flat));
 }
+
+// ─── subtractBackground: single tile on one axis (AUD-MEM-6) ─────────────────
+// W=128 H=64 tile=64 gives nTX=2 nTY=1; the bilinear lookup used to read
+// tileVal[ty0+1] past the 2-element grid (heap-buffer-overflow under ASan).
+
+TEST_CASE("subtractBackground handles a single tile row (128x64 tile 64)", "[calibration][background]")
+{
+    auto img = makeImage(128, 64, 100.0f);
+    REQUIRE(core::subtractBackground(img, 64) == 2);
+    REQUIRE(img.background.size() == img.data.size());
+    for (size_t i = 0; i < img.data.size(); ++i) {
+        REQUIRE_THAT(img.background[i], WithinAbs(100.0, 1e-3));
+        REQUIRE_THAT(img.data[i], WithinAbs(0.0, 1e-3));
+    }
+}
+
+TEST_CASE("subtractBackground handles a single tile column (64x128 tile 64)", "[calibration][background]")
+{
+    auto img = makeImage(64, 128, 100.0f);
+    REQUIRE(core::subtractBackground(img, 64) == 2);
+    REQUIRE(img.background.size() == img.data.size());
+    for (size_t i = 0; i < img.data.size(); ++i) {
+        REQUIRE_THAT(img.background[i], WithinAbs(100.0, 1e-3));
+        REQUIRE_THAT(img.data[i], WithinAbs(0.0, 1e-3));
+    }
+}
+
+TEST_CASE("subtractBackground interpolates along the multi-tile axis only", "[calibration][background]")
+{
+    // Left tile at 100 and right tile at 200: the model must stay constant
+    // along Y (one tile row) and ramp along X between the tile centres.
+    auto img = makeImage(128, 64, 100.0f);
+    for (int y = 0; y < 64; ++y)
+        for (int x = 64; x < 128; ++x)
+            img.data[static_cast<size_t>(y) * 128 + x] = 200.0f;
+    REQUIRE(core::subtractBackground(img, 64) == 2);
+    for (int y = 0; y < 64; ++y) {
+        REQUIRE_THAT(img.background[static_cast<size_t>(y) * 128 + 0],   WithinAbs(100.0, 1e-3));
+        REQUIRE_THAT(img.background[static_cast<size_t>(y) * 128 + 127], WithinAbs(200.0, 1e-3));
+    }
+}

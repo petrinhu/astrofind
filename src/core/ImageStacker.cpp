@@ -27,9 +27,13 @@ fftw_complex* allocComplex(int n) {
 }
 
 /// Forward real-to-complex FFT of a float image row stored in row-major order.
-/// Returns newly allocated complex array (size w*(h/2+1)); caller owns it.
+/// Returns newly allocated complex array (size h*(w/2+1)); caller owns it.
+/// AUD-MEM-5: the r2c plan below is (h, w) — row-major, w is the fastest
+/// axis — so FFTW writes h*(w/2+1) complexes. Allocating w*(h/2+1) instead
+/// under-allocates every portrait frame (h > w, e.g. 50x100 → 2550 vs 2600)
+/// and crossPowerSpectrum() then reads past the end.
 fftw_complex* forwardFFT(const float* src, int w, int h) {
-    const int nc = w * (h / 2 + 1);
+    const int nc = h * (w / 2 + 1);
     double* in   = reinterpret_cast<double*>(fftw_malloc(sizeof(double) * w * h));
     fftw_complex* out = allocComplex(nc);
 

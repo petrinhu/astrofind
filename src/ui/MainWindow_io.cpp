@@ -4,6 +4,10 @@
 #include "MainWindow_p.h"
 
 #include <sys/stat.h>
+#include <algorithm>
+#include <exception>
+
+#include <QSet>
 
 namespace {
 
@@ -23,6 +27,25 @@ bool isSafeRegularFile(const QString& path)
     return S_ISREG(st.st_mode);
 }
 
+// Item 21.2: a detached PDS3 product is two files (FOO.IMG + FOO.LBL) and
+// loadImage() on the .img already finds its .lbl. When both are in the list
+// the image would load twice, so the label is dropped. A .lbl selected on
+// its own is kept (it loads the image it points to).
+void dropRedundantPdsLabels(QStringList& paths)
+{
+    QSet<QString> images;
+    for (const QString& p : paths) {
+        const QFileInfo fi(p);
+        if (fi.suffix().compare(QLatin1String("img"), Qt::CaseInsensitive) == 0)
+            images.insert(fi.absoluteDir().filePath(fi.completeBaseName()).toLower());
+    }
+    paths.erase(std::remove_if(paths.begin(), paths.end(), [&](const QString& p) {
+        const QFileInfo fi(p);
+        return fi.suffix().compare(QLatin1String("lbl"), Qt::CaseInsensitive) == 0
+            && images.contains(fi.absoluteDir().filePath(fi.completeBaseName()).toLower());
+    }), paths.end());
+}
+
 } // namespace
 
 void MainWindow::onLoadImages()
@@ -33,10 +56,14 @@ void MainWindow::onLoadImages()
 
     const QStringList files = QFileDialog::getOpenFileNames(this,
         tr("Load Astronomical Images"), lastDir,
-        tr("Astronomical Images (*.fits *.fit *.fts *.ser *.xisf *.tiff *.tif *.png *.bmp *.jpg *.jpeg *.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
+        tr("Astronomical Images (*.fits *.fit *.fts *.ser *.xisf *.img *.lbl *.xml *.tiff *.tif *.png *.bmp *.jpg *.jpeg "
+           "*.cr2 *.cr3 *.crw *.nef *.nrw *.arw *.srf *.sr2 *.orf *.rw2 *.raf *.pef *.dng *.srw *.3fr *.erf *.kdc *.mrw *.x3f *.iiq *.mef *.mos *.rwl "
+           "*.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
            ";;FITS (*.fits *.fit *.fts)"
            ";;SER video (*.ser)"
            ";;XISF — PixInsight (*.xisf)"
+           ";;NASA PDS3 / PDS4 (*.img *.lbl *.xml)"
+           ";;DSLR RAW (*.cr2 *.cr3 *.crw *.nef *.nrw *.arw *.srf *.sr2 *.orf *.rw2 *.raf *.pef *.dng *.srw *.3fr *.erf *.kdc *.mrw *.x3f *.iiq *.mef *.mos *.rwl)"
            ";;TIFF / PNG / BMP / JPEG (*.tiff *.tif *.png *.bmp *.jpg *.jpeg)"
            ";;ZIP archives (*.zip)"
            ";;Compressed archives (*.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
@@ -60,6 +87,7 @@ void MainWindow::onLoadImages()
             expandedFiles.append(path);
         }
     }
+    dropRedundantPdsLabels(expandedFiles);
 
     const QString loadedDir = QFileInfo(files.first()).absolutePath();
     settings_.setValue("paths/lastImageDir", loadedDir);
@@ -94,12 +122,18 @@ void MainWindow::onLoadImages()
             // Try as 1-D FITS spectrum
             const QString ext = QFileInfo(path).suffix().toLower();
             if (ext == "fits" || ext == "fit" || ext == "fts") {
-                auto specResult = core::loadSpectrum1D(path);
-                if (specResult) {
-                    auto* dlg = new SpectrumDialog(*specResult, this);
-                    dlg->show();
-                    ++loaded;
-                    continue;
+                // AUD-INPUT-8: nothing thrown here may escape the Qt slot.
+                try {
+                    auto specResult = core::loadSpectrum1D(path);
+                    if (specResult) {
+                        auto* dlg = new SpectrumDialog(*specResult, this);
+                        dlg->show();
+                        ++loaded;
+                        continue;
+                    }
+                } catch (const std::exception& e) {
+                    logPanel_->appendError(tr("Failed to load spectrum %1: %2")
+                                               .arg(path, QString::fromLocal8Bit(e.what())));
                 }
             }
             logPanel_->appendError(tr("Failed to load %1: %2").arg(path, result.error()));
@@ -629,14 +663,18 @@ void MainWindow::autoFillSettingsFromSession()
     const core::FitsImage& img0 = session_->image(0);
 
     // ── Câmera — pixel scale e saturação ─────────────────────────────────────
+    // The setting is the UNBINNED scale (the reduction multiplies it by each
+    // image's binning), while img0.pixScale* is the scale of the binned image.
     if (settings_.value(QStringLiteral("camera/pixelScaleX"), 0.0).toDouble() == 0.0
             && img0.pixScaleX > 0.0) {
-        settings_.setValue(QStringLiteral("camera/pixelScaleX"), img0.pixScaleX);
-        logPanel_->appendInfo(tr("  Auto-fill: escala X = %1\"/px (FITS)").arg(img0.pixScaleX, 0, 'f', 4));
+        const double sx = img0.pixScaleX / std::max(1, img0.binningX);
+        settings_.setValue(QStringLiteral("camera/pixelScaleX"), sx);
+        logPanel_->appendInfo(tr("  Auto-fill: escala X = %1\"/px (FITS)").arg(sx, 0, 'f', 4));
     }
     if (settings_.value(QStringLiteral("camera/pixelScaleY"), 0.0).toDouble() == 0.0
             && img0.pixScaleY > 0.0) {
-        settings_.setValue(QStringLiteral("camera/pixelScaleY"), img0.pixScaleY);
+        settings_.setValue(QStringLiteral("camera/pixelScaleY"),
+                           img0.pixScaleY / std::max(1, img0.binningY));
     }
     if (settings_.value(QStringLiteral("camera/saturation"), 0.0).toDouble() == 0.0
             && img0.saturation > 0.0 && img0.saturation < 1e9) {
@@ -689,42 +727,9 @@ void MainWindow::autoFillSettingsFromSession()
         }
     }
 
-    // ── Fuso horário — deriva da longitude do observatório (longitude / 15) ──
-    // Usar o relógio do sistema seria errado: o computador pode estar em fuso
-    // diferente do telescópio. A fórmula astronômica correta é longitude/15,
-    // que dá o tempo solar local e ignora DST (apropriado para observações).
-    if (settings_.value(QStringLiteral("observer/timeOffset"), 0.0).toDouble() == 0.0) {
-        double lon = std::numeric_limits<double>::quiet_NaN();
-
-        // 1. Longitude do próprio FITS (se presente)
-        if (!std::isnan(img0.siteLon))
-            lon = img0.siteLon;
-
-        // 2. Longitude do observatório preset (se configurado)
-        if (std::isnan(lon)) {
-            const QString code = settings_.value(QStringLiteral("observer/presetMpcCode")).toString();
-            if (!code.isEmpty()) {
-                const QByteArray ba = code.toLatin1();
-                if (const Observatory* o = ObservatoryDatabase::byCode(ba.constData()))
-                    lon = o->lon;
-            }
-        }
-
-        // 3. Longitude manual (se configurada)
-        if (std::isnan(lon)) {
-            const double manLon = settings_.value(QStringLiteral("observer/longitude"), 0.0).toDouble();
-            if (manLon != 0.0) lon = manLon;
-        }
-
-        if (!std::isnan(lon)) {
-            const double offsetHours = lon / 15.0;
-            settings_.setValue(QStringLiteral("observer/timeOffset"), offsetHours);
-            logPanel_->appendInfo(tr("  Auto-fill: fuso horário = UTC%1%2h (longitude %3°)")
-                .arg(offsetHours >= 0 ? QStringLiteral("+") : QString())
-                .arg(offsetHours, 0, 'f', 1)
-                .arg(lon, 0, 'f', 2));
-        }
-    }
+    // observer/timeOffset is a clock correction in SECONDS set by the user
+    // (Settings → Observatory → Time Offset). It is never auto-filled: the old
+    // longitude/15 guess wrote HOURS of local solar time into it (AUD-CORR-15).
 }
 
 void MainWindow::resetSessionSettings()
@@ -738,7 +743,6 @@ void MainWindow::resetSessionSettings()
         QStringLiteral("observer/latitude"),
         QStringLiteral("observer/longitude"),
         QStringLiteral("observer/altitude"),
-        QStringLiteral("observer/timeOffset"),
     };
     for (const QString& k : keys) settings_.setValue(k, 0.0);
     settings_.setValue(QStringLiteral("observer/locationMode"), QStringLiteral("fits"));
@@ -1306,7 +1310,11 @@ void MainWindow::loadFromDir(const QString& dirPath)
         "*.ser", "*.SER",
         "*.xisf", "*.XISF",
         "*.tiff", "*.tif", "*.TIFF", "*.TIF",
-        "*.png", "*.PNG"
+        "*.png", "*.PNG",
+        "*.img", "*.IMG", "*.lbl", "*.LBL",
+        "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
+        "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
+        "*.pef", "*.PEF"
     };
     const QStringList fitsFiles = QDir(dirPath).entryList(kFitsFilters, QDir::Files, QDir::Name);
     if (fitsFiles.isEmpty()) {
@@ -1319,6 +1327,7 @@ void MainWindow::loadFromDir(const QString& dirPath)
     fullPaths.reserve(fitsFiles.size());
     for (const QString& f : fitsFiles)
         fullPaths.append(dirPath + QDir::separator() + f);
+    dropRedundantPdsLabels(fullPaths);
 
     if (!session_->isEmpty()) {
         const LoadChoice choice = askLoadChoice(session_->imageCount());
@@ -1433,7 +1442,9 @@ QStringList MainWindow::expandArchive(const QString& archivePath)
     // Image file extensions we want to extract
     static const QStringList kExts = {
         ".fits", ".fit", ".fts", ".ser", ".xisf",
-        ".tiff", ".tif", ".png"
+        ".tiff", ".tif", ".png",
+        ".img", ".lbl",
+        ".cr2", ".cr3", ".nef", ".arw", ".dng", ".raf", ".orf", ".rw2", ".pef"
     };
     auto isImageFile = [&](const char* name) -> bool {
         const QString n = QString::fromUtf8(name).toLower();
@@ -1551,6 +1562,10 @@ QStringList MainWindow::expandZip(const QString& zipPath)
         "*.xisf", "*.XISF",
         "*.tiff", "*.tif", "*.TIFF", "*.TIF",
         "*.png", "*.PNG",
+        "*.img", "*.IMG", "*.lbl", "*.LBL",
+        "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
+        "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
+        "*.pef", "*.PEF",
         "-d", extractDir
     });
 
@@ -1563,7 +1578,11 @@ QStringList MainWindow::expandZip(const QString& zipPath)
     QDirIterator it(extractDir,
                     {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
                      "*.ser", "*.SER", "*.xisf", "*.XISF",
-                     "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG"},
+                     "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG",
+                     "*.img", "*.IMG", "*.lbl", "*.LBL",
+                     "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
+                     "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
+                     "*.pef", "*.PEF"},
                     QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         const QString candidate = it.next();

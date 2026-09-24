@@ -418,8 +418,8 @@ kbd {
     <li><strong>SER</strong> — formato de vídeo planetário (monocromático e colorido)</li>
     <li><strong>XISF</strong> — formato nativo do PixInsight</li>
     <li><strong>TIFF / PNG</strong> — escala de cinza ou RGB de 8 e 16 bits</li>
-    <li><strong>RAW DSLR</strong> — CR2, NEF, ARW via libraw (dependência opcional)</li>
-    <li><strong>PDS / PDS4</strong> — formato planetário NASA (.img + .lbl)</li>
+    <li><strong>RAW DSLR</strong> — CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF e outros RAW de câmera via LibRaw (dependência opcional de compilação). Os dados ficam lineares (sem gama, sem balanço de branco); a detecção de estrelas usa a luminância por superpixel 2×2 do mosaico Bayer. O horário vem do relógio da câmera e é marcado como ambíguo — confira o fuso horário da câmera antes de reportar.</li>
+    <li><strong>PDS3 / PDS4</strong> — imagens do Planetary Data System da NASA: PDS3 <code>.img</code> com rótulo embutido ou <code>.lbl</code> separado, e rótulos PDS4 <code>.xml</code> (arrays de imagem 2-D; um rótulo que aponta para FITS abre o arquivo FITS). Imagens de missão raramente trazem solução de placa — resolva a placa antes de medir.</li>
     <li><strong>Arquivos compactados</strong> — ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR: solte o arquivo, o AstroFind extrai e carrega todas as imagens</li>
   </ul>
 
@@ -1243,8 +1243,11 @@ kbd {
   <ul>
     <li><strong>Limiar de Detecção (σ)</strong> — SNR acima do fundo local necessário para uma detecção.
     Padrão: 5. Valores menores detectam fontes mais fracas, mas aumentam os falsos positivos.</li>
-    <li><strong>FWHM Mínimo (pixels)</strong> — Fontes menores que este valor são tratadas como pixels
-    quentes ou raios cósmicos e excluídas. Defina como aproximadamente 1,5 × o FWHM estelar nominal.</li>
+    <li><strong>FWHM Mínimo (″, segundos de arco)</strong> — Fontes menores que este valor são tratadas como pixels
+    quentes ou raios cósmicos e excluídas. O valor é dividido pela escala do pixel, então só é aplicado
+    quando a escala da imagem é conhecida. Padrão: 0,70″; aumente até mais ou menos metade do seu seeing
+    típico se pixels quentes forem detectados como estrelas. (A versão 1.1.0 e anteriores mostravam
+    “px” neste campo, mas o valor já era lido em segundos de arco.)</li>
     <li><strong>Raio da Abertura (pixels)</strong> — Raio da abertura fotométrica da ferramenta Abertura.
     Deve ser ~2 × FWHM para SNR ideal.</li>
     <li><strong>Anulo do Céu Interno/Externo (pixels)</strong> — Raios interno e externo do anulo para

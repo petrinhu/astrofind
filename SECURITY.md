@@ -1,6 +1,6 @@
 # Security Policy / Política de Segurança
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa (petrinhu@yahoo.com.br)
 
 ---
@@ -28,12 +28,14 @@ a fix is released). Thank you for reporting responsibly.
 ### Scope
 
 AstroFind is a desktop application (Qt6/C++). Relevant security surfaces include:
-file parsing (FITS/SER/XISF/BINTABLE, an attacker-controlled file could try to trigger
-a crash or memory corruption), network calls (astrometry.net, VizieR, JPL Horizons,
-SkyBoT, MPC submission), and stored credentials (API keys via Qt Keychain or the
-`QSettings` fallback). A public, read-only audit dossier of past findings and their
-remediation is tracked in [`AUDIT_FIND.md`](AUDIT_FIND.md); it is safe to consult since
-every issue listed there has already been fixed and released.
+file parsing (FITS/SER/XISF/BINTABLE, PDS3/PDS4 labels, DSLR RAW via LibRaw, and
+ZIP/TAR/7Z/RAR archives: an attacker-controlled file could try to trigger a crash or
+memory corruption), network calls (astrometry.net, VizieR, JPL Horizons, SkyBoT, MPC
+submission), and stored credentials (API keys via Qt Keychain or the `QSettings`
+fallback). The audit dossier [`AUDIT_FIND.md`](AUDIT_FIND.md) lists every finding with
+its status: **not every item there is fixed yet**. Open items and their priority are
+tracked in [`TODO.md`](TODO.md) (rows marked ⏳ or 🟡); fixed ones cite the commit or
+pull request. If you plan to rely on a specific item, check its row first.
 
 ---
 
@@ -63,10 +65,12 @@ responsável.
 ### Escopo
 
 AstroFind é uma aplicação desktop (Qt6/C++). Superfícies de segurança relevantes
-incluem: parsing de arquivos (FITS/SER/XISF/BINTABLE, um arquivo controlado por um
-atacante pode tentar disparar um crash ou corrupção de memória), chamadas de rede
-(astrometry.net, VizieR, JPL Horizons, SkyBoT, submissão ao MPC), e credenciais
-armazenadas (chaves de API via Qt Keychain ou o fallback `QSettings`). Um dossiê
-público e somente leitura de achados anteriores e sua remediação está registrado em
-[`AUDIT_FIND.md`](AUDIT_FIND.md); é seguro consultar, pois todo item listado lá já foi
-corrigido e lançado.
+incluem: parsing de arquivos (FITS/SER/XISF/BINTABLE, rótulos PDS3/PDS4, RAW de DSLR
+via LibRaw e arquivos ZIP/TAR/7Z/RAR: um arquivo controlado por um atacante pode tentar
+disparar um crash ou corrupção de memória), chamadas de rede (astrometry.net, VizieR,
+JPL Horizons, SkyBoT, submissão ao MPC), e credenciais armazenadas (chaves de API via Qt
+Keychain ou o fallback `QSettings`). O dossiê de auditoria [`AUDIT_FIND.md`](AUDIT_FIND.md)
+lista todos os achados com seu status: **nem todo item listado lá já está corrigido**. Os
+itens abertos e sua prioridade ficam no [`TODO.md`](TODO.md) (linhas marcadas ⏳ ou 🟡);
+os corrigidos citam o commit ou pull request. Se você depende de um item específico,
+confira a linha dele antes.
