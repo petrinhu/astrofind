@@ -13,7 +13,7 @@
 |---|---|
 | **Projeto** | AstroFind (repo `astrometrica`) |
 | **HEAD SHA** | `0940509243f1bbf8d2958bb373ac2e298fdd9c6d` |
-| **HEAD data** | 2026-08-20 11:18:28 -0300 (`chore(ci): migra do Codeberg para o GitHub como host único`) |
+| **HEAD data** | 2026-08-20 11:18:28 -0300 (`chore(ci)`: migração do CI para o GitHub como host único) |
 | **Data desta auditoria** | 2026-09-01 (`01/09/26 - 08:16:19`, America/Recife) |
 | **Tipo** | EVENTUAL NOVA do estado atual (pós Ondas 1-4 e release v0.9.0). READ-ONLY: nenhuma correção de `src/` / `tests/` / CMake. Sem git add/commit/push nesta fase. |
 | **Versão de produto** | v0.9.0 |
@@ -101,10 +101,10 @@ Os 3 CRÍTICOS novos, em uma frase cada:
 | [AUD-MEM-5](#aud-mem-5) | FFT under-alloc quando `h>w` | CRÍTICO | CONFIRMADO (overflow ASan + aritmética) | MEM | `forwardFFT` / `crossPowerSpectrum` |
 | [AUD-MEM-1](#aud-mem-1) | Leak SEP `convert_to_catalog` no binário linkado | IMPORTANTE | AINDA-ABERTO | MEM | `sep convert_to_catalog` / `libsep_lib.a` |
 | [AUD-CI-3](#aud-ci-3) | Auditoria numérica nunca roda em CI | IMPORTANTE | REGREDIU | CI | `audit.yml` (mesmo fato [AUD-CI-5](#aud-ci-5)) |
-| [AUD-CI-5](#aud-ci-5) | `runs-on: docker` / residual Forgejo | IMPORTANTE | CONFIRMADO | CI | `.github/workflows/audit.yml` |
+| [AUD-CI-5](#aud-ci-5) | `runs-on: docker` / residual do runner antigo | IMPORTANTE | CONFIRMADO | CI | `.github/workflows/audit.yml` |
 | [AUD-INPUT-9](#aud-input-9) | XISF sem teto de eixo FITS | IMPORTANTE | CONFIRMADO | INPUT | `loadXisf` |
 | [AUD-SEC-6](#aud-sec-6) | SetupWizard grava API key sem ApiKeyStore | IMPORTANTE | CONFIRMADO (código; 0644 PLAUSÍVEL) | SEC | `SetupWizard::ApiKeyPage::save` |
-| [AUD-SEC-7](#aud-sec-7) | `.runner` residual em disco (Codeberg) | IMPORTANTE | CONFIRMADO (presença; validade PLAUSÍVEL) | SEC | `.runner` (gitignore + mode 600) |
+| [AUD-SEC-7](#aud-sec-7) | `.runner` residual em disco (runner antigo) | IMPORTANTE | CONFIRMADO (presença; validade PLAUSÍVEL) | SEC | `.runner` (gitignore + mode 600) |
 | [AUD-SEC-8](#aud-sec-8) | Sem scanner de secret em hook/CI | IMPORTANTE | CONFIRMADO | SEC | `scripts/pre-commit` / workflows |
 | [AUD-SEC-10](#aud-sec-10) | KooEngine/MPCORB sem timeout | IMPORTANTE | CONFIRMADO (gap; hang PLAUSÍVEL) | SEC | `KooEngine::queryField` |
 | [AUD-SEC-11](#aud-sec-11) | `cancel()` não aborta poll `get` | IMPORTANTE | CONFIRMADO (código; fantasma PLAUSÍVEL) | SEC | `AstrometryClient` poll |
@@ -244,9 +244,9 @@ RGB/`validateImageDims` barram o equivalente 2-D ([AUD-INPUT-2](#aud-input-2) AI
 ### AUD-CI-5 / AUD-CI-3 - `audit.yml` `runs-on: docker` (REGREDIU o gap de julho)
 
 - **Severidade:** IMPORTANTE - CI-5 CONFIRMADO; CI-3 **REGREDIU**. **Mesmo fato:** não duplicar o crash. CI-3 é o ID de julho; CI-5 é a medição 2026-09-01 no host GitHub.
-- **Âncora:** `.github/workflows/audit.yml` L55 `runs-on: docker`; comentário L11-12 `forgejo-runner.service` / label `docker`. Commit `0940509` removeu `.forgejo/` e **não** tocou `audit.yml`.
-- **Failure concreto:** `gh run list` no SHA HEAD = 10 runs success (build + 9 qa). Numerical Audit **não disparou** neste push (trigger: PR→main, tags `v*`, `workflow_dispatch`). Histórico `audit.yml`: `{cancelled: 9}`, 0 success, 0 failure. Run `29138252749`: `The job has exceeded the maximum execution time while awaiting a runner for 24h0m0s`; `labels:["docker"]`, `runner_name:""`, `steps:[]`. YAML + `cmake/audit.cmake` existem; o portão nunca foi visto vermelho por sanitizer (L-36). Residual Forgejo no comentário (L-29: host único = GitHub).
-- **Remediação sugerida:** `runs-on` hosted GitHub (`ubuntu-24.04` ou label que exista); apagar menção `forgejo-runner`; disparar o job e **provar vermelho** com sabotagem de estreia (L-36). Cruzamento: [AUD-CI-7](#aud-ci-7) (mesmo após o runner, clang-tidy continua fora do gate).
+- **Âncora:** `.github/workflows/audit.yml` L55 `runs-on: docker`; comentário L11-12 citando o serviço do runner self-hosted antigo / label `docker`. Commit `0940509` removeu o diretório de workflows antigo e **não** tocou `audit.yml`.
+- **Failure concreto:** `gh run list` no SHA HEAD = 10 runs success (build + 9 qa). Numerical Audit **não disparou** neste push (trigger: PR→main, tags `v*`, `workflow_dispatch`). Histórico `audit.yml`: `{cancelled: 9}`, 0 success, 0 failure. Run `29138252749`: `The job has exceeded the maximum execution time while awaiting a runner for 24h0m0s`; `labels:["docker"]`, `runner_name:""`, `steps:[]`. YAML + `cmake/audit.cmake` existem; o portão nunca foi visto vermelho por sanitizer (L-36). Residual do runner antigo no comentário (L-29: host único = GitHub).
+- **Remediação sugerida:** `runs-on` hosted GitHub (`ubuntu-24.04` ou label que exista); apagar menção ao runner self-hosted antigo; disparar o job e **provar vermelho** com sabotagem de estreia (L-36). Cruzamento: [AUD-CI-7](#aud-ci-7) (mesmo após o runner, clang-tidy continua fora do gate).
 
 <a id="aud-sec-6"></a>
 ### AUD-SEC-6 - SetupWizard grava `astrometry/apiKey` sem `ApiKeyStore`
@@ -258,10 +258,10 @@ RGB/`validateImageDims` barram o equivalente 2-D ([AUD-INPUT-2](#aud-input-2) AI
 <a id="aud-sec-7"></a>
 ### AUD-SEC-7 - arquivo `.runner` ainda em disco (residual de SEC-1)
 
-- **Severidade:** IMPORTANTE - CONFIRMADO (presença). Validade do token no Codeberg = PLAUSÍVEL (não verificável só por disco). **L-28:** valor do token omitido; só path/mode/rule.
-- **Âncora:** `.runner` na raiz. `git check-ignore` casa `.gitignore:75:.runner*`. `stat` mode **600**. Não rastreado. gitleaks `--all` (109 commits) **no leaks found**. gitleaks `--no-git`: 1 finding, RuleID `generic-api-key`, File `.runner`, StartLine 6, Fingerprint `.runner:generic-api-key:6`, Secret_len 40. `address` = `https://codeberg.org`. `systemctl is-active forgejo-runner.service` = inactive. Remote só GitHub.
+- **Severidade:** IMPORTANTE - CONFIRMADO (presença). Validade do token no host antigo = PLAUSÍVEL (não verificável só por disco). **L-28:** valor do token omitido; só path/mode/rule.
+- **Âncora:** `.runner` na raiz. `git check-ignore` casa `.gitignore:75:.runner*`. `stat` mode **600**. Não rastreado. gitleaks `--all` (109 commits) **no leaks found**. gitleaks `--no-git`: 1 finding, RuleID `generic-api-key`, File `.runner`, StartLine 6, Fingerprint `.runner:generic-api-key:6`, Secret_len 40. `address` = host de CI antigo. `systemctl is-active` do serviço do runner antigo` = inactive. Remote só GitHub.
 - **Cruzamento:** [AUD-SEC-1](#aud-sec-1) permanece AINDA-ABERTO (controles git presentes; credencial residual + [AUD-SEC-8](#aud-sec-8) sem scanner). Não republicar o segredo.
-- **Remediação sugerida:** apagar `.runner` local após confirmar que o runner Codeberg está morto; rotacionar/revogar o token no host antigo (decisão do líder); não versionar o valor.
+- **Remediação sugerida:** apagar `.runner` local após confirmar que o runner self-hosted antigo está morto; rotacionar/revogar o token no host antigo (decisão do líder); não versionar o valor.
 
 <a id="aud-sec-8"></a>
 ### AUD-SEC-8 - zero scanner de secret em hook/CI
@@ -547,7 +547,7 @@ V-MEM: `detectStars` com NaN/Inf, `detectBlended=true`: processo vivo, n=0 estre
 ### Efeitos PLAUSÍVEIS de IDs já CONFIRMADOS (não são IDs novos)
 
 - Hang HTTP de [AUD-SEC-10](#aud-sec-10) contra SkyBoT/MPC reais: **não executado**.
-- Token Codeberg de [AUD-SEC-7](#aud-sec-7) ainda válido: desconhecido.
+- Token do runner antigo de [AUD-SEC-7](#aud-sec-7) ainda válido: desconhecido.
 - Conf 0644 pós-wizard ([AUD-SEC-6](#aud-sec-6)); progresso fantasma ([AUD-SEC-11](#aud-sec-11)); parse Horizons ([AUD-SEC-12](#aud-sec-12)).
 - Ângulo de double-refraction ([AUD-CORR-7](#aud-corr-7)); delta LONPOLE ([AUD-CORR-10](#aud-corr-10)); magnitude sub-segundo ([AUD-CORR-13](#aud-corr-13)).
 - WRITE em `fftw_execute` no mesmo under-alloc de [AUD-MEM-5](#aud-mem-5): **INFERÊNCIA** (lib do sistema sem ASan; primeiro hit foi READ em `crossPowerSpectrum`).

@@ -64,7 +64,7 @@ every item, is in [`AUDIT_FIND.md`](AUDIT_FIND.md).
 
 #### Security
 
-- `.runner` (a live Forgejo CI runner token accidentally left on disk) removed from
+- `.runner` (a live self-hosted CI runner token accidentally left on disk) removed from
   tracking and the token rotated.
 - All `FetchContent` dependencies (6 libraries fetched at build time) pinned to an
   exact commit SHA instead of a floating branch/tag, closing a supply-chain
@@ -171,7 +171,7 @@ de reprodução e commits de correção de cada item, está em
 
 #### Segurança
 
-- `.runner` (um token vivo do runner de CI do Forgejo deixado por acidente no disco)
+- `.runner` (um token vivo do runner de CI self-hosted deixado por acidente no disco)
   removido do rastreamento e o token foi rotacionado.
 - Todas as dependências via `FetchContent` (6 bibliotecas baixadas em tempo de
   build) foram fixadas num commit SHA exato em vez de uma branch/tag flutuante,
@@ -287,7 +287,7 @@ de reprodução e commits de correção de cada item, está em
 
 #### Added
 
-- Codeberg Actions release pipeline (`.forgejo/workflows/release.yml`): automated
+- Release pipeline (CI workflow, since replaced by GitHub Actions): automated
   RPM, DEB, Arch PKGBUILD tarball, and `install.sh` artifacts on every version tag
   push
 - `packaging/debian/control-binary`: binary-only DEB control template used by CI
@@ -330,7 +330,7 @@ reais.**
 
 #### Adicionado
 
-- Pipeline de release no Codeberg Actions (`.forgejo/workflows/release.yml`):
+- Pipeline de release (workflow de CI, depois substituído pelo GitHub Actions):
   geração automática de RPM, DEB, tarball PKGBUILD para Arch e `install.sh` a cada
   push de tag de versão
 - `packaging/debian/control-binary`: template de controle DEB binário usado pelo CI
