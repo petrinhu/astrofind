@@ -55,7 +55,134 @@ constexpr double R0  = R2D;  // sphere radius r₀ in degrees
 // here). Verified against astropy 8.0.1 (WCS) for CAR/MER/GLS/AIT — the
 // reference pixel round-trips to CRVAL and ±100px offsets move the expected
 // axis (X→RA, Y→Dec) to sub-arcsecond agreement; see delta_wcs.cpp/oracle_wcs.py.
+// AUD-CORR-10: sin/cos of an angle in degrees, exact for multiples of 90°
+// (like WCSLIB's sincosd), so φ_p = 0°/180° gives exact 0/±1 terms.
+inline void sincosDeg(double deg, double& s, double& c) noexcept
+{
+    if (std::fmod(deg, 90.0) == 0.0) {
+        long q = std::lround(deg / 90.0) % 4;
+        if (q < 0) q += 4;
+        static constexpr double kS[4] = { 0.0, 1.0, 0.0, -1.0 };
+        static constexpr double kC[4] = { 1.0, 0.0, -1.0, 0.0 };
+        s = kS[q];
+        c = kC[q];
+        return;
+    }
+    s = std::sin(deg * D2R);
+    c = std::cos(deg * D2R);
+}
+
+// AUD-CORR-10: general celestial-pole determination for a fiducial point on
+// the native equator (φ0,θ0)=(0°,0°) with an EXPLICIT φ_p (LONPOLE) and
+// LATPOLE, per Calabretta & Greisen 2002 §2.4 eqs. 8-10. Same algorithm as
+// WCSLIB 8.x cel.c celset() (which astropy.wcs uses): δ_p has up to two
+// solutions u±v; LATPOLE picks the closer valid one. With the default
+// φ_p/LATPOLE this reduces to the closed form used below (checked by the
+// [wcs] tests in tests/test_wcs_poles.cpp). Returns false when no valid δ_p
+// exists (WCSLIB: "ill-conditioned", e.g. δ0 > 0 with φ_p = 180°).
+inline bool celestialPoleGeneral(double crval1, double crval2, double phi_p,
+                                 double latpole,
+                                 double& alpha_p, double& delta_p) noexcept
+{
+    constexpr double theta0 = 0.0, phi0 = 0.0, tol = 1.0e-10;
+    double slat0 = 0.0, clat0 = 0.0, sthe0 = 0.0, cthe0 = 0.0;
+    sincosDeg(crval2, slat0, clat0);
+    sincosDeg(theta0, sthe0, cthe0);
+
+    double sphip = 0.0, cphip = 1.0, u = 0.0, v = 0.0;
+    double latp = latpole;
+    bool   latpFromLatpole = false;
+    if (phi_p == phi0) {
+        u = theta0;
+        v = 90.0 - crval2;
+    } else {
+        sincosDeg(phi_p - phi0, sphip, cphip);
+        const double x = cthe0 * cphip;
+        const double y = sthe0;
+        const double z = std::hypot(x, y);
+        if (z == 0.0) {
+            // δ_p fixed by LATPOLE alone (only consistent when δ0 = 0°).
+            if (std::abs(slat0) > tol) return false;
+            latpFromLatpole = true;
+            latp = std::clamp(latp, -90.0, 90.0);
+        } else {
+            double slat0z = slat0 / z;
+            if (std::abs(slat0z) > 1.0 + tol) return false;   // no solution
+            slat0z = std::clamp(slat0z, -1.0, 1.0);
+            u = std::atan2(y, x) * R2D;
+            v = std::acos(slat0z) * R2D;
+        }
+    }
+
+    if (!latpFromLatpole) {
+        auto wrap180 = [](double a) {
+            if (a > 180.0) return a - 360.0;
+            if (a < -180.0) return a + 360.0;
+            return a;
+        };
+        const double latp1 = wrap180(u + v);
+        const double latp2 = wrap180(u - v);
+        if (std::abs(latp - latp1) < std::abs(latp - latp2))
+            latp = (std::abs(latp1) < 90.0 + tol) ? latp1 : latp2;
+        else
+            latp = (std::abs(latp2) < 90.0 + tol) ? latp2 : latp1;
+        if (!(std::abs(latp) < 90.0 + tol)) return false;
+        latp = std::clamp(latp, -90.0, 90.0);
+    }
+
+    const double z = std::cos(latp * D2R) * clat0;
+    double lngp = 0.0;
+    if (std::abs(z) < tol) {
+        if (std::abs(clat0) < tol)
+            lngp = crval1;                              // celestial pole at fiducial point
+        else if (latp > 0.0)
+            lngp = crval1 + phi_p - phi0 - 180.0;       // north pole at native pole
+        else
+            lngp = crval1 - phi_p + phi0;               // south pole at native pole
+    } else {
+        const double x = (sthe0 - std::sin(latp * D2R) * slat0) / z;
+        const double y = sphip * cthe0 / clat0;
+        lngp = crval1 - std::atan2(y, x) * R2D;
+    }
+    lngp = std::fmod(lngp, 360.0);
+    if (lngp < 0.0) lngp += 360.0;
+
+    alpha_p = lngp;
+    delta_p = latp;
+    return true;
+}
+
+inline bool isZenithal(WcsProjection proj) noexcept
+{
+    return proj == WcsProjection::TAN || proj == WcsProjection::SIN
+        || proj == WcsProjection::ARC || proj == WcsProjection::STG;
+}
+
+// AUD-CORR-10: φ_p / LATPOLE actually used for a non-zenithal projection when
+// at least one card is present (defaults: 0° if δ0 ≥ θ0 = 0° else 180°; +90°).
+inline double effectiveLonpoleCyl(double crval2, double lonpole) noexcept
+{
+    return std::isfinite(lonpole) ? lonpole : (crval2 >= 0.0 ? 0.0 : 180.0);
+}
+inline double effectiveLatpole(double latpole) noexcept
+{
+    return std::isfinite(latpole) ? latpole : 90.0;
+}
+
+// AUD-CORR-10: false when LONPOLE/LATPOLE admit no valid celestial pole for
+// this CRVAL (readHeader() then warns and drops them → standard default).
+inline bool poleCardsUsable(WcsProjection proj, double crval1, double crval2,
+                            double lonpole, double latpole) noexcept
+{
+    if (isZenithal(proj) || (!std::isfinite(lonpole) && !std::isfinite(latpole)))
+        return true;
+    double a = 0.0, d = 0.0;
+    return celestialPoleGeneral(crval1, crval2, effectiveLonpoleCyl(crval2, lonpole),
+                                effectiveLatpole(latpole), a, d);
+}
+
 inline void celestialPole(WcsProjection proj, double crval1, double crval2,
+                          double lonpole, double latpole,
                           double& alpha_p, double& delta_p, double& phi_p) noexcept
 {
     switch (proj) {
@@ -65,11 +192,24 @@ inline void celestialPole(WcsProjection proj, double crval1, double crval2,
         case WcsProjection::STG:
             // Zenithal: fiducial point == native pole (φ0,θ0)=(0°,90°) → the
             // celestial pole coincides trivially with CRVAL, φ_p = 180°.
-            phi_p   = 180.0;
+            // AUD-CORR-10: an explicit LONPOLE (or PV1_3) sets φ_p; LATPOLE
+            // plays no role when θ0 = 90° (δ_p = δ0 exactly).
+            phi_p   = std::isfinite(lonpole) ? lonpole : 180.0;
             alpha_p = crval1;
             delta_p = crval2;
             return;
         default:
+            // AUD-CORR-10: LONPOLE/LATPOLE present → general solution. If
+            // they admit no valid pole, fall back to the default below.
+            if (std::isfinite(lonpole) || std::isfinite(latpole)) {
+                const double phiReq = effectiveLonpoleCyl(crval2, lonpole);
+                if (celestialPoleGeneral(crval1, crval2, phiReq,
+                                         effectiveLatpole(latpole),
+                                         alpha_p, delta_p)) {
+                    phi_p = phiReq;
+                    return;
+                }
+            }
             // Cylindrical/pseudocylindrical: fiducial point on native equator
             // (φ0,θ0)=(0°,0°) — see derivation above.
             if (crval2 >= 0.0) {
@@ -275,6 +415,12 @@ void celestialToNative(double alpha, double delta,
     theta = std::asin(std::clamp(sDelta * sDelta_p + cDelta * cDelta_p * cosDa, -1.0, 1.0)) * R2D;
     phi   = phi_p + std::atan2(-cDelta * sinDa,
                                 sDelta * cDelta_p - cDelta * sDelta_p * cosDa) * R2D;
+    // AUD-CORR-11: native longitude in [-180°, 180°], as WCSLIB does. Without
+    // it the cylindrical/pseudocylindrical inverses (x ∝ φ: CAR/MER/GLS/AIT)
+    // came out 360° off whenever φ_p = 180° (every southern field), and
+    // skyToPix landed ~1.3e6 px away at 1"/px. Zenithal projections only use
+    // sin/cos(φ) and are unaffected.
+    phi = std::remainder(phi, 360.0);
 }
 
 }  // anonymous namespace
@@ -295,7 +441,7 @@ void PlateSolution::pixToSky(double px, double py, double& ra, double& dec) cons
 
     // Step 3: native spherical → celestial
     double alpha_p = 0.0, delta_p = 0.0, phi_p = 0.0;
-    celestialPole(projection, crval1, crval2, alpha_p, delta_p, phi_p);
+    celestialPole(projection, crval1, crval2, lonpole, latpole, alpha_p, delta_p, phi_p);
     nativeToCelestial(phi, theta, alpha_p, delta_p, phi_p, ra, dec);
 }
 
@@ -303,7 +449,7 @@ void PlateSolution::skyToPix(double ra, double dec, double& px, double& py) cons
 {
     // Step 3 inverse: celestial → native spherical
     double alpha_p = 0.0, delta_p = 0.0, phi_p = 0.0;
-    celestialPole(projection, crval1, crval2, alpha_p, delta_p, phi_p);
+    celestialPole(projection, crval1, crval2, lonpole, latpole, alpha_p, delta_p, phi_p);
     double phi = 0.0, theta = 0.0;
     celestialToNative(ra, dec, alpha_p, delta_p, phi_p, phi, theta);
 
@@ -690,6 +836,40 @@ void readHeader(fitsfile* fptr, FitsImage& img)
         }
     }
 
+    // AUD-CORR-10: native/celestial pole cards (Calabretta & Greisen 2002
+    // §2.4-2.5). PV1_3/PV1_4 are the longitude-axis aliases of LONPOLE/LATPOLE
+    // and, as in WCSLIB, take precedence. Absent → NaN → standard defaults.
+    if (img.wcs.solved) {
+        constexpr double kNaN = std::numeric_limits<double>::quiet_NaN();
+        double lonpole = getDbl("LONPOLE", kNaN);
+        double latpole = getDbl("LATPOLE", kNaN);
+        const double pv13 = getDbl("PV1_3", kNaN);
+        const double pv14 = getDbl("PV1_4", kNaN);
+        if (std::isfinite(pv13)) lonpole = pv13;
+        if (std::isfinite(pv14)) latpole = pv14;
+        img.wcs.lonpole = std::isfinite(lonpole) ? lonpole : kNaN;
+        img.wcs.latpole = std::isfinite(latpole) ? latpole : kNaN;
+        if (!poleCardsUsable(img.wcs.projection, img.wcs.crval1, img.wcs.crval2,
+                             img.wcs.lonpole, img.wcs.latpole)) {
+            spdlog::warn("WCS LONPOLE={} LATPOLE={} admit no valid celestial pole for"
+                         " CRVAL2={} in {} — using the standard default",
+                         img.wcs.lonpole, img.wcs.latpole, img.wcs.crval2,
+                         img.fileName.toStdString());
+            img.wcs.lonpole = kNaN;
+            img.wcs.latpole = kNaN;
+        }
+        // PV1_1/PV1_2 move the native fiducial point (φ0,θ0) away from the
+        // projection default; the projection code here does not implement the
+        // offset, so say so instead of silently mis-projecting.
+        const bool zenithal = isZenithal(img.wcs.projection);
+        const double pv11 = getDbl("PV1_1", kNaN);
+        const double pv12 = getDbl("PV1_2", kNaN);
+        if ((std::isfinite(pv11) && pv11 != 0.0)
+            || (std::isfinite(pv12) && pv12 != (zenithal ? 90.0 : 0.0)))
+            spdlog::warn("WCS PV1_1/PV1_2 (non-default fiducial point) not supported in {}"
+                         " — ignored", img.fileName.toStdString());
+    }
+
     // Observer site location — try several common keyword conventions
     // Priority: SITELAT/SITELONG → LAT-OBS/LONG-OBS → OBSGEO-B/OBSGEO-L
     auto tryDbl = [&](std::initializer_list<const char*> keys) -> double {
@@ -703,11 +883,13 @@ void readHeader(fitsfile* fptr, FitsImage& img)
     img.siteLon = tryDbl({"SITELONG", "LONG-OBS",  "OBSGEO-L", "LONGITUD"});
     img.siteAlt = tryDbl({"SITEELEV", "ALT-OBS",  "OBSGEO-H", "ALTITUDE"});
 
-    if (img.jd == 0.0 && img.dateObs.isValid()) {
-        // Approximate JD from datetime
-        const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), QTimeZone(0));
-        img.jd = 2451545.0 + static_cast<double>(j2000.secsTo(img.dateObs)) / 86400.0 + img.expTime / 172800.0;
-    }
+    // AUD-CORR-13: mid-exposure JD without dropping the sub-second part.
+    // MJD-OBS (start of exposure, same time scale as DATE-OBS) is preferred
+    // when present; otherwise DATE-OBS is converted with millisecond
+    // resolution (QDateTime::msecsTo — secsTo truncated to whole seconds).
+    if (img.jd == 0.0)
+        img.jd = midExposureJd(getDbl("MJD-OBS", std::numeric_limits<double>::quiet_NaN()),
+                               img.dateObs, img.expTime, img.fileName);
 }
 
 /// Returns {R_hdu, G_hdu, B_hdu} (1-indexed cfitsio HDU numbers) when the file
@@ -1269,10 +1451,58 @@ QString saveWcsToFits(const QString& filePath, const PlateSolution& wcs)
     fits_update_key(fptr, TSTRING, "CTYPE1", const_cast<char*>("RA---TAN"),  "WCS type", &status);
     fits_update_key(fptr, TSTRING, "CTYPE2", const_cast<char*>("DEC--TAN"),  "WCS type", &status);
 
+    // AUD-CORR-10: keep the pole cards consistent with the solution written
+    // above — a stale LONPOLE/LATPOLE/PV1_3/PV1_4 from an older WCS would be
+    // read back on the next load and rotate this solution.
+    auto dropKey = [&](const char* key) {
+        int st = 0;   // KEY_NO_EXIST is not an error here
+        fits_delete_key(fptr, const_cast<char*>(key), &st);
+    };
+    dropKey("PV1_3");
+    dropKey("PV1_4");
+    if (std::isfinite(wcs.lonpole))
+        writeD("LONPOLE", wcs.lonpole, "Native longitude of celestial pole [deg]");
+    else
+        dropKey("LONPOLE");
+    if (std::isfinite(wcs.latpole))
+        writeD("LATPOLE", wcs.latpole, "Celestial latitude of native pole [deg]");
+    else
+        dropKey("LATPOLE");
+
     const int saveStatus = status;
     fits_close_file(fptr, &status);
     if (saveStatus) return cfitsioError(saveStatus);
     return {};
+}
+
+// AUD-CORR-13: see FitsImage.h.
+double julianDateUtc(const QDateTime& utc)
+{
+    if (!utc.isValid()) return 0.0;
+    const QDateTime j2000(QDate(2000, 1, 1), QTime(12, 0, 0), QTimeZone(0));
+    // msecsTo, not secsTo: secsTo truncates to whole seconds.
+    return 2451545.0 + static_cast<double>(j2000.msecsTo(utc)) / 86400000.0;
+}
+
+// AUD-CORR-13: see FitsImage.h.
+double midExposureJd(double mjdObs, const QDateTime& dateObsUtc, double expTimeSec,
+                     const QString& fileName)
+{
+    const double halfExpDays = (std::isfinite(expTimeSec) && expTimeSec > 0.0)
+                             ? expTimeSec / 172800.0 : 0.0;
+    if (std::isfinite(mjdObs) && mjdObs > 0.0) {
+        const double jdStart = mjdObs + 2400000.5;
+        if (dateObsUtc.isValid()) {
+            const double jdDate = julianDateUtc(dateObsUtc);
+            if (std::abs(jdDate - jdStart) * 86400.0 > 1.0)
+                spdlog::warn("MJD-OBS and DATE-OBS differ by {:.3f} s in {} — using MJD-OBS",
+                             (jdStart - jdDate) * 86400.0, fileName.toStdString());
+        }
+        return jdStart + halfExpDays;
+    }
+    if (dateObsUtc.isValid())
+        return julianDateUtc(dateObsUtc) + halfExpDays;
+    return 0.0;
 }
 
 // AUD-CORR-15: fold the clock correction into jd once; see FitsImage.h.

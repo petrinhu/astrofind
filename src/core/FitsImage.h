@@ -60,6 +60,13 @@ struct PlateSolution {
     double rms    = 0.0;   ///< Fit RMS (arcseconds)
     bool   solved = false;
     WcsProjection projection = WcsProjection::TAN;  ///< Projection type (from CTYPE1)
+    /// AUD-CORR-10: native longitude of the celestial pole φ_p (LONPOLE, or
+    /// PV1_3 which overrides it as in WCSLIB), degrees. NaN = card absent →
+    /// the standard default (Calabretta & Greisen 2002 §2.4) is used.
+    double lonpole = std::numeric_limits<double>::quiet_NaN();
+    /// AUD-CORR-10: LATPOLE (or PV1_4), degrees. Only disambiguates δ_p for the
+    /// non-zenithal projections (CAR/MER/GLS/AIT). NaN = absent → +90°.
+    double latpole = std::numeric_limits<double>::quiet_NaN();
 
     /// Convert pixel (x,y) → (ra,dec) in degrees
     void pixToSky(double px, double py, double& ra, double& dec) const noexcept;
@@ -198,10 +205,22 @@ bool validateDecodedDims(long w, long h, const QString& filePath, QString& err);
 /// jd stays UTC — it is what ADES reports as obsTime.
 void applyClockCorrection(FitsImage& img, double offsetSec);
 
+/// AUD-CORR-13: Julian Date of an instant, keeping the milliseconds
+/// (QDateTime::secsTo would truncate them). Returns 0.0 for an invalid input.
+double julianDateUtc(const QDateTime& utc);
+
+/// AUD-CORR-13: mid-exposure JD from the header times. MJD-OBS (start of the
+/// exposure, same time scale as DATE-OBS) wins when finite and > 0 — a warning
+/// is logged if it disagrees with DATE-OBS by more than 1 s; otherwise
+/// DATE-OBS is used with millisecond resolution. Half of expTimeSec (when > 0)
+/// is added. Returns 0.0 when neither time is available.
+double midExposureJd(double mjdObs, const QDateTime& dateObsUtc, double expTimeSec,
+                     const QString& fileName = QString());
+
 /// Compute display stretch using sigma-clipping. Fills displayMin/displayMax.
 void computeAutoStretch(FitsImage& img, float sigmaLow = 2.0f, float sigmaHigh = 6.0f);
 
-/// Write WCS keywords (CRVAL1/2, CRPIX1/2, CD matrix) back to the original FITS file.
+/// Write WCS keywords (CRVAL1/2, CRPIX1/2, CD matrix, LONPOLE/LATPOLE) back to the original FITS file.
 /// Returns an empty string on success, or an error description on failure.
 QString saveWcsToFits(const QString& filePath, const PlateSolution& wcs);
 

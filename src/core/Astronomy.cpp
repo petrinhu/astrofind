@@ -117,6 +117,16 @@ double applyRefractionCorrection(double& ra, double& dec,
     return R_arcmin;
 }
 
+// ─── shouldApplyRefraction (AUD-CORR-7) ──────────────────────────────────────
+
+bool shouldApplyRefraction(bool fromCatalogPlateSolution, bool isSpaceTelescope,
+                           double jd) noexcept
+{
+    if (fromCatalogPlateSolution) return false;   // already absorbed by the WCS fit
+    if (isSpaceTelescope)         return false;   // no atmosphere
+    return std::isfinite(jd) && jd > 2400000.0;
+}
+
 // ─── angularDistance ─────────────────────────────────────────────────────────
 
 double angularDistance(double ra1_deg, double dec1_deg,

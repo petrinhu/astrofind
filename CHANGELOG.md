@@ -14,6 +14,31 @@ primeiro.
 
 ### Fixed / Corrigido
 
+- **Refraction on plate-solved positions / Refração em posições com solução astrométrica
+  (AUD-CORR-7).** 🇬🇧 Bennett refraction is no longer added to RA/Dec that come from a
+  catalog plate solution (the fit already absorbs it; applying it again double-corrected,
+  up to ~1.7′ at 30° altitude). 🇧🇷 A refração de Bennett não é mais somada ao RA/Dec
+  vindo de uma solução astrométrica de catálogo (o ajuste já a absorve; aplicá-la de novo
+  corrigia duas vezes, até ~1,7′ a 30° de altura).
+- **WCS pole cards and southern fields / Cartões de polo do WCS e campos austrais
+  (AUD-CORR-10, AUD-CORR-11).** 🇬🇧 LONPOLE/LATPOLE (and PV1_3/PV1_4) are now read and
+  used, as in WCSLIB; files without them behave as before. Sky→pixel for CAR/MER/GLS/AIT
+  was 360° off on every southern field (catalog overlay misplaced); fixed.
+  🇧🇷 LONPOLE/LATPOLE (e PV1_3/PV1_4) agora são lidos e usados, como no WCSLIB; arquivos
+  sem eles se comportam como antes. Céu→pixel em CAR/MER/GLS/AIT saía 360° errado em todo
+  campo austral (overlay de catálogo fora do lugar); corrigido.
+- **Offline ephemeris / Efeméride offline (AUD-CORR-12).** 🇬🇧 MPCORB epochs were read
+  half a day late, and the Earth position used the equinox of date with J2000 elements;
+  against JPL Horizons the error drops from 6′ (Ceres, 2024) and 49′ ((433) Eros at
+  0.18 AU) to under 1′. 🇧🇷 As épocas do MPCORB eram lidas meio dia depois e a posição da
+  Terra usava o equinócio da data com elementos J2000; contra o JPL Horizons o erro cai de
+  6′ (Ceres, 2024) e 49′ ((433) Eros a 0,18 UA) para menos de 1′.
+- **Sub-second exposure times / Horário com fração de segundo (AUD-CORR-13).**
+  🇬🇧 The Julian Date keeps the milliseconds of DATE-OBS and prefers MJD-OBS when present;
+  XISF files now get a JD from DATE-OBS/MJD-OBS. 🇧🇷 O Dia Juliano mantém os milissegundos
+  do DATE-OBS e prefere o MJD-OBS quando existe; arquivos XISF passam a ter JD a partir do
+  DATE-OBS/MJD-OBS.
+
 - **Observation time (AUD-CORR-15, critical).** 🇬🇧 Data Reduction no longer adds ΔT
   (68 s by default) to the image Julian Date, so the ADES `obsTime` is UTC again instead
   of ~68 s late (and 136 s after a second run). ΔT is now used only for the offline MPCORB

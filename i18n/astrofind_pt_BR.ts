@@ -3368,6 +3368,11 @@ Configure em Arquivo → Configurações → Conexões → ASTAP.</translation>
         <translation>  Correção de refração: %1" (R=%2')</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="91" />
+        <source>  Refraction: not applied (absorbed by the catalog plate solution)</source>
+        <translation>  Refração: não aplicada (já absorvida pela solução astrométrica de catálogo)</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow_measurement.cpp" line="97" />
         <source>  Frame: ICRF — annual aberration at epoch: %1" (Δα=%2", Δδ=%3")</source>
         <translation>  Referencial: ICRF — aberração anual na época: %1" (Δα=%2", Δδ=%3")</translation>

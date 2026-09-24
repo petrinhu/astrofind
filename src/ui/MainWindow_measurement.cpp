@@ -77,16 +77,21 @@ void MainWindow::runMeasurePipeline(int sessionIdx, QPointF imgPx, double ra, do
     if (img.wcs.solved)
         img.wcs.pixToSky(centroid->x, centroid->y, raFinal, decFinal);
 
-    // ── 2a. Atmospheric refraction correction ─────────────────────────────────
-    // Space telescopes have no atmosphere; ground-based sites need the correction
-    // to convert apparent (refracted) coordinates to ICRS catalog frame.
-    if (!img.isSpaceTelescope && img.jd > 2400000.0) {
+    // ── 2a. Atmospheric refraction ────────────────────────────────────────────
+    // AUD-CORR-7: a catalog plate solution already absorbs refraction (its
+    // reference stars are refracted like the target), so Bennett is applied
+    // only to positions NOT derived from one, and never for space telescopes.
+    // See core::shouldApplyRefraction() and docs/technical-reference.md.
+    const bool fromPlateSolution = img.wcs.solved;
+    if (core::shouldApplyRefraction(fromPlateSolution, img.isSpaceTelescope, img.jd)) {
         const SiteLocation site = effectiveSiteLocation();
         const double R = core::applyRefractionCorrection(
             raFinal, decFinal, img.jd, site.lat, site.lon);
         if (R > 0.0)
             logPanel_->appendInfo(tr("  Refraction correction: %1\" (R=%2')")
                 .arg(R * 60.0, 0, 'f', 1).arg(R, 0, 'f', 3));
+    } else if (fromPlateSolution && !img.isSpaceTelescope) {
+        logPanel_->appendInfo(tr("  Refraction: not applied (absorbed by the catalog plate solution)"));
     }
 
     // ── 2b. ICRS frame — log annual aberration magnitude ─────────────────────

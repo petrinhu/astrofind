@@ -3484,6 +3484,11 @@ Run plate solving or star detection first.</translation>
         <translation>  Refraction correction: %1" (R=%2')</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="91" />
+        <source>  Refraction: not applied (absorbed by the catalog plate solution)</source>
+        <translation>  Refraction: not applied (absorbed by the catalog plate solution)</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow_measurement.cpp" line="97" />
         <source>  Frame: ICRF — annual aberration at epoch: %1" (Δα=%2", Δδ=%3")</source>
         <translation>  Frame: ICRF — annual aberration at epoch: %1" (Δα=%2", Δδ=%3")</translation>

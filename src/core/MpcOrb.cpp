@@ -71,9 +71,12 @@ static double mpcPackedEpochToJD(const QString& packed)
         + y / 400             // NOLINT(bugprone-integer-division)
         - 32045;
 
-    // The packed epoch represents noon (0.0 fractional day), i.e. JD = JDN + 0.0
-    // Standard JD starts at noon, so JDN is already the Julian Day Number at noon.
-    return static_cast<double>(jdn);
+    // AUD-CORR-12: the MPCORB epoch is the calendar date at 0h TT ("in packed
+    // form, .0 TT" — MPC format notes), while the integer JDN above labels the
+    // noon of that date. 0h is half a day earlier: JD = JDN − 0.5 (e.g. K245K =
+    // 2024-05-20.0 TT = JD 2460450.5). Returning the JDN shifted every mean
+    // anomaly by n/2 (≈0.1° for Ceres) in the offline ephemeris.
+    return static_cast<double>(jdn) - 0.5;
 }
 
 // ─── parseMpcOrbLine ─────────────────────────────────────────────────────────

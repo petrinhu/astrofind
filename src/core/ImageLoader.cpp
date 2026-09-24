@@ -466,6 +466,7 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
 
     // ── Extract FITS keywords from <FITSKeyword> children ────────────────────
     const QDomNodeList kwds = img_el.elementsByTagName(QStringLiteral("FITSKeyword"));
+    double mjdObs = std::numeric_limits<double>::quiet_NaN();
     for (int i = 0; i < kwds.size(); ++i) {
         const QDomElement kw = kwds.at(i).toElement();
         const QString kn = kw.attribute(QStringLiteral("name")).trimmed().toUpper();
@@ -486,7 +487,12 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
             if (img.dateObs.isValid() && img.dateObs.timeSpec() == Qt::LocalTime)
                 img.dateObs = QDateTime(img.dateObs.date(), img.dateObs.time(), QTimeZone(0));
         }
+        else if (kn == "MJD-OBS")  mjdObs         = kv.toDouble();
     }
+    // AUD-CORR-13: same mid-exposure JD rule as FITS (MJD-OBS, else DATE-OBS
+    // with milliseconds). XISF used to leave jd = 0 unless a JD keyword existed.
+    if (img.jd == 0.0)
+        img.jd = midExposureJd(mjdObs, img.dateObs, img.expTime, img.fileName);
 
     computeAutoStretch(img);
     spdlog::info("Loaded XISF: {}  {}x{}×{}  fmt={}",
