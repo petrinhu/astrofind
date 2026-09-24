@@ -36,10 +36,10 @@ WorkflowPanel::WorkflowPanel(QWidget* parent)
     layout_->addWidget(line);
     layout_->addSpacing(4);
 
-    buildStepRow(0, "1", tr("Load Images"),         tr("Open FITS files"));
-    buildStepRow(1, "2", tr("Data Reduction"),       tr("Solve plate"));
-    buildStepRow(2, "3", tr("Known Object Overlay"), tr("Mark known objects"));
-    buildStepRow(3, "4", tr("Blink Images"),         tr("Find moving objects"));
+    buildStepRow(0, "1", tr("Import Images"),        tr("Open FITS files"));
+    buildStepRow(1, "2", tr("Run Data Reduction"),   tr("Solve plate"));
+    buildStepRow(2, "3", tr("Show Known Objects"),   tr("Mark known objects"));
+    buildStepRow(3, "4", tr("Begin Blink Mode"),     tr("Find moving objects"));
     buildStepRow(4, "5", tr("Measure Objects"),      tr("Click to measure"));
     buildStepRow(5, "6", tr("ADES Report"),          tr("Generate & submit"));
 

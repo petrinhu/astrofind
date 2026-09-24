@@ -710,12 +710,12 @@ void SettingsDialog::buildConnectionsTab(QTabWidget* tabs)
     pathForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     mpcOrbPathEdit_ = new QLineEdit(pathGroup);
-    mpcOrbPathEdit_->setToolTip(tr("Path to MPCORB.DAT. Use Internet → Download MPCOrb to get it."));
+    mpcOrbPathEdit_->setToolTip(tr("Path to MPCORB.DAT. Use Internet → Download MPCOrb Database to get it."));
     pathForm->addRow(tr("MPCORB.DAT:"),
         browseRow(mpcOrbPathEdit_, this, [this]{ onBrowseMpcOrb(); }, pathGroup));
 
     ccdDirEdit_ = new QLineEdit(pathGroup);
-    ccdDirEdit_->setToolTip(tr("Default folder opened by File → Load Images."));
+    ccdDirEdit_->setToolTip(tr("Default folder opened by File → Import Images."));
     pathForm->addRow(tr("Default image folder:"),
         browseRow(ccdDirEdit_, this, [this]{ onBrowseCcdDir(); }, pathGroup));
 

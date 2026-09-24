@@ -191,7 +191,7 @@ void CalibrationWizard::buildFinishPage()
 
     auto* note = new QLabel(tr(
         "If unchecked, calibration frames are stored and will be applied "
-        "automatically during the next Data Reduction."), page);
+        "automatically the next time you run Data Reduction."), page);
     note->setWordWrap(true);
     note->setStyleSheet("color: #888; font-size: 10px;");
     lay->addWidget(note);

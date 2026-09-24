@@ -209,7 +209,7 @@ public:
         btnRow->addStretch();
 
         skipNote_ = makeNote(
-            QObject::tr("You can download it later via  Internet → Download MPCOrb."), this);
+            QObject::tr("You can download it later via  Internet → Download MPCOrb Database."), this);
 
         auto* vlay = new QVBoxLayout(this);
         vlay->setSpacing(10);

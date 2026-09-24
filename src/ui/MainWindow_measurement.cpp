@@ -506,8 +506,8 @@ void MainWindow::onUpdateMpcOrb()
     const QString mpcOrbPath = destDir + QStringLiteral("/MPCORB.DAT");
 
     if (!QFile::exists(mpcOrbPath)) {
-        QMessageBox::warning(this, tr("Update MPCOrb"),
-            tr("MPCORB.DAT not found.\nDownload it first via Internet → Download MPCOrb."));
+        QMessageBox::warning(this, tr("Update MPCOrb Database"),
+            tr("MPCORB.DAT not found.\nDownload it first via Internet → Download MPCOrb Database."));
         return;
     }
 

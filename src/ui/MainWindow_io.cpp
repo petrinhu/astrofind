@@ -1093,7 +1093,7 @@ void MainWindow::onReloadMpcOrb()
     const QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
                          + "/MPCORB.DAT";
     if (!QFile::exists(path)) {
-        logPanel_->appendWarning(tr("MPCORB.DAT not found. Use Internet → Download MPCOrb."));
+        logPanel_->appendWarning(tr("MPCORB.DAT not found. Use Internet → Download MPCOrb Database."));
         return;
     }
     const int n = core::countMpcOrbRecords(path);
