@@ -116,6 +116,7 @@ jobs:
             libcfitsio-dev \
             libfftw3-dev \
             libarchive-dev \
+            libraw-dev \
             libgl1-mesa-dev \
             libxkbcommon-dev
           echo ""

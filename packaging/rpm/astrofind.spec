@@ -27,6 +27,7 @@ BuildRequires:  cfitsio-devel
 BuildRequires:  fftw-devel
 BuildRequires:  eigen3-devel
 BuildRequires:  libarchive-devel
+BuildRequires:  LibRaw-devel
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  libxkbcommon-devel
 
@@ -39,6 +40,7 @@ Requires:       qtkeychain-qt6
 Requires:       cfitsio
 Requires:       fftw >= 3.3
 Requires:       libarchive >= 3.5
+Requires:       LibRaw
 Requires:       mesa-libGL
 Requires:       libxkbcommon
 

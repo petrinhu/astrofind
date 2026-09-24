@@ -44,6 +44,8 @@ add_library(astrofind_core STATIC
     FitsTableReader.h
     Spectrum1D.cpp
     Spectrum1D.h
+    PdsLoader.cpp
+    PdsLoader.h
 )
 
 target_include_directories(astrofind_core
@@ -66,6 +68,11 @@ target_link_libraries(astrofind_core
         fftw3::fftw3
         CCfits::CCfits
 )
+
+if(ASTROFIND_HAS_LIBRAW)
+    target_link_libraries(astrofind_core PUBLIC libraw::libraw)
+    target_compile_definitions(astrofind_core PUBLIC ASTROFIND_HAS_LIBRAW)
+endif()
 
 if(ASTROFIND_HAS_KEYCHAIN)
     target_link_libraries(astrofind_core PUBLIC Qt6Keychain::Qt6Keychain)

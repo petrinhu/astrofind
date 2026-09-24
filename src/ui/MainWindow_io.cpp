@@ -4,7 +4,10 @@
 #include "MainWindow_p.h"
 
 #include <sys/stat.h>
+#include <algorithm>
 #include <exception>
+
+#include <QSet>
 
 namespace {
 
@@ -24,6 +27,25 @@ bool isSafeRegularFile(const QString& path)
     return S_ISREG(st.st_mode);
 }
 
+// Item 21.2: a detached PDS3 product is two files (FOO.IMG + FOO.LBL) and
+// loadImage() on the .img already finds its .lbl. When both are in the list
+// the image would load twice, so the label is dropped. A .lbl selected on
+// its own is kept (it loads the image it points to).
+void dropRedundantPdsLabels(QStringList& paths)
+{
+    QSet<QString> images;
+    for (const QString& p : paths) {
+        const QFileInfo fi(p);
+        if (fi.suffix().compare(QLatin1String("img"), Qt::CaseInsensitive) == 0)
+            images.insert(fi.absoluteDir().filePath(fi.completeBaseName()).toLower());
+    }
+    paths.erase(std::remove_if(paths.begin(), paths.end(), [&](const QString& p) {
+        const QFileInfo fi(p);
+        return fi.suffix().compare(QLatin1String("lbl"), Qt::CaseInsensitive) == 0
+            && images.contains(fi.absoluteDir().filePath(fi.completeBaseName()).toLower());
+    }), paths.end());
+}
+
 } // namespace
 
 void MainWindow::onLoadImages()
@@ -34,10 +56,14 @@ void MainWindow::onLoadImages()
 
     const QStringList files = QFileDialog::getOpenFileNames(this,
         tr("Load Astronomical Images"), lastDir,
-        tr("Astronomical Images (*.fits *.fit *.fts *.ser *.xisf *.tiff *.tif *.png *.bmp *.jpg *.jpeg *.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
+        tr("Astronomical Images (*.fits *.fit *.fts *.ser *.xisf *.img *.lbl *.xml *.tiff *.tif *.png *.bmp *.jpg *.jpeg "
+           "*.cr2 *.cr3 *.crw *.nef *.nrw *.arw *.srf *.sr2 *.orf *.rw2 *.raf *.pef *.dng *.srw *.3fr *.erf *.kdc *.mrw *.x3f *.iiq *.mef *.mos *.rwl "
+           "*.zip *.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
            ";;FITS (*.fits *.fit *.fts)"
            ";;SER video (*.ser)"
            ";;XISF — PixInsight (*.xisf)"
+           ";;NASA PDS3 / PDS4 (*.img *.lbl *.xml)"
+           ";;DSLR RAW (*.cr2 *.cr3 *.crw *.nef *.nrw *.arw *.srf *.sr2 *.orf *.rw2 *.raf *.pef *.dng *.srw *.3fr *.erf *.kdc *.mrw *.x3f *.iiq *.mef *.mos *.rwl)"
            ";;TIFF / PNG / BMP / JPEG (*.tiff *.tif *.png *.bmp *.jpg *.jpeg)"
            ";;ZIP archives (*.zip)"
            ";;Compressed archives (*.tar.gz *.tgz *.tar.bz2 *.tbz2 *.tar.xz *.txz *.7z *.rar)"
@@ -61,6 +87,7 @@ void MainWindow::onLoadImages()
             expandedFiles.append(path);
         }
     }
+    dropRedundantPdsLabels(expandedFiles);
 
     const QString loadedDir = QFileInfo(files.first()).absolutePath();
     settings_.setValue("paths/lastImageDir", loadedDir);
@@ -1313,7 +1340,11 @@ void MainWindow::loadFromDir(const QString& dirPath)
         "*.ser", "*.SER",
         "*.xisf", "*.XISF",
         "*.tiff", "*.tif", "*.TIFF", "*.TIF",
-        "*.png", "*.PNG"
+        "*.png", "*.PNG",
+        "*.img", "*.IMG", "*.lbl", "*.LBL",
+        "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
+        "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
+        "*.pef", "*.PEF"
     };
     const QStringList fitsFiles = QDir(dirPath).entryList(kFitsFilters, QDir::Files, QDir::Name);
     if (fitsFiles.isEmpty()) {
@@ -1326,6 +1357,7 @@ void MainWindow::loadFromDir(const QString& dirPath)
     fullPaths.reserve(fitsFiles.size());
     for (const QString& f : fitsFiles)
         fullPaths.append(dirPath + QDir::separator() + f);
+    dropRedundantPdsLabels(fullPaths);
 
     if (!session_->isEmpty()) {
         const LoadChoice choice = askLoadChoice(session_->imageCount());
@@ -1440,7 +1472,9 @@ QStringList MainWindow::expandArchive(const QString& archivePath)
     // Image file extensions we want to extract
     static const QStringList kExts = {
         ".fits", ".fit", ".fts", ".ser", ".xisf",
-        ".tiff", ".tif", ".png"
+        ".tiff", ".tif", ".png",
+        ".img", ".lbl",
+        ".cr2", ".cr3", ".nef", ".arw", ".dng", ".raf", ".orf", ".rw2", ".pef"
     };
     auto isImageFile = [&](const char* name) -> bool {
         const QString n = QString::fromUtf8(name).toLower();
@@ -1558,6 +1592,10 @@ QStringList MainWindow::expandZip(const QString& zipPath)
         "*.xisf", "*.XISF",
         "*.tiff", "*.tif", "*.TIFF", "*.TIF",
         "*.png", "*.PNG",
+        "*.img", "*.IMG", "*.lbl", "*.LBL",
+        "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
+        "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
+        "*.pef", "*.PEF",
         "-d", extractDir
     });
 
@@ -1570,7 +1608,11 @@ QStringList MainWindow::expandZip(const QString& zipPath)
     QDirIterator it(extractDir,
                     {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
                      "*.ser", "*.SER", "*.xisf", "*.XISF",
-                     "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG"},
+                     "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG",
+                     "*.img", "*.IMG", "*.lbl", "*.LBL",
+                     "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
+                     "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
+                     "*.pef", "*.PEF"},
                     QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         const QString candidate = it.next();

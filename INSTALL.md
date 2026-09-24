@@ -211,6 +211,7 @@ sudo dnf install \
 sudo dnf install \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist \
     valgrind cppcheck clang-tools-extra
@@ -236,6 +237,7 @@ sudo dnf install \
 sudo dnf install \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist \
     valgrind cppcheck clang-tools-extra
@@ -273,6 +275,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -302,6 +305,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -333,6 +337,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -362,6 +367,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
@@ -398,6 +404,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -422,6 +429,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -452,6 +460,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -474,6 +483,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -504,6 +514,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -526,6 +537,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libqt6core5compat6-dev \
     libarchive-dev \
+    libraw-dev \
     libsecret-1-dev \
     qt6-l10n-tools
 ```
@@ -553,6 +565,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -575,6 +588,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -603,6 +617,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -623,6 +638,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     qt6-5compat \
     libarchive \
+    libraw \
     qtkeychain \
     qt6-tools \
     valgrind cppcheck clang
@@ -652,6 +668,7 @@ sudo zypper install -y \
 sudo zypper install -y \
     qt6-core5compat-devel \
     libarchive-devel \
+    libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist-devel \
     valgrind cppcheck clang-tools
@@ -675,6 +692,7 @@ sudo zypper install -y \
 sudo zypper install -y \
     qt6-core5compat-devel \
     libarchive-devel \
+    libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist-devel \
     valgrind cppcheck clang-tools
@@ -724,6 +742,7 @@ sudo dnf install -y \
 sudo dnf install -y \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     libsecret-devel \
     qt6-linguist
 ```
@@ -759,6 +778,7 @@ sudo dnf install -y \
 sudo dnf install -y \
     qt6-qt5compat-devel \
     libarchive-devel \
+    LibRaw-devel \
     libsecret-devel \
     qt6-linguist
 ```
@@ -773,6 +793,7 @@ sudo dnf install -y \
 |------------|---------|---------|
 | QuaZip / Qt6Core5Compat | ZIP archive extraction | see distro section above |
 | libarchive | TAR.GZ/BZ2/XZ, 7Z, RAR extraction | see distro section above |
+| LibRaw | DSLR RAW loading (CR2/CR3/NEF/ARW/DNG/...) | see distro section above (Rocky 9: CRB repo) |
 | Qt6Keychain | Secure API key storage (falls back to QSettings if absent) | see distro section above |
 | Qt6LinguistTools | Recompile `.ts` translation files after editing | see distro section above |
 | ASTAP | Offline plate solver ("plate solving": figuring out which patch of sky an image shows, by matching star patterns to a catalog) | download from [hnsky.org](https://www.hnsky.org/astap.htm) |
@@ -786,6 +807,7 @@ sudo dnf install -y \
 |------------|---------|---------|
 | QuaZip / Qt6Core5Compat | Extração de arquivos ZIP | ver seção da distro acima |
 | libarchive | Extração de TAR.GZ/BZ2/XZ, 7Z, RAR | ver seção da distro acima |
+| LibRaw | Leitura de RAW de DSLR (CR2/CR3/NEF/ARW/DNG/...) | ver seção da distro acima (Rocky 9: repositório CRB) |
 | Qt6Keychain | Armazenamento seguro de chave de API (cai para QSettings se ausente) | ver seção da distro acima |
 | Qt6LinguistTools | Recompilar arquivos de tradução `.ts` após edição | ver seção da distro acima |
 | ASTAP | Plate solver offline ("plate solving": descobrir qual pedaço do céu uma imagem mostra, casando o padrão de estrelas com um catálogo) | baixar em [hnsky.org](https://www.hnsky.org/astap.htm) |

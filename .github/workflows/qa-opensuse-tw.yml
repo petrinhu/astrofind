@@ -119,6 +119,7 @@ jobs:
             cfitsio-devel \
             fftw3-devel \
             libarchive-devel \
+            libraw-devel \
             Mesa-libGL-devel \
             libxkbcommon-devel
           echo ""

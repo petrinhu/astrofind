@@ -337,6 +337,7 @@ cfitsio, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json.
 |------------|---------|-------|
 | QuaZip + Qt6Core5Compat | LGPL-2.1 + static-linking exception | ZIP archive extraction |
 | libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction |
+| LibRaw | LGPL-2.1 / CDDL-1.0 | DSLR RAW loading (optional) |
 | Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations |
 | ASTAP | proprietary freeware | Offline plate solver ([hnsky.org](https://www.hnsky.org/astap.htm)) |
 | CCfits | NASA permissive | Bundled C++ wrapper around cfitsio |
@@ -367,6 +368,7 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 |-------------|---------|-------|
 | QuaZip + Qt6Core5Compat | LGPL-2.1 + exceção de linkagem estática | Extração de arquivos ZIP |
 | libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR |
+| LibRaw | LGPL-2.1 / CDDL-1.0 | Leitura de RAW de DSLR (opcional) |
 | Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts` |
 | ASTAP | freeware proprietário | Plate solver offline ([hnsky.org](https://www.hnsky.org/astap.htm)) |
 | CCfits | Permissiva NASA | Wrapper C++ do cfitsio, bundled |

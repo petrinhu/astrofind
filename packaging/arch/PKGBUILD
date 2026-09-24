@@ -16,6 +16,7 @@ depends=(
     'cfitsio'
     'fftw'
     'libarchive'
+    'libraw'
 )
 makedepends=(
     'cmake'

@@ -16,6 +16,7 @@ Requires:       qtkeychain-qt6
 Requires:       cfitsio
 Requires:       fftw >= 3.3
 Requires:       libarchive >= 3.5
+Requires:       LibRaw
 Requires:       mesa-libGL
 Requires:       libxkbcommon
 

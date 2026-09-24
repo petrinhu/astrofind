@@ -139,7 +139,8 @@ jobs:
             qt6-tools \
             cfitsio \
             fftw \
-            libarchive
+            libarchive \
+            libraw
           echo ""
           echo "── Installed package versions ──────────────────────────────────"
           echo -n "cmake:       "; cmake --version | head -1

@@ -418,8 +418,8 @@ kbd {
     <li><strong>SER</strong> — formato de vídeo planetário (monocromático e colorido)</li>
     <li><strong>XISF</strong> — formato nativo do PixInsight</li>
     <li><strong>TIFF / PNG</strong> — escala de cinza ou RGB de 8 e 16 bits</li>
-    <li><strong>RAW DSLR</strong> — CR2, NEF, ARW via libraw (dependência opcional)</li>
-    <li><strong>PDS / PDS4</strong> — formato planetário NASA (.img + .lbl)</li>
+    <li><strong>RAW DSLR</strong> — CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF e outros RAW de câmera via LibRaw (dependência opcional de compilação). Os dados ficam lineares (sem gama, sem balanço de branco); a detecção de estrelas usa a luminância por superpixel 2×2 do mosaico Bayer. O horário vem do relógio da câmera e é marcado como ambíguo — confira o fuso horário da câmera antes de reportar.</li>
+    <li><strong>PDS3 / PDS4</strong> — imagens do Planetary Data System da NASA: PDS3 <code>.img</code> com rótulo embutido ou <code>.lbl</code> separado, e rótulos PDS4 <code>.xml</code> (arrays de imagem 2-D; um rótulo que aponta para FITS abre o arquivo FITS). Imagens de missão raramente trazem solução de placa — resolva a placa antes de medir.</li>
     <li><strong>Arquivos compactados</strong> — ZIP, TAR.GZ, TAR.BZ2, TAR.XZ, 7Z, RAR: solte o arquivo, o AstroFind extrai e carrega todas as imagens</li>
   </ul>
 

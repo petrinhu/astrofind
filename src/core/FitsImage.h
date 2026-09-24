@@ -180,6 +180,11 @@ QVector<HduInfo> scanImageHdus(const QString& filePath);
 std::expected<QVector<FitsImage>, QString>
 loadFitsCube(const QString& filePath, int hduNumber = 1);
 
+/// Sanity ceiling shared by every image loader (FITS, PDS, RAW, ...): rejects
+/// non-positive or oversized dimensions and a declared pixel count larger than
+/// the file on disk. Returns false and fills `err` when the image must be refused.
+bool validateLoaderDims(long w, long h, long depth, const QString& filePath, QString& err);
+
 /// Compute display stretch using sigma-clipping. Fills displayMin/displayMax.
 void computeAutoStretch(FitsImage& img, float sigmaLow = 2.0f, float sigmaHigh = 6.0f);
 

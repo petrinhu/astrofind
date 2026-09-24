@@ -16,7 +16,8 @@ Depends: libqt6core6t64 (>= 6.4) | libqt6core6 (>= 6.4),
  libqt6keychain1,
  libcfitsio10t64 | libcfitsio10 | libcfitsio9,
  libfftw3-double3,
- libarchive13t64 | libarchive13
+ libarchive13t64 | libarchive13,
+ libraw23t64 | libraw23 | libraw20
 Description: Modern asteroid detection software for citizen science
  AstroFind is asteroid detection software for citizen science and
  educational use. Compatible with the IASC / MPC workflow.
