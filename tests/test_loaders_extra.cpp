@@ -149,7 +149,21 @@ QByteArray pngChunk(const QByteArray& type, const QByteArray& payload)
 }
 
 /// Valid PNG signature + IHDR (correct CRC) declaring w x h 8-bit grayscale,
-/// then IEND with NO image data: a header that lies about a huge image.
+/// a single tiny (bogus, non-decodable) IDAT chunk, then IEND: a header that
+/// lies about a huge image without actually carrying huge pixel data.
+///
+/// The IDAT chunk is required for QImageReader::size() to succeed at all on
+/// this libpng: verified by probe (2026-09-24) that libpng's png_read_info()
+/// treats "IHDR directly followed by IEND, no IDAT" as a structural error
+/// ("libpng error: IEND: out of place") and QImageReader::size() then returns
+/// an invalid QSize -- so ImageLoader.cpp's pre-decode declared-size ceiling
+/// (the thing this test exists to exercise) never gets a size to check
+/// against, and the file falls through to reader.read(), which fails with
+/// the generic "Cannot load image" message instead of "too large". Adding one
+/// IDAT chunk, even with garbage payload that is not a valid deflate stream,
+/// makes png_read_info() complete and QImageReader::size() report the IHDR
+/// dimensions correctly (100000 x 100000) before any pixel decoding is
+/// attempted -- which is exactly the moment ImageLoader.cpp's ceiling fires.
 QByteArray pngHeaderOnly(uint32_t w, uint32_t h)
 {
     QByteArray ihdr;
@@ -160,7 +174,9 @@ QByteArray pngHeaderOnly(uint32_t w, uint32_t h)
     ihdr.append('\x00');   // compression
     ihdr.append('\x00');   // filter
     ihdr.append('\x00');   // interlace
-    return QByteArray("\x89PNG\r\n\x1a\n", 8) + pngChunk("IHDR", ihdr) + pngChunk("IEND", {});
+    const QByteArray idatPayload(8, '\0');   // not a valid deflate stream on purpose
+    return QByteArray("\x89PNG\r\n\x1a\n", 8) + pngChunk("IHDR", ihdr)
+         + pngChunk("IDAT", idatPayload) + pngChunk("IEND", {});
 }
 
 /// Deterministic 16-bit test value for pixel (x, y).
