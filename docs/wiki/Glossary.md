@@ -516,13 +516,13 @@ medido com um **dark frame** e subtraído.
 🇬🇧 **English**
 An exposure taken with the telescope covered, with the same exposure time and temperature as the
 images. It records dark current, bias and hot pixels, which AstroFind subtracts. Load it with
-**File → Load Dark Frame…**. It must be a FITS file with the same size as the images; otherwise
+**File → Use Dark Frame for Calibration…**. It must be a FITS file with the same size as the images; otherwise
 the log says "Image …: dark frame size mismatch — skipped".
 
 🇧🇷 **Português**
 Uma exposição feita com o telescópio tampado, com o mesmo tempo de exposição e temperatura das
 imagens. Ela registra a corrente de escuro, o bias e os hot pixels, que o AstroFind subtrai.
-Carregue em **Arquivo → Carregar Dark Frame…**. Precisa ser um arquivo FITS com o mesmo tamanho
+Carregue em **Arquivo → Usar Dark de Calibração…**. Precisa ser um arquivo FITS com o mesmo tamanho
 das imagens; senão o log diz "Imagem …: tamanho do dark frame incompatível — ignorado".
 
 ---
@@ -742,14 +742,14 @@ Extensões: `.fits`, `.fit`, `.fts`.
 🇬🇧 **English**
 A calibration exposure of an evenly lit target (twilight sky or a light panel). It measures and
 corrects differences in pixel sensitivity, vignetting (darker image corners) and dust shadows.
-AstroFind divides the images by it. Load it with **File → Load Flat Field…** (FITS, same size as
+AstroFind divides the images by it. Load it with **File → Use Flat Field for Calibration…** (FITS, same size as
 the images).
 
 🇧🇷 **Português**
 Uma exposição de calibração de um alvo iluminado por igual (céu do crepúsculo ou painel de luz).
 Ela mede e corrige diferenças de sensibilidade entre pixels, vinhetagem (cantos mais escuros) e
-sombras de poeira. O AstroFind divide as imagens por ela. Carregue em **Arquivo → Carregar Flat
-Field…** (FITS, mesmo tamanho das imagens).
+sombras de poeira. O AstroFind divide as imagens por ela. Carregue em **Arquivo → Usar Flat de
+Calibração…** (FITS, mesmo tamanho das imagens).
 
 ---
 
@@ -1041,12 +1041,12 @@ AstroFind: **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`; na 1.1.0 e anter
 🇬🇧 **English**
 A recipe that turns each brightness value into a colour, used to show grey data in "false
 colour" (Hot, Cool, Viridis) so faint detail is easier to see. It changes only the display. In
-AstroFind: "Cor falsa (LUT):" in **Image Tools → Background and Range…**.
+AstroFind: "Cor falsa (LUT):" in **Image Tools → Adjust Black Point and Contrast…**.
 
 🇧🇷 **Português**
 Uma receita que transforma cada valor de brilho numa cor, usada para mostrar dados cinza em "cor
 falsa" (Quente, Frio, Viridis) e facilitar ver detalhes fracos. Muda só a visualização. No
-AstroFind: "Cor falsa (LUT):" em **Imagens → Fundo e Intervalo…**.
+AstroFind: "Cor falsa (LUT):" em **Imagens → Ajustar Ponto Preto e Contraste…**.
 
 ---
 
@@ -1547,13 +1547,13 @@ desenha os traços como elipses laranja.
 
 🇬🇧 **English**
 The rule that maps pixel values to screen brightness. Choosing a good stretch makes faint stars
-visible. In **Image Tools → Background and Range…** AstroFind offers "Linear", "Logarítmica", "Raiz
+visible. In **Image Tools → Adjust Black Point and Contrast…** AstroFind offers "Linear", "Logarítmica", "Raiz
 Quadrada (Sqrt)", "Asinh" and "Equalização de Histograma", plus the "⟳ Auto" button. It changes
 only the display.
 
 🇧🇷 **Português**
 A regra que transforma os valores dos pixels em brilho na tela. Um bom esticamento torna visíveis
-as estrelas fracas. Em **Imagens → Fundo e Intervalo…** o AstroFind oferece "Linear",
+as estrelas fracas. Em **Imagens → Ajustar Ponto Preto e Contraste…** o AstroFind oferece "Linear",
 "Logarítmica", "Raiz Quadrada (Sqrt)", "Asinh" e "Equalização de Histograma", mais o botão
 "⟳ Auto". Muda só a visualização.
 

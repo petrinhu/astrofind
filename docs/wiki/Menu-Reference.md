@@ -99,11 +99,11 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 | Save all FITS | Salvar todos como FITS | — | Asks for a folder and writes a copy of every image as `<name>_wcs.fits`, with the plate solution (WCS) written in when the image is solved. | Pede uma pasta e grava uma cópia de cada imagem como `<nome>_wcs.fits`, com a solução de placa (WCS) gravada quando a imagem foi resolvida. | 🟡 |
 | Save FITS Copy... | Salvar Cópia em FITS... | — | Same, for the active image only. | O mesmo, só para a imagem ativa. | 🟡 |
 | Export Image As... ▸ | Exportar Imagem Como... ▸ | — | Submenu: **JPEG / PNG / BMP…**, **JPEG (quick)…** (PT **JPEG (rápido)…**), **PNG…**. Saves the active image as you see it on screen (a picture, not science data). | Submenu: **JPEG / PNG / BMP…**, **JPEG (rápido)…**, **PNG…**. Salva a imagem ativa como aparece na tela (uma figura, não dado científico). | 🟢 |
-| Load Dark Frame... | Carregar Dark Frame... | — | Loads a FITS dark frame (a picture taken with the telescope covered, to remove camera noise) and shows the Calibration panel. | Carrega um dark frame FITS (foto com o telescópio tampado, para tirar o ruído da câmera) e mostra o painel Calibração. | 🟡 |
-| Load Flat Field... | Carregar Flat Field... | — | Loads a FITS flat field (a picture of an evenly lit surface, to correct vignetting and dust) and shows the Calibration panel. | Carrega um flat field FITS (foto de uma superfície iluminada por igual, para corrigir vinheta e poeira) e mostra o painel Calibração. | 🟡 |
+| Use Dark Frame for Calibration… | Usar Dark de Calibração | — | Loads a FITS dark frame (a picture taken with the telescope covered, to remove camera noise) and shows the Calibration panel. | Carrega um dark frame FITS (foto com o telescópio tampado, para tirar o ruído da câmera) e mostra o painel Calibração. | 🟡 |
+| Use Flat Field for Calibration… | Usar Flat de Calibração | — | Loads a FITS flat field (a picture of an evenly lit surface, to correct vignetting and dust) and shows the Calibration panel. | Carrega um flat field FITS (foto de uma superfície iluminada por igual, para corrigir vinheta e poeira) e mostra o painel Calibração. | 🟡 |
 | Calibration Wizard… | Assistente de Calibração… | — | Step-by-step window to choose a dark and a flat and apply them. | Janela passo a passo para escolher dark e flat e aplicá-los. | 🟡 |
 | View ADES Report File | Ver Arquivo de Relatório ADES | — | Opens the ADES 2022 report preview (the format the Minor Planet Center accepts), where you can save, export PDF or submit. With no measurements it says "No observations yet". If a report folder is set in Settings, it first auto-saves `ades_report.xml` and `ades_report.psv` there. | Abre a pré-visualização do relatório ADES 2022 (o formato aceito pelo Minor Planet Center), onde você salva, exporta PDF ou envia. Sem medições mostra "No observations yet". Se houver pasta de relatórios em Configurações, antes salva `ades_report.xml` e `ades_report.psv` lá. | 🟢 |
-| View Photometry File | Ver Arquivo de Fotometria | — | **Does not open a file.** It only shows the Observations panel. | **Não abre arquivo.** Só mostra o painel Observações. | 🟢 |
+| Show Photometry Results | Mostrar Resultados de Fotometria | — | **Does not open a file.** It only shows the Observations panel. | **Não abre arquivo.** Só mostra o painel Observações. | 🟢 |
 | View Log File | Ver Arquivo de Log | — | **Does not open a file.** It only shows the Log panel. | **Não abre arquivo.** Só mostra o painel Registro (Log). | 🟢 |
 | Reset Session Files | Limpar Arquivos da Sessão | `Ctrl+R` | Closes all images and clears the session. **Does not ask to save.** | Fecha todas as imagens e limpa a sessão. **Não pergunta se quer salvar.** | 🟢 |
 | Fechar Imagens (PT in both languages) | Fechar Imagens | `Ctrl+W` | Exactly the same as Reset Session Files. **Does not ask to save.** | Exatamente o mesmo que Limpar Arquivos da Sessão. **Não pergunta se quer salvar.** | 🟢 |
@@ -194,12 +194,12 @@ tela e informações sobre ela. Nada disso altera seus arquivos originais.
 |---|---|---|---|---|---|
 | Edit Image Settings... | Editar Configurações da Imagem... | — | Edit the active image's object name, filter, observer, telescope, RA/Dec, Julian Date, exposure, plate scale ("/px), gain and saturation. | Edita da imagem ativa: nome do objeto, filtro, observador, telescópio, AR/Dec, Data Juliana, exposição, escala ("/px), ganho e saturação. | 🟡 |
 | View FITS Header... | Ver Cabeçalho FITS... | — | Shows the FITS header (the text block of information stored in the file). Does nothing for files that are not FITS. | Mostra o cabeçalho FITS (o bloco de texto com informações guardado no arquivo). Não faz nada em arquivos que não são FITS. | 🟡 |
-| Background and Range... | Fundo e Intervalo... | — | Adjusts brightness and contrast: black level, white level, transfer function (Linear, Logarítmica, Raiz Quadrada, Asinh, Equalização de Histograma) and false colour. Has an **⟳ Auto** button. | Ajusta brilho e contraste: nível de preto, nível de branco, função de transferência (Linear, Logarítmica, Raiz Quadrada, Asinh, Equalização de Histograma) e cor falsa. Tem botão **⟳ Auto**. | 🟢 |
+| Adjust Black Point and Contrast… | Ajustar Ponto Preto e Contraste… | — | Adjusts brightness and contrast: black level, white level, transfer function (Linear, Logarítmica, Raiz Quadrada, Asinh, Equalização de Histograma) and false colour. Has an **⟳ Auto** button. | Ajusta brilho e contraste: nível de preto, nível de branco, função de transferência (Linear, Logarítmica, Raiz Quadrada, Asinh, Equalização de Histograma) e cor falsa. Tem botão **⟳ Auto**. | 🟢 |
 | Rebuild Stack | Reconstruir Empilhamento | — | Aligns all images on the stars and combines them (Average / Median / Add). Opens `stacked.fits`. | Alinha todas as imagens pelas estrelas e combina (Média / Mediana / Soma). Abre `stacked.fits`. | 🟡 |
 | Zoom In | Ampliar Mais | `Ctrl++`, `+`, `=` | Zooms in. | Aproxima. | 🟢 |
 | Zoom Out | Ampliar Menos | `Ctrl+-`, `-` | Zooms out. | Afasta. | 🟢 |
 | Fit to Window | Ajustar à Janela | `Ctrl+F`, `0` | Fits the whole image in its window. | Encaixa a imagem inteira na janela. | 🟢 |
-| Select Markings... | Selecionar Marcações... | — | Choose which overlays to show: detected stars, catalog stars, known objects, labels. | Escolhe quais marcas mostrar: estrelas detectadas, estrelas de catálogo, objetos conhecidos, rótulos. | 🟢 |
+| Choose Marker Display… | Escolher Exibição de Marcadores… | — | Choose which overlays to show: detected stars, catalog stars, known objects, labels. | Escolhe quais marcas mostrar: estrelas detectadas, estrelas de catálogo, objetos conhecidos, rótulos. | 🟢 |
 | Invert Colors | Inverter Cores | `Ctrl+I` | On/off. Shows black stars on a white sky. | Liga/desliga. Mostra estrelas pretas em céu branco. | 🟢 |
 | Flip Horizontal | Espelhar na Horizontal | — | Mirrors the view left–right. | Espelha a visão esquerda–direita. | 🟢 |
 | Flip Vertical | Espelhar na Vertical | — | Mirrors the view top–bottom. | Espelha a visão cima–baixo. | 🟢 |
@@ -220,7 +220,7 @@ análise.
 | EN label | PT label | Shortcut | What it does | O que faz | Level |
 |---|---|---|---|---|---|
 | Begin Blink Mode | Ativar Modo de Piscagem | `Ctrl+B` | Opens the Blink View: shows the images one after the other so a moving object "jumps". Needs 2 or more images. See [Blink view](#blink-view--visão-de-piscar). | Abre a Visão de piscar: mostra as imagens uma após a outra para um objeto em movimento "pular". Precisa de 2 ou mais imagens. | 🟢 |
-| Stop Blinking | Parar Piscar | `Ctrl+F9` | Closes the Blink View. | Fecha a Visão de piscar. | 🟢 |
+| End Blink Mode | Encerrar Modo de Piscagem | `Ctrl+F9` | Closes the Blink View. | Fecha a Visão de piscar. | 🟢 |
 | Show Known Objects | Mostrar Objetos Conhecidos | `Ctrl+K` | Downloads reference stars (UCAC4 or Gaia DR3 from VizieR, or a local file) and the known asteroids/comets in the field (SkyBoT, or offline `MPCORB.DAT`), and marks them on the images. | Baixa estrelas de referência (UCAC4 ou Gaia DR3 do VizieR, ou arquivo local) e os asteroides/cometas conhecidos no campo (SkyBoT, ou `MPCORB.DAT` offline) e marca nas imagens. | 🟢 |
 | Ecliptic / Galactic Overlay | Sobreposição Eclíptica / Galáctica | `Ctrl+E` | On/off. Draws the ecliptic (the Sun's path, where most asteroids are; label "Eclíptica") and the Milky Way plane (label "Via Láctea"). Warns when the field is near the galactic plane (many stars, more dust). | Liga/desliga. Desenha a eclíptica (caminho do Sol, onde ficam a maioria dos asteroides; rótulo "Eclíptica") e o plano da Via Láctea (rótulo "Via Láctea"). Avisa quando o campo está perto do plano galáctico (muitas estrelas, mais poeira). | 🟡 |
 | Light Curve… | Curva de Luz… | `Ctrl+Shift+L` | Plots magnitude against time for your measurements. Can export PNG. | Faz o gráfico de magnitude contra tempo das suas medições. Exporta PNG. | 🟡 |
@@ -266,8 +266,8 @@ cores e mostrar/esconder barras e painéis.
 | Tile All Windows | Organizar Todas em Grade | — | Arranges the image windows side by side. | Organiza as janelas de imagem lado a lado. | 🟢 |
 | Cascade All Windows | Cascata de Todas as Janelas | — | Stacks them diagonally. | Empilha na diagonal. | 🟢 |
 | Auto-Arrange Windows | Organizar Automaticamente | — | Restores minimized/maximized windows and fits each image. | Restaura janelas minimizadas/maximizadas e encaixa cada imagem. | 🟢 |
-| Close all Images | Fechar todas as Imagens | — | Same as **File → Reset Session Files**: clears the session **without asking**. | Igual a **Arquivo → Limpar Arquivos da Sessão**: limpa a sessão **sem perguntar**. | 🟢 |
-| Close all Windows | Fechar todas as Janelas | — | Closes the image windows but keeps the session. | Fecha as janelas de imagem mas mantém a sessão. | 🟢 |
+| Close Every Open Image | Fechar Todas as Imagens Abertas | — | Same as **File → Reset Session Files**: clears the session **without asking**. | Igual a **Arquivo → Limpar Arquivos da Sessão**: limpa a sessão **sem perguntar**. | 🟢 |
+| Close Every Window | Fechar Todas as Janelas | — | Closes the image windows but keeps the session. | Fecha as janelas de imagem mas mantém a sessão. | 🟢 |
 | Toggle Day/Night Mode | Alternar modo Dia/Noite | — (`Ctrl+Shift+T` via the toolbar theme button) | Cycles the colour theme: Night → Day → Auto → Night. The menu item shows no shortcut; `Ctrl+Shift+T` belongs to the theme button of the Standard toolbar and does the same. | Alterna o tema de cores: Noite → Dia → Automático → Noite. O item de menu não mostra atalho; o `Ctrl+Shift+T` é do botão de tema da barra Padrão e faz o mesmo. | 🟢 |
 | Show Main Toolbar | Mostrar barra de ferramentas principal | — | Shows/hides that toolbar. | Mostra/esconde essa barra. | 🟢 |
 | Show Display Toolbar | Mostrar barra de exibição | — | Shows/hides that toolbar. | Mostra/esconde essa barra. | 🟢 |
@@ -385,22 +385,22 @@ tabela Observações, o Registro e o Catálogo de Imagem **não** têm menu de c
 | 1 | Settings (Ctrl+,) | Configurações (Ctrl+,) | Opens [Settings](https://github.com/petrinhu/astrofind/wiki/Settings). |
 | 2 | Night Mode — click to switch to Day (Ctrl+Shift+T) · Day Mode — click to switch to Auto · Auto Mode — click to switch to Night | Modo Noturno — clique para mudar para Diurno · Modo Diurno — clique para mudar para Auto · Modo Auto — clique para mudar para Noturno | Theme button. The icon (moon / sun / auto) shows the **current** theme. |
 | 3 | Import Images (Ctrl+L) | Importar Imagens (Ctrl+L) | File → Import Images... |
-| 4 | Load dark frame for calibration | Carregar dark frame para calibração | File → Load Dark Frame... |
-| 5 | Load flat field for calibration | Carregar flat field para calibração | File → Load Flat Field... |
+| 4 | Use this dark frame for calibration | Usar este dark para calibração | File → Use Dark Frame for Calibration… |
+| 5 | Use this flat field for calibration | Usar este flat para calibração | File → Use Flat Field for Calibration… |
 | 6 | Run Data Reduction (Ctrl+A) | Executar Redução de Dados (Ctrl+A) | Astrometry Tools → Run Data Reduction... |
 | 7 | Detect Moving Objects (Ctrl+M) | Detectar Objetos em Movimento (Ctrl+M) | Astrometry Tools → Detect Moving Objects... |
 | 8 | Stack Images (Ctrl+T) | Empilhar Imagens (Ctrl+T) | Astrometry Tools → Stack Images... |
 | 9 | **Measure Object** — Click on a moving object to measure its position and magnitude (M) | **Medir Objeto** — Clique em um objeto em movimento para medir sua posição e magnitude (M) | On/off (`M`). On = Aperture Tool, the button turns orange. Off = Select Tool. |
 | 10 | View ADES Report | Ver Relatório ADES | File → View ADES Report File |
-| 11 | Close all image windows | Fechar todas as janelas de imagem | Clears the session (like Reset Session Files). |
-| 12 | Close all windows | Fechar todas as janelas | Window → Close all Windows |
+| 11 | Close every open image window | Fechar todas as janelas de imagem abertas | Clears the session (like Reset Session Files). |
+| 12 | Close every window | Fechar todas as janelas | Window → Close Every Window |
 
 ### Display / Exibição
 
 | # | Tooltip EN | Tooltip PT | Does |
 |---|---|---|---|
-| 1 | Adjust background and display range | Ajustar fundo e intervalo de exibição | Image Tools → Background and Range... |
-| 2 | Select markings | Selecionar marcações | Image Tools → Select Markings... |
+| 1 | Adjust the black point and contrast stretch | Ajustar o ponto preto e o contraste da exibição | Image Tools → Adjust Black Point and Contrast… |
+| 2 | Choose which markers are shown | Escolher quais marcadores são exibidos | Image Tools → Choose Marker Display… |
 | 3 | Invert display (Ctrl+I) | Inverter exibição (Ctrl+I) | Image Tools → Invert Colors |
 | 4 | Show Known Objects (Ctrl+K) | Mostrar objetos conhecidos (Ctrl+K) | Utilities → Show Known Objects |
 | 5 | Zoom In | Ampliar | Zoom in |
@@ -413,7 +413,7 @@ tabela Observações, o Registro e o Catálogo de Imagem **não** têm menu de c
 |---|---|---|---|
 | 1 | Begin Blink Mode (Ctrl+B) | Ativar Modo de Piscagem (Ctrl+B) | Utilities → Begin Blink Mode |
 | 2 | Blink interval (tenths of a second) | Intervalo de piscar (décimos de segundo) | Number box 1–9, shown as "×0.1s" ("×0,1s"): 3 = 0.3 s per image. |
-| 3 | Stop Blinking (Ctrl+F9) | Parar Piscar (Ctrl+F9) | Utilities → Stop Blinking |
+| 3 | End Blink Mode (Ctrl+F9) | Encerrar Modo de Piscagem (Ctrl+F9) | Utilities → End Blink Mode |
 | 4 | Step to previous image (Shift+Ctrl+F10) | Ir para imagem anterior (Shift+Ctrl+F10) | Previous image |
 | 5 | Step to next image (Ctrl+F10) | Ir para próxima imagem (Ctrl+F10) | Next image |
 | 6 | Start blink playback (Ctrl+F11) | Iniciar reprodução de piscar (Ctrl+F11) | Play |
@@ -616,7 +616,7 @@ foco do teclado (clique nela antes).
 | `Ctrl+C` | Copy Image | Copiar Imagem | Edit menu |
 | `Ctrl+E` | Ecliptic / Galactic Overlay | Sobreposição Eclíptica / Galáctica | Utilities menu |
 | `Ctrl+F` | Fit to Window | Ajustar à Janela | Image Tools menu |
-| `Ctrl+F9` | Stop Blinking | Parar Piscar | Utilities menu |
+| `Ctrl+F9` | End Blink Mode | Encerrar Modo de Piscagem | Utilities menu |
 | `Ctrl+F10` | Step to next image | Próxima imagem | Blink toolbar |
 | `Ctrl+F11` | Start blink playback | Iniciar piscar | Blink toolbar |
 | `Ctrl+G` | Magnifier Tool | Ferramenta Lupa | Image Tools menu |

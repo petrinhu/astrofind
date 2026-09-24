@@ -246,8 +246,8 @@ chips such as "✓ Escala …\"/px", "✓ WCS pré-resolvido", "✓ Data/hora UT
 "✓ Localização …", or "⚠" chips with a button that opens Settings. A notice "Imagens
 carregadas" says whether the images are black-and-white or colour.
 
-- If the image looks black, that is only the display: use **Image Tools → Background and Range...**
-  / **Imagens → Fundo e Intervalo...** (⟳ Auto, transfer function, false colour). This does not
+- If the image looks black, that is only the display: use **Image Tools → Adjust Black Point and Contrast…**
+  / **Imagens → Ajustar Ponto Preto e Contraste...** (⟳ Auto, transfer function, false colour). This does not
   change the data.
 - The session holds up to **20 images**. The limit message says to raise it in Settings, but
   there is no such field.
@@ -282,8 +282,8 @@ acima das imagens mostra etiquetas como "✓ Escala …\"/px", "✓ WCS pré-res
 Configurações. Um aviso "Imagens carregadas" informa se as imagens são preto e branco ou
 coloridas.
 
-- Se a imagem parecer preta, é só a exibição: use **Imagens → Fundo e Intervalo...** /
-  **Ferramentas de Imagem → Background and Range...** (⟳ Auto, função de transferência, cor falsa). Isso não
+- Se a imagem parecer preta, é só a exibição: use **Imagens → Ajustar Ponto Preto e Contraste...** /
+  **Ferramentas de Imagem → Adjust Black Point and Contrast…** (⟳ Auto, função de transferência, cor falsa). Isso não
   altera os dados.
 - A sessão aceita até **20 imagens**. A mensagem de limite manda aumentar nas Configurações, mas
   esse campo não existe.
@@ -333,8 +333,8 @@ Calibration removes the camera's own signature from your images (see [Glossary](
 1. Build masters (optional): in the **Calibration** dock, click **Build Master…** /
    **Construir Master…** in the *Dark Frame* group, **Add Files…** (at least 2), choose
    *Average* or *Median*, then **Build Master**. Repeat in the *Flat Field* group.
-2. Or load ready masters: **File → Load Dark Frame...** / **Arquivo → Carregar Dark Frame...**
-   and **File → Load Flat Field...** / **Arquivo → Carregar Flat Field...**. Or use the guided
+2. Or load ready masters: **File → Use Dark Frame for Calibration…** / **Arquivo → Usar Dark de Calibração...**
+   and **File → Use Flat Field for Calibration…** / **Arquivo → Usar Flat de Calibração...**. Or use the guided
    **File → Calibration Wizard…** / **Arquivo → Assistente de Calibração…**.
 3. Apply: **Apply to All Images** / **Aplicar a Todas as Imagens** in the dock, or right-click one
    image → **Apply Dark Frame…** / **Apply Flat Field…**. If you skip this, the frames are
@@ -377,8 +377,8 @@ A calibração tira da imagem a "assinatura" da própria câmera (veja o [Gloss�
 1. Monte masters (opcional): no painel **Calibração**, clique em **Construir Master…** /
    **Build Master…** no grupo *Dark Frame*, **Add Files…** (pelo menos 2), escolha *Average*
    (média) ou *Median* (mediana) e depois **Build Master**. Repita no grupo *Flat Field*.
-2. Ou carregue masters prontos: **Arquivo → Carregar Dark Frame...** / **File → Load Dark
-   Frame...** e **Arquivo → Carregar Flat Field...** / **File → Load Flat Field...**. Ou use o
+2. Ou carregue masters prontos: **Arquivo → Usar Dark de Calibração...** / **File → Use Dark
+   Frame for Calibration…** e **Arquivo → Usar Flat de Calibração...** / **File → Use Flat Field for Calibration…**. Ou use o
    guia **Arquivo → Assistente de Calibração…** / **File → Calibration Wizard…**.
 3. Aplique: **Aplicar a Todas as Imagens** / **Apply to All Images** no painel, ou clique com o
    botão direito numa imagem → **Aplicar Dark Frame…** / **Aplicar Flat Field…**. Se você pular
@@ -578,7 +578,7 @@ Guia" e "Asteroide Conhecido".
 2. Keys in the blink view: `Space` play/pause, `←`/`→` previous/next, `Esc` stop. The
    **Speed** slider sets 50–2000 ms per frame.
 3. For faint objects click **Sharpen: Off** to cycle *USM* (unsharp mask) → *LoG* (Laplacian).
-4. Stop with **Utilities → Stop Blinking** (`Ctrl+F9`).
+4. Stop with **Utilities → End Blink Mode** (`Ctrl+F9`).
 
 **Automatic Moving Object Detection (MOD):** **Astrometry Tools → Detect Moving Objects...**
 (`Ctrl+M`) / **Astrometria → Detecção de Objetos em Movimento...**. It links detections that
@@ -603,7 +603,7 @@ measure and report it: known objects need observations too.
    **Speed** ajusta de 50 a 2000 ms por quadro.
 3. Para objetos fracos clique em **Nitidez: Desativado** para alternar *USM* (máscara de
    nitidez) → *LoG* (Laplaciano).
-4. Pare com **Ferramentas → Parar Piscar** (`Ctrl+F9`).
+4. Pare com **Ferramentas → Encerrar Modo de Piscagem** (`Ctrl+F9`).
 
 **Detecção automática de objetos em movimento (MOD):** **Astrometria → Detecção de Objetos em
 Movimento...** (`Ctrl+M`) / **Astrometry Tools → Detect Moving Objects...**. Ela liga detecções que

@@ -397,9 +397,9 @@ imagem. Se o número é 0 ou muito pequeno:
 
 | Problem | Cause | Fix |
 |---|---|---|
-| Almost black image | Normal: the screen cannot show the full brightness range. | **Image Tools → Background and Range…** → **"⟳ Auto"**; try the "Asinh" or "Raiz Quadrada (Sqrt)" transfer function. |
+| Almost black image | Normal: the screen cannot show the full brightness range. | **Image Tools → Adjust Black Point and Contrast…** → **"⟳ Auto"**; try the "Asinh" or "Raiz Quadrada (Sqrt)" transfer function. |
 | Almost white image | **Invert Colors** is on, or the range is set too low. | Turn off **Image Tools → Invert Colors** (`Ctrl+I`); click "⟳ Auto". |
-| Only some images look right | The display settings were applied to one image. | Tick "Apply to all images in session" in Background and Range. |
+| Only some images look right | The display settings were applied to one image. | Tick "Apply to all images in session" in Adjust Black Point and Contrast. |
 | Magenta pixels | Those pixels have no value (NaN) in the file, for example outside the camera's area. | Nothing to fix; they are ignored. |
 | Strange colours | A false-colour palette is active. | Set "Cor falsa (LUT):" to "Cinza (Grayscale)". |
 

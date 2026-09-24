@@ -508,7 +508,7 @@ vazio: o relatório usa `XXX`, o marcador do MPC para "ainda sem código".
 This is normal and your data is fine. Astronomical images hold a much larger range of brightness
 than a screen can show, so most of the picture looks dark. To see more:
 
-1. Open **Image Tools → Background and Range…**.
+1. Open **Image Tools → Adjust Black Point and Contrast…**.
 2. Click **"⟳ Auto"**.
 3. If it is still dark, change "Função de transferência:" to "Raiz Quadrada (Sqrt)", "Asinh"
    or "Equalização de Histograma" (these labels are in Portuguese in both languages).
@@ -737,7 +737,7 @@ O AstroFind só escreve o formato **ADES** (XML e PSV). Detalhes: [Manual](https
 
 | Symptom | Likely cause / fix |
 |---|---|
-| Image is all black or all white | Adjust the view in **Image Tools → Background and Range…**, or turn off **Invert Colors** (`Ctrl+I`) |
+| Image is all black or all white | Adjust the view in **Image Tools → Adjust Black Point and Contrast…**, or turn off **Invert Colors** (`Ctrl+I`) |
 | Clicking the image measures nothing | The **Select** tool (`S`) is active. Press `M` or `A` first |
 | Log says "Centroid failed — no source found at click position" | Click closer to the centre of the dot, or zoom in first |
 | **View ADES Report File** is greyed out | Run **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`) first |

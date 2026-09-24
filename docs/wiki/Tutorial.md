@@ -204,8 +204,8 @@ reloaded from disk (or re-extracted from their archive).
 - **File → Close Project** / **Arquivo → Fechar Projeto**: offers to save, then clears everything.
 
 > 🇬🇧 ⚠️ **Watch out:** **File → Reset Session Files** (`Ctrl+R`), **File → Fechar Imagens** (`Ctrl+W`)
-> and **Window → Close all Images** clear the whole session **without asking to save**.
-> **Window → Close all Windows** only closes the windows and keeps the session.
+> and **Window → Close Every Open Image** clear the whole session **without asking to save**.
+> **Window → Close Every Window** only closes the windows and keeps the session.
 
 🇧🇷 **Português**
 **O que é:** um arquivo de projeto `.gus` guarda sua sessão: caminhos das imagens, soluções de
@@ -221,8 +221,8 @@ guardados**; as imagens são recarregadas do disco (ou extraídas de novo do com
 - **Arquivo → Fechar Projeto**: oferece salvar e depois limpa tudo.
 
 > 🇧🇷 ⚠️ **Atenção:** **Arquivo → Resetar Arquivos** (`Ctrl+R`), **Arquivo → Fechar Imagens**
-> (`Ctrl+W`) e **Janelas → Fechar todas as Imagens** limpam a sessão inteira **sem perguntar se
-> quer salvar**. **Janelas → Fechar todas as Janelas** só fecha as janelas e mantém a sessão.
+> (`Ctrl+W`) e **Janelas → Fechar Todas as Imagens Abertas** limpam a sessão inteira **sem perguntar se
+> quer salvar**. **Janelas → Fechar Todas as Janelas** só fecha as janelas e mantém a sessão.
 
 ---
 
@@ -306,7 +306,7 @@ faltando) antes de medir.
 used; a **LUT** (look-up table) paints brightness with colours.
 **What it's for:** making faint stars and asteroids visible. It never changes the data used for
 measurement.
-**How to do it:** **Image Tools → Background and Range...** / **Ferramentas de Imagem → Fundo e Intervalo...** (or
+**How to do it:** **Image Tools → Adjust Black Point and Contrast…** / **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste…** (or
 the Display toolbar). In the window:
 - Sliders **Background (min)** / **Fundo (mín)** and **Range (max)** / **Intervalo (máx)**, with
   a histogram preview.
@@ -323,7 +323,7 @@ Pixels with no value (**NaN**) are always drawn in **magenta**.
 curva usada; uma **LUT** (tabela de cores) pinta o brilho com cores.
 **Para que serve:** deixar visíveis estrelas e asteroides fracos. Nunca muda os dados usados na
 medição.
-**Como fazer:** **Imagens → Fundo e Intervalo...** (ou a barra Exibição). Na janela:
+**Como fazer:** **Imagens → Ajustar Ponto Preto e Contraste...** (ou a barra Exibição). Na janela:
 - Controles **Fundo (mín)** e **Intervalo (máx)**, com prévia do histograma.
 - **⟳ Auto**: níveis automáticos a partir do ruído do céu.
 - "Função de transferência": Linear, Logarítmica, Raiz Quadrada (Sqrt), Asinh, Equalização de
@@ -346,7 +346,7 @@ cross = catalog reference star; green circle = known asteroid (light blue = plan
 comet); "Cand #N" = automatic candidate; red = selected item.
 **What it's for:** seeing at a glance what AstroFind found.
 **How to do it:**
-- **Image Tools → Select Markings...** / **Ferramentas de Imagem → Selecionar Marcações...**: choose which types to
+- **Image Tools → Choose Marker Display…** / **Ferramentas de Imagem → Escolher Exibição de Marcadores…**: choose which types to
   show (detected stars, catalog stars, known objects, object labels). Applies to all windows.
 - **Utilities → Ecliptic / Galactic Overlay** (`Ctrl+E`) / **Utilitários → Sobreposição Eclíptica /
   Galáctica**: draws the **ecliptic** (the Sun's path, where most asteroids are) and the plane of
@@ -363,7 +363,7 @@ sobrepostas); cruz amarela = estrela de referência do catálogo; círculo verde
 selecionado.
 **Para que serve:** ver de relance o que o AstroFind achou.
 **Como fazer:**
-- **Imagens → Selecionar Marcações...**: escolha que tipos mostrar (estrelas detectadas, estrelas
+- **Imagens → Escolher Exibição de Marcadores...**: escolha que tipos mostrar (estrelas detectadas, estrelas
   do catálogo, objetos conhecidos, rótulos). Vale para todas as janelas.
 - **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`): desenha a **eclíptica** (o
   caminho do Sol, onde está a maioria dos asteroides) e o plano da Via Láctea. Se o campo estiver
@@ -460,8 +460,8 @@ AstroFind has no separate bias frame step.
 measurements. Skip it if your images are already calibrated (common for campaign or mission
 data).
 **How to do it:**
-- **File → Load Dark Frame...** / **Arquivo → Carregar Dark Frame...** and **File → Load Flat
-  Field...** / **Carregar Flat Field...** (FITS only). The **Calibration** panel appears.
+- **File → Use Dark Frame for Calibration…** / **Arquivo → Usar Dark de Calibração...** and **File → Use Flat
+  Field for Calibration…** / **Usar Flat de Calibração...** (FITS only). The **Calibration** panel appears.
 - **File → Calibration Wizard…** / **Arquivo → Assistente de Calibração…**: Step 1 Dark, Step 2
   Flat, Step 3 Apply. If "Apply calibration to currently loaded images now" is unticked, the frames
   are applied the next time you run Data Reduction.
@@ -485,7 +485,7 @@ O AstroFind não tem uma etapa separada de bias.
 **Para que serve:** sem calibração, defeitos podem parecer estrelas ou estragar a medição de
 brilho. Pule se suas imagens já vêm calibradas (comum em dados de campanha ou de missões).
 **Como fazer:**
-- **Arquivo → Carregar Dark Frame...** e **Arquivo → Carregar Flat Field...** (só FITS). O painel
+- **Arquivo → Usar Dark de Calibração...** e **Arquivo → Usar Flat de Calibração...** (só FITS). O painel
   **Calibração** aparece.
 - **Arquivo → Assistente de Calibração…**: Etapa 1 Dark, Etapa 2 Flat, Etapa 3 Aplicar. Se
   "Aplicar calibração às imagens carregadas agora" estiver desmarcado, os frames são aplicados na
@@ -676,7 +676,7 @@ campo:
 **What it's for:** the eye easily spots a dot that jumps while stars stay still. This is the
 classic way to find asteroids.
 **How to do it:** **Utilities → Begin Blink Mode** (`Ctrl+B`) / **Utilitários → Ativar Modo de Piscagem** (needs ≥ 2
-images). **Utilities → Stop Blinking** (`Ctrl+F9`) / **Parar Piscar** closes it.
+images). **Utilities → End Blink Mode** (`Ctrl+F9`) / **Encerrar Modo de Piscagem** closes it.
 - In the Blink View: `Space` play/pause, `←`/`→` previous/next, `Esc` stop, `+`/`-`/`0` zoom.
 - Bottom bar: `◀ ⏸ ▶`, **■ Stop**, **Sharpen** (Off → USM → LoG: unsharp mask and Laplacian
   filters that make faint dots stand out), **Speed** slider (50–2000 ms), and 4 thumbnails.
@@ -690,7 +690,7 @@ images). **Utilities → Stop Blinking** (`Ctrl+F9`) / **Parar Piscar** closes i
 **Para que serve:** o olho percebe fácil um ponto que pula enquanto as estrelas ficam paradas. É
 o jeito clássico de achar asteroides.
 **Como fazer:** **Ferramentas → Piscar Imagens** (`Ctrl+B`) (precisa de ≥ 2 imagens).
-**Ferramentas → Parar Piscar** (`Ctrl+F9`) fecha.
+**Ferramentas → Encerrar Modo de Piscagem** (`Ctrl+F9`) fecha.
 - Na Visão de piscar: `Espaço` toca/pausa, `←`/`→` anterior/seguinte, `Esc` para, `+`/`-`/`0`
   zoom.
 - Barra de baixo: `◀ ⏸ ▶`, **■ Parar**, **Nitidez** (Desativado → USM → LoG: filtros de máscara
@@ -804,13 +804,13 @@ referência (**Browse…**), ajuste o limiar de detecção e clique em **Compare
 3. **✓ Aceitar** (window stays open), **✓ Aceitar e Fechar**, or **✗ Rejeitar**.
 4. Repeat on every image.
 
-The **Observations** panel (also **Window → View Observations** or **File → View Photometry
-File**) lists `#`, Object, RA, Dec, Mag, Band, FWHM", SNR, Airmass, JD, Image. Double-click
+The **Observations** panel (also **Window → View Observations** or **File → Show Photometry
+Results**) lists `#`, Object, RA, Dec, Mag, Band, FWHM", SNR, Airmass, JD, Image. Double-click
 **Object** or **Band** to edit them. **Edit → Undo** (`Ctrl+Z`) / **Redo** (`Ctrl+Shift+Z`)
 work on accepted measurements.
 
 > 🇬🇧 ⚠️ **Watch out:** the **Remove** button in the Observations panel cannot be undone.
-> "File → View Photometry File" does not open a file: it only shows this panel.
+> "File → Show Photometry Results" does not open a file: it only shows this panel.
 
 🇧🇷 **Português**
 **O que é:** clicar num objeto para registrar posição, horário e brilho: uma **observação**.
@@ -826,13 +826,13 @@ work on accepted measurements.
 3. **✓ Aceitar** (a janela fica aberta), **✓ Aceitar e Fechar** ou **✗ Rejeitar**.
 4. Repita em todas as imagens.
 
-O painel **Observações** (também **Janelas → Exibir observações** ou **Arquivo → Ver Arquivo de
-Fotometria**) lista `#`, Object, RA, Dec, Mag, Band, FWHM", SNR, Airmass, JD, Image. Dê duplo
+O painel **Observações** (também **Janelas → Exibir observações** ou **Arquivo → Mostrar
+Resultados de Fotometria**) lista `#`, Object, RA, Dec, Mag, Band, FWHM", SNR, Airmass, JD, Image. Dê duplo
 clique em **Object** ou **Band** para editar. **Editar → Desfazer** (`Ctrl+Z`) / **Refazer**
 (`Ctrl+Shift+Z`) valem para medições aceitas.
 
 > 🇧🇷 ⚠️ **Atenção:** o botão **Remover** do painel Observações não pode ser desfeito. "Arquivo →
-> Ver Arquivo de Fotometria" não abre arquivo: só mostra este painel. Os títulos das colunas
+> Mostrar Resultados de Fotometria" não abre arquivo: só mostra este painel. Os títulos das colunas
 > ficam em inglês.
 
 ---

@@ -202,6 +202,35 @@ primeiro.
   | View Display Toolbar → Show Display Toolbar | Exibir barra de ferramentas de exibição → Mostrar barra de exibição |
   | View Blink Toolbar → Show Blink Toolbar | Exibir barra de ferramentas de piscar → Mostrar barra de piscagem |
 
+- **8 more menu strings still copied from Astrometrica.exe, now rewritten / Mais 8 textos de menu
+  ainda copiados do Astrometrica.exe, agora reescritos (AUD-PROV-10, follow-up).** 🇬🇧 A second
+  pass of the same normalized comparison (ignoring `&` mnemonics and ellipsis) found 15 more
+  exact matches against `Astrometrica.exe`. The leader's decision was "only the specific ones":
+  the 8 astronomy-specific compound phrases below were rewritten with AstroFind's own wording
+  (menu, toolbar, tooltip, dialog title, `i18n/astrofind_pt_BR.ts`, `i18n/astrofind_en.ts`, wiki,
+  in-app Help EN/PT); the other 7 (`Settings`, `Zoom In`, `Zoom Out`, `Flip Horizontal`,
+  `Flip Vertical`, `Internet`, `Cancel`) were kept, same universal-UI-convention criterion already
+  applied to File/Edit/Help/Undo. Shortcuts and behavior are unchanged, only the visible text
+  moved. 🇧🇷 Uma segunda rodada da mesma comparação normalizada (ignorando o mnemônico `&` e as
+  reticências) achou mais 15 identidades exatas contra o `Astrometrica.exe`. A decisão do líder
+  foi "só os específicos": os 8 textos compostos específicos de astrometria abaixo foram
+  reescritos com redação própria do AstroFind (menu, barra de ferramentas, tooltip, título de
+  diálogo, `i18n/astrofind_pt_BR.ts`, `i18n/astrofind_en.ts`, wiki, Ajuda embutida EN/PT); os
+  outros 7 (`Settings`, `Zoom In`, `Zoom Out`, `Flip Horizontal`, `Flip Vertical`, `Internet`,
+  `Cancel`) foram mantidos, mesmo critério de convenção universal de UI já aplicado a
+  File/Edit/Help/Undo. Atalhos e comportamento não mudaram, só o texto visível.
+
+  | EN (old → new) | PT-BR (old → new) |
+  |---|---|
+  | Load Dark Frame... → Use Dark Frame for Calibration… | Carregar Dark Frame... → Usar Dark de Calibração |
+  | Load Flat Field... → Use Flat Field for Calibration… | Carregar Flat Field... → Usar Flat de Calibração |
+  | View Photometry File → Show Photometry Results | Ver Arquivo de Fotometria → Mostrar Resultados de Fotometria |
+  | Background and Range... → Adjust Black Point and Contrast… | Fundo e Intervalo... → Ajustar Ponto Preto e Contraste… |
+  | Select Markings... → Choose Marker Display… | Selecionar Marcações... → Escolher Exibição de Marcadores… |
+  | Stop Blinking → End Blink Mode | Parar Piscar → Encerrar Modo de Piscagem |
+  | Close all Images → Close Every Open Image | Fechar todas as Imagens → Fechar Todas as Imagens Abertas |
+  | Close all Windows → Close Every Window | Fechar todas as Janelas → Fechar Todas as Janelas |
+
 ### Added / Adicionado
 
 - 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in

@@ -267,8 +267,8 @@ imagens atuais) ou **Novo Projeto** (começar do zero).
 Astronomy images hold more brightness levels than a screen can show, so they may look almost
 black or white. This step only changes **how the image looks**, never the measured data.
 
-1. Click on one image, then **Image Tools → Background and Range...** / **Ferramentas de
-   Imagem → Fundo e Intervalo...**.
+1. Click on one image, then **Image Tools → Adjust Black Point and Contrast…** / **Ferramentas de
+   Imagem → Ajustar Ponto Preto e Contraste...**.
 2. Click **⟳ Auto**. If needed, move the **Background (min)** and **Range (max)** sliders, or
    try another "Função de transferência" such as **Asinh** or **Raiz Quadrada (Sqrt)**.
 3. Tick **Apply to all images in session**, then **OK**.
