@@ -76,8 +76,10 @@ jobs:
             family: fedora
           - image: cachyos/cachyos:latest
             family: arch
+            debuginfod: https://debuginfod.cachyos.org https://debuginfod.archlinux.org
           - image: archlinux:latest
             family: arch
+            debuginfod: https://debuginfod.archlinux.org
           - image: ubuntu:24.04
             family: debian
           - image: debian:12
@@ -89,6 +91,12 @@ jobs:
 
     env:
       DEBIAN_FRONTEND: noninteractive
+      # Arch and CachyOS ship a stripped ld.so, so valgrind aborts at startup
+      # ("a function redirection which is mandatory ... memcmp in
+      # ld-linux-x86-64.so.2"). Valgrind >= 3.19 fetches the missing symbols
+      # by build-id through debuginfod-find. Empty elsewhere: Fedora keeps
+      # the symbols and apt pulls libc6-dbg in as a valgrind recommendation.
+      DEBUGINFOD_URLS: ${{ matrix.debuginfod }}
 
     steps:
       # ── 1. SYSTEM INFO ──────────────────────────────────────────────────────
@@ -125,7 +133,10 @@ jobs:
             qt6-base qt6-charts qt6-tools qt6-5compat \
             cfitsio fftw libarchive zlib \
             mesa libxkbcommon \
-            clang cppcheck valgrind
+            clang cppcheck valgrind debuginfod
+          # Which repo the C library came from matters for valgrind symbols
+          # (CachyOS rebuilds glibc; Arch symbols do not match that build).
+          pacman -Qi glibc | grep -E "^(Version|Packager|Build Date)"
 
       - name: "Install build + audit toolchain (apt)"
         if: matrix.family == 'debian'
