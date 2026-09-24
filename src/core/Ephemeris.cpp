@@ -67,8 +67,13 @@ static Vec3 earthHeliocentricEcliptic(double jd) noexcept
                    + (0.019993 - 0.000101 * T)                     * std::sin(2.0 * Mr)
                    +  0.000289                                      * std::sin(3.0 * Mr);
 
-    // Sun's true longitude (degrees)
-    const double sunLon = L0 + C;
+    // Sun's true longitude (degrees), referred to the mean equinox OF DATE
+    // (Meeus Ch.25). AUD-CORR-12: the MPCORB elements are J2000, so bring it to
+    // the J2000 equinox by removing the general precession in longitude
+    // (IAU 1976: p = 5029.0966″·T + 1.11113″·T²). Without this the Earth was
+    // ~0.34° off in 2024; against JPL Horizons that was 5.8′ on Ceres and 49′
+    // on (433) Eros at 0.18 AU (tests/test_ephemeris.cpp).
+    const double sunLon = L0 + C - (5029.0966 * T + 1.11113 * T * T) / 3600.0;
 
     // Sun-Earth distance (AU)
     const double sunV = (M_sun + C) * kD2R;
@@ -142,19 +147,12 @@ static double angSepDeg(double ra1, double dec1, double ra2, double dec2) noexce
     return std::atan2(std::sqrt(x*x + y*y), z) * kR2D;
 }
 
-// ─── computeEphemeris ─────────────────────────────────────────────────────────
+// ─── heliocentricPosition (AUD-CORR-12) ──────────────────────────────────────
+// Steps 1-5 of the ephemeris, shared by computeEphemeris() and its ±1 h motion
+// estimate, and exposed so the two-body propagation is unit-testable.
 
-EphemerisMatch computeEphemeris(const AsteroidRecord& orb,
-                                double jd,
-                                double obsLat,
-                                double obsLon,
-                                double obsAlt) noexcept
+HelioState heliocentricPosition(const AsteroidRecord& orb, double jd) noexcept
 {
-    EphemerisMatch res;
-    res.number = orb.number;
-    res.name   = orb.name;
-    res.H      = orb.H;
-
     // 1. Propagate mean anomaly from epoch to jd
     const double dt = jd - orb.epoch;               // days since epoch
     double M = orb.M + orb.n * dt;                  // degrees
@@ -172,7 +170,6 @@ EphemerisMatch computeEphemeris(const AsteroidRecord& orb,
 
     // 4. Radius vector (heliocentric distance, AU)
     const double r = orb.a * (1.0 - orb.e * cosE);
-    res.rHelio = r;
 
     // 5. Heliocentric ecliptic position
     //    Convert angles to radians
@@ -186,11 +183,33 @@ EphemerisMatch computeEphemeris(const AsteroidRecord& orb,
     const double cosi = std::cos(inclR),  sini = std::sin(inclR);
 
     // Ecliptic rectangular heliocentric (AU)
-    const Vec3 hec {
-        r * (cosO * cosu - sinO * sinu * cosi),
-        r * (sinO * cosu + cosO * sinu * cosi),
-        r * (sinu * sini)
-    };
+    HelioState h;
+    h.x = r * (cosO * cosu - sinO * sinu * cosi);
+    h.y = r * (sinO * cosu + cosO * sinu * cosi);
+    h.z = r * (sinu * sini);
+    h.r = r;
+    h.E = E;
+    return h;
+}
+
+// ─── computeEphemeris ─────────────────────────────────────────────────────────
+
+EphemerisMatch computeEphemeris(const AsteroidRecord& orb,
+                                double jd,
+                                double obsLat,
+                                double obsLon,
+                                double obsAlt) noexcept
+{
+    EphemerisMatch res;
+    res.number = orb.number;
+    res.name   = orb.name;
+    res.H      = orb.H;
+
+    // 1-5. Heliocentric ecliptic position (two-body propagation)
+    const HelioState helio = heliocentricPosition(orb, jd);
+    const double r = helio.r;
+    res.rHelio = r;
+    const Vec3 hec { helio.x, helio.y, helio.z };
 
     // 6. Earth's heliocentric position (ecliptic rectangular, AU)
     const Vec3 earth = earthHeliocentricEcliptic(jd);
@@ -243,20 +262,8 @@ EphemerisMatch computeEphemeris(const AsteroidRecord& orb,
         const double h = 1.0 / 24.0;  // 1 hour in days
 
         auto posAt = [&](double jd2) -> std::pair<double,double> {
-            const double dt2  = jd2 - orb.epoch;
-            double M2 = orb.M + orb.n * dt2;
-            M2 = std::fmod(M2, 360.0);
-            if (M2 < 0.0) M2 += 360.0;
-            const double E2    = solveKepler(M2 * kD2R, orb.e);
-            const double sinE2 = std::sin(E2), cosE2 = std::cos(E2);
-            const double nu2   = std::atan2(sqrte * sinE2, cosE2 - orb.e);
-            const double r2    = orb.a * (1.0 - orb.e * cosE2);
-            const double u2    = nu2 + omegaR;
-            const Vec3 hec2 {
-                r2 * (cosO * std::cos(u2) - sinO * std::sin(u2) * cosi),
-                r2 * (sinO * std::cos(u2) + cosO * std::sin(u2) * cosi),
-                r2 * (std::sin(u2) * sini)
-            };
+            const HelioState h2 = heliocentricPosition(orb, jd2);
+            const Vec3 hec2 { h2.x, h2.y, h2.z };
             const Vec3 e2 = earthHeliocentricEcliptic(jd2);
             const Vec3 g2 { hec2.x-e2.x, hec2.y-e2.y, hec2.z-e2.z };
             Vec3 q2 = eclipticToEquatorial(g2);

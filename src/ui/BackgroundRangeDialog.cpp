@@ -25,7 +25,7 @@ BackgroundRangeDialog::BackgroundRangeDialog(FitsImageView* view,
     , origMode_(image->stretchMode)
     , origLut_(image->colorLut)
 {
-    setWindowTitle(tr("Background and Range \xe2\x80\x94 %1").arg(image_->fileName));
+    setWindowTitle(tr("Black Point and Contrast - %1").arg(image_->fileName));
     setModal(false);
     setMinimumWidth(440);
 

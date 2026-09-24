@@ -38,6 +38,9 @@ static QJsonObject wcsToJson(const PlateSolution& w)
     o["cd2_1"]  = w.cd2_1;   o["cd2_2"]  = w.cd2_2;
     o["rms"]    = w.rms;
     o["solved"] = w.solved;
+    // AUD-CORR-10: pole cards (null = absent → standard default)
+    o["lonpole"] = nanToNull(w.lonpole);
+    o["latpole"] = nanToNull(w.latpole);
     return o;
 }
 
@@ -50,6 +53,8 @@ static PlateSolution wcsFromJson(const QJsonObject& o)
     w.cd2_1  = o["cd2_1"].toDouble();   w.cd2_2  = o["cd2_2"].toDouble();
     w.rms    = o["rms"].toDouble();
     w.solved = o["solved"].toBool();
+    w.lonpole = nullToNan(o["lonpole"]);   // AUD-CORR-10; absent in old projects → NaN
+    w.latpole = nullToNan(o["latpole"]);
     return w;
 }
 

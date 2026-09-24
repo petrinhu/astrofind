@@ -20,7 +20,30 @@ namespace {
 // AUD-SEC-3: bound every request so a stalled/MITM Horizons endpoint can't
 // hang busy_=true forever (transfer timeout resets on any progress).
 constexpr int kHttpTimeoutMs = 30000;
+
+// AUD-SEC-12: longest accepted target — real designations are far shorter
+// ("P/2010 A2 (LINEAR)" is 18 characters).
+constexpr qsizetype kMaxHorizonsTargetLen = 64;
 } // namespace
+
+bool isValidHorizonsTarget(const QString& target)
+{
+    if (target.isEmpty() || target.size() > kMaxHorizonsTargetLen) return false;
+    bool hasAlnum = false;
+    for (const QChar c : target) {
+        const char16_t u = c.unicode();
+        const bool alnum = (u >= u'A' && u <= u'Z') || (u >= u'a' && u <= u'z')
+                        || (u >= u'0' && u <= u'9');
+        if (alnum) { hasAlnum = true; continue; }
+        switch (u) {
+        case u' ': case u'/': case u'-': case u'(': case u')': case u'.': case u'_':
+            continue;
+        default:
+            return false;   // quote, ';', '=', '+', control char, non-ASCII, ...
+        }
+    }
+    return hasAlnum;
+}
 
 HorizonsClient::HorizonsClient(QNetworkAccessManager* nam, QObject* parent)
     : QObject(parent), nam_(nam)
@@ -36,8 +59,17 @@ void HorizonsClient::setObserverLocation(double lat, double lon, double alt)
 void HorizonsClient::query(const QString& target, double jd)
 {
     if (busy_) return;
-    busy_   = true;
     target_ = target.trimmed();
+
+    // AUD-SEC-12: target_ is interpolated into COMMAND='%1' below — refuse
+    // anything outside the designation allowlist instead of letting a quote
+    // or ';' break (or extend) the Horizons command grammar.
+    if (!isValidHorizonsTarget(target_)) {
+        emit failed(tr("Invalid Horizons target: use an MPC number, name or designation "
+                       "(letters, digits, spaces and / - ( ) . _ only)."));
+        return;
+    }
+    busy_ = true;
 
     // ── Build Horizons REST URL ────────────────────────────────────────────
     // Request one hour centred on the observation JD (ensures at least one row).

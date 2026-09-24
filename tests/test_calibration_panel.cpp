@@ -41,7 +41,7 @@ TEST_CASE("CalibrationPanel: both Clear buttons start disabled", "[ui][calibrati
 
 // ─── Dark frame ───────────────────────────────────────────────────────────────
 
-TEST_CASE("CalibrationPanel: setDarkStatus enables clearDark, leaves clearFlat off", "[ui][calibration]")
+TEST_CASE("CalibrationPanel: setDarkStatus enables clearDark and leaves clearFlat off", "[ui][calibration]")
 {
     CalibrationPanel panel;
     panel.setDarkStatus("master_dark.fits", 2048, 2048);
@@ -68,7 +68,7 @@ TEST_CASE("CalibrationPanel: clearDark disables clearDark button", "[ui][calibra
 
 // ─── Flat field ───────────────────────────────────────────────────────────────
 
-TEST_CASE("CalibrationPanel: setFlatStatus enables clearFlat, leaves clearDark off", "[ui][calibration]")
+TEST_CASE("CalibrationPanel: setFlatStatus enables clearFlat and leaves clearDark off", "[ui][calibration]")
 {
     CalibrationPanel panel;
     panel.setFlatStatus("flat.fits", 1024, 1024);

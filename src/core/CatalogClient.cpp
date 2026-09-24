@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Petrus Silva Costa
 
 #include "CatalogClient.h"
+#include "NetworkSafety.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -28,26 +29,14 @@ namespace {
 // busy_=true forever (transfer timeout resets on any progress, so slow-but-
 // alive downloads are not affected).
 constexpr int kHttpTimeoutMs = 30000;
-
-// AUD-SEC-4: true when `url` may carry catalog queries safely — https://
-// always, or http:// restricted to loopback (a local mirror/proxy, where no
-// network eavesdropper can intercept the traffic).
-bool isSafeVizierUrlScheme(const QUrl& url)
-{
-    const QString scheme = url.scheme().toLower();
-    if (scheme == QLatin1String("https")) return true;
-    if (scheme != QLatin1String("http")) return false;
-    const QString host = url.host().toLower();
-    return host == QLatin1String("localhost")
-        || host == QLatin1String("127.0.0.1")
-        || host == QLatin1String("::1");
-}
 } // namespace
 
 void CatalogClient::setVizierUrl(const QString& url)
 {
+    // AUD-SEC-4: https://, or http:// on loopback only (a local mirror/proxy)
+    // — shared guard, see NetworkSafety.h / AUD-SEC-13.
     const QUrl parsed(url);
-    if (isSafeVizierUrlScheme(parsed)) {
+    if (isSafeServiceUrl(parsed)) {
         vizierUrl_ = url;
         return;
     }

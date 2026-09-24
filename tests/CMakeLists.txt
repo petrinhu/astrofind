@@ -12,10 +12,14 @@ add_executable(astrofind_tests
     test_fits_loaders.cpp
     test_pds_raw_loaders.cpp
     test_hostile_regression.cpp
+    test_loaders_extra.cpp
     test_astronomy.cpp
+    test_ephemeris.cpp
+    test_fits_time.cpp
     test_photometry.cpp
     test_robustness.cpp
     test_url_scheme_guard.cpp
+    test_network_safety.cpp
 )
 
 target_link_libraries(astrofind_tests PRIVATE
@@ -37,6 +41,7 @@ add_executable(astrofind_ui_tests
     test_calibration_panel.cpp
     test_session_signals.cpp
     test_url_scheme_guard_ui.cpp
+    test_archive_zip_ui.cpp
 )
 
 target_link_libraries(astrofind_ui_tests PRIVATE

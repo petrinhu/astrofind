@@ -288,7 +288,7 @@ QIcon AppIcons::closeImages(int sz)
 QIcon AppIcons::closeAll(int sz)
 {
     return makeIcon(sz, [](QPainter& p, int sz) {
-        // Window frame (outer rect + title bar) + red X = "close all windows"
+        // Window frame (outer rect + title bar) + red X = "close every window"
         // Back window (shadow)
         p.setPen(QPen(QColor(100,100,100), 0.8));
         p.setBrush(QColor(190,190,210));

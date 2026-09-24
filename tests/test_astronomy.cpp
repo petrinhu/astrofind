@@ -4,7 +4,14 @@
 #include "core/Astronomy.h"
 #include "core/FitsImage.h"
 
+#include <fitsio.h>
+
+#include <QTemporaryDir>
+#include <QFile>
+
 #include <cmath>
+#include <limits>
+#include <vector>
 
 using Catch::Matchers::WithinAbs;
 using Catch::Matchers::WithinRel;
@@ -32,7 +39,7 @@ TEST_CASE("GMST advances ~0.985 degrees per solar day (mod 360)", "[astronomy][g
     REQUIRE_THAT(diff, WithinAbs(0.98564736629, 0.0001));
 }
 
-TEST_CASE("GMST stays in [0, 360)", "[astronomy][gmst]")
+TEST_CASE("GMST stays within 0 to 360 degrees", "[astronomy][gmst]")
 {
     // Test several JDs including far-future and far-past
     for (double jd : {2400000.0, 2451545.0, 2460000.0, 2500000.0}) {
@@ -266,7 +273,7 @@ core::PlateSolution makeWcs(core::WcsProjection proj,
 
 } // namespace
 
-TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec - all 8 projections", "[astronomy][wcs]")
 {
     for (const auto& pc : kAllProjections) {
         INFO("projection = " << pc.name);
@@ -278,7 +285,7 @@ TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections", "[
     }
 }
 
-TEST_CASE("WCS: pixToSky/skyToPix round-trip identity, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: pixToSky/skyToPix round-trip identity - all 8 projections", "[astronomy][wcs]")
 {
     for (const auto& pc : kAllProjections) {
         INFO("projection = " << pc.name);
@@ -294,7 +301,7 @@ TEST_CASE("WCS: pixToSky/skyToPix round-trip identity, all 8 projections", "[ast
     }
 }
 
-TEST_CASE("WCS: off-axis pixels match astropy oracle, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: off-axis pixels match astropy oracle - all 8 projections", "[astronomy][wcs]")
 {
     // crval=(180,0), crpix=(512,512), 1"/px. Offsets (dx,dy) in pixels from
     // CRPIX; expected (RA,Dec) in degrees from astropy 8.0.1 (full precision).
@@ -380,7 +387,7 @@ TEST_CASE("WCS: negative Dec field matches astropy oracle", "[astronomy][wcs]")
     }
 }
 
-TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle - all 8 projections", "[astronomy][wcs]")
 {
     // crval=(0, 89.9), crpix=(500,500) — near the celestial pole, a classic
     // singularity/branch-cut stress case (φ ill-defined at θ=±90°, and RA
@@ -427,7 +434,7 @@ TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle, all 8 project
     }
 }
 
-TEST_CASE("WCS: RA wrap across 0/360 matches astropy oracle, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: RA wrap across 0/360 matches astropy oracle - all 8 projections", "[astronomy][wcs]")
 {
     // crval=(0.01,10), crpix=(500,500); pixel +60 in X crosses the RA=0
     // meridian and must normalise to just under 360°, not go negative.
@@ -579,7 +586,7 @@ TEST_CASE("Refraction: R monotonically decreases as altitude increases", "[astro
 // (vernal equinox, solstice, galactic centre direction), independent of this
 // codebase's own formulas.
 
-TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0, Dec=0",
+TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0 and Dec=0",
           "[astronomy][ecliptic]")
 {
     double ra = 0.0, dec = 0.0;
@@ -588,7 +595,7 @@ TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0, Dec=0",
     CHECK_THAT(dec, WithinAbs(0.0, 1e-9));
 }
 
-TEST_CASE("eclipticToEquatorial: summer solstice (lambda=90) maps to RA=90, Dec=+obliquity",
+TEST_CASE("eclipticToEquatorial: summer solstice (lambda=90) maps to RA=90 and Dec=+obliquity",
           "[astronomy][ecliptic]")
 {
     // At the solstice point (beta=0, lambda=90): Dec = obliquity of the
@@ -609,7 +616,7 @@ TEST_CASE("eclipticToEquatorial: winter solstice (lambda=270) maps to Dec=-obliq
     CHECK_THAT(dec, WithinAbs(-23.4392911, 1e-6));
 }
 
-TEST_CASE("equatorialToGalactic: known galactic-centre direction maps close to l=0,b=0",
+TEST_CASE("equatorialToGalactic: known galactic-centre direction maps close to l=0 b=0",
           "[astronomy][galactic]")
 {
     // Widely-cited J2000 equatorial coordinates of the galactic centre
@@ -667,4 +674,337 @@ TEST_CASE("annualAberrationComponents: at the ecliptic pole the shift is (near-)
     double dRa = 0.0, dDec = 0.0;
     const double mag = core::annualAberrationComponents(270.0, 66.5607089, 2451545.0, dRa, dDec);
     CHECK_THAT(mag, WithinAbs(20.49552, 0.01));
+}
+
+// ─── Refraction policy (AUD-CORR-7) ──────────────────────────────────────────
+//
+// shouldApplyRefraction() decides WHETHER applyRefractionCorrection() runs at
+// all on a measured position. Before this remediation the function had zero
+// direct tests — only the correction math above (AUD-CORR-3) was covered.
+// A regression that always returned true (double-correcting a catalog plate
+// solution by up to ~1.7' at 30° altitude) or always returned false (never
+// correcting a pointing-only position) would pass the whole suite otherwise.
+
+TEST_CASE("shouldApplyRefraction: false for a catalog plate-solved position",
+          "[astronomy][refraction]")
+{
+    // The WCS fit against Gaia/UCAC4/2MASS already absorbs mean refraction —
+    // applying Bennett on top would correct it twice. True regardless of the
+    // other two arguments.
+    CHECK_FALSE(core::shouldApplyRefraction(/*fromCatalogPlateSolution=*/true,
+                                             /*isSpaceTelescope=*/false, 2451545.0));
+    CHECK_FALSE(core::shouldApplyRefraction(true, true, 2451545.0));
+}
+
+TEST_CASE("shouldApplyRefraction: true for a ground-based non-plate-solved position with a valid epoch",
+          "[astronomy][refraction]")
+{
+    CHECK(core::shouldApplyRefraction(/*fromCatalogPlateSolution=*/false,
+                                       /*isSpaceTelescope=*/false, 2451545.0));
+}
+
+TEST_CASE("shouldApplyRefraction: false for a space telescope (no atmosphere)",
+          "[astronomy][refraction]")
+{
+    CHECK_FALSE(core::shouldApplyRefraction(/*fromCatalogPlateSolution=*/false,
+                                             /*isSpaceTelescope=*/true, 2451545.0));
+}
+
+TEST_CASE("shouldApplyRefraction: false without a real epoch (jd non-finite or before JD 2400000)",
+          "[astronomy][refraction]")
+{
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    CHECK_FALSE(core::shouldApplyRefraction(false, false, nan));
+    CHECK_FALSE(core::shouldApplyRefraction(false, false, 0.0));
+    CHECK_FALSE(core::shouldApplyRefraction(false, false, 2400000.0));   // boundary: not > 2400000
+}
+
+// ─── WCS: LONPOLE/LATPOLE general pole solution (AUD-CORR-10) ───────────────
+//
+// PlateSolution::lonpole/latpole feed the general Calabretta & Greisen 2002
+// celestial-pole solution (celestialPoleGeneral(), WCSLIB celset() algorithm)
+// instead of the zenithal-projection default. Oracle values below are from
+// astropy 8.0.1 `astropy.wcs.WCS` with the SAME CD matrix/CRPIX convention as
+// the rest of this file (crpix=(500,500), 1"/px, cd1_1=-1/3600) — reproduced
+// locally with `python3 -c "from astropy.wcs import WCS; ..."` on 2026-09-24
+// (astropy 8.0.1 confirmed installed on the audit machine), matching the
+// values handed down by the audit oracle exactly.
+
+TEST_CASE("WCS: explicit LONPOLE=0 changes a TAN south-field result vs the default",
+          "[astronomy][wcs]")
+{
+    // crval=(45,-30), crpix=(500,500), px=(600,500) i.e. dx=+100,dy=0.
+    // Without LONPOLE, the south-of-equator default is phi_p=180 (existing
+    // "negative Dec field" test above gives RA=44.967924988395694 for this
+    // exact geometry). Forcing LONPOLE=0 must give a DIFFERENT RA — proving
+    // the card is actually read and fed into the pole solution, not ignored.
+    auto wcs = makeWcs(core::WcsProjection::TAN, 45.0, -30.0, 500.0, 500.0);
+    wcs.lonpole = 0.0;
+    double ra = 0.0, dec = 0.0;
+    wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(45.032075011604306, 1e-6));
+    CHECK_THAT(dec, WithinAbs(-29.999996112399224, 1e-6));
+    CHECK(std::abs(ra - 44.967924988395694) > 0.01);   // clearly not the default-phi_p result
+}
+
+TEST_CASE("WCS: CAR with LONPOLE=0 LATPOLE=-90 picks the delta_p=-70 solution",
+          "[astronomy][wcs]")
+{
+    // crval=(30,20): with phi_p=0 the two candidate delta_p solutions bracket
+    // crval2=20 (Calabretta & Greisen 2002 eqs. 8-10); LATPOLE=-90 selects the
+    // one closer to -90, which is delta_p=-70 here (astropy 8.0.1 confirms
+    // w.wcs.latpole == -70.0 after wcsset(), not the -90 requested — LATPOLE
+    // only picks which of the two roots is used, it does not become delta_p).
+    auto wcs = makeWcs(core::WcsProjection::CAR, 30.0, 20.0, 500.0, 500.0);
+    wcs.lonpole = 0.0;
+    wcs.latpole = -90.0;
+    double ra = 0.0, dec = 0.0;
+    wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(30.029560493373076, 1e-6));
+    CHECK_THAT(dec, WithinAbs(19.999997549198003, 1e-6));
+}
+
+TEST_CASE("WCS: CAR with LONPOLE=30 (default LATPOLE) gives a third distinct result",
+          "[astronomy][wcs]")
+{
+    auto wcs = makeWcs(core::WcsProjection::CAR, 30.0, 20.0, 500.0, 500.0);
+    wcs.lonpole = 30.0;
+    double ra = 0.0, dec = 0.0;
+    wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(29.971100614641784, 1e-6));
+    CHECK_THAT(dec, WithinAbs(19.994160482372557, 1e-6));
+}
+
+TEST_CASE("WCS: CAR with LONPOLE=180 has no valid pole and falls back to the projection default",
+          "[astronomy][wcs]")
+{
+    // astropy 8.0.1's wcslib raises "No valid solution for latp for these
+    // values of phip, phi0, and theta0" for this exact combination (verified
+    // locally, 2026-09-24) — an ill-conditioned request. AstroFind's
+    // `poleCardsUsable()` (FitsImage.cpp) rejects it the same way
+    // (`celestialPoleGeneral()` returns false) and `celestialPole()` then
+    // falls through to the ordinary cylindrical default for crval2=20>=0:
+    // phi_p=0, delta_p=90-20=70, alpha_p=30+180=210 — i.e. the SAME result
+    // as leaving LONPOLE/LATPOLE unset entirely for this crval, confirmed
+    // against astropy's own default-pole result for this CTYPE/CRVAL (no
+    // lonpole/latpole given): w.wcs.lonpole=0.0, w.wcs.latpole=70.0.
+    auto wcs = makeWcs(core::WcsProjection::CAR, 30.0, 20.0, 500.0, 500.0);
+    wcs.lonpole = 180.0;
+    double ra = 0.0, dec = 0.0;
+    wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(29.970439506626917, 1e-6));
+    CHECK_THAT(dec, WithinAbs(19.999997549197996, 1e-6));
+
+    // And it matches leaving the cards unset (the actual "fallback" claim).
+    auto wcsDefault = makeWcs(core::WcsProjection::CAR, 30.0, 20.0, 500.0, 500.0);
+    double raDef = 0.0, decDef = 0.0;
+    wcsDefault.pixToSky(600.0, 500.0, raDef, decDef);
+    CHECK_THAT(ra,  WithinAbs(raDef,  1e-9));
+    CHECK_THAT(dec, WithinAbs(decDef, 1e-9));
+}
+
+// ─── WCS: LONPOLE/LATPOLE/PV1_3 read from a REAL FITS header (AUD-CORR-10) ──
+//
+// Mutation review (2026-09-24) found that every LONPOLE/LATPOLE test above
+// only exercised PlateSolution::pixToSky() with the fields set directly in
+// C++ — nothing forced the LONPOLE/PV1_3 cards through loadFits()/
+// readHeader() (FitsImage.cpp ~839-871). Setting `wcs.lonpole = NaN` in that
+// parsing code would still pass every test above yet break real files. These
+// two write an actual FITS file to disk (cfitsio) with the WCS cards and
+// load it back through the public core::loadFits() entry point.
+
+namespace {
+/// Minimal single-HDU FITS image with a CD-matrix WCS and, optionally,
+/// LONPOLE/LATPOLE/PV1_3/PV1_4 cards -- exactly the keywords readHeader()
+/// reads at FitsImage.cpp ~839-871.
+bool writeWcsPoleFits(const QString& path, double crval1, double crval2,
+                       double crpix1, double crpix2,
+                       double lonpole, double latpole,
+                       double pv13, double pv14,
+                       QString* errOut = nullptr)
+{
+    QFile::remove(path);
+    fitsfile* fptr = nullptr;
+    int status = 0;
+    fits_create_file(&fptr, path.toLocal8Bit().constData(), &status);
+    long naxes[2] = { 4, 4 };
+    fits_create_img(fptr, FLOAT_IMG, 2, naxes, &status);
+    std::vector<float> pixels(16, 0.0f);
+    fits_write_img(fptr, TFLOAT, 1, static_cast<LONGLONG>(pixels.size()),
+                   pixels.data(), &status);
+
+    char ctype1[] = "RA---TAN";
+    char ctype2[] = "DEC--TAN";
+    fits_write_key(fptr, TSTRING, "CTYPE1", ctype1, nullptr, &status);
+    fits_write_key(fptr, TSTRING, "CTYPE2", ctype2, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRVAL1", &crval1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRVAL2", &crval2, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRPIX1", &crpix1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CRPIX2", &crpix2, nullptr, &status);
+    double cd1_1 = -1.0 / 3600.0, cd1_2 = 0.0, cd2_1 = 0.0, cd2_2 = 1.0 / 3600.0;
+    fits_write_key(fptr, TDOUBLE, "CD1_1", &cd1_1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CD1_2", &cd1_2, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CD2_1", &cd2_1, nullptr, &status);
+    fits_write_key(fptr, TDOUBLE, "CD2_2", &cd2_2, nullptr, &status);
+    if (std::isfinite(lonpole)) fits_write_key(fptr, TDOUBLE, "LONPOLE", &lonpole, nullptr, &status);
+    if (std::isfinite(latpole)) fits_write_key(fptr, TDOUBLE, "LATPOLE", &latpole, nullptr, &status);
+    if (std::isfinite(pv13))    fits_write_key(fptr, TDOUBLE, "PV1_3",   &pv13,    nullptr, &status);
+    if (std::isfinite(pv14))    fits_write_key(fptr, TDOUBLE, "PV1_4",   &pv14,    nullptr, &status);
+
+    const int saveStatus = status;
+    fits_close_file(fptr, &status);
+    if (saveStatus) {
+        if (errOut) *errOut = QStringLiteral("cfitsio status %1").arg(saveStatus);
+        return false;
+    }
+    return true;
+}
+} // namespace
+
+TEST_CASE("loadFits reads LONPOLE from a real FITS header and applies it to pixToSky",
+          "[astronomy][wcs][fits]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("lonpole.fits");
+
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    QString err;
+    REQUIRE(writeWcsPoleFits(path, 45.0, -30.0, 500.0, 500.0,
+                              /*lonpole=*/0.0, /*latpole=*/nan,
+                              /*pv13=*/nan, /*pv14=*/nan, &err));
+
+    auto result = core::loadFits(path);
+    REQUIRE(result.has_value());
+    CHECK_THAT(result->wcs.lonpole, WithinAbs(0.0, 1e-12));
+
+    // Same oracle as the direct-construction test above (crval=(45,-30),
+    // LONPOLE=0, crpix=(500,500), pixel (600,500)): astropy 8.0.1, verified
+    // locally 2026-09-24.
+    double ra = 0.0, dec = 0.0;
+    result->wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(45.032075011604306, 1e-6));
+    CHECK_THAT(dec, WithinAbs(-29.999996112399224, 1e-6));
+}
+
+TEST_CASE("loadFits: PV1_3 overrides LONPOLE from a real FITS header as in WCSLIB",
+          "[astronomy][wcs][fits]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("pv13.fits");
+
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    QString err;
+    // LONPOLE=180 alone (no PV1_3) reproduces the "negative Dec field" default
+    // (RA=44.967924988395694 for this exact geometry, per the existing
+    // "negative Dec field" test in this file); PV1_3=0 must WIN and steer the
+    // result to the LONPOLE=0 oracle instead, proving precedence is read from
+    // the file, not just honoured when set directly in C++.
+    REQUIRE(writeWcsPoleFits(path, 45.0, -30.0, 500.0, 500.0,
+                              /*lonpole=*/180.0, /*latpole=*/nan,
+                              /*pv13=*/0.0, /*pv14=*/nan, &err));
+
+    auto result = core::loadFits(path);
+    REQUIRE(result.has_value());
+    CHECK_THAT(result->wcs.lonpole, WithinAbs(0.0, 1e-12));   // PV1_3, not LONPOLE=180
+
+    double ra = 0.0, dec = 0.0;
+    result->wcs.pixToSky(600.0, 500.0, ra, dec);
+    CHECK_THAT(ra,  WithinAbs(45.032075011604306, 1e-6));
+    CHECK_THAT(dec, WithinAbs(-29.999996112399224, 1e-6));
+    CHECK(std::abs(ra - 44.967924988395694) > 0.01);   // NOT the LONPOLE=180 result
+}
+
+// ─── WCS: southern near-pole field, all 8 projections (AUD-CORR-11) ─────────
+//
+// AUD-CORR-11 found the round-trip test suite only ever exercised dec>=0.
+// The real bug (AUD-CORR-11's "Parcial 2026-09-24" note) was a ~1.3e6 px
+// round-trip error in skyToPix() for CAR/MER/GLS/AIT whenever phi_p=180,
+// i.e. whenever ANY field has crval2<0 with the default pole — northern
+// fields never exercised that branch. Oracle values from astropy 8.0.1
+// (same CD/CRPIX convention as the rest of this file), reproduced locally
+// 2026-09-24.
+
+namespace {
+/// Circular (wrap-aware) difference in degrees, in [-180, 180]. Needed for
+/// this test's CAR/MER/GLS/AIT dy=+50 cases: astropy's oracle lands on
+/// 359.9999999999995 (approaching 360 from below) while AstroFind's own
+/// [0,360) normalisation lands on ~3.5e-12 (approaching 0 from above) for
+/// the SAME physical angle — a branch-cut rounding artifact of two
+/// independent atan2-based implementations, not a bug. A plain WithinAbs
+/// would report a spurious ~360 degree error at this single boundary point.
+double circularDiffDeg(double a, double b) noexcept
+{
+    return std::fmod(a - b + 540.0, 360.0) - 180.0;
+}
+} // namespace
+
+TEST_CASE("WCS: near-pole field (dec=-89.9) matches astropy oracle - all 8 projections",
+          "[astronomy][wcs]")
+{
+    struct Off { double dx, dy, ra, dec; };
+    struct Case { core::WcsProjection proj; const char* name; Off offs[2]; };
+    static const Case kCases[] = {
+        { core::WcsProjection::TAN, "TAN", {
+            {50.0, 0.0, 352.0928333333857,  -89.89904010186643},
+            {0.0, 50.0, 0.0,                -89.88611111138317} } },
+        { core::WcsProjection::SIN, "SIN", {
+            {50.0, 0.0, 352.0928331040062,  -89.89904010181029},
+            {0.0, 50.0, 0.0,                -89.8861111109751}  } },
+        { core::WcsProjection::ARC, "ARC", {
+            {50.0, 0.0, 352.09283318046846, -89.899040101829},
+            {0.0, 50.0, 0.0,                -89.88611111111112} } },
+        { core::WcsProjection::STG, "STG", {
+            {50.0, 0.0, 352.0928332186996,  -89.89904010183835},
+            {0.0, 50.0, 0.0,                -89.88611111117916} } },
+        { core::WcsProjection::CAR, "CAR", {
+            {50.0, 0.0, 352.09283318048796, -89.89904010182879},
+            {0.0, 50.0, 359.9999999999995,  -89.88611111111089} } },
+        { core::WcsProjection::MER, "MER", {
+            {50.0, 0.0, 352.09283318048796, -89.89904010182879},
+            {0.0, 50.0, 359.9999999999995,  -89.8861111112469}  } },
+        { core::WcsProjection::GLS, "GLS", {   // GLS == SFL (Sanson-Flamsteed)
+            {50.0, 0.0, 352.09283318048796, -89.89904010182879},
+            {0.0, 50.0, 359.9999999999995,  -89.88611111111089} } },
+        { core::WcsProjection::AIT, "AIT", {
+            {50.0, 0.0, 352.0928331756965,  -89.89904010182761},
+            {0.0, 50.0, 359.9999999999995,  -89.88611111107689} } },
+    };
+    for (const auto& c : kCases) {
+        INFO("projection = " << c.name);
+        auto wcs = makeWcs(c.proj, 0.0, -89.9, 500.0, 500.0);
+        double ra = 0.0, dec = 0.0;
+        wcs.pixToSky(wcs.crpix1, wcs.crpix2, ra, dec);
+        CHECK_THAT(dec, WithinAbs(-89.9, 1e-6));
+        for (const auto& o : c.offs) {
+            wcs.pixToSky(wcs.crpix1 + o.dx, wcs.crpix2 + o.dy, ra, dec);
+            CHECK_THAT(circularDiffDeg(ra, o.ra), WithinAbs(0.0, 1e-6));
+            CHECK_THAT(dec, WithinAbs(o.dec, 1e-6));
+        }
+    }
+}
+
+TEST_CASE("WCS: pixToSky/skyToPix round-trip stays sub-microarcsec-pixel in the south - all 8 projections",
+          "[astronomy][wcs]")
+{
+    // This is the DIRECT regression test for the AUD-CORR-11 bug: before the
+    // fix, skyToPix() for CAR/MER/GLS/AIT with crval2<0 (default phi_p=180)
+    // normalised phi outside [-180,180], producing a 360°-wrapped native
+    // longitude and a round-trip error of ~1.3e6 px instead of sub-px.
+    for (const auto& pc : kAllProjections) {
+        INFO("projection = " << pc.name);
+        for (double dec0 : { -89.9, -30.0, -60.0 }) {
+            INFO("dec0 = " << dec0);
+            auto wcs = makeWcs(pc.proj, 10.0, dec0, 500.0, 500.0);
+            for (auto [px0, py0] : std::initializer_list<std::pair<double,double>>{
+                    {500.0, 500.0}, {600.0, 500.0}, {500.0, 600.0}, {450.0, 540.0}}) {
+                double ra = 0.0, dec = 0.0, px1 = 0.0, py1 = 0.0;
+                wcs.pixToSky(px0, py0, ra, dec);
+                wcs.skyToPix(ra, dec, px1, py1);
+                CHECK_THAT(px1, WithinAbs(px0, 1e-6));
+                CHECK_THAT(py1, WithinAbs(py0, 1e-6));
+            }
+        }
+    }
 }

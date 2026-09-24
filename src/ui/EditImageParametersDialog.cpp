@@ -16,7 +16,7 @@ EditImageParametersDialog::EditImageParametersDialog(const core::FitsImage& img,
                                                      QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Edit Image Parameters — %1").arg(img.fileName));
+    setWindowTitle(tr("Edit Image Settings - %1").arg(img.fileName));
     setMinimumWidth(420);
 
     // ── Observation info ──────────────────────────────────────────────────────

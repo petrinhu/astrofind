@@ -1026,32 +1026,33 @@ cfitsio-devel fftw3-devel libarchive-devel
 **Workflow file:** `.github/workflows/qa-pop-os-22.yml`
 
 **Docker image:** There is no official Pop!_OS Docker image from System76. The
-image used is `ubuntu:24.04`, with no System76 PPA (AUD-CI-6: the workflow name
-says 22.04 but the container is 24.04; Pop!_OS's own 22.04 base is not
-reproduced). It validates the Ubuntu-family toolchain, not Pop!_OS itself.
+image used is `ubuntu:24.04`, with no System76 PPA. The workflow file keeps
+its historical name (`qa-pop-os-22.yml`), but its job name, comments and log
+banner say what it really is (AUD-CI-6): an **Ubuntu 24.04 base standing in
+for Pop!_OS**, not Pop!_OS and not a 22.04 base. It validates the
+Ubuntu-family toolchain, not Pop!_OS itself.
 
-> **Limitation:** This is the closest reproducible CI approximation for
-> Pop!_OS 22.04. It does NOT include Pop!_OS's custom GNOME shell, recovery
-> partition, systemd-boot configuration, or System76 firmware tools. What it
-> does test is the exact same APT package base that Pop!_OS 22.04 users have
-> available, including the System76 PPA.
+> **Limitation:** Pop!_OS 22.04 sits on Ubuntu 22.04, whose archive ships
+> Qt 6.2.4, below the Qt 6.4 AstroFind requires, so a real 22.04 base cannot
+> build AstroFind at all and is not tested. The container does NOT include
+> Pop!_OS's desktop (Pop Shell / COSMIC), recovery partition, systemd-boot
+> configuration, System76 firmware tools or the System76 PPA.
 
 **Package manager:** `apt` (same as Ubuntu)
 
-**Qt6 availability:** Qt 6.4 from Ubuntu 22.04 (Jammy) repos. This is the same
-Qt version available to Pop!_OS 22.04 users (System76 does not maintain its
-own Qt6 packages).
+**Qt6 availability:** Qt 6.4.2 from the Ubuntu 24.04 (Noble) archive, the
+minimum Qt AstroFind supports. System76 does not maintain its own Qt6
+packages, so this is what a Pop!_OS release on a 24.04 base provides.
 
-> **Note:** Qt 6.4 is the **minimum supported** version for AstroFind. Any
-> issue seen on Pop!_OS 22.04 is likely a Qt 6.4 regression identical to what
-> Debian 12 shows.
+> **Note:** Any issue seen here is likely a Qt 6.4 regression identical to
+> what Debian 12 shows.
 
-**GCC version:** GCC 12 (default in Ubuntu 22.04)
+**GCC version:** GCC 13 (default in Ubuntu 24.04)
 
 **Required packages:**
 
 ```bash
-cmake ninja-build gcc-12 g++-12 pkg-config git
+cmake ninja-build gcc g++ pkg-config git
 qt6-base-dev libqt6charts6-dev libqt6opengl6-dev
 libcfitsio-dev libfftw3-dev libarchive-dev
 libgl1-mesa-dev libxkbcommon-dev
@@ -1059,28 +1060,25 @@ libgl1-mesa-dev libxkbcommon-dev
 
 **Known issues / observations:**
 
-- Ubuntu 22.04 ships Qt 6.4. The `QImage::mirrored()` fix (instead of
+- Ubuntu 24.04 ships Qt 6.4.2. The `QImage::mirrored()` fix (instead of
   `flipped()`) was specifically required for Qt 6.4 compatibility and must not
   regress.
 - The `QTimeZone(0)` constructor approach (instead of `Qt::UTC`) is necessary
   on Qt 6.4 as `Qt::UTC` is deprecated in Qt 6.7+. This is validated here.
-- `libqt6charts6-dev` may be in a different sub-package on Ubuntu 22.04 vs
-  24.04. Verify the exact package name during first run.
+**Differences vs a real Pop!_OS desktop:**
 
-**Differences vs a real Pop!_OS 22.04 desktop:**
-
-- No System76 GNOME customisations, no Pop Shell tiling extension.
+- No System76 GNOME/COSMIC customisations, no Pop Shell tiling extension.
 - No System76 firmware tools (system76-driver, system76-power).
-- The System76 PPA is added to include any System76-specific packages, but in
-  practice System76 does not ship custom Qt6 packages, so the PPA adds little
-  for build testing.
-- This is inherently an approximation. Full validation requires a real
-  Pop!_OS install.
+- No System76 PPA (System76 does not ship custom Qt6 packages, so it would add
+  nothing for build testing).
+- This is a stand-in, not Pop!_OS. Full validation requires a real Pop!_OS
+  install.
 
 **Note:** Pop!_OS 22.04 is based on Ubuntu 22.04 which ships Qt 6.2.4, below
-AstroFind's minimum Qt 6.4. The workflow uses `ubuntu:24.04` instead (Qt 6.4.2
-available). This approximates Pop!_OS 22.04 users who have upgraded Qt or use
-the current Pop!_OS.
+AstroFind's minimum Qt 6.4, so AstroFind does not build there and that base is
+not tested. The workflow uses `ubuntu:24.04` instead (Qt 6.4.2). It covers
+Pop!_OS users on a 24.04 base, or 22.04 users who installed Qt 6.4+ on their
+own.
 
 **Verified results (2026-03-22, run #23403368713):**
 
@@ -1102,32 +1100,33 @@ the current Pop!_OS.
 **Arquivo de workflow:** `.github/workflows/qa-pop-os-22.yml`
 
 **Imagem Docker:** Não existe imagem Docker oficial do Pop!_OS pelo System76.
-A imagem usada é `ubuntu:24.04`, sem PPA do System76 (AUD-CI-6: o nome do
-workflow diz 22.04, mas o container é 24.04; a base 22.04 do Pop!_OS não é
-reproduzida). Ela valida o toolchain da família Ubuntu, não o Pop!_OS em si.
+A imagem usada é `ubuntu:24.04`, sem PPA do System76. O arquivo de workflow
+mantém o nome histórico (`qa-pop-os-22.yml`), mas o nome do job, os
+comentários e o banner do log dizem o que ele realmente é (AUD-CI-6): uma
+**base Ubuntu 24.04 no lugar do Pop!_OS**, não o Pop!_OS e não uma base
+22.04. Ela valida o toolchain da família Ubuntu, não o Pop!_OS em si.
 
-> **Limitação:** Esta é a aproximação de CI reproduzível mais próxima para o
-> Pop!_OS 22.04. NÃO inclui o shell GNOME customizado do Pop!_OS, partição de
-> recuperação, configuração systemd-boot, nem ferramentas de firmware do
-> System76. O que ela testa é exatamente a mesma base de pacotes APT que os
-> usuários do Pop!_OS 22.04 têm disponível, incluindo o PPA do System76.
+> **Limitação:** o Pop!_OS 22.04 roda sobre o Ubuntu 22.04, cujo arquivo traz
+> Qt 6.2.4, abaixo do Qt 6.4 exigido pelo AstroFind; uma base 22.04 real nem
+> compila o AstroFind e não é testada. O container NÃO inclui o desktop do
+> Pop!_OS (Pop Shell / COSMIC), partição de recuperação, configuração
+> systemd-boot, ferramentas de firmware do System76 nem o PPA do System76.
 
 **Gerenciador de pacotes:** `apt` (igual ao Ubuntu)
 
-**Disponibilidade do Qt6:** Qt 6.4 dos repositórios do Ubuntu 22.04 (Jammy).
-Esta é a mesma versão de Qt disponível para usuários do Pop!_OS 22.04 (o
-System76 não mantém pacotes Qt6 próprios).
+**Disponibilidade do Qt6:** Qt 6.4.2 do arquivo do Ubuntu 24.04 (Noble), o Qt
+mínimo suportado pelo AstroFind. O System76 não mantém pacotes Qt6 próprios,
+então é isso que uma versão do Pop!_OS sobre base 24.04 fornece.
 
-> **Nota:** Qt 6.4 é a versão **mínima suportada** pelo AstroFind. Qualquer
-> problema visto no Pop!_OS 22.04 é provavelmente uma regressão de Qt 6.4
-> idêntica à que o Debian 12 mostra.
+> **Nota:** qualquer problema visto aqui é provavelmente uma regressão de Qt
+> 6.4 idêntica à que o Debian 12 mostra.
 
-**Versão do GCC:** GCC 12 (padrão no Ubuntu 22.04)
+**Versão do GCC:** GCC 13 (padrão no Ubuntu 24.04)
 
 **Pacotes obrigatórios:**
 
 ```bash
-cmake ninja-build gcc-12 g++-12 pkg-config git
+cmake ninja-build gcc g++ pkg-config git
 qt6-base-dev libqt6charts6-dev libqt6opengl6-dev
 libcfitsio-dev libfftw3-dev libarchive-dev
 libgl1-mesa-dev libxkbcommon-dev
@@ -1135,28 +1134,25 @@ libgl1-mesa-dev libxkbcommon-dev
 
 **Problemas / observações conhecidas:**
 
-- O Ubuntu 22.04 traz Qt 6.4. A correção `QImage::mirrored()` (em vez de
+- O Ubuntu 24.04 traz Qt 6.4.2. A correção `QImage::mirrored()` (em vez de
   `flipped()`) foi especificamente necessária para compatibilidade com Qt
   6.4 e não pode regredir.
 - A abordagem do construtor `QTimeZone(0)` (em vez de `Qt::UTC`) é necessária
   no Qt 6.4, já que `Qt::UTC` é depreciado no Qt 6.7+. Isso é validado aqui.
-- `libqt6charts6-dev` pode estar num sub-pacote diferente no Ubuntu 22.04 vs
-  24.04. Verificar o nome exato do pacote na primeira execução.
+**Diferenças em relação a um desktop Pop!_OS real:**
 
-**Diferenças em relação a um desktop Pop!_OS 22.04 real:**
-
-- Sem customizações GNOME do System76, sem a extensão de tiling Pop Shell.
+- Sem customizações GNOME/COSMIC do System76, sem a extensão de tiling Pop Shell.
 - Sem ferramentas de firmware do System76 (system76-driver, system76-power).
-- O PPA do System76 é adicionado para incluir quaisquer pacotes específicos do
-  System76, mas na prática o System76 não distribui pacotes Qt6 customizados,
-  então o PPA acrescenta pouco para o teste de build.
-- Isso é inerentemente uma aproximação. Validação completa requer uma
+- Sem PPA do System76 (o System76 não distribui pacotes Qt6 customizados, então
+  ele não acrescentaria nada ao teste de build).
+- Isto é um substituto, não o Pop!_OS. Validação completa requer uma
   instalação Pop!_OS real.
 
 **Nota:** o Pop!_OS 22.04 é baseado no Ubuntu 22.04, que traz Qt 6.2.4, abaixo
-do Qt 6.4 mínimo do AstroFind. O workflow usa `ubuntu:24.04` em vez disso (Qt
-6.4.2 disponível). Isso aproxima usuários do Pop!_OS 22.04 que atualizaram o
-Qt ou usam o Pop!_OS atual.
+do Qt 6.4 mínimo do AstroFind; o AstroFind não compila ali e essa base não é
+testada. O workflow usa `ubuntu:24.04` em vez disso (Qt 6.4.2). Ele cobre
+usuários do Pop!_OS sobre base 24.04, ou usuários 22.04 que instalaram Qt 6.4+
+por conta própria.
 
 **Resultados verificados (2026-03-22, run #23403368713):**
 
@@ -1352,34 +1348,34 @@ enable gcc-toolset-13`.
 **Workflow file:** `.github/workflows/qa-zorin-17.yml`
 
 **Docker image:** There is no official Zorin OS Docker image from Zorin
-Group. The image used is `ubuntu:24.04` (AUD-CI-6: Zorin OS 17 is based on
-22.04, so this validates the Ubuntu-family toolchain rather than Zorin itself).
+Group. The image used is `ubuntu:24.04`. The workflow file keeps its
+historical name (`qa-zorin-17.yml`), but its job name, comments and log banner
+say what it really is (AUD-CI-6): an **Ubuntu 24.04 base standing in for
+Zorin OS 17**, not Zorin and not a 22.04 base.
 
-> **Limitation:** This is the closest reproducible CI approximation for
-> Zorin OS 17. Zorin OS 17 is based on Ubuntu 22.04 LTS with a customised
-> GNOME desktop (Zorin Desktop Environment), its own theme engine, and
-> Zorin-specific apps. None of these are present in the container. The
-> package base, the APT repos, the package versions, and the system
-> libraries, is identical to Ubuntu 22.04, which is what matters for building
-> and testing a Qt6/C++ application.
+> **Limitation:** Zorin OS 17 is based on Ubuntu 22.04 LTS, whose archive
+> ships Qt 6.2.4, below the Qt 6.4 AstroFind requires, so a real Zorin 17 /
+> 22.04 base cannot build AstroFind at all and is not tested. The container
+> also lacks the Zorin Desktop Environment, its theme engine, Zorin-specific
+> apps and Zorin APT sources. The package base tested is Ubuntu 24.04's.
 
 **Package manager:** `apt` (same as Ubuntu)
 
-**Qt6 availability:** Qt 6.4 from Ubuntu 22.04 repos. Zorin Group does not
-maintain custom Qt6 packages.
+**Qt6 availability:** Qt 6.4.2 from the Ubuntu 24.04 archive. Zorin Group does
+not maintain custom Qt6 packages.
 
-**GCC version:** GCC 12 (same as Ubuntu 22.04)
+**GCC version:** GCC 13 (same as Ubuntu 24.04)
 
-**Required packages:** Identical to Ubuntu 22.04 / Pop!_OS 22.04 (see section
-55.7).
+**Required packages:** Identical to the Pop!_OS stand-in (Ubuntu 24.04, see
+section 55.7).
 
 **Known issues / observations:**
 
-- Qt 6.4 limitations apply identically to Zorin OS 17, Pop!_OS 22.04, and
-  Debian 12.
-- If tests pass on Ubuntu 22.04, they will pass on Zorin OS 17 for
-  build/unit-test purposes. The Zorin-specific parts (desktop, themes, Zorin
-  apps) are irrelevant for a Qt6/C++ scientific application.
+- Qt 6.4 limitations apply identically to this stand-in, the Pop!_OS stand-in
+  and Debian 12.
+- Passing here says the Ubuntu 24.04 package base builds and tests AstroFind;
+  it says nothing about a stock Zorin OS 17 (22.04 base, Qt 6.2.4), where
+  AstroFind does not build without a newer Qt.
 
 **Differences vs a real Zorin OS 17 desktop:**
 
@@ -1391,8 +1387,8 @@ maintain custom Qt6 packages.
   OS install or an ISO-based VM.
 
 **Note:** Zorin OS 17 is based on Ubuntu 22.04 which ships Qt 6.2.4, below
-AstroFind's minimum Qt 6.4. The workflow uses `ubuntu:24.04` instead. This
-approximates the APT package base for Zorin OS users who need Qt 6.4+.
+AstroFind's minimum Qt 6.4. The workflow uses `ubuntu:24.04` instead. This is
+a stand-in for Zorin OS users who have Qt 6.4+, not a test of Zorin OS 17.
 
 **Verified results (2026-03-22, run #23403368740):**
 
@@ -1414,34 +1410,34 @@ approximates the APT package base for Zorin OS users who need Qt 6.4+.
 **Arquivo de workflow:** `.github/workflows/qa-zorin-17.yml`
 
 **Imagem Docker:** Não existe imagem Docker oficial do Zorin OS pelo Zorin
-Group. A imagem usada é `ubuntu:24.04` (AUD-CI-6: o Zorin OS 17 é baseado no
-22.04, então isto valida o toolchain da família Ubuntu, não o Zorin em si).
+Group. A imagem usada é `ubuntu:24.04`. O arquivo de workflow mantém o nome
+histórico (`qa-zorin-17.yml`), mas o nome do job, os comentários e o banner do
+log dizem o que ele realmente é (AUD-CI-6): uma **base Ubuntu 24.04 no lugar
+do Zorin OS 17**, não o Zorin e não uma base 22.04.
 
-> **Limitação:** Esta é a aproximação de CI reproduzível mais próxima para o
-> Zorin OS 17. O Zorin OS 17 é baseado no Ubuntu 22.04 LTS com um desktop
-> GNOME customizado (Zorin Desktop Environment), motor de temas próprio, e
-> apps específicos do Zorin. Nenhum desses está presente no container. A base
-> de pacotes, os repositórios APT, as versões de pacote, e as bibliotecas do
-> sistema, é idêntica ao Ubuntu 22.04, que é o que importa para compilar e
-> testar uma aplicação Qt6/C++.
+> **Limitação:** o Zorin OS 17 é baseado no Ubuntu 22.04 LTS, cujo arquivo
+> traz Qt 6.2.4, abaixo do Qt 6.4 exigido pelo AstroFind; uma base Zorin 17 /
+> 22.04 real nem compila o AstroFind e não é testada. O container também não
+> tem o Zorin Desktop Environment, o motor de temas, os apps do Zorin nem as
+> fontes APT do Zorin. A base de pacotes testada é a do Ubuntu 24.04.
 
 **Gerenciador de pacotes:** `apt` (igual ao Ubuntu)
 
-**Disponibilidade do Qt6:** Qt 6.4 dos repositórios do Ubuntu 22.04. O Zorin
-Group não mantém pacotes Qt6 customizados.
+**Disponibilidade do Qt6:** Qt 6.4.2 do arquivo do Ubuntu 24.04. O Zorin Group
+não mantém pacotes Qt6 customizados.
 
-**Versão do GCC:** GCC 12 (igual ao Ubuntu 22.04)
+**Versão do GCC:** GCC 13 (igual ao Ubuntu 24.04)
 
-**Pacotes obrigatórios:** Idênticos ao Ubuntu 22.04 / Pop!_OS 22.04 (ver
-seção 55.7).
+**Pacotes obrigatórios:** Idênticos ao substituto do Pop!_OS (Ubuntu 24.04,
+ver seção 55.7).
 
 **Problemas / observações conhecidas:**
 
-- As limitações do Qt 6.4 se aplicam identicamente ao Zorin OS 17, Pop!_OS
-  22.04, e Debian 12.
-- Se os testes passam no Ubuntu 22.04, eles passarão no Zorin OS 17 para
-  fins de build/teste unitário. As partes específicas do Zorin (desktop,
-  temas, apps Zorin) são irrelevantes para uma aplicação científica Qt6/C++.
+- As limitações do Qt 6.4 se aplicam identicamente a este substituto, ao
+  substituto do Pop!_OS e ao Debian 12.
+- Passar aqui diz que a base de pacotes do Ubuntu 24.04 compila e testa o
+  AstroFind; não diz nada sobre um Zorin OS 17 de fábrica (base 22.04, Qt
+  6.2.4), onde o AstroFind não compila sem um Qt mais novo.
 
 **Diferenças em relação a um desktop Zorin OS 17 real:**
 
@@ -1454,8 +1450,8 @@ seção 55.7).
 
 **Nota:** o Zorin OS 17 é baseado no Ubuntu 22.04, que traz Qt 6.2.4, abaixo
 do Qt 6.4 mínimo do AstroFind. O workflow usa `ubuntu:24.04` em vez disso.
-Isso aproxima a base de pacotes APT para usuários do Zorin OS que precisam de
-Qt 6.4+.
+É um substituto para usuários do Zorin OS que têm Qt 6.4+, não um teste do
+Zorin OS 17.
 
 **Resultados verificados (2026-03-22, run #23403368740):**
 
@@ -1487,8 +1483,8 @@ Qt 6.4+.
 | Linux Mint 22 | `linuxmintd/mint22-amd64` | Linux Mint project | Official minimal |
 | openSUSE TW | `opensuse/tumbleweed` | openSUSE project | Official |
 | Rocky Linux 9 | `rockylinux:9` | Rocky Linux project | Official |
-| Pop!_OS 22.04 | `ubuntu:24.04` | -- | Approximation (AUD-CI-6) |
-| Zorin OS 17 | `ubuntu:24.04` | -- | Approximation (AUD-CI-6) |
+| Pop!_OS 22.04 | `ubuntu:24.04` | -- | Stand-in: Ubuntu 24.04 base, not 22.04 (AUD-CI-6) |
+| Zorin OS 17 | `ubuntu:24.04` | -- | Stand-in: Ubuntu 24.04 base, not 22.04 (AUD-CI-6) |
 | Fedora 44 (audit) | `fedora:44` | Fedora project | Official |
 | CachyOS (audit) | `cachyos/cachyos:latest` | CachyOS team | Official |
 
@@ -1503,8 +1499,8 @@ Qt 6.4+.
 | Linux Mint 22 | `linuxmintd/mint22-amd64` | Projeto Linux Mint | Mínima oficial |
 | openSUSE TW | `opensuse/tumbleweed` | Projeto openSUSE | Oficial |
 | Rocky Linux 9 | `rockylinux:9` | Projeto Rocky Linux | Oficial |
-| Pop!_OS 22.04 | `ubuntu:24.04` | -- | Aproximação (AUD-CI-6) |
-| Zorin OS 17 | `ubuntu:24.04` | -- | Aproximação (AUD-CI-6) |
+| Pop!_OS 22.04 | `ubuntu:24.04` | -- | Substituto: base Ubuntu 24.04, não 22.04 (AUD-CI-6) |
+| Zorin OS 17 | `ubuntu:24.04` | -- | Substituto: base Ubuntu 24.04, não 22.04 (AUD-CI-6) |
 | Fedora 44 (auditoria) | `fedora:44` | Projeto Fedora | Oficial |
 | CachyOS (auditoria) | `cachyos/cachyos:latest` | Equipe CachyOS | Oficial |
 

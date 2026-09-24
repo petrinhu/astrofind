@@ -18,18 +18,18 @@ astronomia nem de Linux. Qualquer palavra desconhecida está explicada no
 | 3 | Set your location / Configurar sua localização |
 | 4 | Load the images / Carregar as imagens |
 | 5 | Adjust the display / Ajustar a exibição |
-| 6 | Data Reduction / Redução de Dados |
+| 6 | Run Data Reduction / Executar Redução de Dados |
 | 7 | Known objects / Objetos conhecidos |
 | 8 | Blink / Piscar |
 | 9 | Measure / Medir |
 | 10 | ADES report / Relatório ADES |
 
 > 🇬🇧 💡 **Tip:** the **Workflow** panel on the left of the window shows these same stages
-> (1 Load Images → 6 ADES Report). The next stage always has a **▶ Do it** button. You can
+> (1 Import Images → 6 ADES Report). The next stage always has a **▶ Do it** button. You can
 > follow this page *or* just press that button each time.
 >
 > 🇧🇷 💡 **Dica:** o painel **Fluxo de Trabalho** à esquerda da janela mostra essas mesmas etapas
-> (1 Carregar Imagens → 6 Relatório ADES). A próxima etapa sempre tem um botão **▶ Executar**.
+> (1 Importar Imagens → 6 Relatório ADES). A próxima etapa sempre tem um botão **▶ Executar**.
 > Você pode seguir esta página *ou* só apertar esse botão a cada vez.
 
 ---
@@ -188,7 +188,7 @@ AstroFind needs to know **where on Earth** the images were taken, to correct for
 3. Click **OK**. A small message "Settings saved." appears.
 
 > 🇬🇧 ⚠️ **Watch out:** these four options are shown in Portuguese even in the English interface.
-> If you skip this step and the images have no location, Data Reduction warns
+> If you skip this step and the images have no location, Run Data Reduction warns
 > **"Localização não configurada"**: the positions would be computed as if seen from the centre
 > of the Earth. For images from a space telescope (e.g. Hubble) AstroFind sets this up by itself.
 
@@ -215,13 +215,13 @@ da atmosfera.
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-1. Click **File → Load Images...** / **Arquivo → Carregar Imagens...** (or the Workflow step
+1. Click **File → Import Images...** / **Arquivo → Importar Imagens...** (or the Workflow step
    1 **▶ Do it** button).
 2. In the window "Load Astronomical Images", select **all** your images at once (Ctrl+click or
    Shift+click), then **Open**. ZIP files and other archives are unpacked automatically.
 
 > 🇬🇧 💡 **Shortcut:** `Ctrl+L` also opens this window. In version 1.1.0 and earlier the same
-> key was also used by Tools → Light Curve… and could do nothing; there, use the menu.
+> key was also used by Utilities → Light Curve… and could do nothing; there, use the menu.
 
 **What you should see:**
 - One window per image, arranged side by side. Thumbnails appear in the **Images** bar at the
@@ -236,14 +236,14 @@ If you load again while images are open, AstroFind asks **Acréscimo** (add to t
 images) or **Novo Projeto** (start over).
 
 🇧🇷 **Português**
-1. Clique em **Arquivo → Carregar Imagens...** (ou no botão **▶ Executar** da etapa 1 do Fluxo
+1. Clique em **Arquivo → Importar Imagens...** (ou no botão **▶ Executar** da etapa 1 do Fluxo
    de Trabalho).
 2. Na janela "Carregar Imagens Astronômicas", selecione **todas** as imagens de uma vez
    (Ctrl+clique ou Shift+clique) e clique em **Abrir**. Arquivos ZIP e outros compactados são
    extraídos automaticamente.
 
 > 🇧🇷 💡 **Atalho:** `Ctrl+L` também abre esta janela. Na versão 1.1.0 e anteriores a mesma
-> tecla também era usada por Ferramentas → Curva de Luz… e podia não fazer nada; lá, use o
+> tecla também era usada por Utilitários → Curva de Luz… e podia não fazer nada; lá, use o
 > menu.
 
 **O que você deve ver:**
@@ -267,8 +267,8 @@ imagens atuais) ou **Novo Projeto** (começar do zero).
 Astronomy images hold more brightness levels than a screen can show, so they may look almost
 black or white. This step only changes **how the image looks**, never the measured data.
 
-1. Click on one image, then **Images → Background and Range...** / **Imagens → Fundo e
-   Intervalo...**.
+1. Click on one image, then **Image Tools → Adjust Black Point and Contrast…** / **Ferramentas de
+   Imagem → Ajustar Ponto Preto e Contraste...**.
 2. Click **⟳ Auto**. If needed, move the **Background (min)** and **Range (max)** sliders, or
    try another "Função de transferência" such as **Asinh** or **Raiz Quadrada (Sqrt)**.
 3. Tick **Apply to all images in session**, then **OK**.
@@ -279,7 +279,7 @@ black or white. This step only changes **how the image looks**, never the measur
 Imagens astronômicas têm mais níveis de brilho do que a tela consegue mostrar, então podem
 parecer quase pretas ou brancas. Este passo só muda **a aparência**, nunca os dados medidos.
 
-1. Clique numa imagem e depois em **Imagens → Fundo e Intervalo...**.
+1. Clique numa imagem e depois em **Ferramentas de Imagem → Fundo e Intervalo...**.
 2. Clique em **⟳ Auto**. Se precisar, mexa nos controles **Fundo (mín)** e **Intervalo (máx)** ou
    teste outra "Função de transferência", como **Asinh** ou **Raiz Quadrada (Sqrt)**.
 3. Marque **Aplicar a todas as imagens da sessão** e clique em **OK**.
@@ -293,39 +293,39 @@ parecer quase pretas ou brancas. Este passo só muda **a aparência**, nunca os 
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-Click **Astrometry → Data Reduction...** (`Ctrl+A`) / **Astrometria → Redução de Dados...**, or
-Workflow step 2. AstroFind finds the stars in each image, then **plate-solves** it: it compares
-the star pattern with a sky map to learn exactly where the image points. The result is a
-**WCS** (a formula that turns a pixel into sky coordinates, RA/Dec). See [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary).
+Click **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`) / **Ferramentas de Astrometria →
+Executar Redução de Dados...**, or Workflow step 2. AstroFind finds the stars in each image, then
+**plate-solves** it: it compares the star pattern with a sky map to learn exactly where the image
+points. The result is a **WCS** (a formula that turns a pixel into sky coordinates, RA/Dec). See [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary).
 
 - If no API key is stored, a box asks for it ("Enter your free API key from
   nova.astrometry.net:").
-- Online solving can take a few minutes per image. To cancel: **Astrometry → Stop Data
+- Online solving can take a few minutes per image. To cancel: **Astrometry Tools → Stop Data
   Reduction** (`Ctrl+.`).
 - Images that already contain a WCS are not solved again.
 
 **What you should see:** in the **Log** panel, lines like "Image 1: 230 stars found" and
 "Solved! RA=… Dec=…", and at the end "Redução concluída: N resolvidas, …". Cyan circles mark the
-detected stars. The **Image Catalog** panel opens on the right. Status bar: "Step 2 done — run
-Known Object Overlay (Ctrl+K)".
+detected stars. The **Image Catalog** panel opens on the right. Status bar: "Step 2 done - show
+Known Objects (Ctrl+K)".
 
 🇧🇷 **Português**
-Clique em **Astrometria → Redução de Dados...** (`Ctrl+A`), ou na etapa 2 do Fluxo de Trabalho. O
-AstroFind acha as estrelas de cada imagem e depois faz o **plate solving**: compara o desenho
-das estrelas com um mapa do céu para saber exatamente para onde a imagem aponta. O resultado é
-um **WCS** (uma fórmula que converte um pixel em coordenadas do céu, AR/Dec). Veja o
-[Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary).
+Clique em **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`), ou na etapa 2
+do Fluxo de Trabalho. O AstroFind acha as estrelas de cada imagem e depois faz o **plate
+solving**: compara o desenho das estrelas com um mapa do céu para saber exatamente para onde a
+imagem aponta. O resultado é um **WCS** (uma fórmula que converte um pixel em coordenadas do céu,
+AR/Dec). Veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary).
 
 - Se não houver chave de API salva, uma caixa pede a chave ("Enter your free API key from
   nova.astrometry.net:").
-- A solução online pode levar alguns minutos por imagem. Para cancelar: **Astrometria → Parar
-  Redução de Dados** (`Ctrl+.`).
+- A solução online pode levar alguns minutos por imagem. Para cancelar: **Ferramentas de
+  Astrometria → Parar Redução de Dados** (`Ctrl+.`).
 - Imagens que já têm WCS não são resolvidas de novo.
 
 **O que você deve ver:** no painel **Registro**, linhas como "Image 1: 230 stars found" e
 "Solved! RA=… Dec=…", e no fim "Redução concluída: N resolvidas, …". Círculos ciano marcam as
 estrelas detectadas. O painel **Catálogo de Imagem** abre à direita. Barra de status: "Step 2
-done — run Known Object Overlay (Ctrl+K)".
+done - show Known Objects (Ctrl+K)".
 
 ---
 
@@ -334,7 +334,7 @@ done — run Known Object Overlay (Ctrl+K)".
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-Click **Tools → Known Object Overlay** (`Ctrl+K`) / **Ferramentas → Sobreposição de Objetos
+Click **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos
 Conhecidos**, or Workflow step 3. AstroFind downloads reference stars (UCAC4 catalog by default)
 and asks the SkyBoT service which known asteroids and comets are in your field.
 
@@ -343,7 +343,7 @@ with a number or name (known asteroids). The Log shows "SkyBoT: N known object(s
 Zero known objects is normal for many fields.
 
 🇧🇷 **Português**
-Clique em **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`), ou na etapa 3 do Fluxo
+Clique em **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`), ou na etapa 3 do Fluxo
 de Trabalho. O AstroFind baixa estrelas de referência (catálogo UCAC4 por padrão) e pergunta ao
 serviço SkyBoT quais asteroides e cometas conhecidos estão no seu campo.
 
@@ -358,7 +358,7 @@ field". Nenhum objeto conhecido é normal em muitos campos.
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-Click **Tools → Blink Images** (`Ctrl+B`) / **Ferramentas → Piscar Imagens**, or Workflow step 4.
+Click **Utilities → Begin Blink Mode** (`Ctrl+B`) / **Utilitários → Ativar Modo de Piscagem**, or Workflow step 4.
 A large "Blink View" window shows your images one after another in the same place. Stars stay
 still; an **asteroid jumps** a little each frame.
 
@@ -367,7 +367,7 @@ still; an **asteroid jumps** a little each frame.
 - **Sharpen: Off** cycles USM → LoG → Off to make faint dots easier to see.
 
 🇧🇷 **Português**
-Clique em **Ferramentas → Piscar Imagens** (`Ctrl+B`), ou na etapa 4 do Fluxo de Trabalho. Uma
+Clique em **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`), ou na etapa 4 do Fluxo de Trabalho. Uma
 janela grande "Visão de piscar" mostra as imagens uma depois da outra no mesmo lugar. As
 estrelas ficam paradas; um **asteroide pula** um pouco a cada quadro.
 
@@ -453,12 +453,12 @@ measurement. Made a mistake? **Edit → Undo** (`Ctrl+Z`).
 🇬🇧 **English**
 At the bottom of the Workflow panel there is a checkbox **Fluxo automático** (shown in
 Portuguese in both languages). When ticked, loading images runs Steps 6, 7 and 8 by themselves:
-Data Reduction, then Known Object Overlay, then Blink. You only measure and report.
+Run Data Reduction, then Show Known Objects, then Blink. You only measure and report.
 
 🇧🇷 **Português**
 No fim do painel Fluxo de Trabalho há a caixa **Fluxo automático**. Marcada, carregar as imagens
-já roda sozinho os Passos 6, 7 e 8: Redução de Dados, depois Sobreposição de Objetos Conhecidos,
-depois Piscar. Você só mede e gera o relatório.
+já roda sozinho os Passos 6, 7 e 8: Executar Redução de Dados, depois Mostrar Objetos
+Conhecidos, depois Piscar. Você só mede e gera o relatório.
 
 ---
 

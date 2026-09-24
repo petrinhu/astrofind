@@ -14,6 +14,44 @@ primeiro.
 
 ### Fixed / Corrigido
 
+- **Refraction on plate-solved positions / Refração em posições com solução astrométrica
+  (AUD-CORR-7).** 🇬🇧 Bennett refraction is no longer added to RA/Dec that come from a
+  catalog plate solution (the fit already absorbs it; applying it again double-corrected,
+  up to ~1.7′ at 30° altitude). 🇧🇷 A refração de Bennett não é mais somada ao RA/Dec
+  vindo de uma solução astrométrica de catálogo (o ajuste já a absorve; aplicá-la de novo
+  corrigia duas vezes, até ~1,7′ a 30° de altura).
+- **WCS pole cards and southern fields / Cartões de polo do WCS e campos austrais
+  (AUD-CORR-10, AUD-CORR-11).** 🇬🇧 LONPOLE/LATPOLE (and PV1_3/PV1_4) are now read and
+  used, as in WCSLIB; files without them behave as before. Sky→pixel for CAR/MER/GLS/AIT
+  was 360° off on every southern field (catalog overlay misplaced); fixed.
+  🇧🇷 LONPOLE/LATPOLE (e PV1_3/PV1_4) agora são lidos e usados, como no WCSLIB; arquivos
+  sem eles se comportam como antes. Céu→pixel em CAR/MER/GLS/AIT saía 360° errado em todo
+  campo austral (overlay de catálogo fora do lugar); corrigido.
+- **Offline ephemeris / Efeméride offline (AUD-CORR-12).** 🇬🇧 MPCORB epochs were read
+  half a day late, and the Earth position used the equinox of date with J2000 elements;
+  against JPL Horizons the error drops from 6′ (Ceres, 2024) and 49′ ((433) Eros at
+  0.18 AU) to under 1′. 🇧🇷 As épocas do MPCORB eram lidas meio dia depois e a posição da
+  Terra usava o equinócio da data com elementos J2000; contra o JPL Horizons o erro cai de
+  6′ (Ceres, 2024) e 49′ ((433) Eros a 0,18 UA) para menos de 1′.
+- **Sub-second exposure times / Horário com fração de segundo (AUD-CORR-13).**
+  🇬🇧 The Julian Date keeps the milliseconds of DATE-OBS and prefers MJD-OBS when present;
+  XISF files now get a JD from DATE-OBS/MJD-OBS. 🇧🇷 O Dia Juliano mantém os milissegundos
+  do DATE-OBS e prefere o MJD-OBS quando existe; arquivos XISF passam a ter JD a partir do
+  DATE-OBS/MJD-OBS.
+- **TAR hardlink entries in archive extraction / Entradas hardlink de TAR na extração de
+  arquivos compactados (twin of AUD-INPUT-4).** 🇬🇧 A TAR entry stored as a hardlink
+  reports the same filetype as a plain file to libarchive, so it slipped past the
+  symlink/FIFO/device filter; its (unflattened) link target could point outside the
+  extraction folder, letting a hostile archive create a hard link to an arbitrary file
+  on disk under an innocuous name (e.g. "*.fits"). Hardlink entries are now rejected the
+  same way symlinks/FIFOs/devices already were. 🇧🇷 Uma entrada de TAR armazenada como
+  hardlink reporta o mesmo tipo de arquivo que um arquivo comum para o libarchive, e por
+  isso passava pelo filtro de link simbólico/FIFO/dispositivo; o alvo do link (não
+  tratado) podia apontar para fora da pasta de extração, permitindo que um arquivo
+  compactado malicioso criasse um hard link para um arquivo arbitrário do disco sob um
+  nome inofensivo (ex.: "*.fits"). Entradas hardlink agora são recusadas do mesmo jeito
+  que link simbólico/FIFO/dispositivo já eram.
+
 - **Observation time (AUD-CORR-15, critical).** 🇬🇧 Data Reduction no longer adds ΔT
   (68 s by default) to the image Julian Date, so the ADES `obsTime` is UTC again instead
   of ~68 s late (and 136 s after a second run). ΔT is now used only for the offline MPCORB
@@ -46,10 +84,183 @@ primeiro.
 - **Extinction / Extinção (AUD-CORR-8).** 🇬🇧 The MPC magnitude uses the unit-tested
   extinction function instead of a duplicated inline formula (same result). 🇧🇷 A magnitude
   do MPC usa a função de extinção testada em vez de uma fórmula duplicada (mesmo resultado).
+- **PNG/TIFF size ceiling / Teto de tamanho em PNG/TIFF (AUD-INPUT-gaps).** 🇬🇧 Images read
+  through Qt (PNG, TIFF, BMP, JPEG) get the same 20000 px/axis and total-pixel ceiling as
+  every other loader, checked on the size the header declares before Qt decodes anything,
+  so a header claiming 100000×100000 px is refused cleanly. No file-size cross-check for
+  these formats (they are compressed). 🇧🇷 Imagens lidas pelo Qt (PNG, TIFF, BMP, JPEG)
+  passam pelo mesmo teto de 20000 px/eixo e de pixels totais dos outros carregadores,
+  checado no tamanho declarado pelo cabeçalho antes de o Qt decodificar qualquer coisa;
+  um cabeçalho de 100000×100000 px é recusado sem travar. Sem checagem de tamanho do
+  arquivo nesses formatos (são comprimidos).
+- **SER observer/telescope / Observador/telescópio do SER.** 🇬🇧 The 40-byte text fields
+  are cut at the first NUL; the padding used to end up inside the strings. 🇧🇷 Os campos
+  de texto de 40 bytes param no primeiro NUL; o preenchimento ia parar dentro das strings.
+- **clang-tidy never ran in CI / clang-tidy nunca rodou no CI (AUD-CI-7).** 🇬🇧 Every
+  audit report so far was "No compilation database found" or a run-clang-tidy crash
+  (missing PyYAML for `-export-fixes`). `compile_commands.json` is now enabled before any
+  target is created, `-export-fixes` was dropped and the run is limited to `src/`.
+  🇧🇷 Todos os relatórios até aqui eram "No compilation database found" ou uma queda do
+  run-clang-tidy (sem PyYAML para `-export-fixes`). O `compile_commands.json` agora é
+  ligado antes de qualquer alvo, o `-export-fixes` saiu e a análise fica restrita a `src/`.
+- **Pop!_OS / Zorin QA jobs (AUD-CI-6).** 🇬🇧 Job names, comments, log banners, README
+  badges and `docs/qa-distros.md` now say what runs: an Ubuntu 24.04 base standing in for
+  those distros (their 22.04 base ships Qt 6.2.4, below the Qt 6.4 AstroFind needs), not a
+  22.04 base. 🇧🇷 Nomes dos jobs, comentários, banners do log, badges do README e
+  `docs/qa-distros.md` agora dizem o que roda: uma base Ubuntu 24.04 no lugar dessas
+  distros (a base 22.04 delas traz Qt 6.2.4, abaixo do Qt 6.4 exigido), não uma base 22.04.
 - **VizieR mirror / Espelho VizieR.** 🇬🇧 The default shown in Settings was a bare hostname
   that the client rejected; it is now the real TAP endpoint, and the old value is
   replaced on load. 🇧🇷 O padrão mostrado era um hostname sem esquema, rejeitado pelo
   cliente; agora é o endpoint TAP real, e o valor antigo é substituído ao abrir.
+- **Network timeouts and cancel / Timeouts de rede e cancelamento (AUD-SEC-10).** 🇬🇧 The
+  SkyBoT known-object query and the MPCORB.DAT / DAILY.DAT downloads now have the same 30 s
+  transfer timeout as the other clients (it restarts on every received chunk, so a slow but
+  alive download keeps going). The MPC downloads get a Cancel button in the status bar;
+  re-running the known-object overlay replaces a SkyBoT query still in flight; a timeout in
+  the Setup Wizard is reported as such instead of "Download cancelled".
+  🇧🇷 A consulta de objetos conhecidos ao SkyBoT e os downloads do MPCORB.DAT / DAILY.DAT
+  ganham o mesmo timeout de transferência de 30 s dos outros clientes (reinicia a cada bloco
+  recebido, então um download lento mas vivo continua). Os downloads do MPC ganham um botão
+  Cancelar na barra de status; refazer o overlay de objetos conhecidos substitui uma consulta
+  SkyBoT ainda pendente; no assistente, um timeout aparece como tal, e não como "Download
+  cancelado".
+- **Plate-solving cancel / Cancelar a redução astrométrica (AUD-SEC-11).** 🇬🇧 Cancel now
+  aborts the astrometry.net status poll in flight too, so no progress or error shows up after
+  cancelling; overlapping polls on a slow server are no longer stacked. 🇧🇷 Cancelar agora
+  aborta também a consulta de status ao astrometry.net em andamento: nenhum progresso ou erro
+  aparece depois do cancelamento, e consultas sobrepostas num servidor lento não se acumulam.
+- **Horizons target / Alvo do Horizons (AUD-SEC-12).** 🇬🇧 The target typed in Query JPL
+  Horizons is checked against an allowlist (letters, digits, space and `/ - ( ) . _`, up to
+  64 characters) before it goes into the `COMMAND` parameter; quotes, `;`, control characters
+  and similar input get a clear error and no request is sent. 🇧🇷 O alvo digitado em
+  Consultar JPL Horizons é validado por uma lista de permitidos (letras, dígitos, espaço e
+  `/ - ( ) . _`, até 64 caracteres) antes de entrar no parâmetro `COMMAND`; aspas, `;`,
+  caracteres de controle e afins recebem um erro claro e nenhuma requisição é enviada.
+- **Server URLs in Settings / URLs de servidor no Settings (AUD-SEC-13).** 🇬🇧 OK refuses to
+  save an astrometry.net server, VizieR mirror or MPC submission URL that the client would
+  reject (anything but https://, or http:// on localhost/127.0.0.1/::1): a warning names
+  the field and the dialog stays open. The clients and the dialog share one check.
+  🇧🇷 O OK se recusa a gravar URL de servidor astrometry.net, espelho VizieR ou envio ao MPC
+  que o cliente rejeitaria (qualquer coisa além de https://, ou http:// em
+  localhost/127.0.0.1/::1): um aviso indica o campo e o diálogo continua aberto. Os clientes
+  e o diálogo usam a mesma verificação.
+
+### Changed / Alterado
+
+- **Menu wording, no longer copied from Astrometrica.exe / Texto de menus, sem mais cópia do
+  Astrometrica.exe (AUD-PROV-10).** 🇬🇧 A programmatic sweep of `tr(...)` menu strings against
+  the original `Astrometrica.exe` found 29 real coincidences (26 exact matches plus 3
+  near-matches, ignoring only `&` mnemonics and ellipsis). Every one of them was rewritten with
+  AstroFind's own wording (same meaning, different words), across the menu bar, toolbars,
+  dialog titles, status messages, translations (`i18n/astrofind_pt_BR.ts`,
+  `i18n/astrofind_en.ts`) and the documentation (wiki, in-app Help EN/PT). The four truly
+  universal single-word menu names (File, Edit, Help, Undo) were kept: they are the same in
+  virtually every desktop application and renaming them would hurt usability for no real
+  reason. Keyboard shortcuts and behavior are unchanged, only the visible text moved. See the
+  table below for old versus new.
+  🇧🇷 Uma varredura programática dos textos de menu (`tr(...)`) contra o `Astrometrica.exe`
+  original achou 29 coincidências reais (26 identidades exatas mais 3 quase-idênticas,
+  ignorando só o mnemônico `&` e as reticências). Todas foram reescritas com redação própria do
+  AstroFind (mesmo significado, palavras diferentes), na barra de menus, barras de ferramentas,
+  títulos de diálogo, mensagens de status, traduções (`i18n/astrofind_pt_BR.ts`,
+  `i18n/astrofind_en.ts`) e na documentação (wiki, Ajuda embutida EN/PT). Os quatro nomes de
+  menu de uma palavra realmente universais (File, Edit, Help, Undo) foram mantidos: são iguais
+  em praticamente todo aplicativo de mesa, e renomeá-los prejudicaria o uso sem ganho real.
+  Atalhos de teclado e comportamento não mudaram, só o texto visível. Veja a tabela abaixo,
+  antigo contra novo.
+
+  | EN (old → new) | PT-BR (old → new) |
+  |---|---|
+  | Load Images... → Import Images... | Carregar Imagens... → Importar Imagens... |
+  | Save as FITS... → Save FITS Copy... | Salvar como FITS... → Salvar Cópia em FITS... |
+  | Export Image to... → Export Image As... | Exportar Imagem como... → Exportar Imagem Como... |
+  | Reset Files → Reset Session Files | Resetar Arquivos → Limpar Arquivos da Sessão |
+  | Astrometry (menu) → Astrometry Tools | Astrometria (menu) → Ferramentas de Astrometria |
+  | Data Reduction... → Run Data Reduction... | Redução de Dados... → Executar Redução de Dados... |
+  | Moving Object Detection... → Detect Moving Objects... | Detecção de Objetos em Movimento... → Detectar Objetos em Movimento... |
+  | Images (menu) → Image Tools | Imagens (menu) → Ferramentas de Imagem |
+  | Edit Image Parameters... → Edit Image Settings... | Editar Parâmetros da Imagem... → Editar Configurações da Imagem... |
+  | Display Header... → View FITS Header... | Exibir Cabeçalho... → Ver Cabeçalho FITS... |
+  | Re-Stack Images → Rebuild Stack | Re-empilhar Imagens → Reconstruir Empilhamento |
+  | Fit Window Size → Fit to Window | Ajustar ao Tamanho da Janela → Ajustar à Janela |
+  | Invert Display → Invert Colors | Inverter Exibição → Inverter Cores |
+  | Magnifying Glass → Magnifier Tool | Lupa → Ferramenta Lupa |
+  | Tools (menu) → Utilities | Ferramentas (menu) → Utilitários |
+  | Blink Images → Begin Blink Mode | Piscar Imagens → Ativar Modo de Piscagem |
+  | Known Object Overlay → Show Known Objects | Sobreposição de Objetos Conhecidos → Mostrar Objetos Conhecidos |
+  | Download MPCOrb → Download MPCOrb Database | Baixar MPCOrb → Baixar Banco MPCOrb |
+  | Update MPCOrb → Update MPCOrb Database | Atualizar MPCOrb → Atualizar Banco MPCOrb |
+  | Windows (menu) → Window | Janelas (menu) → Janela |
+  | Tile Windows → Tile All Windows | Organizar em Grade → Organizar Todas em Grade |
+  | Cascade Windows → Cascade All Windows | Cascata de Janelas → Cascata de Todas as Janelas |
+  | Arrange all Windows → Auto-Arrange Windows | Organizar todas as Janelas → Organizar Automaticamente |
+  | Help Contents → Help Topics | Conteúdo da Ajuda → Tópicos de Ajuda |
+  | Registration... → Product Registration... | Registro... → Registro do Produto... |
+  | About... → About AstroFind... | Sobre... → Sobre o AstroFind... |
+  | View Standard Toolbar → Show Main Toolbar | Exibir barra de ferramentas padrão → Mostrar barra de ferramentas principal |
+  | View Display Toolbar → Show Display Toolbar | Exibir barra de ferramentas de exibição → Mostrar barra de exibição |
+  | View Blink Toolbar → Show Blink Toolbar | Exibir barra de ferramentas de piscar → Mostrar barra de piscagem |
+
+- **8 more menu strings still copied from Astrometrica.exe, now rewritten / Mais 8 textos de menu
+  ainda copiados do Astrometrica.exe, agora reescritos (AUD-PROV-10, follow-up).** 🇬🇧 A second
+  pass of the same normalized comparison (ignoring `&` mnemonics and ellipsis) found 15 more
+  exact matches against `Astrometrica.exe`. The leader's decision was "only the specific ones":
+  the 8 astronomy-specific compound phrases below were rewritten with AstroFind's own wording
+  (menu, toolbar, tooltip, dialog title, `i18n/astrofind_pt_BR.ts`, `i18n/astrofind_en.ts`, wiki,
+  in-app Help EN/PT); the other 7 (`Settings`, `Zoom In`, `Zoom Out`, `Flip Horizontal`,
+  `Flip Vertical`, `Internet`, `Cancel`) were kept, same universal-UI-convention criterion already
+  applied to File/Edit/Help/Undo. Shortcuts and behavior are unchanged, only the visible text
+  moved. 🇧🇷 Uma segunda rodada da mesma comparação normalizada (ignorando o mnemônico `&` e as
+  reticências) achou mais 15 identidades exatas contra o `Astrometrica.exe`. A decisão do líder
+  foi "só os específicos": os 8 textos compostos específicos de astrometria abaixo foram
+  reescritos com redação própria do AstroFind (menu, barra de ferramentas, tooltip, título de
+  diálogo, `i18n/astrofind_pt_BR.ts`, `i18n/astrofind_en.ts`, wiki, Ajuda embutida EN/PT); os
+  outros 7 (`Settings`, `Zoom In`, `Zoom Out`, `Flip Horizontal`, `Flip Vertical`, `Internet`,
+  `Cancel`) foram mantidos, mesmo critério de convenção universal de UI já aplicado a
+  File/Edit/Help/Undo. Atalhos e comportamento não mudaram, só o texto visível.
+
+  | EN (old → new) | PT-BR (old → new) |
+  |---|---|
+  | Load Dark Frame... → Use Dark Frame for Calibration… | Carregar Dark Frame... → Usar Dark de Calibração |
+  | Load Flat Field... → Use Flat Field for Calibration… | Carregar Flat Field... → Usar Flat de Calibração |
+  | View Photometry File → Show Photometry Results | Ver Arquivo de Fotometria → Mostrar Resultados de Fotometria |
+  | Background and Range... → Adjust Black Point and Contrast… | Fundo e Intervalo... → Ajustar Ponto Preto e Contraste… |
+  | Select Markings... → Choose Marker Display… | Selecionar Marcações... → Escolher Exibição de Marcadores… |
+  | Stop Blinking → End Blink Mode | Parar Piscar → Encerrar Modo de Piscagem |
+  | Close all Images → Close Every Open Image | Fechar todas as Imagens → Fechar Todas as Imagens Abertas |
+  | Close all Windows → Close Every Window | Fechar todas as Janelas → Fechar Todas as Janelas |
+
+- **Review round for AUD-PROV-10: two more near-matches, one statusTip copy, two Portuguese source
+  strings, and one mnemonic collision / Rodada de revisão do AUD-PROV-10: mais duas
+  quase-identidades, um statusTip copiado, duas strings-fonte em português e uma colisão de
+  mnemônico.** 🇬🇧 Independent review against the exe strings found that `Tile All Windows` /
+  `Cascade All Windows` (from the earlier 29-item pass) had drifted back close to
+  `Tile all Windows` / `Cascade all Windows` in the original; they are now `Arrange Windows Side
+  by Side` / `Stack Windows Diagonally`. The `Settings` statusTip `Edit program settings` (an
+  exact exe match) is now `Adjust program preferences and options`. Two menu strings had
+  **Portuguese text baked into the English `tr()` source** (`Projetos &Recentes`,
+  `&Fechar Imagens` plus its statusTip), so English users were seeing Portuguese even though
+  `i18n/astrofind_en.ts` reported "0 unfinished" (the source itself was wrong, not the
+  translation). Sources are now `Recent &Projects` / `Close Loaded I&mages`, with the existing
+  Portuguese wording moved to `i18n/astrofind_pt_BR.ts` as a real translation. A new pt-BR
+  mnemonic collision introduced by the first AUD-PROV-10 fix (`Usar Fl&at de Calibração` × `&Abrir
+  Projeto`, both `A`) is resolved (`&Usar Flat de Calibração`). Single-word generic labels
+  (`Window`, `Display`, `Images`, `Image Catalog`) are kept, same criterion as the 11 approved
+  generics. 🇧🇷 A revisão independente contra os textos do exe achou que `Tile All Windows` /
+  `Cascade All Windows` (da rodada anterior de 29 itens) tinham voltado a ficar parecidos com
+  `Tile all Windows` / `Cascade all Windows` do original; agora são `Arrange Windows Side by
+  Side` / `Stack Windows Diagonally`. O statusTip de `Settings`, `Edit program settings`
+  (identidade exata com o exe), agora é `Adjust program preferences and options`. Duas strings de
+  menu tinham **texto em português cravado na fonte `tr()` em inglês**
+  (`Projetos &Recentes`, `&Fechar Imagens` e o statusTip dela), então usuários em inglês viam
+  português mesmo com `i18n/astrofind_en.ts` reportando "0 unfinished" (a fonte estava errada,
+  não a tradução). As fontes agora são `Recent &Projects` / `Close Loaded I&mages`, com o texto em
+  português já existente movido para `i18n/astrofind_pt_BR.ts` como tradução de verdade. Uma nova
+  colisão de mnemônico em pt-BR introduzida pela primeira correção do AUD-PROV-10
+  (`Usar Fl&at de Calibração` × `&Abrir Projeto`, ambos `A`) foi resolvida (`&Usar Flat de
+  Calibração`). Os rótulos genéricos de uma palavra (`Window`, `Display`, `Images`, `Image
+  Catalog`) foram mantidos, mesmo critério dos 11 genéricos já aprovados.
 
 ### Added / Adicionado
 
@@ -59,6 +270,31 @@ primeiro.
   🇧🇷 Varredura de segredos: job gitleaks no CI sobre todo o histórico e passo gitleaks no
   `scripts/pre-commit` (AUD-SEC-8). Testes de regressão com cabeçalhos hostis (NAXIS=4,
   100000², tamanhos mentirosos, XISF) e pixels não finitos nos centroides (AUD-TEST-4).
+- 🇬🇧 Tests with a normal and a hostile case for the SER, XISF, PNG/TIFF (QImage), 1-D
+  spectrum, reduction-table, TAR (libarchive) and ZIP loaders/extractors (AUD-TEST-6,
+  `tests/test_loaders_extra.cpp`, `tests/test_archive_zip_ui.cpp`). The archive
+  extraction moved from `MainWindow` to `core/ArchiveExtractor` so it is covered by the
+  ASan/valgrind runs; behaviour and messages are unchanged. Catch2 test names no longer
+  contain commas, which split a name filter into two and ran nothing (AUD-TEST-5).
+  🇧🇷 Testes com um caso normal e um hostil para os carregadores/extratores SER, XISF,
+  PNG/TIFF (QImage), espectro 1-D, tabela de redução, TAR (libarchive) e ZIP
+  (AUD-TEST-6, `tests/test_loaders_extra.cpp`, `tests/test_archive_zip_ui.cpp`). A extração
+  de arquivos saiu da `MainWindow` para `core/ArchiveExtractor`, para ser coberta pelas
+  execuções ASan/valgrind; comportamento e mensagens iguais. Os nomes dos testes Catch2
+  não têm mais vírgula, que partia o filtro por nome em dois e não rodava nada
+  (AUD-TEST-5).
+- 🇬🇧 Audit gate (AUD-CI-7): reads the clang-tidy report and fails on error-level lines
+  (warnings stay non-blocking; on Debian 12 and Ubuntu 24.04, whose clang cannot parse
+  this C++23 code with their own libstdc++, errors are shown as a warning). A missing
+  report of any required tool, a clang-tidy run that analysed nothing, or a valgrind run
+  that aborted now fails the job instead of passing with a warning. `unzip` is installed
+  in the audit matrix so the ZIP tests run there. 🇧🇷 Portão da auditoria (AUD-CI-7): lê o
+  relatório do clang-tidy e falha em linhas de nível error (warnings continuam sem
+  bloquear; no Debian 12 e no Ubuntu 24.04, cujo clang não consegue analisar este código
+  C++23 com a libstdc++ deles, os errors viram aviso). Relatório ausente de uma ferramenta
+  obrigatória, clang-tidy que não analisou nada ou valgrind abortado agora reprovam o job
+  em vez de passar com aviso. O `unzip` é instalado na matriz da auditoria para os testes
+  de ZIP rodarem lá.
 
 ---
 

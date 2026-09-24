@@ -321,7 +321,7 @@ TEST_CASE("computeDifferentialZeroPoint: nullopt with empty catalog", "[photomet
 // `zp = mag_inst - mag_cat` flip would produce a value of the same magnitude
 // but opposite sign — clearly distinguishable from the expected one.
 
-TEST_CASE("computeZeroPoint: ZP = mag_cat - mag_inst, with correct sign, for known flux+catalog mag",
+TEST_CASE("computeZeroPoint: ZP = mag_cat - mag_inst with correct sign for known flux+catalog mag",
           "[photometry][AUD-CORR-5]")
 {
     constexpr double diskR = 4.0;
@@ -403,7 +403,7 @@ TEST_CASE("computeZeroPoint: ZP = mag_cat - mag_inst, with correct sign, for kno
 // really feeds the MPC magnitude: mag_corrected = mag_inst - k*X. This locks
 // the SIGN so a flip (+k*X instead of -k*X) fails here first.
 
-TEST_CASE("applyExtinctionCorrection: X=2, k=0.2 gives exactly -0.4 mag correction",
+TEST_CASE("applyExtinctionCorrection: X=2 and k=0.2 give exactly -0.4 mag correction",
           "[photometry][AUD-CORR-5]")
 {
     const double corrected = core::applyExtinctionCorrection(/*instMag=*/10.0, /*kExt=*/0.2, /*airmass=*/2.0);

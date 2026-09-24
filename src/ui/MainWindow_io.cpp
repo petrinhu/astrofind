@@ -2,30 +2,14 @@
 // Copyright (C) 2026 Petrus Silva Costa
 
 #include "MainWindow_p.h"
+#include "core/ArchiveExtractor.h"
 
-#include <sys/stat.h>
 #include <algorithm>
 #include <exception>
 
 #include <QSet>
 
 namespace {
-
-// AUD-INPUT-4: unzip(1) happily recreates a ZIP entry stored as a symlink
-// (or, with the Unix extra field, a FIFO/device) under its original name —
-// including a name ending in ".fits". QDir::Files/QDirIterator dereferences
-// symlinks, so a "*.fits" entry that is actually a symlink to /etc/passwd or
-// ~/.ssh/id_rsa would otherwise sail through and be handed to loadImage(),
-// which follows the link (arbitrary file read) or hangs (FIFO). lstat (which
-// does NOT follow the link) is the only way to see the entry's real type;
-// only S_ISREG is accepted.
-bool isSafeRegularFile(const QString& path)
-{
-    struct stat st{};
-    if (::lstat(path.toLocal8Bit().constData(), &st) != 0)
-        return false;
-    return S_ISREG(st.st_mode);
-}
 
 // Item 21.2: a detached PDS3 product is two files (FOO.IMG + FOO.LBL) and
 // loadImage() on the .img already finds its .lbl. When both are in the list
@@ -295,7 +279,7 @@ void MainWindow::onSaveAllFits()
 void MainWindow::onLoadDarkFrame()
 {
     const QString path = QFileDialog::getOpenFileName(this,
-        tr("Load Dark Frame"),
+        tr("Choose Dark Frame File"),
         settings_.value(QStringLiteral("paths/lastImageDir"), QDir::homePath()).toString(),
         tr("FITS Images (*.fits *.fit *.fts);;All files (*)"));
     if (path.isEmpty()) return;
@@ -316,7 +300,7 @@ void MainWindow::onLoadDarkFrame()
 void MainWindow::onLoadFlatField()
 {
     const QString path = QFileDialog::getOpenFileName(this,
-        tr("Load Flat Field"),
+        tr("Choose Flat Field File"),
         settings_.value(QStringLiteral("paths/lastImageDir"), QDir::homePath()).toString(),
         tr("FITS Images (*.fits *.fit *.fts);;All files (*)"));
     if (path.isEmpty()) return;
@@ -1109,7 +1093,7 @@ void MainWindow::onReloadMpcOrb()
     const QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
                          + "/MPCORB.DAT";
     if (!QFile::exists(path)) {
-        logPanel_->appendWarning(tr("MPCORB.DAT not found. Use Internet → Download MPCOrb."));
+        logPanel_->appendWarning(tr("MPCORB.DAT not found. Use Internet → Download MPCOrb Database."));
         return;
     }
     const int n = core::countMpcOrbRecords(path);
@@ -1427,182 +1411,92 @@ bool MainWindow::isLibArchiveFormat(const QString& path) noexcept
 }
 
 // ─── expandArchive (libarchive) ───────────────────────────────────────────────
+// The extraction itself is core::extractArchiveImages (AUD-TEST-6: unit-tested
+// in astrofind_tests); this wrapper owns the temp directory and the log.
+
+namespace {
+
+/// Unique per-archive subdirectory, so scanning one archive never picks up
+/// files extracted from a previous one.
+QString uniqueExtractDir(const QTemporaryDir& tmp, const QString& archivePath)
+{
+    return tmp.path() + QDir::separator()
+        + QFileInfo(archivePath).baseName().left(32)
+        + QStringLiteral("_") + QString::number(QDateTime::currentMSecsSinceEpoch());
+}
+
+} // namespace
 
 QStringList MainWindow::expandArchive(const QString& archivePath)
 {
-    QStringList result;
-
-#ifndef ASTROFIND_HAS_LIBARCHIVE
-    logPanel_->appendWarning(
-        tr("Cannot extract '%1': libarchive not available. "
-           "Install libarchive-devel and recompile.")
-            .arg(QFileInfo(archivePath).fileName()));
-    return result;
-#else
-    // Image file extensions we want to extract
-    static const QStringList kExts = {
-        ".fits", ".fit", ".fts", ".ser", ".xisf",
-        ".tiff", ".tif", ".png",
-        ".img", ".lbl",
-        ".cr2", ".cr3", ".nef", ".arw", ".dng", ".raf", ".orf", ".rw2", ".pef"
-    };
-    auto isImageFile = [&](const char* name) -> bool {
-        const QString n = QString::fromUtf8(name).toLower();
-        for (const auto& ext : kExts)
-            if (n.endsWith(ext)) return true;
-        return false;
-    };
+    if (!core::hasLibArchiveSupport()) {
+        logPanel_->appendWarning(
+            tr("Cannot extract '%1': libarchive not available. "
+               "Install libarchive-devel and recompile.")
+                .arg(QFileInfo(archivePath).fileName()));
+        return {};
+    }
 
     if (!tempDir_) tempDir_ = std::make_unique<QTemporaryDir>();
     if (!tempDir_->isValid()) {
         logPanel_->appendError(tr("Could not create temp directory for archive extraction"));
-        return result;
+        return {};
     }
 
-    const QString extractDir = tempDir_->path() + QDir::separator()
-        + QFileInfo(archivePath).baseName().left(32)
-        + QStringLiteral("_") + QString::number(QDateTime::currentMSecsSinceEpoch());
+    const QString extractDir = uniqueExtractDir(*tempDir_, archivePath);
     QDir().mkpath(extractDir);
 
-    struct archive* ar = archive_read_new();
-    archive_read_support_filter_all(ar);
-    archive_read_support_format_all(ar);
-
-    if (archive_read_open_filename(ar, archivePath.toLocal8Bit().constData(), 65536) != ARCHIVE_OK) {
+    const core::ArchiveExtraction ex = core::extractArchiveImages(archivePath, extractDir);
+    if (ex.status == core::ArchiveExtraction::Status::OpenFailed) {
         logPanel_->appendError(tr("Cannot open archive: %1 — %2")
-            .arg(QFileInfo(archivePath).fileName(),
-                 QString::fromLocal8Bit(archive_error_string(ar))));
-        archive_read_free(ar);
-        return result;
+            .arg(QFileInfo(archivePath).fileName(), ex.error));
+        return {};
     }
+    for (const QString& skipped : ex.skippedNonRegular)
+        logPanel_->appendWarning(
+            tr("Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1")
+                .arg(skipped));
 
-    struct archive_entry* entry = nullptr;
-    while (archive_read_next_header(ar, &entry) == ARCHIVE_OK) {
-        const char* pathname = archive_entry_pathname(entry);
-        if (!pathname || !isImageFile(pathname)) {
-            archive_read_data_skip(ar);
-            continue;
-        }
-
-        // AUD-INPUT-4: reject any entry that is not a plain regular file
-        // BEFORE recreating it on disk. Without this check, an entry named
-        // "*.fits" that is actually a symlink (or FIFO/device) is happily
-        // written by archive_write_disk and handed back to loadImage(),
-        // which follows the link — arbitrary file read (e.g. /etc/passwd,
-        // ~/.ssh/id_rsa) or a hang on a FIFO, all from an untrusted archive.
-        // Only AE_IFREG is accepted; symlinks/FIFOs/devices/sockets/dirs
-        // are skipped and logged.
-        if (archive_entry_filetype(entry) != AE_IFREG) {
-            logPanel_->appendWarning(
-                tr("Skipped non-regular archive entry (symlink/device/FIFO not allowed): %1")
-                    .arg(QString::fromUtf8(pathname)));
-            archive_read_data_skip(ar);
-            continue;
-        }
-
-        // Flatten to basename — avoids recreating the archive's directory tree
-        const QString baseName = QFileInfo(QString::fromUtf8(pathname)).fileName();
-        const QString destPath = extractDir + QDir::separator() + baseName;
-        archive_entry_set_pathname(entry, destPath.toLocal8Bit().constData());
-
-        struct archive* wr = archive_write_disk_new();
-        archive_write_disk_set_options(wr,
-            ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_SECURE_NODOTDOT);
-        archive_write_disk_set_standard_lookup(wr);
-
-        if (archive_write_header(wr, entry) == ARCHIVE_OK) {
-            const void* buf; size_t size; la_int64_t offset;
-            while (archive_read_data_block(ar, &buf, &size, &offset) == ARCHIVE_OK)
-                archive_write_data_block(wr, buf, size, offset);
-            archive_write_finish_entry(wr);
-            result.append(destPath);
-        }
-        archive_write_free(wr);
-    }
-    archive_read_free(ar);
-
-    result.sort();
-    if (result.isEmpty())
+    if (ex.files.isEmpty())
         logPanel_->appendWarning(
             tr("No image files found in archive: %1").arg(QFileInfo(archivePath).fileName()));
     else
         logPanel_->appendInfo(tr("Extracted %1 image file(s) from %2")
-            .arg(result.size()).arg(QFileInfo(archivePath).fileName()));
-    return result;
-#endif
+            .arg(ex.files.size()).arg(QFileInfo(archivePath).fileName()));
+    return ex.files;
 }
 
 // ─── expandZip ────────────────────────────────────────────────────────────────
+// Extraction: core::extractZipImages (system unzip, AUD-TEST-6 unit-tested).
 
 QStringList MainWindow::expandZip(const QString& zipPath)
 {
-    QStringList result;
-
     if (!tempDir_)
         tempDir_ = std::make_unique<QTemporaryDir>();
 
     if (!tempDir_->isValid()) {
         logPanel_->appendError(tr("Could not create temp directory for ZIP extraction"));
-        return result;
+        return {};
     }
 
-    // Each ZIP gets its own unique subdirectory so that scanning one ZIP
-    // never picks up files extracted from a previous ZIP.
-    const QString extractDir = tempDir_->path() + QDir::separator()
-        + QFileInfo(zipPath).baseName().left(32)
-        + QStringLiteral("_") + QString::number(QDateTime::currentMSecsSinceEpoch());
+    const QString extractDir = uniqueExtractDir(*tempDir_, zipPath);
     QDir().mkpath(extractDir);
 
-    // Extract supported image files from the ZIP using system unzip
-    QProcess proc;
-    proc.start("unzip", {
-        "-o", zipPath,
-        "*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
-        "*.ser", "*.SER",
-        "*.xisf", "*.XISF",
-        "*.tiff", "*.tif", "*.TIFF", "*.TIF",
-        "*.png", "*.PNG",
-        "*.img", "*.IMG", "*.lbl", "*.LBL",
-        "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
-        "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
-        "*.pef", "*.PEF",
-        "-d", extractDir
-    });
-
-    if (!proc.waitForFinished(30000)) {
+    const core::ArchiveExtraction ex = core::extractZipImages(zipPath, extractDir);
+    if (ex.status == core::ArchiveExtraction::Status::ToolFailed) {
         logPanel_->appendError(tr("Timed out extracting ZIP: %1").arg(zipPath));
-        return result;
+        return {};
     }
+    for (const QString& skipped : ex.skippedNonRegular)
+        logPanel_->appendWarning(
+            tr("Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1")
+                .arg(skipped));
 
-    // Search only inside this ZIP's own subdirectory
-    QDirIterator it(extractDir,
-                    {"*.fits", "*.fit", "*.fts", "*.FITS", "*.FIT",
-                     "*.ser", "*.SER", "*.xisf", "*.XISF",
-                     "*.tiff", "*.tif", "*.TIFF", "*.TIF", "*.png", "*.PNG",
-                     "*.img", "*.IMG", "*.lbl", "*.LBL",
-                     "*.cr2", "*.CR2", "*.cr3", "*.CR3", "*.nef", "*.NEF", "*.arw", "*.ARW",
-                     "*.dng", "*.DNG", "*.raf", "*.RAF", "*.orf", "*.ORF", "*.rw2", "*.RW2",
-                     "*.pef", "*.PEF"},
-                    QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        const QString candidate = it.next();
-        // AUD-INPUT-4: reject anything unzip recreated that is not a plain
-        // regular file (symlink/FIFO/device) — see isSafeRegularFile above.
-        if (!isSafeRegularFile(candidate)) {
-            logPanel_->appendWarning(
-                tr("Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1")
-                    .arg(candidate));
-            continue;
-        }
-        result.append(candidate);
-    }
-    result.sort();
-
-    if (result.isEmpty())
+    if (ex.files.isEmpty())
         logPanel_->appendWarning(tr("No image files found in ZIP: %1").arg(QFileInfo(zipPath).fileName()));
     else
         logPanel_->appendInfo(tr("Extracted %1 image file(s) from %2")
-            .arg(result.size()).arg(QFileInfo(zipPath).fileName()));
+            .arg(ex.files.size()).arg(QFileInfo(zipPath).fileName()));
 
-    return result;
+    return ex.files;
 }

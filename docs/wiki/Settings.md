@@ -119,7 +119,7 @@ Manual coordinates / Coordenadas manuais:
 | Altitude (`m`) | Height above sea level in metres. | Altura acima do nível do mar em metros. | 0 | −500 … 8000 | `observer/altitude` |
 
 > ⚠️ **Watch out / Atenção**
-> 🇬🇧 If the location stays at 0°, 0°, Data Reduction warns "Localização não configurada":
+> 🇬🇧 If the location stays at 0°, 0°, Run Data Reduction warns "Localização não configurada":
 > your positions would be reported as if taken from the centre of the Earth (a point in the
 > Atlantic Ocean). Always set a location before a real submission. The status bar shows the
 > current choice ("Obs: …").
@@ -148,7 +148,7 @@ Manual coordinates / Coordenadas manuais:
 > time zone are simply **assumed to be UTC**, and the Log warns "DATE-OBS sem fuso horário e
 > sem TIMESYS — assumido UTC; verifique se a câmera grava hora local." If your camera records
 > local time, fix the times at the source (camera/capture program) or per image in
-> **Images → Edit Image Parameters...** (Julian Date).
+> **Image Tools → Edit Image Settings...** (Julian Date).
 > 🇧🇷 A dica diz que o valor é "usado apenas se os cabeçalhos FITS não tiverem horário UTC". Na
 > versão 1.1.0 nenhuma parte do processamento lê esse valor. Horários sem fuso são
 > simplesmente **considerados UTC**, e o Registro avisa "DATE-OBS sem fuso horário e sem
@@ -157,7 +157,7 @@ Manual coordinates / Coordenadas manuais:
 > Parâmetros da Imagem...** (Data Juliana).
 
 > 💡 **Time Offset / Deslocamento de tempo**
-> 🇬🇧 This is a **camera-clock correction in seconds**. Data Reduction applies it **exactly
+> 🇬🇧 This is a **camera-clock correction in seconds**. Run Data Reduction applies it **exactly
 > once** per image: running the reduction again or re-opening a project never adds it a second
 > time, and if you change the value only the difference is applied. AstroFind never fills
 > this field by itself. **What to enter:** `0` unless you know your camera clock error (for
@@ -253,7 +253,7 @@ placa.
 > in mm (e.g. 3.76 µm and 530 mm → 1.46″/px). The box accepts 0 to 100 with 3 decimals.
 > In 1.1.0 and earlier the box was wrongly labelled **°/px** and could not go above 1, although
 > the value was already read as ″/px; there, scales above 1″/px had to be given per image in
-> **Images → Edit Image Parameters...**.
+> **Image Tools → Edit Image Settings...**.
 > 🇧🇷 A caixa está em **segundos de arco por pixel** (″/px), para a câmera **sem binning**; a
 > Redução de Dados multiplica pelo binning de cada imagem. Só é usada quando a imagem não tem
 > escala própria. **O que digitar:** deixe em **Automático (0)** — o plate solver acha a
@@ -285,7 +285,7 @@ ela aponta.
 | Timeout: | Tempo limite: | How long to wait for an online solution before giving up. | Quanto esperar pela solução online antes de desistir. | 300 s | 60 … 600 s | `astrometry/timeoutSec` | 🟡 |
 
 > 💡 **Tip / Dica**
-> 🇬🇧 No key yet? When you run Data Reduction with the astrometry.net backend, AstroFind asks
+> 🇬🇧 No key yet? When you run Run Data Reduction with the astrometry.net backend, AstroFind asks
 > "Enter your free API key from nova.astrometry.net:". Images that already contain a plate
 > solution (WCS) are not solved again, so they need no key.
 > 🇧🇷 Ainda sem chave? Ao rodar a Redução de Dados com astrometry.net, o AstroFind pede "Enter
@@ -297,7 +297,7 @@ ela aponta.
 | EN label | PT label | Meaning | Significado | Default | Key | Level |
 |---|---|---|---|---|---|---|
 | MPCORB.DAT: | MPCORB.DAT: | Where the offline asteroid orbit file is kept. | Onde fica o arquivo offline de órbitas de asteroides. | `~/.local/share/AstroFind/AstroFind/MPCORB.DAT` | `catalog/mpcOrbPath` | 🟡 |
-| Default image folder: | Pasta padrão de imagens: | Folder that **Load Images** opens the first time (later it remembers the last folder used, `paths/lastImageDir`). | Pasta que **Carregar Imagens** abre da primeira vez (depois lembra a última usada). | your Pictures folder | `paths/ccdDir` | 🟢 |
+| Default image folder: | Pasta padrão de imagens: | Folder that **Import Images** opens the first time (later it remembers the last folder used, `paths/lastImageDir`). | Pasta que **Importar Imagens** abre da primeira vez (depois lembra a última usada). | your Pictures folder | `paths/ccdDir` | 🟢 |
 | Report output folder: | Pasta de saída de relatórios: | When not empty, **View ADES Report File** auto-saves `ades_report.xml` and `ades_report.psv` here each time. | Quando preenchida, **Ver Arquivo de Relatório ADES** salva automaticamente `ades_report.xml` e `ades_report.psv` aqui a cada vez. | your Documents folder | `report/outputDir` | 🟢 |
 | ☐ Save WCS back to FITS file after plate solve | ☐ Salvar WCS no arquivo FITS após solução de campo | Writes the plate solution into your **original** FITS file. | Grava a solução de placa no seu arquivo FITS **original**. | off | `astrometry/saveWcs` | 🔴 |
 
@@ -380,11 +380,11 @@ ela aponta.
 |---|---|---|---|---|---|---|
 | Detection threshold: | Limiar de detecção: | How many times brighter than the noise (σ) a spot must be to count as a star. Lower = more (and fainter, and more false) detections. | Quantas vezes acima do ruído (σ) uma mancha precisa estar para contar como estrela. Menor = mais detecções (mais fracas e mais falsas). | 4.0 σ | 1 … 20 | `detection/sigmaLimit` |
 | Minimum FWHM: | FWHM mínimo: | Smallest star size accepted; smaller spots (hot pixels, cosmic rays) are dropped. FWHM = star width at half its peak. | Menor tamanho de estrela aceito; manchas menores (pixels quentes, raios cósmicos) são descartadas. FWHM = largura da estrela na metade do pico. | 0.70″ | 0.1 … 10 ″ | `detection/minFwhm` |
-| MOD min. SNR: | MOD SNR mín.: | Minimum signal-to-noise ratio for a moving-object candidate in **Moving Object Detection**. | Relação sinal/ruído mínima de um candidato em **Detecção de Objetos em Movimento**. | 5.0 | 1 … 50 | `detection/minSnr` |
+| MOD min. SNR: | MOD SNR mín.: | Minimum signal-to-noise ratio for a moving-object candidate in **Detect Moving Objects**. | Relação sinal/ruído mínima de um candidato em **Detectar Objetos em Movimento**. | 5.0 | 1 … 50 | `detection/minSnr` |
 | Streak threshold (a/b): | Limiar de traço (a/b): | How elongated (long axis ÷ short axis) a source must be to be flagged as a streak (orange). | Quão alongada (eixo maior ÷ menor) uma fonte precisa ser para virar traço (laranja). | 3.0 | 1.5 … 20, step 0.5 | `detection/streakElongation` |
 
 > 💡 **Minimum FWHM / FWHM mínimo**
-> 🇬🇧 The box is in **arcseconds** (″). Data Reduction divides it by the pixel scale, so it is
+> 🇬🇧 The box is in **arcseconds** (″). Run Data Reduction divides it by the pixel scale, so it is
 > applied only when the image scale is known. **What to enter:** the default `0.70` (0.7″) is
 > fine for almost everyone. If real faint stars disappear, lower it; if hot pixels are
 > detected as stars, raise it toward about half your typical seeing (e.g. `1.0` when stars are
@@ -409,7 +409,7 @@ ela aponta.
 | Catalog mag (bright): | Magnitude do catálogo (brilhante): | Catalog stars **brighter** than this are ignored (they are often saturated). | Estrelas de catálogo **mais brilhantes** que isso são ignoradas (costumam saturar). | 10.0 | 0 … 15 | `catalog/maxMag` | 🟡 |
 | ☑ Include magnitude in ADES report | ☑ Incluir magnitude no relatório ADES | Put the measured magnitude in the report. | Coloca a magnitude medida no relatório. | on | — | `report/includeMag` | 🟢 |
 | ◉ Automatic  (2 × FWHM — recommended) | ◉ Automático  (2 × FWHM — recomendado) | Measuring circle radius = max(3 px, 2 × FWHM). Group "Aperture Radius" / "Raio da abertura". | Raio do círculo de medição = máx(3 px, 2 × FWHM). | on | — | `photometry/apertureAuto` | 🔴 |
-| ○ Fixed: | ○ Fixo: | A fixed radius in pixels. **Tools → Growth Curve…** can fill it for you ("Use optimal aperture"). | Um raio fixo em pixels. **Ferramentas → Curva de Crescimento…** pode preencher ("Use optimal aperture"). | 8.0 px | 1 … 50 | `photometry/apertureManPx` | 🔴 |
+| ○ Fixed: | ○ Fixo: | A fixed radius in pixels. **Utilities → Growth Curve…** can fill it for you ("Use optimal aperture"). | Um raio fixo em pixels. **Utilitários → Curva de Crescimento…** pode preencher ("Use optimal aperture"). | 8.0 px | 1 … 50 | `photometry/apertureManPx` | 🔴 |
 | Extinction coeff k: | Coef. de extinção k: | How much the atmosphere dims stars per airmass (thickness of air). `0` = no correction. | Quanto a atmosfera apaga as estrelas por massa de ar. `0` = sem correção. | 0.0 | 0 … 1 mag/airmass | `photometry/extinctionCoeff` | 🔴 |
 
 > 💡 **Tip / Dica**
@@ -494,7 +494,7 @@ etapa**. Um campo deixado vazio **não** apaga um valor que você já tinha.
 | | Telescope: / Telescópio: | Observer → Telescope / Instrument | `observer/telescope` |
 | | ☐ Show this wizard every time AstroFind starts / Mostrar este assistente sempre que o AstroFind iniciar | Display → Show setup wizard… | `display/showWizardOnStartup` |
 | Step 2 of 3 — Plate-solving API Key / Etapa 2 de 3 — Chave de API para solução de campo | API key ("Paste your key here" / "Cole sua chave aqui"), **Show**/**Hide**, link "Register for a free API key at nova.astrometry.net" | Connections → API Key | `astrometry/apiKey`, moved into the system keychain the first time it is read when a keychain is available |
-| Step 3 of 3 — Asteroid Catalog (optional) / Etapa 3 de 3 — Catálogo de asteroides (opcional) | **Download now (~200 MB)** / **Baixar agora (~200 MB)**, **Cancel**; status "Not downloaded" or "✓ MPCORB.DAT already present" | Same as **Internet → Download MPCOrb**; file at Connections → MPCORB.DAT | `catalog/mpcOrbPath` (file location) |
+| Step 3 of 3 — Asteroid Catalog (optional) / Etapa 3 de 3 — Catálogo de asteroides (opcional) | **Download now (~200 MB)** / **Baixar agora (~200 MB)**, **Cancel**; status "Not downloaded" or "✓ MPCORB.DAT already present" | Same as **Internet → Download MPCOrb Database**; file at Connections → MPCORB.DAT | `catalog/mpcOrbPath` (file location) |
 
 🇬🇧 The wizard does **not** ask for your location. Set it afterwards in **Settings →
 Observer → Location**. Without an API key you can still work: images that already have a plate

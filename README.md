@@ -33,8 +33,8 @@
 [![openSUSE](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-opensuse-tw.yml?branch=main&label=openSUSE%20Tumbleweed&logo=opensuse&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-opensuse-tw.yml)
 [![Rocky Linux](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-rocky-9.yml?branch=main&label=Rocky%20Linux%209&logo=rockylinux&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-rocky-9.yml)
 [![Linux Mint](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-mint-22.yml?branch=main&label=Linux%20Mint%2022&logo=linuxmint&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-mint-22.yml)
-[![Pop!_OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-pop-os-22.yml?branch=main&label=Pop!_OS%2022.04&logo=popos&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-pop-os-22.yml)
-[![Zorin OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-zorin-17.yml?branch=main&label=Zorin%20OS%2017)](https://github.com/petrinhu/astrofind/actions/workflows/qa-zorin-17.yml)
+[![Pop!_OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-pop-os-22.yml?branch=main&label=Pop!_OS%20%2824.04%20base%29&logo=popos&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-pop-os-22.yml)
+[![Zorin OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-zorin-17.yml?branch=main&label=Zorin%20OS%20%2824.04%20base%29)](https://github.com/petrinhu/astrofind/actions/workflows/qa-zorin-17.yml)
 
 <!-- Community -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
@@ -287,14 +287,14 @@ cmake --build build --target AstroFind -j$(nproc)
 
 The **Workflow** panel on the left walks you through the same six steps:
 
-1. **File → Load Images…**: open 3 or more frames of the same field (FITS, or any format in
+1. **File → Import Images…**: open 3 or more frames of the same field (FITS, or any format in
    [Features](#features--recursos); **FITS** = Flexible Image Transport System, the
    standard astronomical image format).
-2. **Astrometry → Data Reduction…** (`Ctrl+A`): calibration, star detection and plate
+2. **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`): calibration, star detection and plate
    solving (online via astrometry.net, free API key, or offline via ASTAP).
-3. **Tools → Known Object Overlay** (`Ctrl+K`): reference stars and the known asteroids in
+3. **Utilities → Show Known Objects** (`Ctrl+K`): reference stars and the known asteroids in
    the field.
-4. **Tools → Blink Images** (`Ctrl+B`) or **Astrometry → Moving Object Detection…**
+4. **Utilities → Begin Blink Mode** (`Ctrl+B`) or **Astrometry Tools → Detect Moving Objects…**
    (`Ctrl+M`): find what moved.
 5. **Edit → Aperture Tool** (`A`) or the **Measure Object** button (`M`): click the object; check
    the Verification dialog and accept.
@@ -308,15 +308,15 @@ beginners, with a menu and settings reference.
 
 O painel **Fluxo** à esquerda conduz pelos mesmos seis passos:
 
-1. **Arquivo → Carregar Imagens…**: abra 3 ou mais quadros do mesmo campo (FITS, ou qualquer
+1. **Arquivo → Importar Imagens…**: abra 3 ou mais quadros do mesmo campo (FITS, ou qualquer
    formato em [Recursos](#features--recursos); **FITS** = Flexible Image Transport System, o
    formato padrão de imagem astronômica).
-2. **Astrometria → Redução de Dados…** (`Ctrl+A`): calibração, detecção de estrelas e plate
+2. **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`): calibração, detecção de estrelas e plate
    solving (online via astrometry.net, com chave de API gratuita, ou offline via ASTAP).
-3. **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`): estrelas de referência
+3. **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`): estrelas de referência
    e os asteroides conhecidos no campo.
-4. **Ferramentas → Piscar Imagens** (`Ctrl+B`) ou **Astrometria → Detecção de Objetos em
-   Movimento…** (`Ctrl+M`): encontre o que se moveu.
+4. **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`) ou **Ferramentas de Astrometria → Detectar
+   Objetos em Movimento…** (`Ctrl+M`): encontre o que se moveu.
 5. **Editar → Ferramenta Abertura** (`A`) ou o botão **Medir Objeto** (`M`): clique no objeto; confira
    o diálogo de Verificação e aceite.
 6. **Arquivo → Ver Arquivo de Relatório ADES**: revise o relatório ADES e, após verificação,

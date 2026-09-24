@@ -67,6 +67,9 @@ double angularDistance(double ra1_deg, double dec1_deg,
 /// No-op if the object is below 1° altitude, site coordinates are non-finite,
 /// or the caller is a space telescope (no atmosphere).
 ///
+/// AUD-CORR-7: the measurement pipeline does NOT call this on plate-solved
+/// positions (see shouldApplyRefraction()).
+///
 /// @param ra    Apparent RA (degrees), corrected in-place.
 /// @param dec   Apparent Dec (degrees), corrected in-place.
 /// @param jd    Julian Date (mid-exposure, UT1≈TT).
@@ -75,6 +78,24 @@ double angularDistance(double ra1_deg, double dec1_deg,
 /// @returns Refraction correction R (arcmin, ≥ 0). Returns 0.0 when no-op.
 double applyRefractionCorrection(double& ra, double& dec,
                                  double jd, double lat, double lon) noexcept;
+
+/// AUD-CORR-7: refraction policy for a measured position.
+///
+/// A catalog-based plate solution (WCS fitted against Gaia/UCAC4/2MASS star
+/// positions in the same exposure) maps pixels straight onto catalog (ICRS)
+/// coordinates: the reference stars are refracted by the same atmosphere as
+/// the target, so the fit already absorbs the mean refraction and, to first
+/// order, its variation across the field. Applying Bennett on top of that
+/// would correct refraction twice (up to ~1.7′ at 30° altitude).
+///
+/// @param fromCatalogPlateSolution  true when the position came from such a
+///        WCS (`FitsImage::wcs.solved` — solver or header WCS).
+/// @param isSpaceTelescope  no atmosphere → never correct.
+/// @param jd  Julian Date; the correction needs a real epoch (> 2400000).
+/// @returns true only for a ground-based position NOT derived from a catalog
+///          plate solution (e.g. pointing/mount coordinates).
+bool shouldApplyRefraction(bool fromCatalogPlateSolution, bool isSpaceTelescope,
+                           double jd) noexcept;
 
 /// Propagate a catalog star position to a target epoch using linear proper motion.
 ///
@@ -106,7 +127,10 @@ void eclipticToEquatorial(double lambda_deg, double beta_deg,
 void equatorialToGalactic(double ra_deg, double dec_deg,
                           double& l_deg, double& b_deg) noexcept;
 
-// ─── ICRS → CIRS → Topocentric chain ─────────────────────────────────────────
+// ─── Sun position and annual aberration (diagnostics) ───────────────────────
+// AUD-CORR-14 / AUD-DOC-8: there is no ICRS → CIRS chain applied to reported
+// coordinates. The reported RA/Dec stay astrometric ICRF (ADES sys=ICRF); the
+// aberration below is computed only to log its size (AUD-CORR-4).
 
 /// Low-precision geocentric ecliptic longitude and mean obliquity of the Sun.
 /// Accuracy: ~0.01° (36"); adequate for aberration and nutation calculations.

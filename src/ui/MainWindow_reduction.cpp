@@ -8,7 +8,7 @@ void MainWindow::onDataReduction()
     if (session_->isEmpty()) return;
 
     if (astrometryClient_->isBusy()) {
-        QMessageBox::information(this, tr("Data Reduction"),
+        QMessageBox::information(this, tr("Run Data Reduction"),
             tr("Plate solving is already in progress. Please wait."));
         return;
     }
@@ -353,7 +353,7 @@ void MainWindow::onStopReduction()
 void MainWindow::onMovingObjectDetection()
 {
     if (!session_ || session_->imageCount() < 2) {
-        QMessageBox::information(this, tr("Moving Object Detection"),
+        QMessageBox::information(this, tr("Detect Moving Objects"),
             tr("Load at least 2 images with completed data reduction first."));
         return;
     }
@@ -368,7 +368,7 @@ void MainWindow::onMovingObjectDetection()
         if (!img.detectedStars.isEmpty()) { hasStars = true; break; }
 
     if (!hasStars) {
-        QMessageBox::information(this, tr("Moving Object Detection"),
+        QMessageBox::information(this, tr("Detect Moving Objects"),
             tr("Run Data Reduction first to detect stars in the images."));
         return;
     }
@@ -386,13 +386,13 @@ void MainWindow::onMovingObjectDetection()
     prog.close();
 
     if (!result) {
-        QMessageBox::warning(this, tr("Moving Object Detection"), result.error());
+        QMessageBox::warning(this, tr("Detect Moving Objects"), result.error());
         return;
     }
 
     const auto& candidates = *result;
     if (candidates.isEmpty()) {
-        QMessageBox::information(this, tr("Moving Object Detection"),
+        QMessageBox::information(this, tr("Detect Moving Objects"),
             tr("No moving objects detected across %1 images.").arg(imgs.size()));
         return;
     }
@@ -453,7 +453,7 @@ void MainWindow::onMovingObjectDetection()
                     .arg(c.snr,        0, 'f', 1)
                     .arg(c.positions.size());
     }
-    QMessageBox::information(this, tr("Moving Object Detection"), lines.join('\n'));
+    QMessageBox::information(this, tr("Detect Moving Objects"), lines.join('\n'));
     spdlog::info("MOD: {} candidate(s) found", static_cast<int>(candidates.size()));
 }
 
@@ -590,14 +590,14 @@ void MainWindow::onBackgroundAndRange()
 void MainWindow::onReStackImages()
 {
     if (!session_ || session_->imageCount() < 2) {
-        QMessageBox::information(this, tr("Re-Stack Images"),
+        QMessageBox::information(this, tr("Rebuild Stack"),
             tr("Load at least 2 images first."));
         return;
     }
 
     bool modeOk = false;
     const QStringList modeNames = { tr("Average"), tr("Median"), tr("Add") };
-    const QString chosen = QInputDialog::getItem(this, tr("Re-Stack Images"),
+    const QString chosen = QInputDialog::getItem(this, tr("Rebuild Stack"),
         tr("Combination method:"), modeNames, 0, false, &modeOk);
     if (!modeOk) return;
     const core::StackMode mode = (chosen == tr("Median"))  ? core::StackMode::Median
@@ -626,7 +626,7 @@ void MainWindow::onReStackImages()
     prog.close();
 
     if (!result) {
-        QMessageBox::warning(this, tr("Re-Stack Images"), result.error());
+        QMessageBox::warning(this, tr("Rebuild Stack"), result.error());
         return;
     }
 
@@ -788,7 +788,7 @@ void MainWindow::onRegionSelected(QRect imageRect)
 void MainWindow::onBlinkImages()
 {
     if (session_->imageCount() < 2) {
-        QMessageBox::information(this, tr("Blink Images"),
+        QMessageBox::information(this, tr("Begin Blink Mode"),
             tr("Load at least 2 images to use blink mode."));
         return;
     }
@@ -880,6 +880,11 @@ void MainWindow::onKnownObjectOverlay()
 
     disconnect(catalogClient_, nullptr, this, nullptr);
     disconnect(kooEngine_,     nullptr, this, nullptr);
+    // AUD-SEC-10: a new overlay request supersedes a SkyBoT query still in
+    // flight (the cancelled one is dropped silently) instead of being ignored
+    // by queryField() while busy.
+    if (kooEngine_->isBusy())
+        kooEngine_->cancel();
 
     connect(catalogClient_, &core::CatalogClient::starsReady,
             this, &MainWindow::onCatalogReady);

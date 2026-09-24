@@ -40,6 +40,35 @@ name: Numerical Audit (ASan/UBSan + cppcheck + clang-tidy + valgrind)
 #   report even when some checker finds something. CI must therefore be the
 #   layer that turns "report exists" into "job fails on critical finding".
 #   That gating logic lives in the "Gate on critical findings" step below.
+#
+# AUD-CI-7 — HONEST EXIT CODES: every tool in the matrix is REQUIRED (they are
+#   all installed below), so a missing report is a gate FAILURE, never a
+#   warning: "the checker did not run" must not look like "the checker found
+#   nothing". clang-tidy is gated too: its report must show that it actually
+#   analysed files (no "No compilation database", no run-clang-tidy Python
+#   traceback — both happened silently in every run up to 2026-09-24), and
+#   error-level lines (" error: ", i.e. code clang could not even parse, or a
+#   check promoted to error) fail the job **when reported inside our own
+#   src/**. clang-tidy WARNINGS (thousands of style/cppcoreguidelines hits)
+#   stay non-blocking: they are in the uploaded report for humans, not a
+#   merge gate.
+#
+# AUD-CI-7 follow-up (first real clang-tidy run on code, 2026-09-24, run
+#   36070845327): `-header-filter` only hides clang-tidy CHECK diagnostics in
+#   headers — it never hides core clang-diagnostic-error/warning lines. Every
+#   spdlog::debug/info/warn call site in src/ triggered the SAME error inside
+#   build/_deps/spdlog-src/include/spdlog/logger.h:334 (spdlog's own internal
+#   SPDLOG_LOGGER_CATCH exception handler, not any format string our code
+#   passes in): "call to consteval function ... is not a constant
+#   expression". That is a confirmed, still-open clang x bundled-fmt
+#   incompatibility upstream (clang rejects pointer arithmetic inside fmt's
+#   compile-time FMT_STRING checker that GCC accepts) —
+#   https://github.com/fmtlib/fmt/issues/4501 and
+#   https://github.com/gabime/spdlog/issues/3306 — not an AstroFind bug, and
+#   no spdlog/fmt release or macro fixes it yet. The gate therefore splits
+#   error-level lines by WHERE they were reported: inside build/_deps/
+#   (third-party code we do not own) never blocks, on any image; inside our
+#   own src/ still blocks whenever tidy_gate=true, exactly as before.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -69,22 +98,37 @@ jobs:
     #   archlinux:latest     — upstream Arch, rolling (newest GCC/Qt)
     #   ubuntu:24.04         — LTS (apt)
     #   debian:12            — oldest Qt/GCC the project supports
+    #
+    # tidy_gate — whether clang-tidy ERRORS block the job on that image
+    # (AUD-CI-7). It is false only where the distro's clang cannot parse this
+    # C++23 code base with the distro's own GCC libstdc++, so every file would
+    # "error" for toolchain reasons, not code reasons:
+    #   debian:12    — clang-tidy 14 rejects -std=c++23 (spelling added in 17)
+    #   ubuntu:24.04 — clang-tidy 18 predates __cpp_concepts >= 202002L, which
+    #                  libstdc++ 13 requires to expose std::expected
+    # There the error count is still printed and a missing/broken report still
+    # fails; only the error lines are downgraded to a ::warning.
     strategy:
       fail-fast: false
       matrix:
         include:
           - image: fedora:44
             family: fedora
+            tidy_gate: true
           - image: cachyos/cachyos:latest
             family: arch
             debuginfod: https://debuginfod.cachyos.org https://debuginfod.archlinux.org
+            tidy_gate: true
           - image: archlinux:latest
             family: arch
             debuginfod: https://debuginfod.archlinux.org
+            tidy_gate: true
           - image: ubuntu:24.04
             family: debian
+            tidy_gate: false
           - image: debian:12
             family: debian
+            tidy_gate: false
 
     container:
       image: ${{ matrix.image }}
@@ -127,7 +171,7 @@ jobs:
         if: matrix.family == 'fedora'
         run: |
           dnf install -y \
-            cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file \
+            cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file unzip \
             qt6-qtbase-devel qt6-qtcharts-devel \
             qt6-qttools-devel qt6-qt5compat-devel \
             cfitsio-devel fftw-devel libarchive-devel zlib-devel LibRaw-devel \
@@ -138,7 +182,7 @@ jobs:
         if: matrix.family == 'arch'
         run: |
           pacman -Syu --noconfirm --needed \
-            cmake ninja gcc git pkgconf file procps-ng \
+            cmake ninja gcc git pkgconf file procps-ng unzip \
             qt6-base qt6-charts qt6-tools qt6-5compat \
             cfitsio fftw libarchive libraw \
             mesa libxkbcommon \
@@ -152,7 +196,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y \
-            cmake ninja-build gcc g++ git pkg-config file procps \
+            cmake ninja-build gcc g++ git pkg-config file procps unzip \
             qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
             qt6-tools-dev qt6-tools-dev-tools libqt6core5compat6-dev \
             libcfitsio-dev libfftw3-dev libarchive-dev zlib1g-dev libraw-dev \
@@ -184,10 +228,17 @@ jobs:
       - name: "CMake configure"
         run: |
           cmake -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           echo ""
-          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE" \
+          grep -E "Qt6|CFITSIO|FFTW|ARCHIVE|CMAKE_CXX_COMPILER|BUILD_TYPE|EXPORT_COMPILE" \
             build/CMakeCache.txt | sort
+          # clang-tidy (38.4) is useless without the database (AUD-CI-7).
+          test -s build/compile_commands.json \
+            || { echo "::error::build/compile_commands.json was not generated."; exit 1; }
+          # AUD-MEM-gaps: ImageStacker.cpp includes <fftw3.h>; clang-tidy must
+          # see it, or that file is skipped with a clang-diagnostic-error.
+          grep -q 'ImageStacker.cpp' build/compile_commands.json
 
       # ── 6. BUILD ──────────────────────────────────────────────────────────────
       - name: "Build"
@@ -244,7 +295,49 @@ jobs:
               FAIL=1
             fi
           else
-            echo "::warning::build/audit/cppcheck.xml not produced (cppcheck missing?)."
+            echo "::error::build/audit/cppcheck.xml not produced — cppcheck is required (installed above) and did not run."
+            FAIL=1
+          fi
+
+          echo ""
+          echo "── clang-tidy (src/ errors block when tidy_gate; _deps/ errors and warnings never) ──"
+          TIDY=build/audit/clang_tidy.txt
+          if [ ! -f "$TIDY" ]; then
+            echo "::error::$TIDY not produced — clang-tidy is required (installed above) and did not run."
+            FAIL=1
+          elif grep -qE 'No compilation database found|Error while trying to load a compilation database|Traceback \(most recent call last\)|Cannot combine fixes' "$TIDY"; then
+            # The tool itself broke: nothing was analysed. Not a finding, but
+            # never a pass either (this is what every run did before AUD-CI-7).
+            head -40 "$TIDY"
+            echo "::error::clang-tidy did not analyse any file (no compilation database / run-clang-tidy crashed)."
+            FAIL=1
+          else
+            TIDY_WARN=$(grep -c ' warning: ' "$TIDY" || true)
+            # AUD-CI-7 follow-up (see header comment): -header-filter does not
+            # hide clang-diagnostic-error lines reported inside a header, so
+            # an error line's PATH decides whether it is ours (project src/)
+            # or a third-party FetchContent dependency (build/_deps/) we
+            # cannot fix. Both counts always come back as a number ("0" on no
+            # match) because `grep -c` prints the count even on a no-match
+            # exit status 1 — the `|| true` guards only against $TIDY itself
+            # being unreadable.
+            TIDY_ERR_ALL=$(grep -c ' error: ' "$TIDY" || true)
+            TIDY_ERR_DEPS=$(grep ' error: ' "$TIDY" | grep -c '/_deps/' || true)
+            TIDY_ERR_SRC=$(( ${TIDY_ERR_ALL:-0} - ${TIDY_ERR_DEPS:-0} ))
+            echo "clang-tidy: ${TIDY_ERR_ALL:-0} error line(s) total — ${TIDY_ERR_DEPS:-0} in build/_deps/ (third-party, never blocks), ${TIDY_ERR_SRC} in project src/; ${TIDY_WARN:-0} warning line(s) (warnings are non-blocking)"
+            if [ "${TIDY_ERR_DEPS:-0}" -gt 0 ]; then
+              grep ' error: ' "$TIDY" | grep '/_deps/' | sort | uniq -c | sort -rn | head -20
+              echo "::warning::clang-tidy reported ${TIDY_ERR_DEPS} error line(s) inside build/_deps/ (known clang/bundled-fmt consteval incompatibility, see workflow header comment) — never blocks, on any image."
+            fi
+            if [ "${TIDY_ERR_SRC:-0}" -gt 0 ]; then
+              grep ' error: ' "$TIDY" | grep -v '/_deps/' | sort | uniq -c | sort -rn | head -50
+              if [ "${{ matrix.tidy_gate }}" = "true" ]; then
+                echo "::error::clang-tidy reported ${TIDY_ERR_SRC} error-level finding(s) in project src/."
+                FAIL=1
+              else
+                echo "::warning::clang-tidy reported ${TIDY_ERR_SRC} error line(s) in project src/ on ${{ matrix.image }} (tidy_gate=false: known clang/libstdc++ mismatch, see matrix comment)."
+              fi
+            fi
           fi
 
           echo ""
@@ -258,8 +351,15 @@ jobs:
               echo "::error::valgrind found ${CRIT_COUNT} critical memcheck issue(s) (definite leak / invalid access)."
               FAIL=1
             fi
+            # A run that aborted (e.g. stripped ld.so, AUD-CI-3) leaves an XML
+            # without the FINISHED status — that is "did not run", not "clean".
+            if ! grep -q '<state>FINISHED</state>' build/audit/valgrind.xml; then
+              echo "::error::valgrind.xml has no FINISHED status — memcheck aborted before the suite completed."
+              FAIL=1
+            fi
           else
-            echo "::warning::build/audit/valgrind.xml not produced (valgrind missing?)."
+            echo "::error::build/audit/valgrind.xml not produced — valgrind is required (installed above) and did not run."
+            FAIL=1
           fi
 
           echo ""

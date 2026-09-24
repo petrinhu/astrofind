@@ -3,6 +3,7 @@
 
 #include "SetupWizard.h"
 #include "core/ApiKeyStore.h"
+#include "core/NetworkSafety.h"
 
 #include <QWizardPage>
 #include <QLineEdit>
@@ -208,7 +209,7 @@ public:
         btnRow->addStretch();
 
         skipNote_ = makeNote(
-            QObject::tr("You can download it later via  Internet → Download MPCOrb."), this);
+            QObject::tr("You can download it later via  Internet → Download MPCOrb Database."), this);
 
         auto* vlay = new QVBoxLayout(this);
         vlay->setSpacing(10);
@@ -263,8 +264,14 @@ private slots:
         lastBytes_   = 0;
         lastElapsedMs_ = 0;
 
-        activeReply_ = nam_->get(QNetworkRequest(
-            QUrl(QStringLiteral("https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT"))));
+        // AUD-SEC-10: transfer timeout — resets on every received chunk, so a
+        // slow but alive download is not cut off; a stalled one no longer
+        // keeps "Next" blocked forever.
+        QNetworkRequest req(
+            QUrl(QStringLiteral("https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT")));
+        req.setTransferTimeout(core::kHttpTransferTimeoutMs);
+        userCancelled_ = false;
+        activeReply_ = nam_->get(req);
 
         // Stream-write each chunk as it arrives — avoids 200 MB RAM spike
         connect(activeReply_, &QNetworkReply::readyRead, this, [this]() {
@@ -301,6 +308,7 @@ private slots:
 
     void onCancel()
     {
+        userCancelled_ = true;   // AUD-SEC-10: tell a user abort from a timeout
         if (activeReply_) activeReply_->abort();
     }
 
@@ -322,8 +330,16 @@ private slots:
         progressBar_->setVisible(false);
         speedLabel_->setVisible(false);
 
-        if (err == QNetworkReply::OperationCanceledError) {
+        if (err == QNetworkReply::OperationCanceledError && userCancelled_) {
             statusLabel_->setText(QObject::tr("Download cancelled."));
+            resetButtons();
+            return;
+        }
+        // AUD-SEC-10: Qt aborts the reply when the transfer timeout expires.
+        if (err == QNetworkReply::OperationCanceledError || err == QNetworkReply::TimeoutError) {
+            statusLabel_->setText(QObject::tr("Download failed: %1")
+                .arg(QObject::tr("no data received for %1 s")
+                         .arg(core::kHttpTransferTimeoutMs / 1000)));
             resetButtons();
             return;
         }
@@ -365,6 +381,7 @@ private:
     qint64         lastBytes_      = 0;
     qint64         lastElapsedMs_  = 0;
     bool           complete_       = true;  ///< Download is optional; blocked only during transfer
+    bool           userCancelled_  = false; ///< AUD-SEC-10: Cancel clicked (vs. timeout)
 };
 
 #include "SetupWizard.moc"

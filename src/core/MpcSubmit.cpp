@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Petrus Silva Costa
 
 #include "MpcSubmit.h"
+#include "NetworkSafety.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -16,22 +17,6 @@
 
 namespace core {
 
-namespace {
-// AUD-SEC-4: true when `url` may carry the ADES/PSV report safely — https://
-// always, or http:// restricted to loopback (a local relay, where no network
-// eavesdropper can intercept the traffic).
-bool isSafeMpcUrlScheme(const QUrl& url)
-{
-    const QString scheme = url.scheme().toLower();
-    if (scheme == QLatin1String("https")) return true;
-    if (scheme != QLatin1String("http")) return false;
-    const QString host = url.host().toLower();
-    return host == QLatin1String("localhost")
-        || host == QLatin1String("127.0.0.1")
-        || host == QLatin1String("::1");
-}
-} // namespace
-
 MpcSubmit::MpcSubmit(QObject* parent)
     : QObject(parent)
     , nam_(new QNetworkAccessManager(this))
@@ -39,8 +24,10 @@ MpcSubmit::MpcSubmit(QObject* parent)
 
 void MpcSubmit::setEndpoint(const QString& url)
 {
+    // AUD-SEC-4: the endpoint receives the full ADES/PSV report — https://, or
+    // http:// on loopback only (shared guard, see NetworkSafety.h / AUD-SEC-13).
     const QUrl parsed(url);
-    if (isSafeMpcUrlScheme(parsed)) {
+    if (isSafeServiceUrl(parsed)) {
         endpoint_ = url;
         return;
     }

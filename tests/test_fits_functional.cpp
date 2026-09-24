@@ -176,7 +176,7 @@ TEST_CASE("F-04: loadFits - auto-stretch produces valid range", "[functional][fi
 
 // ─── F-05: cadence — all frames load, JD increases monotonically ─────────────
 
-TEST_CASE("F-05: loadFits - all 4 images load, JD increases monotonically", "[functional][fits]")
+TEST_CASE("F-05: loadFits - all 4 images load and JD increases monotonically", "[functional][fits]")
 {
     QTemporaryDir dir;
     REQUIRE(dir.isValid());

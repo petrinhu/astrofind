@@ -6,7 +6,7 @@
 //   num[0-6]  H[8-12]  G[14-18]  epoch[20-24]  M[26-34]  omega[37-45]
 //   Omega[48-56]  incl[59-67]  e[70-78]  n[80-90]  a[92-102]  name[166+]
 //
-// (1) Ceres — epoch K245K = 2024-May-20 → JDN 2460451 (Meeus Gregorian noon)
+// (1) Ceres — epoch K245K = 2024-May-20.0 TT → JD 2460450.5 (AUD-CORR-12)
 // Columns verified with Python: num[0-6] H[8-12] G[14-18] epoch[20-24] M[26-34]
 // omega[37-45] Omega[48-56] incl[59-67] e[70-78] n[80-90] a[92-102] name[166+]
 static const char kCeresLine[] =
@@ -37,9 +37,10 @@ TEST_CASE("parseMpcOrbLine - Ceres fields", "[mpcorb]")
     CHECK(rec->H == Catch::Approx(3.34f).margin(0.01f));
     CHECK(rec->G == Catch::Approx(0.12f).margin(0.01f));
 
-    // K245K = 2024-May-20: Meeus Gregorian→JDN gives 2460451
-    // Function returns the JDN (noon-based), not JD midnight (2460450.5)
-    CHECK(rec->epoch == Catch::Approx(2460451.0).margin(0.01));
+    // K245K = 2024-May-20.0 TT. Meeus Gregorian→JDN gives 2460451 (noon);
+    // AUD-CORR-12: MPCORB epochs are 0h TT, so JD = JDN - 0.5 = 2460450.5
+    // (astropy Time('2024-05-20T00:00:00').jd = 2460450.5).
+    CHECK(rec->epoch == Catch::Approx(2460450.5).epsilon(0.0).margin(1e-9));
 
     CHECK(rec->M     == Catch::Approx(13.14780).margin(1e-4));
     CHECK(rec->omega == Catch::Approx(72.52236).margin(1e-4));
@@ -60,8 +61,8 @@ TEST_CASE("parseMpcOrbLine - Vesta fields", "[mpcorb]")
 
     CHECK(rec->number == 4);
     CHECK(rec->H == Catch::Approx(3.20f).margin(0.01f));
-    // Same epoch K245K → same JDN
-    CHECK(rec->epoch == Catch::Approx(2460451.0).margin(0.01));
+    // Same epoch K245K → same JD (0h TT)
+    CHECK(rec->epoch == Catch::Approx(2460450.5).epsilon(0.0).margin(1e-9));
     CHECK(rec->a     == Catch::Approx(2.3615176).margin(1e-6));
     CHECK(rec->name.contains("Vesta"));
 }
@@ -84,9 +85,10 @@ TEST_CASE("parseMpcOrbLine - epoch century letters", "[mpcorb]")
         // a=(14-1)/12=1, y=1999+4800-1=6798, m=1+12-3=10
         // jdn = 12 + (153*10+2)/5 + 365*6798 + 6798/4 - 6798/100 + 6798/400 - 32045
         //     = 12 + 306 + 2481270 + 1699 - 67 + 16 - 32045 = 2451191
+        // epoch = 0h TT = jdn - 0.5 = 2451190.5 (AUD-CORR-12)
         const auto rec = core::parseMpcOrbLine(makeLine("J991C"));
         REQUIRE(rec.has_value());
-        CHECK(rec->epoch == Catch::Approx(2451191.0).margin(0.01));
+        CHECK(rec->epoch == Catch::Approx(2451190.5).epsilon(0.0).margin(1e-9));
     }
 
     {
@@ -94,9 +96,10 @@ TEST_CASE("parseMpcOrbLine - epoch century letters", "[mpcorb]")
         // y=1899+4800-1=6698
         // jdn = 12 + 306 + 365*6698 + 6698/4 - 6698/100 + 6698/400 - 32045
         //     = 12 + 306 + 2444770 + 1674 - 66 + 16 - 32045 = 2414667
+        // epoch = 0h TT = jdn - 0.5 = 2414666.5 (AUD-CORR-12)
         const auto rec = core::parseMpcOrbLine(makeLine("I991C"));
         REQUIRE(rec.has_value());
-        CHECK(rec->epoch == Catch::Approx(2414667.0).margin(0.01));
+        CHECK(rec->epoch == Catch::Approx(2414666.5).epsilon(0.0).margin(1e-9));
     }
 
     {

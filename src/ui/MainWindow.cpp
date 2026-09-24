@@ -89,8 +89,8 @@ void MainWindow::setupMenus()
     // ── File ─────────────────────────────────────────────────────────────────
     fileMenu_ = menuBar()->addMenu(tr("&File"));
 
-    actLoadImages_ = fileMenu_->addAction(tr("&Load Images..."), QKeySequence("Ctrl+L"), this, &MainWindow::onLoadImages);
-    actLoadImages_->setStatusTip(tr("Load FITS images for a new observation session"));
+    actLoadImages_ = fileMenu_->addAction(tr("&Import Images..."), QKeySequence("Ctrl+L"), this, &MainWindow::onLoadImages);
+    actLoadImages_->setStatusTip(tr("Import FITS images to start a new observation session"));
 
     recentMenu_ = fileMenu_->addMenu(tr("Open &Recent..."));
     updateRecentMenu();
@@ -102,7 +102,7 @@ void MainWindow::setupMenus()
     actSaveProjectAs_->setStatusTip(tr("Save the current session to a new .gus project file"));
     actOpenProject_ = fileMenu_->addAction(tr("&Open Project..."), QKeySequence("Ctrl+O"), this, &MainWindow::onOpenProject);
     actOpenProject_->setStatusTip(tr("Open a previously saved .gus project file"));
-    recentProjectsMenu_ = fileMenu_->addMenu(tr("Projetos &Recentes"));
+    recentProjectsMenu_ = fileMenu_->addMenu(tr("Recent &Projects"));
     updateRecentProjectsMenu();
     actCloseProject_ = fileMenu_->addAction(tr("&Close Project"), this, &MainWindow::onCloseProject);
     actCloseProject_->setStatusTip(tr("Close the current project and reset the session"));
@@ -110,10 +110,10 @@ void MainWindow::setupMenus()
     fileMenu_->addSeparator();
     fileMenu_->addAction(tr("Save &all FITS"), this, &MainWindow::onSaveAllFits)
         ->setStatusTip(tr("Save all open images as FITS files"));
-    fileMenu_->addAction(tr("&Save as FITS..."), this, &MainWindow::onSaveAsFits)
+    fileMenu_->addAction(tr("Save FITS Cop&y..."), this, &MainWindow::onSaveAsFits)
         ->setStatusTip(tr("Save the active image as a FITS file"));
 
-    auto* exportMenu = fileMenu_->addMenu(tr("&Export Image to..."));
+    auto* exportMenu = fileMenu_->addMenu(tr("&Export Image As..."));
     exportMenu->addAction(tr("JPEG / PNG / BMP…"), this, [this]() {
         onExportImage(activeFitsWindow());
     });
@@ -147,32 +147,32 @@ void MainWindow::setupMenus()
     });
 
     fileMenu_->addSeparator();
-    fileMenu_->addAction(tr("Load &Dark Frame..."), this, &MainWindow::onLoadDarkFrame)
-        ->setStatusTip(tr("Load a dark frame for calibration"));
-    fileMenu_->addAction(tr("Load &Flat Field..."), this, &MainWindow::onLoadFlatField)
-        ->setStatusTip(tr("Load a flat field for calibration"));
+    fileMenu_->addAction(tr("Use &Dark Frame for Calibration…"), this, &MainWindow::onLoadDarkFrame)
+        ->setStatusTip(tr("Use a dark frame for calibration"));
+    fileMenu_->addAction(tr("Use F&lat Field for Calibration…"), this, &MainWindow::onLoadFlatField)
+        ->setStatusTip(tr("Use a flat field for calibration"));
     fileMenu_->addAction(tr("Calibration &Wizard…"), this, &MainWindow::onCalibrationWizard);
 
     fileMenu_->addSeparator();
     actViewAdes_ = fileMenu_->addAction(tr("View &ADES Report File"), this, &MainWindow::onViewAdesReport);
     actViewAdes_->setStatusTip(tr("View the generated ADES astrometry report"));
-    actViewPhot_ = fileMenu_->addAction(tr("View P&hotometry File"), this, &MainWindow::onViewPhotometryFile);
-    actViewPhot_->setStatusTip(tr("View the photometry measurements file"));
+    actViewPhot_ = fileMenu_->addAction(tr("Show P&hotometry Results"), this, &MainWindow::onViewPhotometryFile);
+    actViewPhot_->setStatusTip(tr("Show the measured photometry values"));
     fileMenu_->addAction(tr("View Lo&g File"), this, &MainWindow::onViewLogFile)
         ->setStatusTip(tr("View the session log file"));
 
     fileMenu_->addSeparator();
-    actResetFiles_ = fileMenu_->addAction(tr("&Reset Files"), QKeySequence("Ctrl+R"), this, &MainWindow::onResetFiles);
+    actResetFiles_ = fileMenu_->addAction(tr("&Reset Session Files"), QKeySequence("Ctrl+R"), this, &MainWindow::onResetFiles);
     actResetFiles_->setStatusTip(tr("Reset session and close all images"));
-    fileMenu_->addAction(tr("&Fechar Imagens"), QKeySequence::Close,
+    fileMenu_->addAction(tr("Close Loaded I&mages"), QKeySequence::Close,
                          this, &MainWindow::onCloseAllImages)
-        ->setStatusTip(tr("Fechar todas as imagens e reiniciar a sessão"));
+        ->setStatusTip(tr("Close all loaded images and reset the session"));
     fileMenu_->addAction(tr("Reload MPC&Orb"), this, &MainWindow::onReloadMpcOrb)
         ->setStatusTip(tr("Reload the MPCOrb asteroid database from disk"));
 
     fileMenu_->addSeparator();
     fileMenu_->addAction(tr("Se&ttings..."), QKeySequence("Ctrl+,"), this, &MainWindow::onSettings)
-        ->setStatusTip(tr("Edit program settings"));
+        ->setStatusTip(tr("Adjust program preferences and options"));
 
     fileMenu_->addSeparator();
     fileMenu_->addAction(tr("Exportar Configuração da Escola..."), this, &MainWindow::onExportSchoolConfig)
@@ -217,15 +217,15 @@ void MainWindow::setupMenus()
     toolGroup->addAction(actAnnotateTool_);
 
     // ── Astrometry ────────────────────────────────────────────────────────────
-    astrometryMenu_ = menuBar()->addMenu(tr("&Astrometry"));
+    astrometryMenu_ = menuBar()->addMenu(tr("&Astrometry Tools"));
 
-    actDataReduction_ = astrometryMenu_->addAction(tr("&Data Reduction..."), QKeySequence("Ctrl+A"), this, &MainWindow::onDataReduction);
+    actDataReduction_ = astrometryMenu_->addAction(tr("Run &Data Reduction..."), QKeySequence("Ctrl+A"), this, &MainWindow::onDataReduction);
     actDataReduction_->setStatusTip(tr("Perform astrometric data reduction: detect stars and solve plate"));
     actStopReduction_ = astrometryMenu_->addAction(tr("&Stop Data Reduction"), QKeySequence("Ctrl+."), this, &MainWindow::onStopReduction);
     actStopReduction_->setStatusTip(tr("Abort the ongoing data reduction"));
     actStopReduction_->setEnabled(false);
 
-    actMOD_ = astrometryMenu_->addAction(tr("&Moving Object Detection..."), QKeySequence("Ctrl+M"), this, &MainWindow::onMovingObjectDetection);
+    actMOD_ = astrometryMenu_->addAction(tr("Detect &Moving Objects..."), QKeySequence("Ctrl+M"), this, &MainWindow::onMovingObjectDetection);
     actMOD_->setStatusTip(tr("Automatically detect moving objects across images"));
 
     actTrackStack_ = astrometryMenu_->addAction(tr("Stack &Images..."), QKeySequence("Ctrl+T"), this, &MainWindow::onTrackAndStack);
@@ -238,24 +238,24 @@ void MainWindow::setupMenus()
                                this, &MainWindow::onImportReductionTable);
 
     // ── Images ────────────────────────────────────────────────────────────────
-    imagesMenu_ = menuBar()->addMenu(tr("&Images"));
+    imagesMenu_ = menuBar()->addMenu(tr("&Image Tools"));
 
-    imagesMenu_->addAction(tr("&Edit Image Parameters..."), this, &MainWindow::onEditImageParameters);
-    imagesMenu_->addAction(tr("&Display Header..."),        this, &MainWindow::onDisplayHeader);
-    imagesMenu_->addAction(tr("Background and &Range..."),  this, &MainWindow::onBackgroundAndRange);
-    imagesMenu_->addAction(tr("&Re-Stack Images"),          this, &MainWindow::onReStackImages);
+    imagesMenu_->addAction(tr("&Edit Image Settings..."), this, &MainWindow::onEditImageParameters);
+    imagesMenu_->addAction(tr("View FITS Hea&der..."),      this, &MainWindow::onDisplayHeader);
+    imagesMenu_->addAction(tr("Adjust &Black Point and Contrast…"),  this, &MainWindow::onBackgroundAndRange);
+    imagesMenu_->addAction(tr("&Rebuild Stack"),            this, &MainWindow::onReStackImages);
 
     imagesMenu_->addSeparator();
     actZoomIn_  = imagesMenu_->addAction(tr("Zoom &In"),  this, &MainWindow::onZoomIn);
     actZoomIn_->setShortcuts({QKeySequence::ZoomIn, QKeySequence(Qt::Key_Plus), QKeySequence(Qt::Key_Equal)});
     actZoomOut_ = imagesMenu_->addAction(tr("Zoom &Out"), this, &MainWindow::onZoomOut);
     actZoomOut_->setShortcuts({QKeySequence::ZoomOut, QKeySequence(Qt::Key_Minus)});
-    imagesMenu_->addAction(tr("&Fit Window Size"), this, &MainWindow::onFitWindowSize)
+    imagesMenu_->addAction(tr("&Fit to Window"), this, &MainWindow::onFitWindowSize)
         ->setShortcuts({QKeySequence("Ctrl+F"), QKeySequence(Qt::Key_0)});
 
     imagesMenu_->addSeparator();
-    imagesMenu_->addAction(tr("Select &Markings..."), this, &MainWindow::onSelectMarkings);
-    actInvertDisplay_ = new QAction(tr("&Invert Display"), this);
+    imagesMenu_->addAction(tr("&Choose Marker Display…"), this, &MainWindow::onSelectMarkings);
+    actInvertDisplay_ = new QAction(tr("&Invert Colors"), this);
     actInvertDisplay_->setShortcut(QKeySequence("Ctrl+I"));
     actInvertDisplay_->setCheckable(true);
     connect(actInvertDisplay_, &QAction::triggered, this, &MainWindow::onInvertDisplay);
@@ -264,21 +264,21 @@ void MainWindow::setupMenus()
     imagesMenu_->addAction(tr("Flip &Vertical"),      this, &MainWindow::onFlipVertical);
 
     imagesMenu_->addSeparator();
-    imagesMenu_->addAction(tr("&Magnifying Glass"), QKeySequence("Ctrl+G"), this, &MainWindow::onMagnifyingGlass);
+    imagesMenu_->addAction(tr("&Magnifier Tool"), QKeySequence("Ctrl+G"), this, &MainWindow::onMagnifyingGlass);
     imagesMenu_->addAction(tr("Region &Statistics"), QKeySequence("Ctrl+Shift+R"), this, &MainWindow::onRegionStatsTool);
 
     // ── Tools ─────────────────────────────────────────────────────────────────
-    toolsMenu_ = menuBar()->addMenu(tr("&Tools"));
+    toolsMenu_ = menuBar()->addMenu(tr("&Utilities"));
 
-    actBlink_ = toolsMenu_->addAction(tr("&Blink Images"), QKeySequence("Ctrl+B"), this, &MainWindow::onBlinkImages);
+    actBlink_ = toolsMenu_->addAction(tr("&Begin Blink Mode"), QKeySequence("Ctrl+B"), this, &MainWindow::onBlinkImages);
     actBlink_->setStatusTip(tr("Start blinking through all loaded images to detect moving objects"));
 
-    actStopBlink_ = toolsMenu_->addAction(tr("S&top Blinking"), QKeySequence("Ctrl+F9"), this, &MainWindow::onStopBlinking);
-    actStopBlink_->setStatusTip(tr("Stop the blink animation"));
+    actStopBlink_ = toolsMenu_->addAction(tr("E&nd Blink Mode"), QKeySequence("Ctrl+F9"), this, &MainWindow::onStopBlinking);
+    actStopBlink_->setStatusTip(tr("End the blink animation"));
     actStopBlink_->setEnabled(false);
 
     toolsMenu_->addSeparator();
-    actKOO_ = toolsMenu_->addAction(tr("&Known Object Overlay"), QKeySequence("Ctrl+K"), this, &MainWindow::onKnownObjectOverlay);
+    actKOO_ = toolsMenu_->addAction(tr("Show &Known Objects"), QKeySequence("Ctrl+K"), this, &MainWindow::onKnownObjectOverlay);
     actKOO_->setStatusTip(tr("Mark known solar system objects on the images"));
 
     actEcliptic_ = toolsMenu_->addAction(tr("&Ecliptic / Galactic Overlay"), QKeySequence("Ctrl+E"),
@@ -302,9 +302,9 @@ void MainWindow::setupMenus()
     // ── Internet ──────────────────────────────────────────────────────────────
     internetMenu_ = menuBar()->addMenu(tr("Inter&net"));
 
-    internetMenu_->addAction(tr("&Download MPCOrb"), this, &MainWindow::onDownloadMpcOrb)
+    internetMenu_->addAction(tr("&Download MPCOrb Database"), this, &MainWindow::onDownloadMpcOrb)
         ->setStatusTip(tr("Download the complete MPCOrb asteroid database (~500 MB)"));
-    internetMenu_->addAction(tr("&Update MPCOrb"), this, &MainWindow::onUpdateMpcOrb)
+    internetMenu_->addAction(tr("&Update MPCOrb Database"), this, &MainWindow::onUpdateMpcOrb)
         ->setStatusTip(tr("Download the daily MPCOrb update"));
     internetMenu_->addSeparator();
     internetMenu_->addAction(tr("Query &Horizons…"), this, &MainWindow::onQueryHorizons)
@@ -313,14 +313,14 @@ void MainWindow::setupMenus()
     internetMenu_->addAction(tr("&Minor Planet Center…"), this, &MainWindow::onAstrometricaWebPage);
 
     // ── Windows ───────────────────────────────────────────────────────────────
-    windowMenu_ = menuBar()->addMenu(tr("&Windows"));
+    windowMenu_ = menuBar()->addMenu(tr("&Window"));
 
-    windowMenu_->addAction(tr("&Tile Windows"),    this, &MainWindow::onTileWindows);
-    windowMenu_->addAction(tr("&Cascade Windows"), this, &MainWindow::onCascadeWindows);
-    windowMenu_->addAction(tr("&Arrange all Windows"), this, &MainWindow::onArrangeWindows);
+    windowMenu_->addAction(tr("A&rrange Windows Side by Side"), this, &MainWindow::onTileWindows);
+    windowMenu_->addAction(tr("&Stack Windows Diagonally"),     this, &MainWindow::onCascadeWindows);
+    windowMenu_->addAction(tr("&Auto-Arrange Windows"), this, &MainWindow::onArrangeWindows);
     windowMenu_->addSeparator();
-    windowMenu_->addAction(tr("Close all &Images"),  this, &MainWindow::onCloseAllImages);
-    windowMenu_->addAction(tr("Close &all Windows"), this, &MainWindow::onCloseAllWindows);
+    windowMenu_->addAction(tr("Close Every &Open Image"), this, &MainWindow::onCloseAllImages);
+    windowMenu_->addAction(tr("Close Every &Window"),     this, &MainWindow::onCloseAllWindows);
     windowMenu_->addSeparator();
     // No shortcut here: Ctrl+Shift+T belongs to the theme action created in
     // setupToolBar(); declaring it twice made Qt treat it as ambiguous and
@@ -330,12 +330,12 @@ void MainWindow::setupMenus()
     // ── Help ──────────────────────────────────────────────────────────────────
     helpMenu_ = menuBar()->addMenu(tr("&Help"));
 
-    helpMenu_->addAction(tr("&Help Contents"), QKeySequence::HelpContents, this, &MainWindow::onHelpContents);
+    helpMenu_->addAction(tr("&Help Topics"), QKeySequence::HelpContents, this, &MainWindow::onHelpContents);
     helpMenu_->addAction(tr("&Setup Wizard…"), this, &MainWindow::onSetupWizard);
     helpMenu_->addSeparator();
-    helpMenu_->addAction(tr("&Registration..."), this, &MainWindow::onRegistration);
+    helpMenu_->addAction(tr("&Product Registration..."), this, &MainWindow::onRegistration);
     helpMenu_->addSeparator();
-    helpMenu_->addAction(tr("&About..."), this, &MainWindow::onAbout);
+    helpMenu_->addAction(tr("&About AstroFind..."), this, &MainWindow::onAbout);
 }
 
 void MainWindow::setupToolBar()
@@ -369,16 +369,16 @@ void MainWindow::setupToolBar()
 
     // Load Images / Dark / Flat
     actLoadImages_->setIcon(AppIcons::loadImages());
-    actLoadImages_->setToolTip(tr("Load Images (Ctrl+L)"));
+    actLoadImages_->setToolTip(tr("Import Images (Ctrl+L)"));
     stdTb->addAction(actLoadImages_);
 
-    auto* actLoadDark = new QAction(AppIcons::loadDark(), tr("Load Dark Frame"), this);
-    actLoadDark->setToolTip(tr("Load dark frame for calibration"));
+    auto* actLoadDark = new QAction(AppIcons::loadDark(), tr("Use Dark Frame"), this);
+    actLoadDark->setToolTip(tr("Use this dark frame for calibration"));
     connect(actLoadDark, &QAction::triggered, this, &MainWindow::onLoadDarkFrame);
     stdTb->addAction(actLoadDark);
 
-    auto* actLoadFlat = new QAction(AppIcons::loadFlat(), tr("Load Flat Field"), this);
-    actLoadFlat->setToolTip(tr("Load flat field for calibration"));
+    auto* actLoadFlat = new QAction(AppIcons::loadFlat(), tr("Use Flat Field"), this);
+    actLoadFlat->setToolTip(tr("Use this flat field for calibration"));
     connect(actLoadFlat, &QAction::triggered, this, &MainWindow::onLoadFlatField);
     stdTb->addAction(actLoadFlat);
 
@@ -386,11 +386,11 @@ void MainWindow::setupToolBar()
 
     // Data Reduction / MOD / Stack Images
     actDataReduction_->setIcon(AppIcons::dataReduction());
-    actDataReduction_->setToolTip(tr("Data Reduction (Ctrl+A)"));
+    actDataReduction_->setToolTip(tr("Run Data Reduction (Ctrl+A)"));
     stdTb->addAction(actDataReduction_);
 
     actMOD_->setIcon(AppIcons::movingObjectDetect());
-    actMOD_->setToolTip(tr("Moving Object Detection (Ctrl+M)"));
+    actMOD_->setToolTip(tr("Detect Moving Objects (Ctrl+M)"));
     stdTb->addAction(actMOD_);
 
     actTrackStack_->setIcon(AppIcons::stackImages());
@@ -424,13 +424,13 @@ void MainWindow::setupToolBar()
     actViewAdes_->setToolTip(tr("View ADES Report"));
     stdTb->addAction(actViewAdes_);
 
-    auto* actCloseImages = new QAction(AppIcons::closeImages(), tr("Close all Images"), this);
-    actCloseImages->setToolTip(tr("Close all image windows"));
+    auto* actCloseImages = new QAction(AppIcons::closeImages(), tr("Close Every Open Image"), this);
+    actCloseImages->setToolTip(tr("Close every open image window"));
     connect(actCloseImages, &QAction::triggered, this, &MainWindow::onCloseAllImages);
     stdTb->addAction(actCloseImages);
 
-    auto* actCloseAll = new QAction(AppIcons::closeAll(), tr("Close all Windows"), this);
-    actCloseAll->setToolTip(tr("Close all windows"));
+    auto* actCloseAll = new QAction(AppIcons::closeAll(), tr("Close Every Window"), this);
+    actCloseAll->setToolTip(tr("Close every window"));
     connect(actCloseAll, &QAction::triggered, this, &MainWindow::onCloseAllWindows);
     stdTb->addAction(actCloseAll);
 
@@ -444,13 +444,13 @@ void MainWindow::setupToolBar()
     // dispTb->setFixedHeight(36);   // reference px value
     dispTb->setFixedHeight(Theme::dp(36));
 
-    actBgRange_ = new QAction(AppIcons::backgroundRange(), tr("Background && Range"), this);
-    actBgRange_->setToolTip(tr("Adjust background and display range"));
+    actBgRange_ = new QAction(AppIcons::backgroundRange(), tr("Black Point and Contrast"), this);
+    actBgRange_->setToolTip(tr("Adjust the black point and contrast stretch"));
     connect(actBgRange_, &QAction::triggered, this, &MainWindow::onBackgroundAndRange);
     dispTb->addAction(actBgRange_);
 
-    auto* actSelMarkings = new QAction(AppIcons::selectMarkings(), tr("Select Markings"), this);
-    actSelMarkings->setToolTip(tr("Select markings"));
+    auto* actSelMarkings = new QAction(AppIcons::selectMarkings(), tr("Marker Display"), this);
+    actSelMarkings->setToolTip(tr("Choose which markers are shown"));
     connect(actSelMarkings, &QAction::triggered, this, &MainWindow::onSelectMarkings);
     dispTb->addAction(actSelMarkings);
 
@@ -459,7 +459,7 @@ void MainWindow::setupToolBar()
     dispTb->addAction(actInvertDisplay_);
 
     actKOO_->setIcon(AppIcons::knownObjectOverlay());
-    actKOO_->setToolTip(tr("Known Object Overlay (Ctrl+K)"));
+    actKOO_->setToolTip(tr("Show Known Objects (Ctrl+K)"));
     dispTb->addAction(actKOO_);
 
     dispTb->addSeparator();
@@ -472,7 +472,7 @@ void MainWindow::setupToolBar()
     actZoomOut_->setToolTip(tr("Zoom Out"));
     dispTb->addAction(actZoomOut_);
 
-    auto* actFitWin = new QAction(AppIcons::zoomFit(), tr("Fit Window Size"), this);
+    auto* actFitWin = new QAction(AppIcons::zoomFit(), tr("Fit to Window"), this);
     actFitWin->setToolTip(tr("Fit image to window (Ctrl+F)"));
     connect(actFitWin, &QAction::triggered, this, &MainWindow::onFitWindowSize);
     dispTb->addAction(actFitWin);
@@ -488,7 +488,7 @@ void MainWindow::setupToolBar()
     blinkTb->setFixedHeight(Theme::dp(36));
 
     actBlink_->setIcon(AppIcons::blinkImages());
-    actBlink_->setToolTip(tr("Blink Images (Ctrl+B)"));
+    actBlink_->setToolTip(tr("Begin Blink Mode (Ctrl+B)"));
     blinkTb->addAction(actBlink_);
 
     // Blink delay spinbox
@@ -507,7 +507,7 @@ void MainWindow::setupToolBar()
     blinkTb->addWidget(blinkDelayBox_);
 
     actStopBlink_->setIcon(AppIcons::blinkStop());
-    actStopBlink_->setToolTip(tr("Stop Blinking (Ctrl+F9)"));
+    actStopBlink_->setToolTip(tr("End Blink Mode (Ctrl+F9)"));
     blinkTb->addAction(actStopBlink_);
 
     auto* actBlinkPrev = new QAction(AppIcons::blinkPrev(), tr("Step Back"), this);
@@ -529,9 +529,9 @@ void MainWindow::setupToolBar()
     blinkTb->addAction(actBlinkPlay);
 
     // Toolbar visibility toggles in Windows menu
-    stdTb->toggleViewAction()->setText(tr("View &Standard Toolbar"));
-    dispTb->toggleViewAction()->setText(tr("View &Display Toolbar"));
-    blinkTb->toggleViewAction()->setText(tr("View &Blink Toolbar"));
+    stdTb->toggleViewAction()->setText(tr("Show &Main Toolbar"));
+    dispTb->toggleViewAction()->setText(tr("Show &Display Toolbar"));
+    blinkTb->toggleViewAction()->setText(tr("Show &Blink Toolbar"));
     windowMenu_->addSeparator();
     windowMenu_->addAction(stdTb->toggleViewAction());
     windowMenu_->addAction(dispTb->toggleViewAction());
@@ -1096,7 +1096,7 @@ void MainWindow::onSessionStepChanged(core::SessionStep step)
     static const QMap<core::SessionStep, QString> stepLabels = {
         { core::SessionStep::Idle,           tr("Ready — load images to start") },
         { core::SessionStep::ImagesLoaded,   tr("Step 1 done — run Data Reduction (Ctrl+A)") },
-        { core::SessionStep::DataReduced,    tr("Step 2 done — run Known Object Overlay (Ctrl+K)") },
+        { core::SessionStep::DataReduced,    tr("Step 2 done - show Known Objects (Ctrl+K)") },
         { core::SessionStep::OverlayApplied, tr("Step 3 done — start Blinking (Ctrl+B)") },
         { core::SessionStep::Blinking,       tr("Blinking — click on moving object to measure") },
         { core::SessionStep::Measuring,      tr("Measuring — click objects in all 4 images") },
@@ -1168,7 +1168,7 @@ void MainWindow::onUpdateMenuState()
         else
             workflowPanel_->setStepLabel(1, tr("Reduzir Dados"), tr("Plate solving necessário"));
     } else {
-        workflowPanel_->setStepLabel(1, tr("Data Reduction"), tr("Solve plate"));
+        workflowPanel_->setStepLabel(1, tr("Run Data Reduction"), tr("Solve plate"));
     }
 }
 

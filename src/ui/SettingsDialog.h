@@ -62,6 +62,9 @@ private:
     void loadFromSettings();
     void saveToSettings();
     void resetToDefaults();
+    /// AUD-SEC-13: false (after a warning) if a service URL is not https://
+    /// (or loopback http://) — see core::isSafeServiceUrl().
+    bool validateServiceUrls();
 
     static QWidget* makeAdvancedWarning(QWidget* parent);
     static QWidget* makeDeprecatedWarning(QWidget* parent);

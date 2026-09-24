@@ -43,6 +43,16 @@ struct EphemerisMatch {
 /// @param e      Orbital eccentricity (0 ≤ e < 1).
 double solveKepler(double M_rad, double e, int maxIter = 50) noexcept;
 
+/// AUD-CORR-12: heliocentric position from two-body propagation of the
+/// MPCORB elements (mean ecliptic J2000, AU) — the Earth-independent part of
+/// computeEphemeris(), exposed for unit tests.
+struct HelioState {
+    double x = 0.0, y = 0.0, z = 0.0;  ///< Heliocentric ecliptic rectangular (AU)
+    double r = 0.0;                    ///< Heliocentric distance (AU)
+    double E = 0.0;                    ///< Eccentric anomaly (radians)
+};
+HelioState heliocentricPosition(const AsteroidRecord& orb, double jd) noexcept;
+
 /// Compute geocentric (optionally topocentric) ephemeris for one asteroid.
 /// @param orb     Orbital elements from MPCORB.
 /// @param jd      Julian Date of interest.

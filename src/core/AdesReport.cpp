@@ -222,7 +222,11 @@ static void writeOptical(QXmlStreamWriter& xml,
     writeElement(xml, QStringLiteral("ra"),      QString::number(obs.ra,  'f', 9));
     writeElement(xml, QStringLiteral("dec"),     QString::number(obs.dec, 'f', 9));
     // ADES 2022 §4.2: declare reference frame explicitly.
-    // All coordinates are topocentric apparent place in the ICRF (= ICRS).
+    // AUD-CORR-14: RA/Dec are astrometric positions in the ICRF (= ICRS)
+    // because the plate solution is fitted against an ICRS catalog — NOT an
+    // apparent place: annual aberration/nutation are only logged, never
+    // applied (AUD-CORR-4), and no Bennett refraction is added on a
+    // plate-solved position (AUD-CORR-7).
     writeElement(xml, QStringLiteral("sys"),     QStringLiteral("ICRF"));
 
     // Positional uncertainty — use measured value or conservative default

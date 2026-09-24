@@ -177,7 +177,7 @@ void FitsImageView::paintEvent(QPaintEvent* /*e*/)
     if (displayImg_.isNull()) {
         p.setPen(QColor(0x60, 0x60, 0x80));
         p.drawText(rect(), Qt::AlignCenter,
-            tr("No image loaded\nUse File → Load Images…"));
+            tr("No image loaded\nUse File → Import Images…"));
         return;
     }
 

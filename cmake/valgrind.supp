@@ -47,3 +47,20 @@
     ...
     fun:spdlog::details::registry::instance*
 }
+
+# zlib / zlib-ng deflate, reached when the QImage loader tests write PNG
+# fixtures (AUD-TEST-6). The optimised match finders compare past the
+# initialised part of the sliding window by design (documented upstream as a
+# valgrind false positive). Only errors whose TOP frame is inside libz are
+# suppressed; a bad read in AstroFind or Qt code is still reported.
+{
+    zlib_deflate_uninit_cond
+    Memcheck:Cond
+    obj:*/libz*.so*
+}
+
+{
+    zlib_deflate_uninit_value8
+    Memcheck:Value8
+    obj:*/libz*.so*
+}

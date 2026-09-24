@@ -27,6 +27,9 @@
 
 #include "core/ObservatoryDatabase.h"
 #include "core/ApiKeyStore.h"
+#include "core/NetworkSafety.h"
+
+#include <QMessageBox>
 
 // ─── Banner helpers ──────────────────────────────────────────────────────────
 
@@ -707,12 +710,12 @@ void SettingsDialog::buildConnectionsTab(QTabWidget* tabs)
     pathForm->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     mpcOrbPathEdit_ = new QLineEdit(pathGroup);
-    mpcOrbPathEdit_->setToolTip(tr("Path to MPCORB.DAT. Use Internet → Download MPCOrb to get it."));
+    mpcOrbPathEdit_->setToolTip(tr("Path to MPCORB.DAT. Use Internet → Download MPCOrb Database to get it."));
     pathForm->addRow(tr("MPCORB.DAT:"),
         browseRow(mpcOrbPathEdit_, this, [this]{ onBrowseMpcOrb(); }, pathGroup));
 
     ccdDirEdit_ = new QLineEdit(pathGroup);
-    ccdDirEdit_->setToolTip(tr("Default folder opened by File → Load Images."));
+    ccdDirEdit_->setToolTip(tr("Default folder opened by File → Import Images."));
     pathForm->addRow(tr("Default image folder:"),
         browseRow(ccdDirEdit_, this, [this]{ onBrowseCcdDir(); }, pathGroup));
 
@@ -1380,7 +1383,49 @@ void SettingsDialog::resetToDefaults()
 
 // ─── Slots ────────────────────────────────────────────────────────────────────
 
-void SettingsDialog::onAccept()           { saveToSettings(); accept(); }
+void SettingsDialog::onAccept()
+{
+    // AUD-SEC-13: never persist a service URL the client setter would refuse
+    // (it would be silently ignored at apply time) — keep the dialog open.
+    if (!validateServiceUrls()) return;
+    saveToSettings();
+    accept();
+}
+
+bool SettingsDialog::validateServiceUrls()
+{
+    // AUD-SEC-13: same guard as AstrometryClient::setBaseUrl,
+    // CatalogClient::setVizierUrl and MpcSubmit::setEndpoint (AUD-SEC-4).
+    const struct { QLineEdit* edit; QString label; } fields[] = {
+        { serverUrlEdit_, tr("Plate-solving server URL") },
+        { vizierEdit_,    tr("VizieR mirror URL") },
+        { mpcSubmitEdit_, tr("MPC submission URL") },
+    };
+    for (const auto& f : fields) {
+        const QString url = f.edit->text().trimmed();
+        if (core::isSafeServiceUrl(url)) continue;
+
+        // Bring the offending field into view before warning.
+        if (auto* tabs = findChild<QTabWidget*>()) {
+            for (int i = 0; i < tabs->count(); ++i) {
+                if (tabs->widget(i)->isAncestorOf(f.edit)) {
+                    tabs->setCurrentIndex(i);
+                    break;
+                }
+            }
+        }
+        QMessageBox::warning(this, tr("Insecure server URL"),
+            tr("%1 is not accepted:\n%2\n\n"
+               "Use an https:// URL (plain http:// is allowed only for localhost, "
+               "127.0.0.1 or ::1).")
+                .arg(f.label, url.isEmpty() ? tr("(empty)") : url));
+        f.edit->setFocus();
+        f.edit->selectAll();
+        return false;
+    }
+    return true;
+}
+
 void SettingsDialog::onResetDefaults()    { resetToDefaults(); }
 
 void SettingsDialog::onToggleApiKeyVisibility()

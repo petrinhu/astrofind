@@ -210,14 +210,14 @@ kbd {
 
     <div class="nav-group">Pipeline de Processamento</div>
     <a href="#calibracao">Calibração</a>
-    <a href="#reducao">Redução de Dados</a>
+    <a href="#reducao">Executar Redução de Dados</a>
     <a href="#empilhamento">Empilhamento</a>
 
     <div class="nav-group">Detecção e Relatórios</div>
     <a href="#medicao">Medir Objetos</a>
-    <a href="#deteccao">Detecção Automática</a>
+    <a href="#deteccao">Detectar Objetos em Movimento</a>
     <a href="#deteccao-avancada">Detecção Avançada</a>
-    <a href="#koo">Sobreposição de Objetos</a>
+    <a href="#koo">Mostrar Objetos Conhecidos</a>
 
     <div class="nav-group">Importar e Exportar</div>
     <a href="#importar-exportar">Importar / Exportar</a>
@@ -280,8 +280,8 @@ kbd {
     <li><strong>Detecção de estrelas</strong> via algoritmo SEP / Source Extractor</li>
     <li><strong>Solução de placa</strong> via API do astrometry.net ou ASTAP offline</li>
     <li><strong>Projeções WCS</strong>: TAN, SIN, ARC, GLS, MER, AIT, STG (Calabretta &amp; Greisen 2002)</li>
-    <li><strong>Correção de refração atmosférica</strong> e cadeia completa ICRS→CIRS→topocêntrico</li>
-    <li><strong>Sobreposição de Objetos Conhecidos (KOO)</strong> — asteroides e cometas MPCORB.DAT</li>
+    <li><strong>Correção de refração atmosférica</strong> para posições terrestres não absorvidas por uma solução de plate-solve por catálogo; aberração anual e precessão/nutação são registradas em log como diagnóstico, sem serem aplicadas à coordenada exportada (as posições ficam astrométricas ICRF)</li>
+    <li><strong>Mostrar Objetos Conhecidos (KOO)</strong>: asteroides e cometas MPCORB.DAT</li>
     <li><strong>Ferramenta de abertura</strong> — ajuste PSF elíptico (Levenberg-Marquardt) para posição e magnitude precisas</li>
     <li><strong>Empilhamento de imagens</strong> com alinhamento FFT (Somar / Média / Mediana)</li>
     <li><strong>Track &amp; Stack</strong> — compensar o movimento do objeto antes do empilhamento</li>
@@ -312,7 +312,7 @@ kbd {
 
   <ol class="steps">
     <li>
-      <strong>Carregar Imagens</strong> — Arraste e solte 2–4 arquivos FITS na janela do AstroFind,
+      <strong>Importar Imagens</strong>: Arraste e solte 2-4 arquivos FITS na janela do AstroFind,
       ou use <em>Arquivo → Abrir FITS…</em> (<kbd>Ctrl</kbd>+<kbd>O</kbd>). Cada arquivo aparece em
       um painel numerado. Ideal: imagens do mesmo campo celeste separadas por 20–60 minutos.
     </li>
@@ -322,7 +322,7 @@ kbd {
       de sensibilidade pixel a pixel do detector. Pule esta etapa se suas imagens já estiverem calibradas.
     </li>
     <li>
-      <strong>Redução de Dados</strong> — Clique em <em>Processamento → Redução de Dados</em>
+      <strong>Executar Redução de Dados</strong>: Clique em <em>Ferramentas de Astrometria → Executar Redução de Dados</em>
       (<kbd>Ctrl</kbd>+<kbd>D</kbd>). O AstroFind detecta estrelas em cada quadro com SEP e envia a
       lista de estrelas para a API do astrometry.net, que retorna coordenadas WCS precisas para
       cada imagem.
@@ -446,10 +446,12 @@ kbd {
 
   <div class="callout info">
     <div class="ct">Palavras-chave FITS Utilizadas pelo AstroFind</div>
-    <code>DATE-OBS</code>, <code>EXPTIME</code> (ou <code>EXPOSURE</code>), <code>TELESCOP</code>,
-    <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>, <code>RA</code>, <code>DEC</code>,
-    <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>, <code>RDNOISE</code> e palavras-chave
-    WCS (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>, <code>CD1_1</code>, <code>CD1_2</code>, etc.)
+    <code>DATE-OBS</code>, <code>MJD-OBS</code> (preferida sobre <code>DATE-OBS</code> para o horário
+    do meio da exposição quando presente e finita), <code>EXPTIME</code> (ou <code>EXPOSURE</code>),
+    <code>TELESCOP</code>, <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>,
+    <code>RA</code>, <code>DEC</code>, <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>,
+    <code>RDNOISE</code> e palavras-chave WCS (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>,
+    <code>CD1_1</code>, <code>CD1_2</code>, <code>LONPOLE</code>, <code>LATPOLE</code>, etc.)
     após a solução astrométrica.
   </div>
 </section>
@@ -464,7 +466,7 @@ kbd {
   </p>
 
   <h3>Funções de Transferência</h3>
-  <p>Abra <em>Visualizar → Fundo e Alcance…</em> (ou clique com o botão direito em uma imagem) para escolher uma função de transferência e ajustar os pontos de preto/branco.</p>
+  <p>Abra <em>Visualizar → Ajustar Ponto Preto e Contraste…</em> (ou clique com o botão direito em uma imagem) para escolher uma função de transferência e ajustar os pontos de preto/branco.</p>
   <table>
     <thead><tr><th>Função</th><th>Melhor para</th></tr></thead>
     <tbody>
@@ -643,7 +645,7 @@ kbd {
 
 <!-- ─────────────────────── REDUÇÃO DE DADOS ─────────────────────── -->
 <section id="reducao">
-  <h2>Redução de Dados</h2>
+  <h2>Executar Redução de Dados</h2>
   <p>
     A redução de dados prepara as imagens para medições científicas. No AstroFind, isso significa
     dois processos: <strong>detecção de estrelas</strong> em cada quadro e
@@ -725,10 +727,10 @@ kbd {
     <em>Configurações → Astrometria → Chave de API</em>.
   </div>
 
-  <h3>Executando a Redução de Dados</h3>
+  <h3>Executando a Execução da Redução de Dados</h3>
   <ol>
     <li>Confirme que a chave de API do astrometry.net está configurada.</li>
-    <li>Abra <em>Processamento → Redução de Dados</em> ou pressione <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li>
+    <li>Abra <em>Ferramentas de Astrometria → Executar Redução de Dados</em> ou pressione <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li>
     <li>Opcionalmente, defina uma dica de escala (arcseg/pixel) e raio de busca para acelerar a solução.</li>
     <li>Clique em <strong>Executar</strong>. A barra de status mostra o progresso para cada quadro.</li>
     <li>Ao concluir, cada painel exibe marcadores de sobreposição de estrelas coloridos e as
@@ -833,7 +835,7 @@ kbd {
   <ol>
     <li>Preencha todas as informações do observador em <em>Configurações → Observador</em>: código
     do observatório MPC, nomes dos observadores, descrição do telescópio, etc.</li>
-    <li>Opcionalmente, ative a <strong>Sobreposição de Objetos Conhecidos</strong> para verificar
+    <li>Opcionalmente, ative <strong>Mostrar Objetos Conhecidos</strong> para verificar
     se seu objeto já está no catálogo MPCORB.</li>
     <li>Abra <em>Arquivo → Exportar ADES XML…</em> (<kbd>Ctrl</kbd>+<kbd>E</kbd>).</li>
     <li>Revise a lista de observações. Cada entrada mostra designação (se identificada), época,
@@ -933,7 +935,7 @@ kbd {
 
 <!-- ─────────────────────── DETECÇÃO AUTOMÁTICA ──────────────────── -->
 <section id="deteccao">
-  <h2>Detecção Automática de Objetos em Movimento</h2>
+  <h2>Detecção Automática de Objetos (Detectar Objetos em Movimento)</h2>
   <p>
     O AstroFind pode buscar automaticamente por fontes em movimento em todos os quadros carregados
     sem necessidade de piscar manualmente. Isso é especialmente útil em campos estelares densos onde
@@ -956,7 +958,7 @@ kbd {
   <h3>Executando a Detecção</h3>
   <ol>
     <li>Carregue e resolva astrometricamente 3–4 quadros FITS do mesmo campo celeste.</li>
-    <li>Abra <em>Processamento → Detecção de Objetos em Movimento…</em></li>
+    <li>Abra <em>Ferramentas de Astrometria → Detectar Objetos em Movimento…</em></li>
     <li>Defina o SNR mínimo de detecção (padrão: 5) e o raio máximo de busca para combinação cruzada.</li>
     <li>Clique em <strong>Detectar</strong>. Os resultados são listados no painel de Candidatos.</li>
     <li>Clique em qualquer candidato para visualizá-lo piscando nos painéis de imagem.</li>
@@ -1075,17 +1077,20 @@ kbd {
   <h3>Exportação ADES XML / PSV</h3>
   <p>
     <em>Arquivo → Exportar ADES XML…</em> escreve um arquivo XML ADES 2017 completo com marcação
-    de coordenadas ICRF (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>), refração atmosférica aplicada e
-    o bloco completo de observador/medidor/telescópio. O formato PSV também está disponível no
-    diálogo de Pré-visualização do Relatório.
+    de coordenadas ICRF (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>) e o bloco completo de
+    observador/medidor/telescópio. O RA/Dec reportado é uma posição astrométrica ICRF: a refração
+    atmosférica só é removida para uma posição terrestre não derivada de uma solução de plate-solve
+    por catálogo, e a aberração anual/precessão/nutação nunca são somadas, já que uma solução de
+    plate-solve contra um catálogo alinhado ao ICRS já as absorve. O formato PSV também está
+    disponível no diálogo de Pré-visualização do Relatório.
   </p>
 </section>
 
 <!-- ─────────────────────── KOO ──────────────────────────────────── -->
 <section id="koo">
-  <h2>Sobreposição de Objetos Conhecidos (KOO)</h2>
+  <h2>Mostrar Objetos Conhecidos (KOO)</h2>
   <p>
-    A <strong>Sobreposição de Objetos Conhecidos</strong> cruza seu campo imageado com o catálogo
+    O recurso <strong>Mostrar Objetos Conhecidos</strong> cruza seu campo imageado com o catálogo
     <strong>MPCORB.DAT</strong> do Minor Planet Center, destacando asteroides ou cometas conhecidos
     que estejam dentro da sua imagem no momento da observação.
   </p>
@@ -1100,9 +1105,12 @@ kbd {
   <h3>Como Funciona</h3>
   <p>
     Para cada objeto no MPCORB.DAT cujos elementos orbitais estão dentro do intervalo de busca, o
-    AstroFind integra a órbita (usando um propagador de dois corpos simplificado ou N-corpos) até a
+    AstroFind integra a órbita (usando um propagador de dois corpos simplificado) até a
     época de observação e calcula a RA/Dec prevista. Objetos cuja posição prevista cai dentro do campo
-    de visão da imagem são exibidos como marcadores ciano rotulados com sua designação MPC.
+    de visão da imagem são exibidos como marcadores ciano rotulados com sua designação MPC. Esse
+    propagador offline não modela tempo-luz nem usa uma posição de alta precisão do Sol, então trate-o
+    como uma conferência aproximada (tipicamente dezenas de arcossegundos de diferença de uma efeméride
+    do JPL Horizons), não como uma previsão no nível do Horizons.
   </p>
   <p>
     Alterne a sobreposição com <kbd>Ctrl</kbd>+<kbd>K</kbd> ou pelo menu Exibir. Ao passar o cursor,
@@ -1197,8 +1205,8 @@ kbd {
       <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Desfazer última medição</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Refazer medição</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Exportar relatório ADES XML</td></tr>
-      <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Abrir diálogo de Redução de Dados</td></tr>
-      <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Ativar/desativar Sobreposição de Objetos Conhecidos</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Abrir diálogo de Executar Redução de Dados</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Ativar/desativar Mostrar Objetos Conhecidos</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td><td>Ajustar imagem à janela</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>+</kbd></td><td>Ampliar</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>−</kbd></td><td>Reduzir</td></tr>
@@ -1322,10 +1330,10 @@ kbd {
   <p class="gd">Padrão FITS (Papers I–IV, Calabretta &amp; Greisen 2002) para codificar o mapeamento matemático entre coordenadas de pixel e coordenadas físicas do céu (RA, Dec). O AstroFind implementa oito projeções: TAN, SIN, ARC, GLS, MER, AIT, STG, além do padrão TAN.</p>
 
   <p class="gt">CIRS — Celestial Intermediate Reference System (Sistema de Referência Celeste Intermediário)</p>
-  <p class="gd">Referencial intermediário definido pelo equador terrestre e a Origem Celeste Intermediária em uma dada época. Usado na cadeia ICRS → CIRS → Topocêntrico ao calcular posições aparentes precisas, incluindo aberração anual e nutação, conforme exigido pelo padrão ADES.</p>
+  <p class="gd">Referencial intermediário definido pelo equador terrestre e a Origem Celeste Intermediária em uma dada época. Uma redução rigorosa (ICRS até CIRS até Topocêntrico) o usaria para somar aberração anual e nutação e chegar a uma posição aparente. O AstroFind não implementa essa cadeia: uma solução de plate-solve por catálogo já absorve aberração e precessão/nutação como um sistemático de todo o campo, então aplicá-las de novo corrigiria duas vezes. O RA/Dec exportado pelo AstroFind é a posição astrométrica ICRF, não uma posição aparente CIRS/topocêntrica.</p>
 
   <p class="gt">ICRS — International Celestial Reference System (Sistema Internacional de Referência Celeste)</p>
-  <p class="gd">O referencial celeste padrão da UAI atual, alinhado a fontes rádio extragalácticas (quasares). Essencialmente equivalente ao FK5/J2000 para astrometria terrestre, mas rigorosamente definido sem época de referência. Todas as saídas ADES do AstroFind são marcadas com <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>.</p>
+  <p class="gd">O referencial celeste padrão da UAI atual, alinhado a fontes rádio extragalácticas (quasares). Essencialmente equivalente ao FK5/J2000 para astrometria terrestre, mas rigorosamente definido sem época de referência. Todas as saídas ADES do AstroFind são marcadas com <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code> como posições astrométricas; a aberração anual e a precessão/nutação só são registradas em log como diagnóstico, nunca somadas à coordenada exportada.</p>
 
   <p class="gt">LUT — Look-Up Table (Tabela de Consulta)</p>
   <p class="gd">Um mapeamento de intensidade de pixel escalar para uma cor RGB. Usado para renderizar imagens astronômicas em tons de cinza com cores falsas. LUTs comuns: Hot (preto-vermelho-amarelo-branco), Viridis, Plasma, Inferno (sequenciais perceptualmente uniformes), Cividis (seguro para daltônicos), Turbo (estilo arco-íris).</p>
@@ -1339,7 +1347,7 @@ kbd {
   <h2>Perguntas Frequentes (FAQ)</h2>
 
   <h3>Minhas imagens não têm solução de placa — o que faço?</h3>
-  <p>Vá em <strong>Arquivo → Configurações → Conexões</strong> e verifique se a chave de API do astrometry.net está correta. Em seguida, selecione suas imagens, abra <strong>Astrometria → Redução de Dados</strong> e clique em <em>▶ Executar</em>. O AstroFind enviará cada imagem e baixará a solução WCS automaticamente.</p>
+  <p>Vá em <strong>Arquivo → Configurações → Conexões</strong> e verifique se a chave de API do astrometry.net está correta. Em seguida, selecione suas imagens, abra <strong>Ferramentas de Astrometria → Executar Redução de Dados</strong> e clique em <em>▶ Executar</em>. O AstroFind enviará cada imagem e baixará a solução WCS automaticamente.</p>
   <p>Sem conexão à internet, instale o <a href="https://www.hnsky.org/astap.htm" target="_blank">ASTAP</a>, configure seu caminho em Configurações → Conexões → ASTAP e mude o seletor <em>Backend</em> para <em>ASTAP (local, offline)</em>.</p>
 
   <h3>O solver do astrometry.net fica expirando o tempo — ajuda?</h3>
@@ -1381,7 +1389,7 @@ kbd {
 
   <h3>Passo 1 — Carregar as imagens FITS</h3>
   <ol class="steps">
-    <li>Vá em <strong>Arquivo → Carregar Imagens…</strong> (ou pressione <kbd>Ctrl</kbd>+<kbd>L</kbd>).</li>
+    <li>Vá em <strong>Arquivo → Importar Imagens…</strong> (ou pressione <kbd>Ctrl</kbd>+<kbd>L</kbd>).</li>
     <li>Selecione todos os seus arquivos FITS (segure <kbd>Shift</kbd> ou <kbd>Ctrl</kbd> para selecionar vários).</li>
     <li>O AstroFind abre cada imagem como uma sub-janela separada. Você verá campos de estrelas em cada uma.</li>
     <li>Se as imagens já tiverem solução WCS (o passo 2 no painel esquerdo mostra um ✓), você pode pular para o Passo 3.</li>
@@ -1398,7 +1406,7 @@ kbd {
 
   <h3>Passo 3 — Piscar as imagens (blink)</h3>
   <ol class="steps">
-    <li>No painel <em>Workflow</em>, clique em <em>▶ Executar</em> ao lado de <strong>Piscar Imagens</strong>.</li>
+    <li>No painel <em>Workflow</em>, clique em <em>▶ Executar</em> ao lado de <strong>Ativar Modo de Piscagem</strong>.</li>
     <li>O AstroFind exibe todas as imagens em sucessão rápida. As estrelas ficam fixas; um asteroide em movimento aparecerá pulando para frente e para trás.</li>
     <li>Use o controle de velocidade para diminuir ou aumentar a animação.</li>
     <li>Procure um ponto minúsculo que <em>se move</em> entre os quadros enquanto todo o resto fica parado.</li>
@@ -1425,9 +1433,9 @@ kbd {
   <h3>Solução de problemas para alunos</h3>
   <table>
     <tr><th>Problema</th><th>Solução</th></tr>
-    <tr><td>As imagens aparecem pretas ou muito escuras</td><td>Use <em>Imagens → Fundo e Intervalo…</em> para ajustar o estiramento da exibição. Os valores de pixel podem estar em um intervalo muito estreito.</td></tr>
+    <tr><td>As imagens aparecem pretas ou muito escuras</td><td>Use <em>Imagens → Ajustar Ponto Preto e Contraste…</em> para ajustar o estiramento da exibição. Os valores de pixel podem estar em um intervalo muito estreito.</td></tr>
     <tr><td>O Passo 2 (plate solving) falha com erro</td><td>Avise seu professor — a conexão com a internet ou a chave de API pode precisar ser reconfigurada.</td></tr>
-    <tr><td>Não consigo encontrar nada se movendo no blink</td><td>O objeto pode ser muito fraco, ou o intervalo entre as imagens pode ser muito curto. Tente aumentar o intervalo de piscar. Use também a Sobreposição de Objetos Conhecidos (passo 3 no Workflow) para ver se há asteroides conhecidos no campo.</td></tr>
+    <tr><td>Não consigo encontrar nada se movendo no blink</td><td>O objeto pode ser muito fraco, ou o intervalo entre as imagens pode ser muito curto. Tente aumentar o intervalo de piscar. Use também Mostrar Objetos Conhecidos (passo 3 no Workflow) para ver se há asteroides conhecidos no campo.</td></tr>
     <tr><td>O botão "Enviar para Professor" não aparece</td><td>O e-mail da escola não está configurado. Veja a dica acima.</td></tr>
     <tr><td>Minha tabela de medições está vazia</td><td>Certifique-se de que a ferramenta <em>Medir</em> (<kbd>M</kbd>) está ativa antes de clicar no objeto.</td></tr>
   </table>

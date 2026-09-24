@@ -14,6 +14,16 @@ class QNetworkReply;
 
 namespace core {
 
+/// AUD-SEC-12: true when @p target (already trimmed) is safe to interpolate
+/// into the Horizons `COMMAND='...'` parameter. Allowlist: 1–64 characters,
+/// ASCII letters/digits, space and `/ - ( ) . _`, with at least one letter or
+/// digit. This covers numbers ("433"), names ("Ceres"), provisional
+/// designations ("2024 AB1") and comets ("C/2023 A3", "1P/Halley",
+/// "P/2010 A2 (LINEAR)"). Quotes (which would close the COMMAND string),
+/// `;`, `=`, `+` (decoded as a space in a query string), control characters
+/// and non-ASCII input are rejected.
+bool isValidHorizonsTarget(const QString& target);
+
 /// Queries the JPL Horizons REST API for a single solar system object's
 /// ephemeris at a given Julian Date.
 ///
@@ -31,6 +41,8 @@ public:
 
     /// Query JPL Horizons for @p target at the given JD.
     /// @p target can be a number ("433"), name ("Eros"), or designation ("2023 DW").
+    /// A target rejected by isValidHorizonsTarget() emits failed() without any
+    /// network request (AUD-SEC-12).
     void query(const QString& target, double jd);
 
     bool isBusy() const noexcept { return busy_; }

@@ -18,12 +18,12 @@ QIcon dataReduction(int sz = 22);  ///< Gray bg + green precision crosshair
 QIcon movingObjectDetect(int sz = 22); ///< Gray bg + red precision crosshair
 QIcon stackImages(int sz = 22);    ///< Checkerboard stacked (Stack Images)
 QIcon viewReport(int sz = 22);     ///< Document with lines (View ADES Report)
-QIcon closeImages(int sz = 22);    ///< Checkerboard + red X (Close all Images)
-QIcon closeAll(int sz = 22);       ///< Checkerboard + large X (Close all Windows)
+QIcon closeImages(int sz = 22);    ///< Checkerboard + red X (Close Every Open Image)
+QIcon closeAll(int sz = 22);       ///< Checkerboard + large X (Close Every Window)
 
 // ── Display toolbar ───────────────────────────────────────────────────────────
-QIcon backgroundRange(int sz = 22); ///< Rainbow ring (Background & Range)
-QIcon selectMarkings(int sz = 22);  ///< Rainbow ring variant (Select Markings)
+QIcon backgroundRange(int sz = 22); ///< Rainbow ring (Black Point and Contrast)
+QIcon selectMarkings(int sz = 22);  ///< Rainbow ring variant (Marker Display)
 QIcon invertDisplay(int sz = 22);   ///< Diagonal B/W split (Invert Display)
 QIcon knownObjectOverlay(int sz = 22); ///< Star field + markers (KOO)
 QIcon zoomIn(int sz = 22);          ///< Checkerboard + zoom highlight
@@ -32,7 +32,7 @@ QIcon zoomFit(int sz = 22);         ///< Checkerboard + fit arrows
 
 // ── Blink toolbar ─────────────────────────────────────────────────────────────
 QIcon blinkImages(int sz = 22);    ///< Checkerboard + cross (Blink Images)
-QIcon blinkStop(int sz = 22);      ///< Dark red circle (Stop Blink)
+QIcon blinkStop(int sz = 22);      ///< Dark red circle (End Blink Mode)
 QIcon blinkPrev(int sz = 22);      ///< Left triangle ◄ (Step Back)
 QIcon blinkStep(int sz = 22);      ///< Right triangle ► (Step Forward)
 QIcon blinkPlay(int sz = 22);      ///< Green filled ▶ (Play)

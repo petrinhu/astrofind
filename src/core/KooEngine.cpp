@@ -3,6 +3,7 @@
 
 #include "KooEngine.h"
 #include "Ephemeris.h"
+#include "NetworkSafety.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -53,9 +54,28 @@ void KooEngine::queryField(double ra, double dec, double radiusDeg, double jd)
     spdlog::debug("KooEngine: querying SkyBoT ra={:.4f} dec={:.4f} r={:.2f}' JD={:.4f}",
                   ra, dec, radiusArcmin, jd);
 
-    busy_       = true;
-    auto* reply = nam_->get(QNetworkRequest(url));
+    // AUD-SEC-10: bound the request like the other clients (AUD-SEC-3) — a
+    // stalled SkyBoT would otherwise hold busy_=true until process restart.
+    // The transfer timeout resets on any progress, so a slow reply still works.
+    QNetworkRequest req(url);
+    req.setTransferTimeout(kHttpTransferTimeoutMs);
+
+    busy_         = true;
+    auto* reply   = nam_->get(req);
+    currentReply_ = reply;
     connect(reply, &QNetworkReply::finished, this, &KooEngine::onReply);
+}
+
+void KooEngine::cancel()
+{
+    // AUD-SEC-10: forget the reply *before* aborting, so onReply() recognises
+    // it as cancelled whether finished() arrives synchronously or later (and
+    // even after a new queryField() has started).
+    QNetworkReply* reply = currentReply_;
+    currentReply_ = nullptr;
+    busy_ = false;
+    if (reply)
+        reply->abort();
 }
 
 void KooEngine::onReply()
@@ -63,16 +83,25 @@ void KooEngine::onReply()
     auto* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
     reply->deleteLater();
+    // AUD-SEC-10: cancelled/superseded request — drop it silently (no failed(),
+    // no long offline MPCORB scan, busy_ belongs to the current request).
+    if (reply != currentReply_) return;
+    currentReply_ = nullptr;
     busy_ = false;
 
     if (reply->error() != QNetworkReply::NoError) {
         spdlog::warn("KooEngine: network error: {}", reply->errorString().toStdString());
+        // A transfer timeout (Qt aborts the reply) still falls back offline.
         if (offlineFallback_ && !mpcOrbPath_.isEmpty()) {
             spdlog::info("KooEngine: SkyBoT unavailable — falling back to local MPCORB scan");
             startOfflineScan();
         } else {
-            busy_ = false;
-            emit failed(reply->errorString());
+            const auto err = reply->error();
+            const bool timedOut = err == QNetworkReply::OperationCanceledError
+                               || err == QNetworkReply::TimeoutError;
+            emit failed(timedOut
+                ? tr("SkyBoT did not respond within %1 s").arg(kHttpTransferTimeoutMs / 1000)
+                : reply->errorString());
         }
         return;
     }

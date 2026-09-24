@@ -210,14 +210,14 @@ kbd {
 
     <div class="nav-group">Processing Pipeline</div>
     <a href="#calibration">Calibration</a>
-    <a href="#datareduction">Data Reduction</a>
+    <a href="#datareduction">Run Data Reduction</a>
     <a href="#stacking">Image Stacking</a>
 
     <div class="nav-group">Detection &amp; Reporting</div>
     <a href="#measuring">Measuring Objects</a>
-    <a href="#detection">Moving Object Detection</a>
+    <a href="#detection">Detect Moving Objects</a>
     <a href="#advdetection">Advanced Detection</a>
-    <a href="#koo">Known Object Overlay</a>
+    <a href="#koo">Show Known Objects</a>
 
     <div class="nav-group">Import &amp; Export</div>
     <a href="#importexport">Import / Export</a>
@@ -240,7 +240,7 @@ kbd {
 <!-- ─────────────────────── INTRODUCTION ─────────────────────────── -->
 <section id="introduction">
   <h1><span class="ac">AstroFind</span> Help</h1>
-  <p class="hero-sub">Astronomical FITS Image Viewer &amp; Moving Object Detection — User Guide</p>
+  <p class="hero-sub">Astronomical FITS Image Viewer &amp; Moving Object Detection Tools: User Guide</p>
 
   <h2>Introduction</h2>
   <p>
@@ -278,8 +278,8 @@ kbd {
     <li><strong>Star detection</strong> via the SEP / Source Extractor algorithm</li>
     <li><strong>Plate solving</strong> via the astrometry.net online API or ASTAP offline</li>
     <li><strong>WCS projections</strong>: TAN, SIN, ARC, GLS, MER, AIT, STG (full Calabretta &amp; Greisen 2002)</li>
-    <li><strong>Atmospheric refraction correction</strong> and full ICRS→CIRS→topocentric coordinate chain</li>
-    <li><strong>Known Object Overlay (KOO)</strong> — MPCORB.DAT asteroids and comets overlaid on your field</li>
+    <li><strong>Atmospheric refraction correction</strong> for ground-based positions not already absorbed by a catalog plate solution; annual aberration and precession/nutation are logged for diagnostics, not applied to the exported coordinate (positions stay astrometric ICRF)</li>
+    <li><strong>Show Known Objects (KOO)</strong>: MPCORB.DAT asteroids and comets overlaid on your field</li>
     <li><strong>Aperture tool</strong> — elliptical PSF centroid fitting (Levenberg-Marquardt) for precise position and magnitude</li>
     <li><strong>Image stacking</strong> with FFT phase-correlation alignment (Add / Average / Median)</li>
     <li><strong>Track &amp; Stack</strong> — compensate for a moving object's motion before stacking</li>
@@ -310,7 +310,7 @@ kbd {
 
   <ol class="steps">
     <li>
-      <strong>Load Images</strong> — Drag and drop 2–4 FITS files onto the AstroFind window, or use
+      <strong>Import Images</strong>: Drag and drop 2-4 FITS files onto the AstroFind window, or use
       <em>File → Open FITS…</em> (<kbd>Ctrl</kbd>+<kbd>O</kbd>). Each file appears in a numbered panel.
       Aim for images of the same sky field taken 20–60 minutes apart.
     </li>
@@ -320,7 +320,7 @@ kbd {
       variations across the detector. Skip if your images are already calibrated.
     </li>
     <li>
-      <strong>Data Reduction</strong> — Click <em>Processing → Data Reduction</em>
+      <strong>Run Data Reduction</strong>: Click <em>Astrometry Tools → Run Data Reduction</em>
       (<kbd>Ctrl</kbd>+<kbd>D</kbd>). AstroFind detects stars in every frame with SEP and sends the star
       list to the astrometry.net API, which returns precise WCS coordinates for each image.
     </li>
@@ -353,7 +353,7 @@ kbd {
       <rect x="452" y="23" width="90"  height="40" rx="7" fill="#161b22" stroke="#00e8ff" stroke-width="1.3"/>
       <rect x="562" y="23" width="90"  height="40" rx="7" fill="#161b22" stroke="#3fb950" stroke-width="1.3"/>
       <!-- Labels -->
-      <text x="47"  y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Load Images</text>
+      <text x="47"  y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Import Images</text>
       <text x="157" y="47" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Calibrate</text>
       <text x="277" y="41" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Data</text>
       <text x="277" y="55" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="sans-serif">Reduction</text>
@@ -442,10 +442,12 @@ kbd {
 
   <div class="callout info">
     <div class="ct">FITS Header Keywords Used by AstroFind</div>
-    <code>DATE-OBS</code>, <code>EXPTIME</code> (or <code>EXPOSURE</code>), <code>TELESCOP</code>,
-    <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>, <code>RA</code>, <code>DEC</code>,
-    <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>, <code>RDNOISE</code>, and WCS keywords
-    (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>, <code>CD1_1</code>, <code>CD1_2</code>, etc.)
+    <code>DATE-OBS</code>, <code>MJD-OBS</code> (preferred over <code>DATE-OBS</code> for the
+    mid-exposure time when present and finite), <code>EXPTIME</code> (or <code>EXPOSURE</code>),
+    <code>TELESCOP</code>, <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>,
+    <code>RA</code>, <code>DEC</code>, <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>,
+    <code>RDNOISE</code>, and WCS keywords (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>,
+    <code>CD1_1</code>, <code>CD1_2</code>, <code>LONPOLE</code>, <code>LATPOLE</code>, etc.)
     after plate solving.
   </div>
 </section>
@@ -460,7 +462,7 @@ kbd {
   </p>
 
   <h3>Transfer Functions</h3>
-  <p>Open <em>View → Background and Range…</em> (or right-click an image) to choose a transfer function and adjust the black/white points.</p>
+  <p>Open <em>View → Adjust Black Point and Contrast…</em> (or right-click an image) to choose a transfer function and adjust the black/white points.</p>
   <table>
     <thead><tr><th>Function</th><th>Best for</th></tr></thead>
     <tbody>
@@ -638,7 +640,7 @@ kbd {
 
 <!-- ─────────────────────── DATA REDUCTION ───────────────────────── -->
 <section id="datareduction">
-  <h2>Data Reduction</h2>
+  <h2>Run Data Reduction</h2>
   <p>
     Data reduction prepares images for scientific measurement. In AstroFind it means two things:
     <strong>detecting stars</strong> in each frame and <strong>plate solving</strong> to assign precise
@@ -716,10 +718,10 @@ kbd {
     <em>Settings → Astrometry → API Key</em>.
   </div>
 
-  <h3>Running Data Reduction</h3>
+  <h3>Running Run Data Reduction</h3>
   <ol>
     <li>Confirm your astrometry.net API key is set in Settings.</li>
-    <li>Open <em>Processing → Data Reduction</em> or press <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li>
+    <li>Open <em>Astrometry Tools → Run Data Reduction</em> or press <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li>
     <li>Optionally set a scale hint (arcsec/pixel) and search radius to speed up the solve.</li>
     <li>Click <strong>Run</strong>. The status bar shows progress for each frame.</li>
     <li>On success, each panel shows coloured star-overlay markers and the WCS field info
@@ -824,7 +826,7 @@ kbd {
   <ol>
     <li>Complete all observer information in <em>Settings → Observer</em>: MPC observatory code,
         observer names, telescope description, etc.</li>
-    <li>Optionally toggle <strong>Known Object Overlay</strong> to check whether your object is
+    <li>Optionally toggle <strong>Show Known Objects</strong> to check whether your object is
         already in the MPCORB catalog.</li>
     <li>Open <em>File → Export ADES XML…</em> (<kbd>Ctrl</kbd>+<kbd>E</kbd>).</li>
     <li>Review the observation list. Each entry shows designation (if identified), epoch, RA, Dec,
@@ -923,7 +925,7 @@ kbd {
 
 <!-- ─────────────────────── DETECTION ────────────────────────────── -->
 <section id="detection">
-  <h2>Automated Moving Object Detection</h2>
+  <h2>Automated Object Detection (Detect Moving Objects)</h2>
   <p>
     AstroFind can automatically search all loaded frames for moving sources without requiring
     manual blinking. This is especially useful for busy star fields where visual blinking is tedious.
@@ -945,7 +947,7 @@ kbd {
   <h3>Running the Detector</h3>
   <ol>
     <li>Load and plate-solve 3–4 FITS frames of the same sky field.</li>
-    <li>Open <em>Processing → Moving Object Detection…</em></li>
+    <li>Open <em>Astrometry Tools → Detect Moving Objects…</em></li>
     <li>Set the minimum detection SNR (default 5) and the maximum search radius for cross-matching.</li>
     <li>Click <strong>Detect</strong>. Results are listed in the Candidates panel.</li>
     <li>Click any candidate to view it blinking in the image panels.</li>
@@ -1062,17 +1064,20 @@ kbd {
   <h3>ADES XML / PSV Export</h3>
   <p>
     <em>File → Export ADES XML…</em> writes a fully-tagged ADES 2017 XML file with ICRF
-    coordinate tagging (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>), atmospheric refraction
-    applied, and the full observer/measurer/telescope block. PSV format is also available
+    coordinate tagging (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>) and the full observer/
+    measurer/telescope block. The reported RA/Dec is an astrometric ICRF position: atmospheric
+    refraction is removed only for a ground-based position not already derived from a catalog
+    plate solution, and annual aberration/precession/nutation are never added, since a plate
+    solution against an ICRS-aligned catalog already absorbs them. PSV format is also available
     from the Report Preview dialog.
   </p>
 </section>
 
 <!-- ─────────────────────── KOO ──────────────────────────────────── -->
 <section id="koo">
-  <h2>Known Object Overlay (KOO)</h2>
+  <h2>Show Known Objects (KOO)</h2>
   <p>
-    The <strong>Known Object Overlay</strong> cross-references your imaged field with the
+    The <strong>Show Known Objects</strong> feature cross-references your imaged field with the
     <strong>MPCORB.DAT</strong> catalog from the Minor Planet Center, highlighting any known
     asteroids or comets that fall within your image at the time of observation.
   </p>
@@ -1087,9 +1092,11 @@ kbd {
   <h3>How It Works</h3>
   <p>
     For each object in MPCORB.DAT whose orbital elements are within search range, AstroFind integrates
-    the orbit (using a simplified two-body or N-body propagator) to the observation epoch and computes
+    the orbit (using a simplified two-body propagator) to the observation epoch and computes
     the predicted RA/Dec. Objects whose predicted position falls within the image field-of-view are
-    displayed as labelled cyan markers with their MPC designation.
+    displayed as labelled cyan markers with their MPC designation. This offline propagator does not
+    model light-time or use a high-precision Sun position, so treat it as an approximate cross-check
+    (typically tens of arcseconds off a JPL Horizons ephemeris), not a Horizons-grade prediction.
   </p>
   <p>
     Toggle the overlay with <kbd>Ctrl</kbd>+<kbd>K</kbd> or from the View menu. On hover, a tooltip
@@ -1179,8 +1186,8 @@ kbd {
       <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo last measurement</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo measurement</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Export ADES XML report</td></tr>
-      <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Open Data Reduction dialog</td></tr>
-      <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Toggle Known Object Overlay</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Open Run Data Reduction dialog</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Toggle Show Known Objects</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td><td>Fit image to window</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>+</kbd></td><td>Zoom in</td></tr>
       <tr><td><kbd>Ctrl</kbd>+<kbd>−</kbd></td><td>Zoom out</td></tr>
@@ -1301,10 +1308,10 @@ kbd {
   <p class="gd">The FITS standard (Paper I–IV, Calabretta &amp; Greisen 2002) for encoding the mathematical mapping between pixel coordinates and physical sky coordinates (RA, Dec). Plate solving produces the WCS keywords written into the FITS header, allowing any pixel to be converted to a precise celestial position. AstroFind implements eight projections: TAN, SIN, ARC, GLS, MER, AIT, STG, plus TAN (the default).</p>
 
   <p class="gt">CIRS — Celestial Intermediate Reference System</p>
-  <p class="gd">An intermediate coordinate frame defined by the Earth's equator and the Celestial Intermediate Origin at a given epoch. Used in the coordinate chain ICRS → CIRS → Topocentric when computing precise apparent positions, including annual aberration and nutation corrections, as required by the ADES standard.</p>
+  <p class="gd">An intermediate coordinate frame defined by the Earth's equator and the Celestial Intermediate Origin at a given epoch. A rigorous reduction chain (ICRS to CIRS to Topocentric) would use it to add annual aberration and nutation to reach an apparent position. AstroFind does not implement this chain: a catalog plate solution already absorbs aberration and precession/nutation as a field-wide systematic, so applying them again would double-correct. AstroFind's exported RA/Dec is the astrometric ICRF position, not an apparent CIRS/topocentric one.</p>
 
   <p class="gt">ICRS — International Celestial Reference System</p>
-  <p class="gd">The current IAU standard celestial reference frame, aligned to extragalactic radio sources (quasars). Essentially equivalent to FK5/J2000 for ground-based astrometry but rigorously defined without a reference epoch. All AstroFind ADES outputs are tagged <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>.</p>
+  <p class="gd">The current IAU standard celestial reference frame, aligned to extragalactic radio sources (quasars). Essentially equivalent to FK5/J2000 for ground-based astrometry but rigorously defined without a reference epoch. All AstroFind ADES outputs are tagged <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code> as astrometric positions; annual aberration and precession/nutation are only logged as diagnostics, never added to the exported coordinate.</p>
 
   <p class="gt">LUT — Look-Up Table</p>
   <p class="gd">A mapping from scalar pixel intensity to an RGB colour. Used to render grayscale astronomical images in false colour. Common LUTs: Hot (black–red–yellow–white), Viridis, Plasma, Inferno (perceptually-uniform sequential), Cividis (colour-blind-safe), Turbo (rainbow-style).</p>
@@ -1318,7 +1325,7 @@ kbd {
   <h2>Frequently Asked Questions</h2>
 
   <h3>My images don't have a plate solution — what do I do?</h3>
-  <p>Go to <strong>File → Settings → Connections</strong> and make sure your astrometry.net API key is set. Then select your images, open <strong>Astrometry → Data Reduction</strong> and click <em>▶ Do it</em>. AstroFind will submit each image and download the WCS solution automatically.</p>
+  <p>Go to <strong>File → Settings → Connections</strong> and make sure your astrometry.net API key is set. Then select your images, open <strong>Astrometry Tools → Run Data Reduction</strong> and click <em>▶ Do it</em>. AstroFind will submit each image and download the WCS solution automatically.</p>
   <p>If you have no internet connection, install <a href="https://www.hnsky.org/astap.htm" target="_blank">ASTAP</a>, set its path in Settings → Connections → ASTAP, and switch the <em>Backend</em> selector to <em>ASTAP (local, offline)</em>.</p>
 
   <h3>The astrometry.net solver keeps timing out — help?</h3>
@@ -1360,7 +1367,7 @@ kbd {
 
   <h3>Step 1 — Load your FITS images</h3>
   <ol class="steps">
-    <li>Go to <strong>File → Load Images…</strong> (or press <kbd>Ctrl</kbd>+<kbd>L</kbd>).</li>
+    <li>Go to <strong>File → Import Images…</strong> (or press <kbd>Ctrl</kbd>+<kbd>L</kbd>).</li>
     <li>Select all your FITS files (hold <kbd>Shift</kbd> or <kbd>Ctrl</kbd> to select multiple files).</li>
     <li>AstroFind opens each image as a separate sub-window. You should see star fields in each one.</li>
     <li>If the images already have a WCS solution (step 2 in the left panel shows a checkmark), you can skip to Step 3 immediately.</li>
@@ -1369,7 +1376,7 @@ kbd {
 
   <h3>Step 2 — Prepare the images (plate solving)</h3>
   <ol class="steps">
-    <li>In the <em>Workflow</em> panel on the left, click <em>▶ Do it</em> next to <strong>Data Reduction</strong>.</li>
+    <li>In the <em>Workflow</em> panel on the left, click <em>▶ Do it</em> next to <strong>Run Data Reduction</strong>.</li>
     <li>AstroFind detects the stars in each image and sends them to a plate solver (astrometry.net or ASTAP) to find out exactly where on the sky each image is pointing.</li>
     <li>Wait for all images to show a green checkmark (✓) in the Workflow panel. This may take 1–5 minutes per image.</li>
     <li>If your images already had a WCS solution (from the telescope or download site), this step completes instantly.</li>
@@ -1377,7 +1384,7 @@ kbd {
 
   <h3>Step 3 — Blink the images</h3>
   <ol class="steps">
-    <li>In the <em>Workflow</em> panel, click <em>▶ Do it</em> next to <strong>Blink Images</strong>.</li>
+    <li>In the <em>Workflow</em> panel, click <em>▶ Do it</em> next to <strong>Begin Blink Mode</strong>.</li>
     <li>AstroFind displays all images in rapid succession. Stars are fixed; a moving asteroid will appear to jump back and forth.</li>
     <li>Use the blink speed slider to slow down or speed up the animation.</li>
     <li>Look carefully for a tiny dot that <em>moves</em> between frames while everything else stays still.</li>
@@ -1404,9 +1411,9 @@ kbd {
   <h3>Troubleshooting for students</h3>
   <table>
     <tr><th>Problem</th><th>Solution</th></tr>
-    <tr><td>Images appear black or very dark</td><td>Use <em>Images → Background and Range…</em> to adjust the display stretch. The pixel values may be in a narrow range.</td></tr>
+    <tr><td>Images appear black or very dark</td><td>Use <em>Images → Adjust Black Point and Contrast…</em> to adjust the display stretch. The pixel values may be in a narrow range.</td></tr>
     <tr><td>Step 2 (plate solving) fails with an error</td><td>Ask your teacher — the internet connection or API key may need to be reconfigured.</td></tr>
-    <tr><td>I can't find anything moving in the blink</td><td>The object may be too faint, or the time between images may be too short. Try widening the blink interval. Also try the Known Object Overlay (step 3 in the Workflow) to see if any known asteroids are in the field.</td></tr>
+    <tr><td>I can't find anything moving in the blink</td><td>The object may be too faint, or the time between images may be too short. Try widening the blink interval. Also try Show Known Objects (step 3 in the Workflow) to see if any known asteroids are in the field.</td></tr>
     <tr><td>The "Enviar para Professor" button does not appear</td><td>The school email is not configured. See the tip above.</td></tr>
     <tr><td>My measurement table is empty</td><td>Make sure the <em>Measure</em> tool (<kbd>M</kbd>) is active before clicking on the object.</td></tr>
   </table>

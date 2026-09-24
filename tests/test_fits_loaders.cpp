@@ -71,7 +71,7 @@ TEST_CASE("loadFitsCube: rejects a plain 2-D image (not a cube)", "[loaders][cub
     REQUIRE_FALSE(result.has_value());
 }
 
-TEST_CASE("loadFitsCube: rejects NAXIS3=3 (that's the RGB shape, not a cube)", "[loaders][cube]")
+TEST_CASE("loadFitsCube: rejects NAXIS3=3 (that's the RGB shape - not a cube)", "[loaders][cube]")
 {
     QTemporaryDir dir;
     REQUIRE(dir.isValid());
@@ -178,7 +178,7 @@ TEST_CASE("readFitsTable: reads a well-formed BINTABLE (header matches data on d
     CHECK(xs[9].toDouble() == Catch::Approx(19.0));
 }
 
-TEST_CASE("readFitsTable: NAXIS2 lies about row count (truncated data) -> returns error, "
+TEST_CASE("readFitsTable: NAXIS2 lies about row count (truncated data) -> returns error - "
           "not fabricated rows",
           "[loaders][bintable][regression][AUD-INPUT-5]")
 {
@@ -251,7 +251,7 @@ TEST_CASE("importDaophotTable: NAXIS2-lie fixture propagates the read error "
 }
 
 TEST_CASE("importDaophotTable: optional variable-length (TFORM=1PE) FLUX column "
-          "fails cleanly, never an OOB/short read (AUD-INPUT-7)",
+          "fails cleanly - never an OOB/short read (AUD-INPUT-7)",
           "[loaders][bintable][regression][AUD-INPUT-7]")
 {
     QTemporaryDir dir;
@@ -272,7 +272,7 @@ TEST_CASE("importDaophotTable: optional variable-length (TFORM=1PE) FLUX column 
 
 // ─── FitsTableReader::readLocalCatalogTable ───────────────────────────────────
 
-TEST_CASE("readLocalCatalogTable: needs RA/Dec columns, fails on X/Y-only table",
+TEST_CASE("readLocalCatalogTable: needs RA/Dec columns - fails on X/Y-only table",
           "[loaders][bintable]")
 {
     QTemporaryDir dir;

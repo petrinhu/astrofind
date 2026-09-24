@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Petrus Silva Costa
 
 #include "AstrometryClient.h"
+#include "NetworkSafety.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -23,26 +24,14 @@ namespace {
 // that accepts the connection and never responds hangs busy_/state_ forever
 // (DoS of the plate-solving feature until process restart).
 constexpr int kHttpTimeoutMs = 30000;
-
-// AUD-SEC-4: true when `url` may carry the astrometry.net API key safely —
-// https:// always, or http:// restricted to loopback (a self-hosted local
-// instance, where no network eavesdropper can intercept the traffic).
-bool isSafeAstrometryUrlScheme(const QUrl& url)
-{
-    const QString scheme = url.scheme().toLower();
-    if (scheme == QLatin1String("https")) return true;
-    if (scheme != QLatin1String("http")) return false;
-    const QString host = url.host().toLower();
-    return host == QLatin1String("localhost")
-        || host == QLatin1String("127.0.0.1")
-        || host == QLatin1String("::1");
-}
 } // namespace
 
 void AstrometryClient::setBaseUrl(const QString& url)
 {
+    // AUD-SEC-4: the endpoint receives the API key — https://, or http:// on
+    // loopback only (shared guard, see NetworkSafety.h / AUD-SEC-13).
     const QUrl parsed(url);
-    if (isSafeAstrometryUrlScheme(parsed)) {
+    if (isSafeServiceUrl(parsed)) {
         baseUrl_ = url;
         return;
     }
@@ -59,14 +48,25 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
 {
     pollTimer_->setInterval(5000);
     connect(pollTimer_, &QTimer::timeout, this, [this]() {
+        // AUD-SEC-11: one poll in flight at a time, always tracked in
+        // currentReply_ so cancel() aborts it. A tick that finds the previous
+        // poll still pending (a slow server: the 30 s transfer timeout is
+        // longer than the 5 s interval) is skipped instead of stacking GETs.
+        if (!currentReply_.isNull()) return;
         if (state_ == State::WaitingForJob) {
             // Poll submission → get job list
             const QUrl url(baseUrl_ + "/api/submissions/" + QString::number(submissionId_));
             QNetworkRequest req(url);
             req.setTransferTimeout(kHttpTimeoutMs);
-            auto* reply = nam_->get(req);
+            auto* reply   = nam_->get(req);
+            currentReply_ = reply;
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
+                if (reply == currentReply_)
+                    currentReply_ = nullptr;
+                // AUD-SEC-11: aborted by cancel() (state_ already Idle) or the
+                // state moved on — no phantom progress/failure after cancel.
+                if (state_ != State::WaitingForJob) return;
                 if (reply->error() != QNetworkReply::NoError) {
                     if (++pollCount_ > maxPollCount_) fail(tr("Timeout waiting for astrometry job"));
                     return;
@@ -92,9 +92,13 @@ AstrometryClient::AstrometryClient(QNetworkAccessManager* nam, QObject* parent)
             const QUrl url(baseUrl_ + "/api/jobs/" + QString::number(jobId_) + "/info");
             QNetworkRequest req(url);
             req.setTransferTimeout(kHttpTimeoutMs);
-            auto* reply = nam_->get(req);
+            auto* reply   = nam_->get(req);
+            currentReply_ = reply;   // AUD-SEC-11
             connect(reply, &QNetworkReply::finished, this, [this, reply]() {
                 reply->deleteLater();
+                if (reply == currentReply_)
+                    currentReply_ = nullptr;
+                if (state_ != State::PollingJob) return;   // AUD-SEC-11: cancelled
                 if (reply->error() != QNetworkReply::NoError) {
                     if (++pollCount_ > maxPollCount_) fail(tr("Timeout polling job status"));
                     return;
@@ -145,9 +149,12 @@ void AstrometryClient::solveFits(const QString& fitsPath,
 void AstrometryClient::cancel()
 {
     pollTimer_->stop();
+    // AUD-SEC-11: go Idle *before* aborting — abort() emits finished()
+    // synchronously, and the poll handlers bail out when the state no longer
+    // matches, so a cancelled poll never reports progress or failure.
+    state_ = State::Idle;
     if (!currentReply_.isNull())
         currentReply_->abort();
-    state_ = State::Idle;
 }
 
 // ─── Private ─────────────────────────────────────────────────────────────────

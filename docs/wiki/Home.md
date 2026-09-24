@@ -158,20 +158,20 @@ Portuguese UI label). The last column says what is **different**.
 | Step you know | In AstroFind (EN / PT) | What is different |
 |---|---|---|
 | Observer data, MPC code, camera | **File → Settings...** (`Ctrl+,`) / **Arquivo → Configurações...** — tabs Observer, Camera, Connections, Detection, Display, Legacy | The site can come from the FITS header, a built-in list of 84 observatories, manual coordinates, or "Telescópio Espacial". See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings). |
-| Load the image series | **File → Load Images...** (`Ctrl+L`) / **Arquivo → Carregar Imagens...** | Also opens SER, XISF, TIFF/PNG, DSLR RAW, NASA PDS and archives (ZIP, TAR, 7Z, RAR). In 1.1.0 and earlier `Ctrl+L` was also given to **Tools → Light Curve…** and could do nothing (use the menu or the toolbar there); the next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`. |
-| Dark / flat calibration | **File → Load Dark Frame...** / **Load Flat Field...** / **Calibration Wizard…** (PT **Carregar Dark Frame...** / **Carregar Flat Field...** / **Assistente de Calibração…**) | Masters can be built in the Calibration dock ("Build Master…"). Calibration is applied inside Data Reduction. |
-| Data Reduction | **Astrometry → Data Reduction...** (`Ctrl+A`) / **Astrometria → Redução de Dados...** | The plate solution comes from **astrometry.net** (online, free API key) or **ASTAP** (offline). Images that already have a WCS (sky-coordinate solution) in the header are skipped. |
-| Reference stars and known objects | **Tools → Known Object Overlay** (`Ctrl+K`) / **Ferramentas → Sobreposição de Objetos Conhecidos** | Reference stars: UCAC4 or Gaia DR3 via VizieR (online) or a local FITS table. Known objects: IMCCE SkyBoT online, with MPCORB.DAT as the offline fallback. |
-| Blink | **Tools → Blink Images** (`Ctrl+B`) / **Ferramentas → Piscar Imagens**; stop with `Ctrl+F9` | The blink view shows up to 4 thumbnail slots; Space = play/pause, Left/Right = step. |
-| Moving Object Detection | **Astrometry → Moving Object Detection...** (`Ctrl+M`) / **Astrometria → Detecção de Objetos em Movimento...** | Candidates appear as "Cand #N" markers. |
-| Track & Stack | **Astrometry → Stack Images...** (`Ctrl+T`) / **Astrometria → Empilhar Imagens...** | You type dX/dY per frame by hand. |
-| Measure an object | **Edit → Aperture Tool** (`A`) / **Editar → Ferramenta Abertura**, or the toolbar **Measure Object** button (`M`) | Elliptical PSF centroid, refraction correction, differential photometry. A Verification window opens: click "✓ Aceitar". |
+| Load the image series | **File → Import Images...** (`Ctrl+L`) / **Arquivo → Importar Imagens...** | Also opens SER, XISF, TIFF/PNG, DSLR RAW, NASA PDS and archives (ZIP, TAR, 7Z, RAR). In 1.1.0 and earlier `Ctrl+L` was also given to **Utilities → Light Curve…** and could do nothing (use the menu or the toolbar there); the next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`. |
+| Dark / flat calibration | **File → Use Dark Frame for Calibration… / Use Flat Field for Calibration… / Calibration Wizard…** (PT **Arquivo → Usar Dark de Calibração / Usar Flat de Calibração / Assistente de Calibração…**) | Masters can be built in the Calibration dock ("Build Master…"). Calibration is applied inside Run Data Reduction. |
+| Data Reduction | **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`) / **Ferramentas de Astrometria → Executar Redução de Dados...** | The plate solution comes from **astrometry.net** (online, free API key) or **ASTAP** (offline). Images that already have a WCS (sky-coordinate solution) in the header are skipped. |
+| Reference stars and known objects | **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos Conhecidos** | Reference stars: UCAC4 or Gaia DR3 via VizieR (online) or a local FITS table. Known objects: IMCCE SkyBoT online, with MPCORB.DAT as the offline fallback. |
+| Blink | **Utilities → Begin Blink Mode** (`Ctrl+B`) / **Utilitários → Ativar Modo de Piscagem**; stop with `Ctrl+F9` | The blink view shows up to 4 thumbnail slots; Space = play/pause, Left/Right = step. |
+| Moving Object Detection | **Astrometry Tools → Detect Moving Objects...** (`Ctrl+M`) / **Ferramentas de Astrometria → Detectar Objetos em Movimento...** | Candidates appear as "Cand #N" markers. |
+| Track & Stack | **Astrometry Tools → Stack Images...** (`Ctrl+T`) / **Ferramentas de Astrometria → Empilhar Imagens...** | You type dX/dY per frame by hand. |
+| Measure an object | **Edit → Aperture Tool** (`A`) / **Editar → Ferramenta Abertura**, or the toolbar **Measure Object** button (`M`) | Elliptical PSF centroid, refraction correction when the position is not already from a catalog plate solution, differential photometry. A Verification window opens: click "✓ Aceitar". |
 | MPC report | **File → View ADES Report File** / **Arquivo → Ver Arquivo de Relatório ADES** | **Only ADES 2022 (XML and PSV).** There is **no MPC 80-column (MPC1992) output.** Submission by HTTP to the MPC, by e-mail, or to a teacher. |
-| MPCOrb | **Internet → Download MPCOrb** / **Update MPCOrb** (PT **Internet → Baixar MPCOrb** / **Atualizar MPCOrb**) | Used only as an offline fallback when SkyBoT can't be reached. |
+| MPCOrb | **Internet → Download MPCOrb Database** / **Update MPCOrb Database** (PT **Internet → Baixar Banco MPCOrb** / **Atualizar Banco MPCOrb**) | Used only as an offline fallback when SkyBoT can't be reached. |
 | Local catalog folders (USNO-A2, UCAC-2/3, CMC-14) | **Settings → Legacy** / **Configurações → Legado** | Kept for compatibility only. **The pipeline never reads them.** Use VizieR or a local FITS BINTABLE catalog (Connections tab). |
 
 > ⚠️ **Watch out:** some labels stay in Portuguese even when the interface is in English (for
-> example "Fluxo automático", "✓ Aceitar", "Fechar Imagens"). This is how the app is today, not
+> example "Fluxo automático", "✓ Aceitar"). This is how the app is today, not
 > a problem on your side. [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference) lists them.
 
 🇧🇷 **Português**
@@ -183,20 +183,20 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 | Passo que você conhece | No AstroFind (PT / EN) | O que muda |
 |---|---|---|
 | Dados do observador, código MPC, câmera | **Arquivo → Configurações...** (`Ctrl+,`) / **File → Settings...** — abas Observador, Câmera, Conexões, Detecção, Exibição, Legado | O local pode vir do cabeçalho FITS, de uma lista embutida de 84 observatórios, de coordenadas manuais ou de "Telescópio Espacial". Veja [Configurações](https://github.com/petrinhu/astrofind/wiki/Settings). |
-| Carregar a série de imagens | **Arquivo → Carregar Imagens...** (`Ctrl+L`) / **File → Load Images...** | Também abre SER, XISF, TIFF/PNG, RAW de DSLR, NASA PDS e arquivos compactados (ZIP, TAR, 7Z, RAR). Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Ferramentas → Curva de Luz…** e podia não fazer nada (lá, use o menu ou a barra de ferramentas); a próxima versão (depois da 1.1.0) passa a Curva de Luz para `Ctrl+Shift+L`. |
-| Calibração com dark / flat | **Arquivo → Carregar Dark Frame...** / **Carregar Flat Field...** / **Assistente de Calibração…** | Dá para montar masters no painel Calibração ("Construir Master…"). A calibração é aplicada dentro da Redução de Dados. |
-| Redução de Dados | **Astrometria → Redução de Dados...** (`Ctrl+A`) / **Astrometry → Data Reduction...** | A solução de placa vem do **astrometry.net** (online, chave de API gratuita) ou do **ASTAP** (offline). Imagens que já têm WCS (solução de coordenadas do céu) no cabeçalho são puladas. |
-| Estrelas de referência e objetos conhecidos | **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`) / **Tools → Known Object Overlay** | Estrelas de referência: UCAC4 ou Gaia DR3 via VizieR (online) ou tabela FITS local. Objetos conhecidos: IMCCE SkyBoT online, com o MPCORB.DAT como reserva offline. |
-| Blink (piscar) | **Ferramentas → Piscar Imagens** (`Ctrl+B`) / **Tools → Blink Images**; parar com `Ctrl+F9` | A visão de piscar mostra até 4 miniaturas; Espaço = tocar/pausar, Esquerda/Direita = avançar/voltar. |
-| Detecção de objetos em movimento | **Astrometria → Detecção de Objetos em Movimento...** (`Ctrl+M`) | Os candidatos aparecem como marcadores "Cand #N". |
-| Track & Stack | **Astrometria → Empilhar Imagens...** (`Ctrl+T`) / **Astrometry → Stack Images...** | Você digita dX/dY por quadro à mão. |
-| Medir um objeto | **Editar → Ferramenta Abertura** (`A`) / **Edit → Aperture Tool**, ou o botão de medir da barra de ferramentas (tecla `M`) | Centroide por PSF elíptica, correção de refração, fotometria diferencial. Abre a janela Verificação: clique em "✓ Aceitar". |
+| Carregar a série de imagens | **Arquivo → Importar Imagens...** (`Ctrl+L`) / **File → Import Images...** | Também abre SER, XISF, TIFF/PNG, RAW de DSLR, NASA PDS e arquivos compactados (ZIP, TAR, 7Z, RAR). Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Utilitários → Curva de Luz…** e podia não fazer nada (lá, use o menu ou a barra de ferramentas); a próxima versão (depois da 1.1.0) passa a Curva de Luz para `Ctrl+Shift+L`. |
+| Calibração com dark / flat | **Arquivo → Usar Dark de Calibração...** / **Usar Flat de Calibração...** / **Assistente de Calibração…** | Dá para montar masters no painel Calibração ("Construir Master…"). A calibração é aplicada dentro da Execução da Redução de Dados. |
+| Redução de Dados | **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) / **Astrometry Tools → Run Data Reduction...** | A solução de placa vem do **astrometry.net** (online, chave de API gratuita) ou do **ASTAP** (offline). Imagens que já têm WCS (solução de coordenadas do céu) no cabeçalho são puladas. |
+| Estrelas de referência e objetos conhecidos | **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) / **Utilities → Show Known Objects** | Estrelas de referência: UCAC4 ou Gaia DR3 via VizieR (online) ou tabela FITS local. Objetos conhecidos: IMCCE SkyBoT online, com o MPCORB.DAT como reserva offline. |
+| Blink (piscar) | **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`) / **Utilities → Begin Blink Mode**; parar com `Ctrl+F9` | A visão de piscar mostra até 4 miniaturas; Espaço = tocar/pausar, Esquerda/Direita = avançar/voltar. |
+| Detecção de objetos em movimento | **Ferramentas de Astrometria → Detectar Objetos em Movimento...** (`Ctrl+M`) | Os candidatos aparecem como marcadores "Cand #N". |
+| Track & Stack | **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`) / **Astrometry Tools → Stack Images...** | Você digita dX/dY por quadro à mão. |
+| Medir um objeto | **Editar → Ferramenta Abertura** (`A`) / **Edit → Aperture Tool**, ou o botão de medir da barra de ferramentas (tecla `M`) | Centroide por PSF elíptica, correção de refração quando a posição ainda não vem de uma solução de plate-solve por catálogo, fotometria diferencial. Abre a janela Verificação: clique em "✓ Aceitar". |
 | Relatório para o MPC | **Arquivo → Ver Arquivo de Relatório ADES** / **File → View ADES Report File** | **Só ADES 2022 (XML e PSV).** **Não existe saída no formato MPC de 80 colunas (MPC1992).** Envio por HTTP ao MPC, por e-mail ou para o professor. |
 | MPCOrb | **Internet → Baixar MPCOrb** / **Atualizar MPCOrb** | Usado só como reserva offline quando o SkyBoT não responde. |
 | Pastas de catálogos locais (USNO-A2, UCAC-2/3, CMC-14) | **Configurações → Legado** / **Settings → Legacy** | Mantidas só por compatibilidade. **O processamento nunca as lê.** Use o VizieR ou um catálogo local FITS BINTABLE (aba Conexões). |
 
 > ⚠️ **Atenção:** alguns rótulos ficam em português mesmo com a interface em inglês (por
-> exemplo "Fluxo automático", "✓ Aceitar", "Fechar Imagens"). O programa é assim hoje; não é
+> exemplo "Fluxo automático", "✓ Aceitar"). O programa é assim hoje; não é
 > problema do seu lado. A [Referência de Menus](https://github.com/petrinhu/astrofind/wiki/Menu-Reference) lista esses casos.
 
 ---
@@ -261,7 +261,7 @@ mature as a "1.0"; this release adds new features on top of it, so it is numbere
   label inside, or `.img` + a separate `.lbl`) and PDS4 (`.xml` label; if the label points to a
   FITS file, AstroFind opens that FITS).
   - Mission images rarely come with a plate solution: expect AstroFind to plate-solve them in
-    Data Reduction.
+    Run Data Reduction.
 - Internal robustness fixes from the code audit.
 
 Full details: [`CHANGELOG.md`](https://github.com/petrinhu/astrofind/blob/main/CHANGELOG.md).

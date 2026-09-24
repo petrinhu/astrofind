@@ -40,9 +40,9 @@ Outputs ADES 2022 format reports.</translation>
 <context>
     <name>BackgroundRangeDialog</name>
     <message>
-        <location filename="../src/ui/BackgroundRangeDialog.cpp" line="25" />
-        <source>Background and Range — %1</source>
-        <translation>Background and Range — %1</translation>
+        <location filename="../src/ui/BackgroundRangeDialog.cpp" line="28" />
+        <source>Black Point and Contrast - %1</source>
+        <translation>Black Point and Contrast - %1</translation>
     </message>
     <message>
         <location filename="../src/ui/BackgroundRangeDialog.cpp" line="72" />
@@ -388,16 +388,16 @@ Viridis: perceptually uniform purple → teal → yellow.</translation>
     </message>
     <message>
         <location filename="../src/ui/CalibrationWizard.cpp" line="189" />
-        <source>If unchecked, calibration frames are stored and will be applied automatically during the next Data Reduction.</source>
-        <translation>If unchecked, calibration frames are stored and will be applied automatically during the next Data Reduction.</translation>
+        <source>If unchecked, calibration frames are stored and will be applied automatically the next time you run Data Reduction.</source>
+        <translation>If unchecked, calibration frames are stored and will be applied automatically the next time you run Data Reduction.</translation>
     </message>
 </context>
 <context>
     <name>EditImageParametersDialog</name>
     <message>
         <location filename="../src/ui/EditImageParametersDialog.cpp" line="16" />
-        <source>Edit Image Parameters — %1</source>
-        <translation>Edit Image Parameters — %1</translation>
+        <source>Edit Image Settings - %1</source>
+        <translation>Edit Image Settings - %1</translation>
     </message>
     <message>
         <location filename="../src/ui/EditImageParametersDialog.cpp" line="20" />
@@ -512,9 +512,9 @@ Viridis: perceptually uniform purple → teal → yellow.</translation>
     <message>
         <location filename="../src/ui/FitsImageView.cpp" line="164" />
         <source>No image loaded
-Use File → Load Images…</source>
+Use File → Import Images…</source>
         <translation>No image loaded
-Use File → Load Images…</translation>
+Use File → Import Images…</translation>
     </message>
     <message>
         <location filename="../src/ui/FitsImageView.cpp" line="980" />
@@ -1039,13 +1039,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="75" />
-        <source>&amp;Load Images...</source>
-        <translation>&amp;Load Images...</translation>
+        <source>&amp;Import Images...</source>
+        <translation>&amp;Import Images...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="76" />
-        <source>Load FITS images for a new observation session</source>
-        <translation>Load FITS images for a new observation session</translation>
+        <source>Import FITS images to start a new observation session</source>
+        <translation>Import FITS images to start a new observation session</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="82" />
@@ -1079,8 +1079,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="88" />
-        <source>Projetos &amp;Recentes</source>
-        <translation>Projetos &amp;Recentes</translation>
+        <source>Recent &amp;Projects</source>
+        <translation>Recent &amp;Projects</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="90" />
@@ -1104,8 +1104,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="96" />
-        <source>&amp;Save as FITS...</source>
-        <translation>&amp;Save as FITS...</translation>
+        <source>Save FITS Cop&amp;y...</source>
+        <translation>Save FITS Cop&amp;y...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="97" />
@@ -1114,28 +1114,28 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="99" />
-        <source>&amp;Export Image to...</source>
-        <translation>&amp;Export Image to...</translation>
+        <source>&amp;Export Image As...</source>
+        <translation>&amp;Export Image As...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="133" />
-        <source>Load &amp;Dark Frame...</source>
-        <translation>Load &amp;Dark Frame...</translation>
+        <source>Use &amp;Dark Frame for Calibration…</source>
+        <translation>Use &amp;Dark Frame for Calibration…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="134" />
-        <source>Load a dark frame for calibration</source>
-        <translation>Load a dark frame for calibration</translation>
+        <source>Use a dark frame for calibration</source>
+        <translation>Use a dark frame for calibration</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="135" />
-        <source>Load &amp;Flat Field...</source>
-        <translation>Load &amp;Flat Field...</translation>
+        <source>Use F&amp;lat Field for Calibration…</source>
+        <translation>Use F&amp;lat Field for Calibration…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="136" />
-        <source>Load a flat field for calibration</source>
-        <translation>Load a flat field for calibration</translation>
+        <source>Use a flat field for calibration</source>
+        <translation>Use a flat field for calibration</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="137" />
@@ -1154,13 +1154,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="142" />
-        <source>View P&amp;hotometry File</source>
-        <translation>View P&amp;hotometry File</translation>
+        <source>Show P&amp;hotometry Results</source>
+        <translation>Show P&amp;hotometry Results</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="143" />
-        <source>View the photometry measurements file</source>
-        <translation>View the photometry measurements file</translation>
+        <source>Show the measured photometry values</source>
+        <translation>Show the measured photometry values</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="144" />
@@ -1174,8 +1174,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="148" />
-        <source>&amp;Reset Files</source>
-        <translation>&amp;Reset Files</translation>
+        <source>&amp;Reset Session Files</source>
+        <translation>&amp;Reset Session Files</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="149" />
@@ -1184,13 +1184,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="150" />
-        <source>&amp;Fechar Imagens</source>
-        <translation>&amp;Fechar Imagens</translation>
+        <source>Close Loaded I&amp;mages</source>
+        <translation>Close Loaded I&amp;mages</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="152" />
-        <source>Fechar todas as imagens e reiniciar a sessão</source>
-        <translation>Fechar todas as imagens e reiniciar a sessão</translation>
+        <source>Close all loaded images and reset the session</source>
+        <translation>Close all loaded images and reset the session</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="153" />
@@ -1209,8 +1209,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="158" />
-        <source>Edit program settings</source>
-        <translation>Edit program settings</translation>
+        <source>Adjust program preferences and options</source>
+        <translation>Adjust program preferences and options</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="161" />
@@ -1304,13 +1304,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="203" />
-        <source>&amp;Astrometry</source>
-        <translation>&amp;Astrometry</translation>
+        <source>&amp;Astrometry Tools</source>
+        <translation>&amp;Astrometry Tools</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="205" />
-        <source>&amp;Data Reduction...</source>
-        <translation>&amp;Data Reduction...</translation>
+        <source>Run &amp;Data Reduction...</source>
+        <translation>Run &amp;Data Reduction...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="206" />
@@ -1319,8 +1319,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="211" />
-        <source>&amp;Moving Object Detection...</source>
-        <translation>&amp;Moving Object Detection...</translation>
+        <source>Detect &amp;Moving Objects...</source>
+        <translation>Detect &amp;Moving Objects...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="212" />
@@ -1349,28 +1349,28 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="224" />
-        <source>&amp;Images</source>
-        <translation>&amp;Images</translation>
+        <source>&amp;Image Tools</source>
+        <translation>&amp;Image Tools</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="226" />
-        <source>&amp;Edit Image Parameters...</source>
-        <translation>&amp;Edit Image Parameters...</translation>
+        <source>&amp;Edit Image Settings...</source>
+        <translation>&amp;Edit Image Settings...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="227" />
-        <source>&amp;Display Header...</source>
-        <translation>&amp;Display Header...</translation>
+        <source>View FITS Hea&amp;der...</source>
+        <translation>View FITS Hea&amp;der...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="228" />
-        <source>Background and &amp;Range...</source>
-        <translation>Background and &amp;Range...</translation>
+        <source>Adjust &amp;Black Point and Contrast…</source>
+        <translation>Adjust &amp;Black Point and Contrast…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="229" />
-        <source>&amp;Re-Stack Images</source>
-        <translation>&amp;Re-Stack Images</translation>
+        <source>&amp;Rebuild Stack</source>
+        <translation>&amp;Rebuild Stack</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -1384,18 +1384,18 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="236" />
-        <source>&amp;Fit Window Size</source>
-        <translation>&amp;Fit Window Size</translation>
+        <source>&amp;Fit to Window</source>
+        <translation>&amp;Fit to Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="240" />
-        <source>Select &amp;Markings...</source>
-        <translation>Select &amp;Markings...</translation>
+        <source>&amp;Choose Marker Display…</source>
+        <translation>&amp;Choose Marker Display…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="241" />
-        <source>&amp;Invert Display</source>
-        <translation>&amp;Invert Display</translation>
+        <source>&amp;Invert Colors</source>
+        <translation>&amp;Invert Colors</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="246" />
@@ -1409,8 +1409,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="250" />
-        <source>&amp;Magnifying Glass</source>
-        <translation>&amp;Magnifying Glass</translation>
+        <source>&amp;Magnifier Tool</source>
+        <translation>&amp;Magnifier Tool</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="251" />
@@ -1419,13 +1419,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="254" />
-        <source>&amp;Tools</source>
-        <translation>&amp;Tools</translation>
+        <source>&amp;Utilities</source>
+        <translation>&amp;Utilities</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="256" />
-        <source>&amp;Blink Images</source>
-        <translation>&amp;Blink Images</translation>
+        <source>&amp;Begin Blink Mode</source>
+        <translation>&amp;Begin Blink Mode</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="257" />
@@ -1434,18 +1434,18 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="259" />
-        <source>S&amp;top Blinking</source>
-        <translation>S&amp;top Blinking</translation>
+        <source>E&amp;nd Blink Mode</source>
+        <translation>E&amp;nd Blink Mode</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="260" />
-        <source>Stop the blink animation</source>
-        <translation>Stop the blink animation</translation>
+        <source>End the blink animation</source>
+        <translation>End the blink animation</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="264" />
-        <source>&amp;Known Object Overlay</source>
-        <translation>&amp;Known Object Overlay</translation>
+        <source>Show &amp;Known Objects</source>
+        <translation>Show &amp;Known Objects</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="265" />
@@ -1499,8 +1499,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="288" />
-        <source>&amp;Download MPCOrb</source>
-        <translation>&amp;Download MPCOrb</translation>
+        <source>&amp;Download MPCOrb Database</source>
+        <translation>&amp;Download MPCOrb Database</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="289" />
@@ -1509,8 +1509,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="290" />
-        <source>&amp;Update MPCOrb</source>
-        <translation>&amp;Update MPCOrb</translation>
+        <source>&amp;Update MPCOrb Database</source>
+        <translation>&amp;Update MPCOrb Database</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="291" />
@@ -1565,33 +1565,33 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="299" />
-        <source>&amp;Windows</source>
-        <translation>&amp;Windows</translation>
+        <source>&amp;Window</source>
+        <translation>&amp;Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="301" />
-        <source>&amp;Tile Windows</source>
-        <translation>&amp;Tile Windows</translation>
+        <source>A&amp;rrange Windows Side by Side</source>
+        <translation>A&amp;rrange Windows Side by Side</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="302" />
-        <source>&amp;Cascade Windows</source>
-        <translation>&amp;Cascade Windows</translation>
+        <source>&amp;Stack Windows Diagonally</source>
+        <translation>&amp;Stack Windows Diagonally</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="303" />
-        <source>&amp;Arrange all Windows</source>
-        <translation>&amp;Arrange all Windows</translation>
+        <source>&amp;Auto-Arrange Windows</source>
+        <translation>&amp;Auto-Arrange Windows</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="305" />
-        <source>Close all &amp;Images</source>
-        <translation>Close all &amp;Images</translation>
+        <source>Close Every &amp;Open Image</source>
+        <translation>Close Every &amp;Open Image</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="306" />
-        <source>Close &amp;all Windows</source>
-        <translation>Close &amp;all Windows</translation>
+        <source>Close Every &amp;Window</source>
+        <translation>Close Every &amp;Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="308" />
@@ -1605,8 +1605,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="314" />
-        <source>&amp;Help Contents</source>
-        <translation>&amp;Help Contents</translation>
+        <source>&amp;Help Topics</source>
+        <translation>&amp;Help Topics</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="315" />
@@ -1615,13 +1615,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="317" />
-        <source>&amp;Registration...</source>
-        <translation>&amp;Registration...</translation>
+        <source>&amp;Product Registration...</source>
+        <translation>&amp;Product Registration...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="319" />
-        <source>&amp;About...</source>
-        <translation>&amp;About...</translation>
+        <source>&amp;About AstroFind...</source>
+        <translation>&amp;About AstroFind...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="329" />
@@ -1645,40 +1645,48 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="351" />
-        <source>Load Images (Ctrl+L)</source>
-        <translation>Load Images (Ctrl+L)</translation>
+        <source>Import Images (Ctrl+L)</source>
+        <translation>Import Images (Ctrl+L)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="354" />
-        <location filename="../src/ui/MainWindow_io.cpp" line="239" />
-        <source>Load Dark Frame</source>
-        <translation>Load Dark Frame</translation>
+        <source>Use Dark Frame</source>
+        <translation>Use Dark Frame</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="355" />
-        <source>Load dark frame for calibration</source>
-        <translation>Load dark frame for calibration</translation>
+        <source>Use this dark frame for calibration</source>
+        <translation>Use this dark frame for calibration</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="359" />
-        <location filename="../src/ui/MainWindow_io.cpp" line="260" />
-        <source>Load Flat Field</source>
-        <translation>Load Flat Field</translation>
+        <source>Use Flat Field</source>
+        <translation>Use Flat Field</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="360" />
-        <source>Load flat field for calibration</source>
-        <translation>Load flat field for calibration</translation>
+        <source>Use this flat field for calibration</source>
+        <translation>Use this flat field for calibration</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="282" />
+        <source>Choose Dark Frame File</source>
+        <translation>Choose Dark Frame File</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="303" />
+        <source>Choose Flat Field File</source>
+        <translation>Choose Flat Field File</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="368" />
-        <source>Data Reduction (Ctrl+A)</source>
-        <translation>Data Reduction (Ctrl+A)</translation>
+        <source>Run Data Reduction (Ctrl+A)</source>
+        <translation>Run Data Reduction (Ctrl+A)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="372" />
-        <source>Moving Object Detection (Ctrl+M)</source>
-        <translation>Moving Object Detection (Ctrl+M)</translation>
+        <source>Detect Moving Objects (Ctrl+M)</source>
+        <translation>Detect Moving Objects (Ctrl+M)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="376" />
@@ -1702,23 +1710,23 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="406" />
-        <source>Close all Images</source>
-        <translation>Close all Images</translation>
+        <source>Close Every Open Image</source>
+        <translation>Close Every Open Image</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="407" />
-        <source>Close all image windows</source>
-        <translation>Close all image windows</translation>
+        <source>Close every open image window</source>
+        <translation>Close every open image window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="411" />
-        <source>Close all Windows</source>
-        <translation>Close all Windows</translation>
+        <source>Close Every Window</source>
+        <translation>Close Every Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="412" />
-        <source>Close all windows</source>
-        <translation>Close all windows</translation>
+        <source>Close every window</source>
+        <translation>Close every window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="419" />
@@ -1727,23 +1735,23 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="425" />
-        <source>Background &amp;&amp; Range</source>
-        <translation>Background &amp;&amp; Range</translation>
+        <source>Black Point and Contrast</source>
+        <translation>Black Point and Contrast</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="426" />
-        <source>Adjust background and display range</source>
-        <translation>Adjust background and display range</translation>
+        <source>Adjust the black point and contrast stretch</source>
+        <translation>Adjust the black point and contrast stretch</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="430" />
-        <source>Select Markings</source>
-        <translation>Select Markings</translation>
+        <source>Marker Display</source>
+        <translation>Marker Display</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="431" />
-        <source>Select markings</source>
-        <translation>Select markings</translation>
+        <source>Choose which markers are shown</source>
+        <translation>Choose which markers are shown</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="436" />
@@ -1752,8 +1760,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="440" />
-        <source>Known Object Overlay (Ctrl+K)</source>
-        <translation>Known Object Overlay (Ctrl+K)</translation>
+        <source>Show Known Objects (Ctrl+K)</source>
+        <translation>Show Known Objects (Ctrl+K)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="446" />
@@ -1767,8 +1775,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="453" />
-        <source>Fit Window Size</source>
-        <translation>Fit Window Size</translation>
+        <source>Fit to Window</source>
+        <translation>Fit to Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="454" />
@@ -1782,8 +1790,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="468" />
-        <source>Blink Images (Ctrl+B)</source>
-        <translation>Blink Images (Ctrl+B)</translation>
+        <source>Begin Blink Mode (Ctrl+B)</source>
+        <translation>Begin Blink Mode (Ctrl+B)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="475" />
@@ -1797,8 +1805,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="486" />
-        <source>Stop Blinking (Ctrl+F9)</source>
-        <translation>Stop Blinking (Ctrl+F9)</translation>
+        <source>End Blink Mode (Ctrl+F9)</source>
+        <translation>End Blink Mode (Ctrl+F9)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="489" />
@@ -1832,18 +1840,18 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="508" />
-        <source>View &amp;Standard Toolbar</source>
-        <translation>View &amp;Standard Toolbar</translation>
+        <source>Show &amp;Main Toolbar</source>
+        <translation>Show &amp;Main Toolbar</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="509" />
-        <source>View &amp;Display Toolbar</source>
-        <translation>View &amp;Display Toolbar</translation>
+        <source>Show &amp;Display Toolbar</source>
+        <translation>Show &amp;Display Toolbar</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="510" />
-        <source>View &amp;Blink Toolbar</source>
-        <translation>View &amp;Blink Toolbar</translation>
+        <source>Show &amp;Blink Toolbar</source>
+        <translation>Show &amp;Blink Toolbar</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="519" />
@@ -2845,6 +2853,16 @@ Use the Measure tool (M) to click on moving objects first.</translation>
         <translation>Cannot open archive: %1 — %2</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="1457" />
+        <source>Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1</source>
+        <translation>Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="1492" />
+        <source>Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1</source>
+        <translation>Skipped non-regular ZIP entry (symlink/device/FIFO not allowed): %1</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="1475" />
         <source>No image files found in archive: %1</source>
         <translation>No image files found in archive: %1</translation>
@@ -2887,8 +2905,8 @@ Use the Measure tool (M) to click on moving objects first.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="1083" />
-        <source>MPCORB.DAT not found. Use Internet → Download MPCOrb.</source>
-        <translation>MPCORB.DAT not found. Use Internet → Download MPCOrb.</translation>
+        <source>MPCORB.DAT not found. Use Internet → Download MPCOrb Database.</source>
+        <translation>MPCORB.DAT not found. Use Internet → Download MPCOrb Database.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_io.cpp" line="1087" />
@@ -3005,8 +3023,8 @@ Restart now?</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="1139" />
         <location filename="../src/ui/MainWindow_reduction.cpp" line="8" />
-        <source>Data Reduction</source>
-        <translation>Data Reduction</translation>
+        <source>Run Data Reduction</source>
+        <translation>Run Data Reduction</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="9" />
@@ -3207,8 +3225,8 @@ Deseja continuar assim mesmo?</translation>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="385" />
         <location filename="../src/ui/MainWindow_reduction.cpp" line="391" />
         <location filename="../src/ui/MainWindow_reduction.cpp" line="452" />
-        <source>Moving Object Detection</source>
-        <translation>Moving Object Detection</translation>
+        <source>Detect Moving Objects</source>
+        <translation>Detect Moving Objects</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="353" />
@@ -3308,8 +3326,8 @@ Deseja continuar assim mesmo?</translation>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="589" />
         <location filename="../src/ui/MainWindow_reduction.cpp" line="596" />
         <location filename="../src/ui/MainWindow_reduction.cpp" line="625" />
-        <source>Re-Stack Images</source>
-        <translation>Re-Stack Images</translation>
+        <source>Rebuild Stack</source>
+        <translation>Rebuild Stack</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="722" />
@@ -3328,8 +3346,8 @@ Deseja continuar assim mesmo?</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="787" />
-        <source>Blink Images</source>
-        <translation>Blink Images</translation>
+        <source>Begin Blink Mode</source>
+        <translation>Begin Blink Mode</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_reduction.cpp" line="788" />
@@ -3484,6 +3502,11 @@ Run plate solving or star detection first.</translation>
         <translation>  Refraction correction: %1" (R=%2')</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="91" />
+        <source>  Refraction: not applied (absorbed by the catalog plate solution)</source>
+        <translation>  Refraction: not applied (absorbed by the catalog plate solution)</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow_measurement.cpp" line="97" />
         <source>  Frame: ICRF — annual aberration at epoch: %1" (Δα=%2", Δδ=%3")</source>
         <translation>  Frame: ICRF — annual aberration at epoch: %1" (Δα=%2", Δδ=%3")</translation>
@@ -3619,15 +3642,15 @@ Download now?</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_measurement.cpp" line="457" />
-        <source>Update MPCOrb</source>
-        <translation>Update MPCOrb</translation>
+        <source>Update MPCOrb Database</source>
+        <translation>Update MPCOrb Database</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_measurement.cpp" line="458" />
         <source>MPCORB.DAT not found.
-Download it first via Internet → Download MPCOrb.</source>
+Download it first via Internet → Download MPCOrb Database.</source>
         <translation>MPCORB.DAT not found.
-Download it first via Internet → Download MPCOrb.</translation>
+Download it first via Internet → Download MPCOrb Database.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow_measurement.cpp" line="462" />
@@ -3701,8 +3724,8 @@ Download it first via Internet → Download MPCOrb.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="1067" />
-        <source>Step 2 done — run Known Object Overlay (Ctrl+K)</source>
-        <translation>Step 2 done — run Known Object Overlay (Ctrl+K)</translation>
+        <source>Step 2 done - show Known Objects (Ctrl+K)</source>
+        <translation>Step 2 done - show Known Objects (Ctrl+K)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="1068" />
@@ -3738,6 +3761,31 @@ Download it first via Internet → Download MPCOrb.</translation>
         <location filename="../src/ui/MainWindow_io.cpp" line="1517" />
         <source>Timed out extracting ZIP: %1</source>
         <translation>Timed out extracting ZIP: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="375" />
+        <source>Cancel the download</source>
+        <translation>Cancel the download</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="389" />
+        <source>no data received for %1 s</source>
+        <translation>no data received for %1 s</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="483" />
+        <source>MPCORB.DAT download cancelled</source>
+        <translation>MPCORB.DAT download cancelled</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="484" />
+        <source>Download cancelled</source>
+        <translation>Download cancelled</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_measurement.cpp" line="527" />
+        <source>DAILY.DAT download cancelled</source>
+        <translation>DAILY.DAT download cancelled</translation>
     </message>
 </context>
 <context>
@@ -4102,8 +4150,8 @@ when the SkyBoT service is not reachable (~200 MB).</translation>
     </message>
     <message>
         <location filename="../src/ui/SetupWizard.cpp" line="204" />
-        <source>You can download it later via  Internet → Download MPCOrb.</source>
-        <translation>You can download it later via  Internet → Download MPCOrb.</translation>
+        <source>You can download it later via  Internet → Download MPCOrb Database.</source>
+        <translation>You can download it later via  Internet → Download MPCOrb Database.</translation>
     </message>
     <message>
         <location filename="../src/ui/SetupWizard.cpp" line="219" />
@@ -4194,6 +4242,11 @@ when the SkyBoT service is not reachable (~200 MB).</translation>
         <location filename="../src/core/ImageLoader.cpp" line="24" />
         <source>Cannot load image (unsupported or corrupt): %1</source>
         <translation>Cannot load image (unsupported or corrupt): %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core/ImageLoader.cpp" line="108" />
+        <source>Out of memory loading image '%1': %2</source>
+        <translation>Out of memory loading image '%1': %2</translation>
     </message>
     <message>
         <location filename="../src/core/ImageLoader.cpp" line="151" />
@@ -4309,6 +4362,11 @@ when the SkyBoT service is not reachable (~200 MB).</translation>
         <location filename="../src/core/Spectrum1D.cpp" line="29" />
         <source>Empty spectrum (NAXIS1=0)</source>
         <translation>Empty spectrum (NAXIS1=0)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SetupWizard.cpp" line="341" />
+        <source>no data received for %1 s</source>
+        <translation>no data received for %1 s</translation>
     </message>
 </context>
 <context>
@@ -4684,9 +4742,9 @@ Would you like to submit by email instead?</translation>
 <context>
     <name>SelectMarkingsDialog</name>
     <message>
-        <location filename="../src/ui/SelectMarkingsDialog.cpp" line="10" />
-        <source>Select Markings</source>
-        <translation>Select Markings</translation>
+        <location filename="../src/ui/SelectMarkingsDialog.cpp" line="13" />
+        <source>Marker Display</source>
+        <translation>Marker Display</translation>
     </message>
     <message>
         <location filename="../src/ui/SelectMarkingsDialog.cpp" line="16" />
@@ -5430,8 +5488,8 @@ Current value (2024): ~68 s.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="705" />
-        <source>Path to MPCORB.DAT. Use Internet → Download MPCOrb to get it.</source>
-        <translation>Path to MPCORB.DAT. Use Internet → Download MPCOrb to get it.</translation>
+        <source>Path to MPCORB.DAT. Use Internet → Download MPCOrb Database to get it.</source>
+        <translation>Path to MPCORB.DAT. Use Internet → Download MPCOrb Database to get it.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="706" />
@@ -5440,8 +5498,8 @@ Current value (2024): ~68 s.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="710" />
-        <source>Default folder opened by File → Load Images.</source>
-        <translation>Default folder opened by File → Load Images.</translation>
+        <source>Default folder opened by File → Import Images.</source>
+        <translation>Default folder opened by File → Import Images.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="711" />
@@ -5876,6 +5934,42 @@ ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso.</transla
         <source>FITS BINTABLE (*.fits *.fit *.fts);;All files (*)</source>
         <translation>FITS BINTABLE (*.fits *.fit *.fts);;All files (*)</translation>
     </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1400" />
+        <source>Plate-solving server URL</source>
+        <translation>Plate-solving server URL</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1401" />
+        <source>VizieR mirror URL</source>
+        <translation>VizieR mirror URL</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1402" />
+        <source>MPC submission URL</source>
+        <translation>MPC submission URL</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1417" />
+        <source>Insecure server URL</source>
+        <translation>Insecure server URL</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1418" />
+        <source>%1 is not accepted:
+%2
+
+Use an https:// URL (plain http:// is allowed only for localhost, 127.0.0.1 or ::1).</source>
+        <translation>%1 is not accepted:
+%2
+
+Use an https:// URL (plain http:// is allowed only for localhost, 127.0.0.1 or ::1).</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/SettingsDialog.cpp" line="1421" />
+        <source>(empty)</source>
+        <translation>(empty)</translation>
+    </message>
 </context>
 <context>
     <name>SetupWizard</name>
@@ -6007,8 +6101,8 @@ ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso.</transla
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="33" />
-        <source>Load Images</source>
-        <translation>Load Images</translation>
+        <source>Import Images</source>
+        <translation>Import Images</translation>
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="33" />
@@ -6017,8 +6111,8 @@ ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso.</transla
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="34" />
-        <source>Data Reduction</source>
-        <translation>Data Reduction</translation>
+        <source>Run Data Reduction</source>
+        <translation>Run Data Reduction</translation>
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="34" />
@@ -6027,8 +6121,8 @@ ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso.</transla
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="35" />
-        <source>Known Object Overlay</source>
-        <translation>Known Object Overlay</translation>
+        <source>Show Known Objects</source>
+        <translation>Show Known Objects</translation>
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="35" />
@@ -6037,8 +6131,8 @@ ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso.</transla
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="36" />
-        <source>Blink Images</source>
-        <translation>Blink Images</translation>
+        <source>Begin Blink Mode</source>
+        <translation>Begin Blink Mode</translation>
     </message>
     <message>
         <location filename="../src/ui/WorkflowPanel.cpp" line="36" />
@@ -6287,6 +6381,19 @@ ou coloridas (NAXIS3=3). Pode ser desativado também no próprio aviso.</transla
         <location filename="../src/core/HorizonsClient.cpp" line="119" />
         <source>Could not parse Horizons ephemeris for "%1"</source>
         <translation>Could not parse Horizons ephemeris for "%1"</translation>
+    </message>
+    <message>
+        <location filename="../src/core/HorizonsClient.cpp" line="68" />
+        <source>Invalid Horizons target: use an MPC number, name or designation (letters, digits, spaces and / - ( ) . _ only).</source>
+        <translation>Invalid Horizons target: use an MPC number, name or designation (letters, digits, spaces and / - ( ) . _ only).</translation>
+    </message>
+</context>
+<context>
+    <name>core::KooEngine</name>
+    <message>
+        <location filename="../src/core/KooEngine.cpp" line="103" />
+        <source>SkyBoT did not respond within %1 s</source>
+        <translation>SkyBoT did not respond within %1 s</translation>
     </message>
 </context>
 <context>
