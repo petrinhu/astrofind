@@ -1,33 +1,36 @@
-name: QA · Pop!_OS 22.04
+name: QA · Pop!_OS stand-in (ubuntu:24.04 base)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Item 55.7 — Build and test on Pop!_OS 22.04 (ubuntu:22.04 approximation)
+# Item 55.7 — Build and test for Pop!_OS users on an Ubuntu 24.04 base
+#             (ubuntu:24.04 container standing in for Pop!_OS — NOT 22.04)
 #
 # WHY POP!_OS 22.04:
 #   Pop!_OS 22.04 is System76's Linux distribution, popular with hardware-aware
 #   users and those who want a polished out-of-the-box Linux experience. It is
 #   based on Ubuntu 22.04 LTS (Jammy Jellyfish) with System76-specific packages.
-#   It ships Qt 6.4 from the Ubuntu 22.04 base — the minimum Qt AstroFind supports.
 #
-# IMAGE USED: ubuntu:22.04
-#   There is no official Pop!_OS Docker image. ubuntu:22.04 is the upstream base
-#   and has the same apt package set available for Qt6/cfitsio/fftw3.
-#   The System76 PPA is added to approximate the Pop!_OS environment.
+# IMAGE USED: ubuntu:24.04 (AUD-CI-6 — honest label)
+#   There is no official Pop!_OS Docker image. Pop!_OS 22.04 itself sits on
+#   Ubuntu 22.04, whose archive ships Qt 6.2.4 — below the Qt 6.4 AstroFind
+#   requires (find_package(Qt6 6.4 REQUIRED)), so a real 22.04 base cannot
+#   build AstroFind at all. This job therefore runs on ubuntu:24.04 (Qt 6.4.2,
+#   GCC 13) as a stand-in for the Ubuntu-family toolchain a Pop!_OS user on
+#   the current release (24.04 base) gets. No System76 PPA is added.
 #
-# LIMITATION: This is an approximation. Pop!_OS-specific components
-#   (Pop Shell, custom GNOME session, System76 firmware tools) are not present.
-#   The package base that matters for AstroFind is identical.
+# LIMITATION: This is NOT Pop!_OS and NOT a 22.04 base. Pop!_OS-specific
+#   components (Pop Shell / COSMIC, System76 firmware tools, System76 PPA)
+#   are not present. It validates the Ubuntu 24.04 apt package set only.
 #
 # WHAT THIS JOB VALIDATES (item 55.7):
-#   ✅  Qt 6.4 (Ubuntu 22.04 base — minimum supported version) compatibility
-#   ✅  GCC 12 C++23 support (libstdc++ 12)
-#   ✅  System76 PPA does not conflict with Qt6/scientific packages
+#   ✅  Qt 6.4.2 (Ubuntu 24.04 archive — the minimum supported Qt) compatibility
+#   ✅  GCC 13 C++23 support (libstdc++ 13)
 #   ✅  CMake configuration succeeds
 #   ✅  All 116 core unit tests pass
 #   ✅  All 23 UI integration tests pass (offscreen)
 #   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
 #   ❌  Hardware-accelerated OpenGL — not tested
-#   ❌  Pop Shell, System76 firmware tools — not present
+#   ❌  Pop Shell, System76 firmware tools, System76 PPA — not present
+#   ❌  Ubuntu 22.04 base (Qt 6.2.4 < 6.4) — cannot build AstroFind, not tested
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -43,7 +46,7 @@ env:
 
 jobs:
   qa-pop-os-22:
-    name: Pop!_OS 22.04 · ubuntu:24.04 · apt · GCC 13
+    name: Pop!_OS stand-in · ubuntu:24.04 base (not 22.04) · apt · GCC 13
     runs-on: ubuntu-latest
 
     container:
@@ -56,7 +59,7 @@ jobs:
       - name: "🖥  System information"
         run: |
           echo "════════════════════════════════════════════════════════════════"
-          echo "  AstroFind QA — Pop!_OS 22.04 (via ubuntu:22.04)"
+          echo "  AstroFind QA — Pop!_OS stand-in (via ubuntu:24.04, not a 22.04 base)"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
           uname -a
@@ -166,7 +169,7 @@ jobs:
         if: always()
         run: |
           echo "════════════════════════════════════════════════════════════════"
-          echo "  AstroFind QA — Pop!_OS 22.04 (ubuntu:22.04 base) — DONE"
+          echo "  AstroFind QA — Pop!_OS stand-in (ubuntu:24.04 base) — DONE"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
           echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"

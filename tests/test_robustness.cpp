@@ -187,7 +187,7 @@ TEST_CASE("detectMovingObjects: empty input returns error or empty", "[robustnes
         CHECK(res->isEmpty());
 }
 
-TEST_CASE("detectMovingObjects: single frame, minFrames=3, yields no tracks", "[robustness][detector]")
+TEST_CASE("detectMovingObjects: single frame with minFrames=3 yields no tracks", "[robustness][detector]")
 {
     core::FitsImage img;
     img.width  = 100;

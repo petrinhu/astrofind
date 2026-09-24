@@ -32,7 +32,7 @@ TEST_CASE("GMST advances ~0.985 degrees per solar day (mod 360)", "[astronomy][g
     REQUIRE_THAT(diff, WithinAbs(0.98564736629, 0.0001));
 }
 
-TEST_CASE("GMST stays in [0, 360)", "[astronomy][gmst]")
+TEST_CASE("GMST stays within 0 to 360 degrees", "[astronomy][gmst]")
 {
     // Test several JDs including far-future and far-past
     for (double jd : {2400000.0, 2451545.0, 2460000.0, 2500000.0}) {
@@ -266,7 +266,7 @@ core::PlateSolution makeWcs(core::WcsProjection proj,
 
 } // namespace
 
-TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec - all 8 projections", "[astronomy][wcs]")
 {
     for (const auto& pc : kAllProjections) {
         INFO("projection = " << pc.name);
@@ -278,7 +278,7 @@ TEST_CASE("WCS: reference pixel maps to CRVAL sub-arcsec, all 8 projections", "[
     }
 }
 
-TEST_CASE("WCS: pixToSky/skyToPix round-trip identity, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: pixToSky/skyToPix round-trip identity - all 8 projections", "[astronomy][wcs]")
 {
     for (const auto& pc : kAllProjections) {
         INFO("projection = " << pc.name);
@@ -294,7 +294,7 @@ TEST_CASE("WCS: pixToSky/skyToPix round-trip identity, all 8 projections", "[ast
     }
 }
 
-TEST_CASE("WCS: off-axis pixels match astropy oracle, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: off-axis pixels match astropy oracle - all 8 projections", "[astronomy][wcs]")
 {
     // crval=(180,0), crpix=(512,512), 1"/px. Offsets (dx,dy) in pixels from
     // CRPIX; expected (RA,Dec) in degrees from astropy 8.0.1 (full precision).
@@ -380,7 +380,7 @@ TEST_CASE("WCS: negative Dec field matches astropy oracle", "[astronomy][wcs]")
     }
 }
 
-TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle - all 8 projections", "[astronomy][wcs]")
 {
     // crval=(0, 89.9), crpix=(500,500) — near the celestial pole, a classic
     // singularity/branch-cut stress case (φ ill-defined at θ=±90°, and RA
@@ -427,7 +427,7 @@ TEST_CASE("WCS: near-pole field (dec=89.9) matches astropy oracle, all 8 project
     }
 }
 
-TEST_CASE("WCS: RA wrap across 0/360 matches astropy oracle, all 8 projections", "[astronomy][wcs]")
+TEST_CASE("WCS: RA wrap across 0/360 matches astropy oracle - all 8 projections", "[astronomy][wcs]")
 {
     // crval=(0.01,10), crpix=(500,500); pixel +60 in X crosses the RA=0
     // meridian and must normalise to just under 360°, not go negative.
@@ -579,7 +579,7 @@ TEST_CASE("Refraction: R monotonically decreases as altitude increases", "[astro
 // (vernal equinox, solstice, galactic centre direction), independent of this
 // codebase's own formulas.
 
-TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0, Dec=0",
+TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0 and Dec=0",
           "[astronomy][ecliptic]")
 {
     double ra = 0.0, dec = 0.0;
@@ -588,7 +588,7 @@ TEST_CASE("eclipticToEquatorial: vernal equinox (lambda=0) maps to RA=0, Dec=0",
     CHECK_THAT(dec, WithinAbs(0.0, 1e-9));
 }
 
-TEST_CASE("eclipticToEquatorial: summer solstice (lambda=90) maps to RA=90, Dec=+obliquity",
+TEST_CASE("eclipticToEquatorial: summer solstice (lambda=90) maps to RA=90 and Dec=+obliquity",
           "[astronomy][ecliptic]")
 {
     // At the solstice point (beta=0, lambda=90): Dec = obliquity of the
@@ -609,7 +609,7 @@ TEST_CASE("eclipticToEquatorial: winter solstice (lambda=270) maps to Dec=-obliq
     CHECK_THAT(dec, WithinAbs(-23.4392911, 1e-6));
 }
 
-TEST_CASE("equatorialToGalactic: known galactic-centre direction maps close to l=0,b=0",
+TEST_CASE("equatorialToGalactic: known galactic-centre direction maps close to l=0 b=0",
           "[astronomy][galactic]")
 {
     // Widely-cited J2000 equatorial coordinates of the galactic centre

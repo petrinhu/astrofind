@@ -46,6 +46,31 @@ primeiro.
 - **Extinction / Extinção (AUD-CORR-8).** 🇬🇧 The MPC magnitude uses the unit-tested
   extinction function instead of a duplicated inline formula (same result). 🇧🇷 A magnitude
   do MPC usa a função de extinção testada em vez de uma fórmula duplicada (mesmo resultado).
+- **PNG/TIFF size ceiling / Teto de tamanho em PNG/TIFF (AUD-INPUT-gaps).** 🇬🇧 Images read
+  through Qt (PNG, TIFF, BMP, JPEG) get the same 20000 px/axis and total-pixel ceiling as
+  every other loader, checked on the size the header declares before Qt decodes anything,
+  so a header claiming 100000×100000 px is refused cleanly. No file-size cross-check for
+  these formats (they are compressed). 🇧🇷 Imagens lidas pelo Qt (PNG, TIFF, BMP, JPEG)
+  passam pelo mesmo teto de 20000 px/eixo e de pixels totais dos outros carregadores,
+  checado no tamanho declarado pelo cabeçalho antes de o Qt decodificar qualquer coisa;
+  um cabeçalho de 100000×100000 px é recusado sem travar. Sem checagem de tamanho do
+  arquivo nesses formatos (são comprimidos).
+- **SER observer/telescope / Observador/telescópio do SER.** 🇬🇧 The 40-byte text fields
+  are cut at the first NUL; the padding used to end up inside the strings. 🇧🇷 Os campos
+  de texto de 40 bytes param no primeiro NUL; o preenchimento ia parar dentro das strings.
+- **clang-tidy never ran in CI / clang-tidy nunca rodou no CI (AUD-CI-7).** 🇬🇧 Every
+  audit report so far was "No compilation database found" or a run-clang-tidy crash
+  (missing PyYAML for `-export-fixes`). `compile_commands.json` is now enabled before any
+  target is created, `-export-fixes` was dropped and the run is limited to `src/`.
+  🇧🇷 Todos os relatórios até aqui eram "No compilation database found" ou uma queda do
+  run-clang-tidy (sem PyYAML para `-export-fixes`). O `compile_commands.json` agora é
+  ligado antes de qualquer alvo, o `-export-fixes` saiu e a análise fica restrita a `src/`.
+- **Pop!_OS / Zorin QA jobs (AUD-CI-6).** 🇬🇧 Job names, comments, log banners, README
+  badges and `docs/qa-distros.md` now say what runs: an Ubuntu 24.04 base standing in for
+  those distros (their 22.04 base ships Qt 6.2.4, below the Qt 6.4 AstroFind needs), not a
+  22.04 base. 🇧🇷 Nomes dos jobs, comentários, banners do log, badges do README e
+  `docs/qa-distros.md` agora dizem o que roda: uma base Ubuntu 24.04 no lugar dessas
+  distros (a base 22.04 delas traz Qt 6.2.4, abaixo do Qt 6.4 exigido), não uma base 22.04.
 - **VizieR mirror / Espelho VizieR.** 🇬🇧 The default shown in Settings was a bare hostname
   that the client rejected; it is now the real TAP endpoint, and the old value is
   replaced on load. 🇧🇷 O padrão mostrado era um hostname sem esquema, rejeitado pelo
@@ -91,6 +116,31 @@ primeiro.
   🇧🇷 Varredura de segredos: job gitleaks no CI sobre todo o histórico e passo gitleaks no
   `scripts/pre-commit` (AUD-SEC-8). Testes de regressão com cabeçalhos hostis (NAXIS=4,
   100000², tamanhos mentirosos, XISF) e pixels não finitos nos centroides (AUD-TEST-4).
+- 🇬🇧 Tests with a normal and a hostile case for the SER, XISF, PNG/TIFF (QImage), 1-D
+  spectrum, reduction-table, TAR (libarchive) and ZIP loaders/extractors (AUD-TEST-6,
+  `tests/test_loaders_extra.cpp`, `tests/test_archive_zip_ui.cpp`). The archive
+  extraction moved from `MainWindow` to `core/ArchiveExtractor` so it is covered by the
+  ASan/valgrind runs; behaviour and messages are unchanged. Catch2 test names no longer
+  contain commas, which split a name filter into two and ran nothing (AUD-TEST-5).
+  🇧🇷 Testes com um caso normal e um hostil para os carregadores/extratores SER, XISF,
+  PNG/TIFF (QImage), espectro 1-D, tabela de redução, TAR (libarchive) e ZIP
+  (AUD-TEST-6, `tests/test_loaders_extra.cpp`, `tests/test_archive_zip_ui.cpp`). A extração
+  de arquivos saiu da `MainWindow` para `core/ArchiveExtractor`, para ser coberta pelas
+  execuções ASan/valgrind; comportamento e mensagens iguais. Os nomes dos testes Catch2
+  não têm mais vírgula, que partia o filtro por nome em dois e não rodava nada
+  (AUD-TEST-5).
+- 🇬🇧 Audit gate (AUD-CI-7): reads the clang-tidy report and fails on error-level lines
+  (warnings stay non-blocking; on Debian 12 and Ubuntu 24.04, whose clang cannot parse
+  this C++23 code with their own libstdc++, errors are shown as a warning). A missing
+  report of any required tool, a clang-tidy run that analysed nothing, or a valgrind run
+  that aborted now fails the job instead of passing with a warning. `unzip` is installed
+  in the audit matrix so the ZIP tests run there. 🇧🇷 Portão da auditoria (AUD-CI-7): lê o
+  relatório do clang-tidy e falha em linhas de nível error (warnings continuam sem
+  bloquear; no Debian 12 e no Ubuntu 24.04, cujo clang não consegue analisar este código
+  C++23 com a libstdc++ deles, os errors viram aviso). Relatório ausente de uma ferramenta
+  obrigatória, clang-tidy que não analisou nada ou valgrind abortado agora reprovam o job
+  em vez de passar com aviso. O `unzip` é instalado na matriz da auditoria para os testes
+  de ZIP rodarem lá.
 
 ---
 

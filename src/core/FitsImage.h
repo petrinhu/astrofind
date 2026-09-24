@@ -186,6 +186,12 @@ loadFitsCube(const QString& filePath, int hduNumber = 1);
 /// the file on disk. Returns false and fills `err` when the image must be refused.
 bool validateLoaderDims(long w, long h, long depth, const QString& filePath, QString& err);
 
+/// Same per-axis (20000 px) and total-pixel ceilings as validateLoaderDims, but
+/// WITHOUT the file-size cross-check: for compressed formats (PNG/TIFF/JPEG via
+/// QImage) a legitimate image decodes to far more pixels than bytes on disk
+/// (AUD-INPUT-gaps). Returns false and fills `err` when the image must be refused.
+bool validateDecodedDims(long w, long h, const QString& filePath, QString& err);
+
 /// Fold the user's constant clock correction (seconds) into img.jd exactly once:
 /// only the difference from the correction already applied is added, so running
 /// the reduction again (or changing the setting) never accumulates offsets.

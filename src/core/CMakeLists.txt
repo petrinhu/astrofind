@@ -48,6 +48,8 @@ add_library(astrofind_core STATIC
     Spectrum1D.h
     PdsLoader.cpp
     PdsLoader.h
+    ArchiveExtractor.cpp
+    ArchiveExtractor.h
 )
 
 target_include_directories(astrofind_core
@@ -74,6 +76,13 @@ target_link_libraries(astrofind_core
 if(ASTROFIND_HAS_LIBRAW)
     target_link_libraries(astrofind_core PUBLIC libraw::libraw)
     target_compile_definitions(astrofind_core PUBLIC ASTROFIND_HAS_LIBRAW)
+endif()
+
+# libarchive (TAR/7Z/RAR) lives in core since AUD-TEST-6 so the extraction
+# code is covered by astrofind_tests (and its ASan/valgrind runs).
+if(ASTROFIND_HAS_LIBARCHIVE)
+    target_link_libraries(astrofind_core PUBLIC libarchive::libarchive)
+    target_compile_definitions(astrofind_core PUBLIC ASTROFIND_HAS_LIBARCHIVE)
 endif()
 
 if(ASTROFIND_HAS_KEYCHAIN)

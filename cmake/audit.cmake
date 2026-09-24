@@ -14,8 +14,10 @@
 set(AUDIT_REPORT_DIR "${CMAKE_BINARY_DIR}/audit")
 set(AUDIT_REPORT     "${AUDIT_REPORT_DIR}/audit_report.txt")
 
-# ── Export compile_commands.json (needed by clang-tidy) ──────────────────────
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "" FORCE)
+# ── compile_commands.json (needed by clang-tidy) ─────────────────────────────
+# Enabled in the top-level CMakeLists.txt, before any target exists: setting it
+# here (after add_subdirectory) came too late and no database was written
+# (AUD-CI-7 — the CI clang-tidy report was a "No compilation database" error).
 
 # ── 38.3 cppcheck ─────────────────────────────────────────────────────────────
 find_program(CPPCHECK cppcheck)
@@ -58,8 +60,13 @@ if(CLANG_TIDY)
             -clang-tidy-binary ${CLANG_TIDY}
             -p "${CMAKE_BINARY_DIR}"
             -header-filter "^${CMAKE_SOURCE_DIR}/src/.*"
-            -checks="-*,bugprone-*,cert-*,cppcoreguidelines-*,misc-*,performance-*,readability-narrowing-conversions"
-            -export-fixes "${AUDIT_REPORT_DIR}/clang_tidy_fixes.yaml"
+            "-checks=-*,bugprone-*,cert-*,cppcoreguidelines-*,misc-*,performance-*,readability-narrowing-conversions"
+            # Only AstroFind's own sources (src/): the database also lists
+            # FetchContent deps (Catch2, CCfits, quazip, SEP) and AUTOMOC files.
+            # No -export-fixes: newer run-clang-tidy aborts without PyYAML
+            # ("Cannot combine fixes in one yaml file"), which is exactly how
+            # the CI report ended up empty on Fedora/Arch (AUD-CI-7).
+            "^${CMAKE_SOURCE_DIR}/src/.*\\.cpp$"
         )
     else()
         # Fallback: run clang-tidy on each source file manually
@@ -70,7 +77,7 @@ if(CLANG_TIDY)
         )
         set(_tidy_cmd ${CLANG_TIDY}
             -p "${CMAKE_BINARY_DIR}"
-            --checks="-*,bugprone-*,cert-*,cppcoreguidelines-*,misc-*,performance-*,readability-narrowing-conversions"
+            "--checks=-*,bugprone-*,cert-*,cppcoreguidelines-*,misc-*,performance-*,readability-narrowing-conversions"
             ${_tidy_srcs}
         )
     endif()

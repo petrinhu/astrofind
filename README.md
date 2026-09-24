@@ -33,8 +33,8 @@
 [![openSUSE](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-opensuse-tw.yml?branch=main&label=openSUSE%20Tumbleweed&logo=opensuse&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-opensuse-tw.yml)
 [![Rocky Linux](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-rocky-9.yml?branch=main&label=Rocky%20Linux%209&logo=rockylinux&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-rocky-9.yml)
 [![Linux Mint](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-mint-22.yml?branch=main&label=Linux%20Mint%2022&logo=linuxmint&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-mint-22.yml)
-[![Pop!_OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-pop-os-22.yml?branch=main&label=Pop!_OS%2022.04&logo=popos&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-pop-os-22.yml)
-[![Zorin OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-zorin-17.yml?branch=main&label=Zorin%20OS%2017)](https://github.com/petrinhu/astrofind/actions/workflows/qa-zorin-17.yml)
+[![Pop!_OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-pop-os-22.yml?branch=main&label=Pop!_OS%20%2824.04%20base%29&logo=popos&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-pop-os-22.yml)
+[![Zorin OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-zorin-17.yml?branch=main&label=Zorin%20OS%20%2824.04%20base%29)](https://github.com/petrinhu/astrofind/actions/workflows/qa-zorin-17.yml)
 
 <!-- Community -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)

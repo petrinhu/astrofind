@@ -10,6 +10,7 @@
 #endif
 
 #include <QImage>
+#include <QImageReader>
 #include <QFile>
 #include <QFileInfo>
 #include <QDomDocument>
@@ -29,10 +30,28 @@ namespace {
 
 std::expected<FitsImage, QString> loadQImage(const QString& filePath)
 {
-    QImage qi(filePath);
+    // AUD-INPUT-gaps: same axis/pixel ceiling as every other loader. The size
+    // the header DECLARES is checked first (QImageReader::size() parses only
+    // the header), so a PNG/TIFF claiming e.g. 100000x100000 is refused before
+    // Qt decodes or allocates anything. The decoded size is checked again
+    // below, for formats whose handler cannot report a size up front. No
+    // file-size cross-check here: PNG/TIFF/JPEG are compressed.
+    QImageReader reader(filePath);
+    const QSize declared = reader.size();
+    if (declared.isValid()) {
+        QString dimErr;
+        if (!validateDecodedDims(declared.width(), declared.height(), filePath, dimErr))
+            return std::unexpected(dimErr);
+    }
+    const QImage qi = reader.read();
     if (qi.isNull())
         return std::unexpected(QObject::tr("Cannot load image (unsupported or corrupt): %1")
             .arg(filePath));
+    {
+        QString dimErr;
+        if (!validateDecodedDims(qi.width(), qi.height(), filePath, dimErr))
+            return std::unexpected(dimErr);
+    }
 
     FitsImage img;
     img.filePath = filePath;
@@ -46,41 +65,48 @@ std::expected<FitsImage, QString> loadQImage(const QString& filePath)
                           || qi.format() == QImage::Format_Grayscale8;
     img.isColor = !isGray;
 
-    if (isGray16) {
-        // 16-bit grayscale — direct scanline access (avoids per-pixel calls)
-        img.data.resize(n);
-        for (int y = 0; y < img.height; ++y) {
-            const quint16* row = reinterpret_cast<const quint16*>(qi.constScanLine(y));
-            for (int x = 0; x < img.width; ++x)
-                img.data[static_cast<size_t>(y) * img.width + x] =
-                    static_cast<float>(row[x]);
-        }
-    } else if (isGray) {
-        const QImage g8 = qi.convertToFormat(QImage::Format_Grayscale8);
-        img.data.resize(n);
-        for (int y = 0; y < img.height; ++y) {
-            const uchar* row = g8.constScanLine(y);
-            for (int x = 0; x < img.width; ++x)
-                img.data[static_cast<size_t>(y) * img.width + x] =
-                    static_cast<float>(row[x]);
-        }
-    } else {
-        // Convert to packed RGB32 for predictable layout
-        const QImage rgb = qi.convertToFormat(QImage::Format_RGB32);
-        img.dataR.resize(n); img.dataG.resize(n); img.dataB.resize(n);
-        img.data.resize(n);
-        for (int y = 0; y < img.height; ++y) {
-            const QRgb* row = reinterpret_cast<const QRgb*>(rgb.constScanLine(y));
-            for (int x = 0; x < img.width; ++x) {
-                const size_t i = static_cast<size_t>(y) * img.width + x;
-                img.dataR[i] = static_cast<float>(qRed(row[x]));
-                img.dataG[i] = static_cast<float>(qGreen(row[x]));
-                img.dataB[i] = static_cast<float>(qBlue(row[x]));
-                img.data[i]  = 0.2126f * img.dataR[i]
-                              + 0.7152f * img.dataG[i]
-                              + 0.0722f * img.dataB[i];
+    // No exception may escape into the Qt slot that calls us (AUD-INPUT-2):
+    // even under the ceiling a colour frame needs 4 float planes.
+    try {
+        if (isGray16) {
+            // 16-bit grayscale — direct scanline access (avoids per-pixel calls)
+            img.data.resize(n);
+            for (int y = 0; y < img.height; ++y) {
+                const quint16* row = reinterpret_cast<const quint16*>(qi.constScanLine(y));
+                for (int x = 0; x < img.width; ++x)
+                    img.data[static_cast<size_t>(y) * img.width + x] =
+                        static_cast<float>(row[x]);
+            }
+        } else if (isGray) {
+            const QImage g8 = qi.convertToFormat(QImage::Format_Grayscale8);
+            img.data.resize(n);
+            for (int y = 0; y < img.height; ++y) {
+                const uchar* row = g8.constScanLine(y);
+                for (int x = 0; x < img.width; ++x)
+                    img.data[static_cast<size_t>(y) * img.width + x] =
+                        static_cast<float>(row[x]);
+            }
+        } else {
+            // Convert to packed RGB32 for predictable layout
+            const QImage rgb = qi.convertToFormat(QImage::Format_RGB32);
+            img.dataR.resize(n); img.dataG.resize(n); img.dataB.resize(n);
+            img.data.resize(n);
+            for (int y = 0; y < img.height; ++y) {
+                const QRgb* row = reinterpret_cast<const QRgb*>(rgb.constScanLine(y));
+                for (int x = 0; x < img.width; ++x) {
+                    const size_t i = static_cast<size_t>(y) * img.width + x;
+                    img.dataR[i] = static_cast<float>(qRed(row[x]));
+                    img.dataG[i] = static_cast<float>(qGreen(row[x]));
+                    img.dataB[i] = static_cast<float>(qBlue(row[x]));
+                    img.data[i]  = 0.2126f * img.dataR[i]
+                                  + 0.7152f * img.dataG[i]
+                                  + 0.0722f * img.dataB[i];
+                }
             }
         }
+    } catch (const std::exception& e) {
+        return std::unexpected(QObject::tr("Out of memory loading image '%1': %2")
+                                   .arg(filePath, QString::fromLocal8Bit(e.what())));
     }
 
     computeAutoStretch(img);
@@ -206,8 +232,15 @@ std::expected<FitsImage, QString> loadSer(const QString& filePath)
     img.fileName  = QFileInfo(filePath).fileName();
     img.width     = static_cast<int>(serImageWidth);
     img.height    = static_cast<int>(serImageHeight);
-    img.observer  = QString::fromLatin1(hdr.observer,   sizeof(hdr.observer)).trimmed();
-    img.telescope = QString::fromLatin1(hdr.telescope, sizeof(hdr.telescope)).trimmed();
+    // The 40-byte text fields are NUL- or space-padded. trimmed() does not
+    // strip '\0', so stop at the first NUL (found by AUD-TEST-6: the padding
+    // otherwise ended up inside img.observer/telescope).
+    auto serText = [](const char* p, size_t n) {
+        const char* end = std::find(p, p + n, '\0');
+        return QString::fromLatin1(p, static_cast<qsizetype>(end - p)).trimmed();
+    };
+    img.observer  = serText(hdr.observer,  sizeof(hdr.observer));
+    img.telescope = serText(hdr.telescope, sizeof(hdr.telescope));
 
     const bool isRgb   = (hdr.colorID == SER_RGB || hdr.colorID == SER_BGR);
     const bool isBayer = (hdr.colorID >= SER_BAYER_RGGB && hdr.colorID <= SER_BAYER_BGGR);

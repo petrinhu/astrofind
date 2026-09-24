@@ -10,6 +10,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# compile_commands.json for clang-tidy (item 38.4 / AUD-CI-7). Must be set
+# BEFORE any target is created: since CMake 3.20 each target copies it into
+# its EXPORT_COMPILE_COMMANDS property at creation time, so setting it later
+# (it used to live only in cmake/audit.cmake, included after add_subdirectory)
+# produced no database and clang-tidy never analysed a single file in CI.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # ── Binary hardening ──────────────────────────────────────────────────────────
 # CMAKE_POSITION_INDEPENDENT_CODE: adds -fPIC to shared libs, -fPIE to static
 # libs/executables — the CMake-idiomatic way to enable PIE across all targets.

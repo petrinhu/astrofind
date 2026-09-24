@@ -360,7 +360,12 @@ constexpr long long kMaxImagePixels = 200'000'000LL; // ~800 MB/plane as float
 /// `long` values (rather than after `static_cast<int>`) also closes
 /// AUD-MEM-4: a NAXIS near 2^31 can no longer silently wrap to a negative
 /// `int` and slip past a post-cast `<= 0` check.
-bool validateImageDims(long w, long h, long depth, const QString& filePath, QString& err)
+/// `crossCheckFileSize` = false skips only the file-size comparison, for
+/// compressed formats (PNG/TIFF/JPEG) whose decoded pixel count legitimately
+/// exceeds the byte size on disk; the per-axis and total-pixel ceilings
+/// always apply.
+bool validateImageDims(long w, long h, long depth, const QString& filePath, QString& err,
+                       bool crossCheckFileSize = true)
 {
     if (w <= 0 || h <= 0 || depth <= 0) {
         err = QObject::tr("Invalid image dimensions in '%1' (%2 x %3 x %4)")
@@ -395,7 +400,7 @@ bool validateImageDims(long w, long h, long depth, const QString& filePath, QStr
                   .arg(filePath).arg(totalPixels).arg(kMaxImagePixels);
         return false;
     }
-    const qint64 fileSize = QFileInfo(filePath).size();
+    const qint64 fileSize = crossCheckFileSize ? QFileInfo(filePath).size() : 0;
     if (fileSize > 0 && totalPixels > static_cast<long long>(fileSize)) {
         err = QObject::tr("Declared image size (%1 px) in '%2' exceeds the %3-byte file on disk "
                            "(lying/corrupt header)")
@@ -1284,6 +1289,11 @@ void applyClockCorrection(FitsImage& img, double offsetSec)
 bool validateLoaderDims(long w, long h, long depth, const QString& filePath, QString& err)
 {
     return validateImageDims(w, h, depth, filePath, err);
+}
+
+bool validateDecodedDims(long w, long h, const QString& filePath, QString& err)
+{
+    return validateImageDims(w, h, 1, filePath, err, /*crossCheckFileSize=*/false);
 }
 
 } // namespace core

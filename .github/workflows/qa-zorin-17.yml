@@ -1,7 +1,8 @@
-name: QA · Zorin OS 17
+name: QA · Zorin OS 17 stand-in (ubuntu:24.04 base)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Item 55.9 — Build and test on Zorin OS 17 (ubuntu:22.04 approximation)
+# Item 55.9 — Build and test for Zorin OS users on an Ubuntu 24.04 base
+#             (ubuntu:24.04 container standing in for Zorin OS 17 — NOT 22.04)
 #
 # WHY ZORIN OS 17:
 #   Zorin OS 17 targets users switching from Windows, making it a key entry
@@ -9,21 +10,26 @@ name: QA · Zorin OS 17
 #   22.04 LTS with a customised GNOME desktop (Zorin Desktop Environment).
 #   Zorin does not maintain its own Qt6 packages — they come from Ubuntu 22.04.
 #
-# IMAGE USED: ubuntu:22.04
-#   There is no official Zorin OS Docker image. ubuntu:22.04 is the upstream
-#   base and provides the identical APT package set.
+# IMAGE USED: ubuntu:24.04 (AUD-CI-6 — honest label)
+#   There is no official Zorin OS Docker image. Zorin OS 17 sits on Ubuntu
+#   22.04, whose archive ships Qt 6.2.4 — below the Qt 6.4 AstroFind requires
+#   (find_package(Qt6 6.4 REQUIRED)), so a real Zorin 17 / 22.04 base cannot
+#   build AstroFind at all. This job therefore runs on ubuntu:24.04 (Qt 6.4.2,
+#   GCC 13) as a stand-in for the Ubuntu-family toolchain.
 #
-# LIMITATION: Zorin Desktop Environment, themes, and Zorin-specific apps are
-#   not present. For build/unit-test purposes the package base is identical.
+# LIMITATION: This is NOT Zorin OS and NOT a 22.04 base. Zorin Desktop
+#   Environment, themes, Zorin apps and Zorin APT sources are not present.
+#   It validates the Ubuntu 24.04 apt package set only.
 #
 # WHAT THIS JOB VALIDATES (item 55.9):
-#   ✅  Qt 6.4 (Ubuntu 22.04 base — minimum supported version) compatibility
-#   ✅  GCC 12 C++23 support (libstdc++ 12)
+#   ✅  Qt 6.4.2 (Ubuntu 24.04 archive — the minimum supported Qt) compatibility
+#   ✅  GCC 13 C++23 support (libstdc++ 13)
 #   ✅  CMake configuration succeeds
 #   ✅  All 116 core unit tests pass
 #   ✅  All 23 UI integration tests pass (offscreen)
 #   ✅  CCfits extraction from bundled originals/CCfits.tar.gz
 #   ❌  Zorin Desktop Environment, themes — not present (irrelevant for Qt6 build)
+#   ❌  Ubuntu 22.04 base (Qt 6.2.4 < 6.4) — cannot build AstroFind, not tested
 #   ❌  Hardware-accelerated OpenGL — not tested
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -40,7 +46,7 @@ env:
 
 jobs:
   qa-zorin-17:
-    name: Zorin OS 17 · ubuntu:24.04 · apt · GCC 13
+    name: Zorin OS 17 stand-in · ubuntu:24.04 base (not 22.04) · apt · GCC 13
     runs-on: ubuntu-latest
 
     container:
@@ -53,7 +59,7 @@ jobs:
       - name: "🖥  System information"
         run: |
           echo "════════════════════════════════════════════════════════════════"
-          echo "  AstroFind QA — Zorin OS 17 (via ubuntu:22.04)"
+          echo "  AstroFind QA — Zorin OS 17 stand-in (via ubuntu:24.04, not a 22.04 base)"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
           uname -a
@@ -109,7 +115,7 @@ jobs:
         uses: actions/checkout@v4
 
       # ── 5. FETCHCONTENT CACHE ────────────────────────────────────────────────
-      # Share cache key with Pop!_OS 22.04 — both use ubuntu:22.04 as base
+      # Share cache key with the Pop!_OS stand-in — both use ubuntu:24.04 as base
       - name: "💾  Restore FetchContent cache"
         uses: actions/cache@v4
         with:
@@ -159,7 +165,7 @@ jobs:
         if: always()
         run: |
           echo "════════════════════════════════════════════════════════════════"
-          echo "  AstroFind QA — Zorin OS 17 (ubuntu:22.04 base) — DONE"
+          echo "  AstroFind QA — Zorin OS 17 stand-in (ubuntu:24.04 base) — DONE"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
           echo "Distro:  $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
