@@ -147,17 +147,17 @@ void MainWindow::setupMenus()
     });
 
     fileMenu_->addSeparator();
-    fileMenu_->addAction(tr("Load &Dark Frame..."), this, &MainWindow::onLoadDarkFrame)
-        ->setStatusTip(tr("Load a dark frame for calibration"));
-    fileMenu_->addAction(tr("Load &Flat Field..."), this, &MainWindow::onLoadFlatField)
-        ->setStatusTip(tr("Load a flat field for calibration"));
+    fileMenu_->addAction(tr("Use &Dark Frame for Calibration…"), this, &MainWindow::onLoadDarkFrame)
+        ->setStatusTip(tr("Use a dark frame for calibration"));
+    fileMenu_->addAction(tr("Use F&lat Field for Calibration…"), this, &MainWindow::onLoadFlatField)
+        ->setStatusTip(tr("Use a flat field for calibration"));
     fileMenu_->addAction(tr("Calibration &Wizard…"), this, &MainWindow::onCalibrationWizard);
 
     fileMenu_->addSeparator();
     actViewAdes_ = fileMenu_->addAction(tr("View &ADES Report File"), this, &MainWindow::onViewAdesReport);
     actViewAdes_->setStatusTip(tr("View the generated ADES astrometry report"));
-    actViewPhot_ = fileMenu_->addAction(tr("View P&hotometry File"), this, &MainWindow::onViewPhotometryFile);
-    actViewPhot_->setStatusTip(tr("View the photometry measurements file"));
+    actViewPhot_ = fileMenu_->addAction(tr("Show &Photometry Results"), this, &MainWindow::onViewPhotometryFile);
+    actViewPhot_->setStatusTip(tr("Show the measured photometry values"));
     fileMenu_->addAction(tr("View Lo&g File"), this, &MainWindow::onViewLogFile)
         ->setStatusTip(tr("View the session log file"));
 
@@ -242,7 +242,7 @@ void MainWindow::setupMenus()
 
     imagesMenu_->addAction(tr("&Edit Image Settings..."), this, &MainWindow::onEditImageParameters);
     imagesMenu_->addAction(tr("View FITS Hea&der..."),      this, &MainWindow::onDisplayHeader);
-    imagesMenu_->addAction(tr("Background and &Range..."),  this, &MainWindow::onBackgroundAndRange);
+    imagesMenu_->addAction(tr("Adjust &Black Point and Contrast…"),  this, &MainWindow::onBackgroundAndRange);
     imagesMenu_->addAction(tr("&Rebuild Stack"),            this, &MainWindow::onReStackImages);
 
     imagesMenu_->addSeparator();
@@ -254,7 +254,7 @@ void MainWindow::setupMenus()
         ->setShortcuts({QKeySequence("Ctrl+F"), QKeySequence(Qt::Key_0)});
 
     imagesMenu_->addSeparator();
-    imagesMenu_->addAction(tr("Select &Markings..."), this, &MainWindow::onSelectMarkings);
+    imagesMenu_->addAction(tr("&Choose Marker Display…"), this, &MainWindow::onSelectMarkings);
     actInvertDisplay_ = new QAction(tr("&Invert Colors"), this);
     actInvertDisplay_->setShortcut(QKeySequence("Ctrl+I"));
     actInvertDisplay_->setCheckable(true);
@@ -273,8 +273,8 @@ void MainWindow::setupMenus()
     actBlink_ = toolsMenu_->addAction(tr("&Begin Blink Mode"), QKeySequence("Ctrl+B"), this, &MainWindow::onBlinkImages);
     actBlink_->setStatusTip(tr("Start blinking through all loaded images to detect moving objects"));
 
-    actStopBlink_ = toolsMenu_->addAction(tr("S&top Blinking"), QKeySequence("Ctrl+F9"), this, &MainWindow::onStopBlinking);
-    actStopBlink_->setStatusTip(tr("Stop the blink animation"));
+    actStopBlink_ = toolsMenu_->addAction(tr("E&nd Blink Mode"), QKeySequence("Ctrl+F9"), this, &MainWindow::onStopBlinking);
+    actStopBlink_->setStatusTip(tr("End the blink animation"));
     actStopBlink_->setEnabled(false);
 
     toolsMenu_->addSeparator();
@@ -319,8 +319,8 @@ void MainWindow::setupMenus()
     windowMenu_->addAction(tr("&Cascade All Windows"), this, &MainWindow::onCascadeWindows);
     windowMenu_->addAction(tr("&Auto-Arrange Windows"), this, &MainWindow::onArrangeWindows);
     windowMenu_->addSeparator();
-    windowMenu_->addAction(tr("Close all &Images"),  this, &MainWindow::onCloseAllImages);
-    windowMenu_->addAction(tr("Close &all Windows"), this, &MainWindow::onCloseAllWindows);
+    windowMenu_->addAction(tr("Close Every &Open Image"), this, &MainWindow::onCloseAllImages);
+    windowMenu_->addAction(tr("Close Every &Window"),     this, &MainWindow::onCloseAllWindows);
     windowMenu_->addSeparator();
     // No shortcut here: Ctrl+Shift+T belongs to the theme action created in
     // setupToolBar(); declaring it twice made Qt treat it as ambiguous and
@@ -372,13 +372,13 @@ void MainWindow::setupToolBar()
     actLoadImages_->setToolTip(tr("Import Images (Ctrl+L)"));
     stdTb->addAction(actLoadImages_);
 
-    auto* actLoadDark = new QAction(AppIcons::loadDark(), tr("Load Dark Frame"), this);
-    actLoadDark->setToolTip(tr("Load dark frame for calibration"));
+    auto* actLoadDark = new QAction(AppIcons::loadDark(), tr("Use Dark Frame"), this);
+    actLoadDark->setToolTip(tr("Use this dark frame for calibration"));
     connect(actLoadDark, &QAction::triggered, this, &MainWindow::onLoadDarkFrame);
     stdTb->addAction(actLoadDark);
 
-    auto* actLoadFlat = new QAction(AppIcons::loadFlat(), tr("Load Flat Field"), this);
-    actLoadFlat->setToolTip(tr("Load flat field for calibration"));
+    auto* actLoadFlat = new QAction(AppIcons::loadFlat(), tr("Use Flat Field"), this);
+    actLoadFlat->setToolTip(tr("Use this flat field for calibration"));
     connect(actLoadFlat, &QAction::triggered, this, &MainWindow::onLoadFlatField);
     stdTb->addAction(actLoadFlat);
 
@@ -424,13 +424,13 @@ void MainWindow::setupToolBar()
     actViewAdes_->setToolTip(tr("View ADES Report"));
     stdTb->addAction(actViewAdes_);
 
-    auto* actCloseImages = new QAction(AppIcons::closeImages(), tr("Close all Images"), this);
-    actCloseImages->setToolTip(tr("Close all image windows"));
+    auto* actCloseImages = new QAction(AppIcons::closeImages(), tr("Close Every Open Image"), this);
+    actCloseImages->setToolTip(tr("Close every open image window"));
     connect(actCloseImages, &QAction::triggered, this, &MainWindow::onCloseAllImages);
     stdTb->addAction(actCloseImages);
 
-    auto* actCloseAll = new QAction(AppIcons::closeAll(), tr("Close all Windows"), this);
-    actCloseAll->setToolTip(tr("Close all windows"));
+    auto* actCloseAll = new QAction(AppIcons::closeAll(), tr("Close Every Window"), this);
+    actCloseAll->setToolTip(tr("Close every window"));
     connect(actCloseAll, &QAction::triggered, this, &MainWindow::onCloseAllWindows);
     stdTb->addAction(actCloseAll);
 
@@ -444,13 +444,13 @@ void MainWindow::setupToolBar()
     // dispTb->setFixedHeight(36);   // reference px value
     dispTb->setFixedHeight(Theme::dp(36));
 
-    actBgRange_ = new QAction(AppIcons::backgroundRange(), tr("Background && Range"), this);
-    actBgRange_->setToolTip(tr("Adjust background and display range"));
+    actBgRange_ = new QAction(AppIcons::backgroundRange(), tr("Black Point and Contrast"), this);
+    actBgRange_->setToolTip(tr("Adjust the black point and contrast stretch"));
     connect(actBgRange_, &QAction::triggered, this, &MainWindow::onBackgroundAndRange);
     dispTb->addAction(actBgRange_);
 
-    auto* actSelMarkings = new QAction(AppIcons::selectMarkings(), tr("Select Markings"), this);
-    actSelMarkings->setToolTip(tr("Select markings"));
+    auto* actSelMarkings = new QAction(AppIcons::selectMarkings(), tr("Marker Display"), this);
+    actSelMarkings->setToolTip(tr("Choose which markers are shown"));
     connect(actSelMarkings, &QAction::triggered, this, &MainWindow::onSelectMarkings);
     dispTb->addAction(actSelMarkings);
 
@@ -507,7 +507,7 @@ void MainWindow::setupToolBar()
     blinkTb->addWidget(blinkDelayBox_);
 
     actStopBlink_->setIcon(AppIcons::blinkStop());
-    actStopBlink_->setToolTip(tr("Stop Blinking (Ctrl+F9)"));
+    actStopBlink_->setToolTip(tr("End Blink Mode (Ctrl+F9)"));
     blinkTb->addAction(actStopBlink_);
 
     auto* actBlinkPrev = new QAction(AppIcons::blinkPrev(), tr("Step Back"), this);

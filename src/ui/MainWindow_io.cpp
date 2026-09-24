@@ -279,7 +279,7 @@ void MainWindow::onSaveAllFits()
 void MainWindow::onLoadDarkFrame()
 {
     const QString path = QFileDialog::getOpenFileName(this,
-        tr("Load Dark Frame"),
+        tr("Choose Dark Frame File"),
         settings_.value(QStringLiteral("paths/lastImageDir"), QDir::homePath()).toString(),
         tr("FITS Images (*.fits *.fit *.fts);;All files (*)"));
     if (path.isEmpty()) return;
@@ -300,7 +300,7 @@ void MainWindow::onLoadDarkFrame()
 void MainWindow::onLoadFlatField()
 {
     const QString path = QFileDialog::getOpenFileName(this,
-        tr("Load Flat Field"),
+        tr("Choose Flat Field File"),
         settings_.value(QStringLiteral("paths/lastImageDir"), QDir::homePath()).toString(),
         tr("FITS Images (*.fits *.fit *.fts);;All files (*)"));
     if (path.isEmpty()) return;

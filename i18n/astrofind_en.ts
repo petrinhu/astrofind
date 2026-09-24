@@ -40,9 +40,9 @@ Outputs ADES 2022 format reports.</translation>
 <context>
     <name>BackgroundRangeDialog</name>
     <message>
-        <location filename="../src/ui/BackgroundRangeDialog.cpp" line="25" />
-        <source>Background and Range — %1</source>
-        <translation>Background and Range — %1</translation>
+        <location filename="../src/ui/BackgroundRangeDialog.cpp" line="28" />
+        <source>Black Point and Contrast - %1</source>
+        <translation>Black Point and Contrast - %1</translation>
     </message>
     <message>
         <location filename="../src/ui/BackgroundRangeDialog.cpp" line="72" />
@@ -1119,23 +1119,23 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="133" />
-        <source>Load &amp;Dark Frame...</source>
-        <translation>Load &amp;Dark Frame...</translation>
+        <source>Use &amp;Dark Frame for Calibration…</source>
+        <translation>Use &amp;Dark Frame for Calibration…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="134" />
-        <source>Load a dark frame for calibration</source>
-        <translation>Load a dark frame for calibration</translation>
+        <source>Use a dark frame for calibration</source>
+        <translation>Use a dark frame for calibration</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="135" />
-        <source>Load &amp;Flat Field...</source>
-        <translation>Load &amp;Flat Field...</translation>
+        <source>Use F&amp;lat Field for Calibration…</source>
+        <translation>Use F&amp;lat Field for Calibration…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="136" />
-        <source>Load a flat field for calibration</source>
-        <translation>Load a flat field for calibration</translation>
+        <source>Use a flat field for calibration</source>
+        <translation>Use a flat field for calibration</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="137" />
@@ -1154,13 +1154,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="142" />
-        <source>View P&amp;hotometry File</source>
-        <translation>View P&amp;hotometry File</translation>
+        <source>Show &amp;Photometry Results</source>
+        <translation>Show &amp;Photometry Results</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="143" />
-        <source>View the photometry measurements file</source>
-        <translation>View the photometry measurements file</translation>
+        <source>Show the measured photometry values</source>
+        <translation>Show the measured photometry values</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="144" />
@@ -1364,8 +1364,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="228" />
-        <source>Background and &amp;Range...</source>
-        <translation>Background and &amp;Range...</translation>
+        <source>Adjust &amp;Black Point and Contrast…</source>
+        <translation>Adjust &amp;Black Point and Contrast…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="229" />
@@ -1389,8 +1389,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="240" />
-        <source>Select &amp;Markings...</source>
-        <translation>Select &amp;Markings...</translation>
+        <source>&amp;Choose Marker Display…</source>
+        <translation>&amp;Choose Marker Display…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="241" />
@@ -1434,13 +1434,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="259" />
-        <source>S&amp;top Blinking</source>
-        <translation>S&amp;top Blinking</translation>
+        <source>E&amp;nd Blink Mode</source>
+        <translation>E&amp;nd Blink Mode</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="260" />
-        <source>Stop the blink animation</source>
-        <translation>Stop the blink animation</translation>
+        <source>End the blink animation</source>
+        <translation>End the blink animation</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="264" />
@@ -1585,13 +1585,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="305" />
-        <source>Close all &amp;Images</source>
-        <translation>Close all &amp;Images</translation>
+        <source>Close Every &amp;Open Image</source>
+        <translation>Close Every &amp;Open Image</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="306" />
-        <source>Close &amp;all Windows</source>
-        <translation>Close &amp;all Windows</translation>
+        <source>Close Every &amp;Window</source>
+        <translation>Close Every &amp;Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="308" />
@@ -1650,25 +1650,33 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="354" />
-        <location filename="../src/ui/MainWindow_io.cpp" line="239" />
-        <source>Load Dark Frame</source>
-        <translation>Load Dark Frame</translation>
+        <source>Use Dark Frame</source>
+        <translation>Use Dark Frame</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="355" />
-        <source>Load dark frame for calibration</source>
-        <translation>Load dark frame for calibration</translation>
+        <source>Use this dark frame for calibration</source>
+        <translation>Use this dark frame for calibration</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="359" />
-        <location filename="../src/ui/MainWindow_io.cpp" line="260" />
-        <source>Load Flat Field</source>
-        <translation>Load Flat Field</translation>
+        <source>Use Flat Field</source>
+        <translation>Use Flat Field</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="360" />
-        <source>Load flat field for calibration</source>
-        <translation>Load flat field for calibration</translation>
+        <source>Use this flat field for calibration</source>
+        <translation>Use this flat field for calibration</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="282" />
+        <source>Choose Dark Frame File</source>
+        <translation>Choose Dark Frame File</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="303" />
+        <source>Choose Flat Field File</source>
+        <translation>Choose Flat Field File</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="368" />
@@ -1702,23 +1710,23 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="406" />
-        <source>Close all Images</source>
-        <translation>Close all Images</translation>
+        <source>Close Every Open Image</source>
+        <translation>Close Every Open Image</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="407" />
-        <source>Close all image windows</source>
-        <translation>Close all image windows</translation>
+        <source>Close every open image window</source>
+        <translation>Close every open image window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="411" />
-        <source>Close all Windows</source>
-        <translation>Close all Windows</translation>
+        <source>Close Every Window</source>
+        <translation>Close Every Window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="412" />
-        <source>Close all windows</source>
-        <translation>Close all windows</translation>
+        <source>Close every window</source>
+        <translation>Close every window</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="419" />
@@ -1727,23 +1735,23 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="425" />
-        <source>Background &amp;&amp; Range</source>
-        <translation>Background &amp;&amp; Range</translation>
+        <source>Black Point and Contrast</source>
+        <translation>Black Point and Contrast</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="426" />
-        <source>Adjust background and display range</source>
-        <translation>Adjust background and display range</translation>
+        <source>Adjust the black point and contrast stretch</source>
+        <translation>Adjust the black point and contrast stretch</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="430" />
-        <source>Select Markings</source>
-        <translation>Select Markings</translation>
+        <source>Marker Display</source>
+        <translation>Marker Display</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="431" />
-        <source>Select markings</source>
-        <translation>Select markings</translation>
+        <source>Choose which markers are shown</source>
+        <translation>Choose which markers are shown</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="436" />
@@ -1797,8 +1805,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="486" />
-        <source>Stop Blinking (Ctrl+F9)</source>
-        <translation>Stop Blinking (Ctrl+F9)</translation>
+        <source>End Blink Mode (Ctrl+F9)</source>
+        <translation>End Blink Mode (Ctrl+F9)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="489" />
@@ -4734,9 +4742,9 @@ Would you like to submit by email instead?</translation>
 <context>
     <name>SelectMarkingsDialog</name>
     <message>
-        <location filename="../src/ui/SelectMarkingsDialog.cpp" line="10" />
-        <source>Select Markings</source>
-        <translation>Select Markings</translation>
+        <location filename="../src/ui/SelectMarkingsDialog.cpp" line="13" />
+        <source>Marker Display</source>
+        <translation>Marker Display</translation>
     </message>
     <message>
         <location filename="../src/ui/SelectMarkingsDialog.cpp" line="16" />

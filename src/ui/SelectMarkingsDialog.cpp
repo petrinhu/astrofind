@@ -10,7 +10,7 @@
 SelectMarkingsDialog::SelectMarkingsDialog(const MarkingsState& cur, QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Select Markings"));
+    setWindowTitle(tr("Marker Display"));
     setMinimumWidth(320);
     setSizeGripEnabled(false);
 

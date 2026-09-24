@@ -40,9 +40,9 @@ Gera relatórios no formato ADES 2022.</translation>
 <context>
     <name>BackgroundRangeDialog</name>
     <message>
-        <location filename="../src/ui/BackgroundRangeDialog.cpp" line="25" />
-        <source>Background and Range — %1</source>
-        <translation>Fundo e Intervalo — %1</translation>
+        <location filename="../src/ui/BackgroundRangeDialog.cpp" line="28" />
+        <source>Black Point and Contrast - %1</source>
+        <translation>Ponto Preto e Contraste - %1</translation>
     </message>
     <message>
         <location filename="../src/ui/BackgroundRangeDialog.cpp" line="72" />
@@ -1068,23 +1068,23 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="133" />
-        <source>Load &amp;Dark Frame...</source>
-        <translation>Carregar &amp;Dark Frame...</translation>
+        <source>Use &amp;Dark Frame for Calibration…</source>
+        <translation>Usar &amp;Dark de Calibração</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="134" />
-        <source>Load a dark frame for calibration</source>
-        <translation>Carregar dark frame para calibração</translation>
+        <source>Use a dark frame for calibration</source>
+        <translation>Usar um dark para calibração</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="135" />
-        <source>Load &amp;Flat Field...</source>
-        <translation>Carregar &amp;Flat Field...</translation>
+        <source>Use F&amp;lat Field for Calibration…</source>
+        <translation>Usar Fl&amp;at de Calibração</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="136" />
-        <source>Load a flat field for calibration</source>
-        <translation>Carregar flat field para calibração</translation>
+        <source>Use a flat field for calibration</source>
+        <translation>Usar um flat para calibração</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="137" />
@@ -1103,13 +1103,13 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="142" />
-        <source>View P&amp;hotometry File</source>
-        <translation>Ver Arquivo de &amp;Fotometria</translation>
+        <source>Show &amp;Photometry Results</source>
+        <translation>&amp;Mostrar Resultados de Fotometria</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="143" />
-        <source>View the photometry measurements file</source>
-        <translation>Visualizar o arquivo de medições fotométricas</translation>
+        <source>Show the measured photometry values</source>
+        <translation>Mostrar os valores de fotometria medidos</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="144" />
@@ -1288,8 +1288,8 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="228" />
-        <source>Background and &amp;Range...</source>
-        <translation>Fundo e &amp;Intervalo...</translation>
+        <source>Adjust &amp;Black Point and Contrast…</source>
+        <translation>Ajustar &amp;Ponto Preto e Contraste…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="229" />
@@ -1313,8 +1313,8 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="240" />
-        <source>Select &amp;Markings...</source>
-        <translation>Selecionar &amp;Marcações...</translation>
+        <source>&amp;Choose Marker Display…</source>
+        <translation>Escolher E&amp;xibição de Marcadores…</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="241" />
@@ -1353,13 +1353,13 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="259" />
-        <source>S&amp;top Blinking</source>
-        <translation>Pa&amp;rar Piscar</translation>
+        <source>E&amp;nd Blink Mode</source>
+        <translation>E&amp;ncerrar Modo de Piscagem</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="260" />
-        <source>Stop the blink animation</source>
-        <translation>Parar a animação de piscar</translation>
+        <source>End the blink animation</source>
+        <translation>Encerrar a animação de piscagem</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="264" />
@@ -1453,13 +1453,13 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="305" />
-        <source>Close all &amp;Images</source>
-        <translation>Fechar todas as &amp;Imagens</translation>
+        <source>Close Every &amp;Open Image</source>
+        <translation>Fechar Todas as &amp;Imagens Abertas</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="306" />
-        <source>Close &amp;all Windows</source>
-        <translation>Fechar &amp;todas as Janelas</translation>
+        <source>Close Every &amp;Window</source>
+        <translation>Fechar Todas as &amp;Janelas</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="308" />
@@ -1513,25 +1513,33 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="354" />
-        <location filename="../src/ui/MainWindow_io.cpp" line="239" />
-        <source>Load Dark Frame</source>
-        <translation>Carregar Dark Frame</translation>
+        <source>Use Dark Frame</source>
+        <translation>Usar Dark</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="355" />
-        <source>Load dark frame for calibration</source>
-        <translation>Carregar dark frame para calibração</translation>
+        <source>Use this dark frame for calibration</source>
+        <translation>Usar este dark para calibração</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="359" />
-        <location filename="../src/ui/MainWindow_io.cpp" line="260" />
-        <source>Load Flat Field</source>
-        <translation>Carregar Flat Field</translation>
+        <source>Use Flat Field</source>
+        <translation>Usar Flat</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="360" />
-        <source>Load flat field for calibration</source>
-        <translation>Carregar flat field para calibração</translation>
+        <source>Use this flat field for calibration</source>
+        <translation>Usar este flat para calibração</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="282" />
+        <source>Choose Dark Frame File</source>
+        <translation>Escolher Arquivo de Dark</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow_io.cpp" line="303" />
+        <source>Choose Flat Field File</source>
+        <translation>Escolher Arquivo de Flat</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="368" />
@@ -1565,22 +1573,22 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="406" />
-        <source>Close all Images</source>
-        <translation>Fechar todas as Imagens</translation>
+        <source>Close Every Open Image</source>
+        <translation>Fechar Todas as Imagens Abertas</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="407" />
-        <source>Close all image windows</source>
-        <translation>Fechar todas as janelas de imagem</translation>
+        <source>Close every open image window</source>
+        <translation>Fechar todas as janelas de imagem abertas</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="411" />
-        <source>Close all Windows</source>
-        <translation>Fechar todas as janelas</translation>
+        <source>Close Every Window</source>
+        <translation>Fechar Todas as Janelas</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="412" />
-        <source>Close all windows</source>
+        <source>Close every window</source>
         <translation>Fechar todas as janelas</translation>
     </message>
     <message>
@@ -1590,23 +1598,23 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="425" />
-        <source>Background &amp;&amp; Range</source>
-        <translation>Fundo &amp;&amp; Intervalo</translation>
+        <source>Black Point and Contrast</source>
+        <translation>Ponto Preto e Contraste</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="426" />
-        <source>Adjust background and display range</source>
-        <translation>Ajustar fundo e intervalo de exibição</translation>
+        <source>Adjust the black point and contrast stretch</source>
+        <translation>Ajustar o ponto preto e o contraste da exibição</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="430" />
-        <source>Select Markings</source>
-        <translation>Selecionar Marcações</translation>
+        <source>Marker Display</source>
+        <translation>Exibição de Marcadores</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="431" />
-        <source>Select markings</source>
-        <translation>Selecionar marcações</translation>
+        <source>Choose which markers are shown</source>
+        <translation>Escolher quais marcadores são exibidos</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="436" />
@@ -1660,8 +1668,8 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="486" />
-        <source>Stop Blinking (Ctrl+F9)</source>
-        <translation>Parar Piscar (Ctrl+F9)</translation>
+        <source>End Blink Mode (Ctrl+F9)</source>
+        <translation>Encerrar Modo de Piscagem (Ctrl+F9)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="489" />
@@ -4764,9 +4772,9 @@ Deseja enviar por e-mail em vez disso?</translation>
 <context>
     <name>SelectMarkingsDialog</name>
     <message>
-        <location filename="../src/ui/SelectMarkingsDialog.cpp" line="10" />
-        <source>Select Markings</source>
-        <translation>Selecionar Marcações</translation>
+        <location filename="../src/ui/SelectMarkingsDialog.cpp" line="13" />
+        <source>Marker Display</source>
+        <translation>Exibição de Marcadores</translation>
     </message>
     <message>
         <location filename="../src/ui/SelectMarkingsDialog.cpp" line="16" />
