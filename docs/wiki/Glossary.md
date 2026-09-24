@@ -370,7 +370,7 @@ magenta.
 Showing several images of the same field one after the other, in the same place on the screen,
 so that anything that moves (an asteroid) jumps while the stars stay still. The name comes from
 the "blink comparator" instrument, used for example to discover Pluto in 1930. In AstroFind:
-**Tools → Blink Images** (`Ctrl+B`).
+**Utilities → Begin Blink Mode** (`Ctrl+B`).
 
 🇧🇷 **Português**
 Mostrar várias imagens do mesmo campo uma depois da outra, no mesmo lugar da tela, para que
@@ -630,7 +630,7 @@ gerenciador de pacotes e seus nomes de pacote, por isso os comandos de instalaç
 🇬🇧 **English**
 A panel attached to the side or bottom of the main window that you can move, hide or show.
 AstroFind's docks are Workflow, Calibration, Images, Log, Observations and Image Catalog. Show
-them again with the **Windows → View …** items.
+them again with the **Window → View …** items.
 
 🇧🇷 **Português**
 Um painel preso na lateral ou embaixo da janela principal, que você pode mover, esconder ou
@@ -646,7 +646,7 @@ Observações e Catálogo de Imagem. Mostre de novo pelos itens **Janelas → Ex
 🇬🇧 **English**
 The path the Sun seems to follow across the sky during the year. The planets and most asteroids
 orbit close to this plane, so fields near the ecliptic have more asteroids. AstroFind can draw it
-with **Tools → Ecliptic / Galactic Overlay** (`Ctrl+E`).
+with **Utilities → Ecliptic / Galactic Overlay** (`Ctrl+E`).
 
 🇧🇷 **Português**
 O caminho que o Sol parece fazer no céu ao longo do ano. Os planetas e a maioria dos asteroides
@@ -794,7 +794,7 @@ banda G do próprio Gaia. Um dos dois catálogos de referência do AstroFind ("G
 
 🇬🇧 **English**
 The band of the Milky Way on the sky. It is crowded with stars and dust, which dims objects
-behind it (high extinction). With **Tools → Ecliptic / Galactic Overlay** on, AstroFind shows the
+behind it (high extinction). With **Utilities → Ecliptic / Galactic Overlay** on, AstroFind shows the
 badge "⚠  Plano galáctico — alta extinção interestelar" when the field is within 15° of it.
 
 🇧🇷 **Português**
@@ -829,7 +829,7 @@ avisa "Localização não configurada". O resultado de **Consultar Horizons…**
 
 🇬🇧 **English**
 A plot of how much of a star's light falls inside apertures of growing radius. It helps choose
-the best aperture size. In AstroFind: **Tools → Growth Curve…** (`Ctrl+Shift+G`).
+the best aperture size. In AstroFind: **Utilities → Growth Curve…** (`Ctrl+Shift+G`).
 
 🇧🇷 **Português**
 Um gráfico de quanta luz de uma estrela cai dentro de aberturas com raio crescente. Ajuda a
@@ -861,7 +861,7 @@ na janela da imagem.
 
 🇬🇧 **English**
 The text part of a FITS file with keywords such as `DATE-OBS`, `EXPTIME`, `FILTER`, `TELESCOP`.
-AstroFind reads many settings from it automatically. View it with **Images → Display Header…**.
+AstroFind reads many settings from it automatically. View it with **Image Tools → View FITS Header…**.
 
 🇧🇷 **Português**
 A parte de texto de um arquivo FITS, com palavras-chave como `DATE-OBS`, `EXPTIME`, `FILTER`,
@@ -955,7 +955,7 @@ catálogo correspondida — usando magnitude instrumental").
 🇬🇧 **English**
 A continuous count of days used by astronomers, without months or leap years. JD counts days from
 noon of 1 January 4713 BC; MJD = JD − 2400000.5. J2000.0, a common reference epoch, is JD
-2451545.0. AstroFind uses the JD of mid-exposure; you can edit it in **Images → Edit Image
+2451545.0. AstroFind uses the JD of mid-exposure; you can edit it in **Image Tools → Edit Image
 Parameters…** ("Julian Date:").
 
 🇧🇷 **Português**
@@ -972,7 +972,7 @@ em **Imagens → Editar Parâmetros da Imagem…** ("Data Juliana:").
 
 🇬🇧 **English**
 AstroFind's feature that marks already-catalogued asteroids, comets and planets predicted to be in
-your image: **Tools → Known Object Overlay** (`Ctrl+K`). It asks the IMCCE SkyBoT service, or uses
+your image: **Utilities → Show Known Objects** (`Ctrl+K`). It asks the IMCCE SkyBoT service, or uses
 MPCORB.DAT when SkyBoT cannot be reached. Asteroids are green circles, planets light blue, comets
 orange.
 
@@ -1024,7 +1024,7 @@ arquivos RAW são recusados com "DSLR RAW support is not available in this build
 
 🇬🇧 **English**
 A plot of an object's brightness over time. It can show an asteroid's rotation. In AstroFind:
-**Tools → Light Curve…** (`Ctrl+Shift+L`; in 1.1.0 and earlier its `Ctrl+L` clashed with Load
+**Utilities → Light Curve…** (`Ctrl+Shift+L`; in 1.1.0 and earlier its `Ctrl+L` clashed with Import
 Images, so use the menu there).
 
 🇧🇷 **Português**
@@ -1041,7 +1041,7 @@ AstroFind: **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`; na 1.1.0 e anter
 🇬🇧 **English**
 A recipe that turns each brightness value into a colour, used to show grey data in "false
 colour" (Hot, Cool, Viridis) so faint detail is easier to see. It changes only the display. In
-AstroFind: "Cor falsa (LUT):" in **Images → Background and Range…**.
+AstroFind: "Cor falsa (LUT):" in **Image Tools → Background and Range…**.
 
 🇧🇷 **Português**
 Uma receita que transforma cada valor de brilho numa cor, usada para mostrar dados cinza em "cor
@@ -1088,7 +1088,7 @@ mediana), o que reduz o ruído aleatório e remove impactos de raios cósmicos. 
 
 🇬🇧 **English**
 AstroFind's automatic search for objects that move steadily across the images:
-**Astrometry → Moving Object Detection…** (`Ctrl+M`). Candidates are marked "Cand #N". By default
+**Astrometry Tools → Detect Moving Objects…** (`Ctrl+M`). Candidates are marked "Cand #N". By default
 an object must appear in at least 3 images.
 
 🇧🇷 **Português**
@@ -1120,7 +1120,7 @@ Harvard & Smithsonian, que reúne observações de asteroides e cometas do mundo
 
 🇬🇧 **English**
 The MPC's file with the orbits of all known asteroids. It is large (AstroFind says about 200 MB).
-Download it with **Internet → Download MPCOrb** and update it with **Internet → Update MPCOrb**.
+Download it with **Internet → Download MPCOrb Database** and update it with **Internet → Update MPCOrb Database**.
 AstroFind uses it to find known objects offline when SkyBoT cannot be reached.
 
 🇧🇷 **Português**
@@ -1225,7 +1225,7 @@ rótulo errado "°/px".)
 
 🇬🇧 **English**
 Working out, from the star pattern alone, exactly which part of the sky an image shows: centre,
-rotation and scale. The result is the **WCS**. AstroFind does it inside **Astrometry → Data
+rotation and scale. The result is the **WCS**. AstroFind does it inside **Astrometry Tools → Run Data
 Reduction…** (`Ctrl+A`), online with astrometry.net or offline with ASTAP.
 
 🇧🇷 **Português**
@@ -1484,7 +1484,7 @@ encerra a sessão; `Ctrl+R` e `Ctrl+W` limpam sem perguntar.
 
 🇬🇧 **English**
 An online service of the IMCCE (Paris Observatory) that lists the known solar-system objects in a
-given patch of sky at a given time. AstroFind uses it for the Known Object Overlay.
+given patch of sky at a given time. AstroFind uses it when you Show Known Objects.
 
 🇧🇷 **Português**
 Um serviço online do IMCCE (Observatório de Paris) que lista os objetos conhecidos do Sistema
@@ -1500,7 +1500,7 @@ Conhecidos.
 🇬🇧 **English**
 How strong a signal is compared with the random noise around it. Higher is more reliable; SNR 5
 or more is usually a solid detection. Stacking N images improves SNR by about √N. AstroFind's
-Moving Object Detection uses "MOD min. SNR:" (default 5).
+Detect Moving Objects uses "MOD min. SNR:" (default 5).
 
 🇧🇷 **Português**
 Quão forte um sinal é em comparação com o ruído aleatório em volta. Quanto maior, mais confiável;
@@ -1515,7 +1515,7 @@ Detecção de Objetos em Movimento do AstroFind usa "MOD SNR mín.:" (padrão 5)
 
 🇬🇧 **English**
 Combining several aligned exposures into one to raise the signal-to-noise ratio and show fainter
-objects. In AstroFind: **Images → Re-Stack Images** (aligned on the stars, or by FFT when stars are missing). See also *Track and
+objects. In AstroFind: **Image Tools → Rebuild Stack** (aligned on the stars, or by FFT when stars are missing). See also *Track and
 stack*.
 
 🇧🇷 **Português**
@@ -1547,7 +1547,7 @@ desenha os traços como elipses laranja.
 
 🇬🇧 **English**
 The rule that maps pixel values to screen brightness. Choosing a good stretch makes faint stars
-visible. In **Images → Background and Range…** AstroFind offers "Linear", "Logarítmica", "Raiz
+visible. In **Image Tools → Background and Range…** AstroFind offers "Linear", "Logarítmica", "Raiz
 Quadrada (Sqrt)", "Asinh" and "Equalização de Histograma", plus the "⟳ Auto" button. It changes
 only the display.
 
@@ -1582,7 +1582,7 @@ para que nenhuma estimativa de cor afete a medição.
 🇬🇧 **English**
 The difference between local clock time and UTC (for example UTC−3 in Brasília). Observation
 times must be in UTC. AstroFind's "Time Zone:" setting is stored but does **not** change image
-times; correct a wrong time in **Images → Edit Image Parameters…**. See the [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).
+times; correct a wrong time in **Image Tools → Edit Image Settings…**. See the [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).
 
 🇧🇷 **Português**
 A diferença entre a hora local do relógio e o UTC (por exemplo UTC−3 em Brasília). Os horários de
@@ -1599,7 +1599,7 @@ Imagem…**. Veja o [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).
 🇬🇧 **English**
 Stacking images while shifting each one by the expected motion of a moving object, so the object
 adds up into a sharp dot while the stars smear. It reveals objects too faint for one image. In
-AstroFind: **Astrometry → Stack Images…** (`Ctrl+T`), where you type the shift per frame (dX, dY)
+AstroFind: **Astrometry Tools → Stack Images…** (`Ctrl+T`), where you type the shift per frame (dX, dY)
 in pixels.
 
 🇧🇷 **Português**
@@ -1616,7 +1616,7 @@ deslocamento por quadro (dX, dY) em pixels.
 
 🇬🇧 **English**
 A short series of positions of one object from a single night, consistent with steady motion.
-It is the basic unit the MPC links into orbits. AstroFind's Moving Object Detection builds such
+It is the basic unit the MPC links into orbits. AstroFind's Detect Moving Objects builds such
 tracks across the images; in the ADES report an unidentified object gets a temporary name
 (`trkSub`, "UNKN" by default).
 

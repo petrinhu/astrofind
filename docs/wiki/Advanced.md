@@ -49,7 +49,7 @@ diferente, por exemplo no tempo, a página avisa).
 The strength of a spot compared to the noise decides if it counts.*
 
 - Library: **SEP** (the C library version of Source Extractor), run in parallel on all images
-  during **Astrometry → Data Reduction...** (`Ctrl+A`).
+  during **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`).
 - Parameters: threshold = **Settings → Detection → Detection threshold:** (`detection/sigmaLimit`,
   default 4σ; σ = sky noise), minimum area 5 connected pixels, deblending on, 3×3 matched
   (convolution) filter, at most **500** sources kept (the brightest by flux).
@@ -241,7 +241,7 @@ What happens to a measured position before it goes into the ADES report:
 - **Fixed (AUD-DOC-8):** the in-app Help no longer describes a "complete chain"; it now matches
   this page and TR §6.
 - Why the site still matters: refraction and airmass use latitude/longitude, and the MPC code in
-  the report is what the MPC uses for parallax. If the site is 0°, 0°, Data Reduction warns
+  the report is what the MPC uses for parallax. If the site is 0°, 0°, Run Data Reduction warns
   `Localização não configurada`.
 - TR: [§6 Coordinate chain](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#6-coordinate-chain-icrs--cirs--topocentric--cadeia-de-coordenadas-icrs--cirs--topocêntrico),
   [§7 Aberration](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#7-annual-aberration--aberração-anual),
@@ -297,7 +297,7 @@ precision photometry.*
 - **Airmass** is always computed and logged. The code uses the **Pickering (2002)** formula; TR
   §12 describes sec z / Young & Irvine, which is not what the code does.
 - **Extinction**: −k·X is added only when **Extinction coeff k:** > 0 (default 0 = off).
-- To tune the aperture, use **Tools → Growth Curve…** (`Ctrl+Shift+G`) / **Ferramentas → Curva de Crescimento…**.
+- To tune the aperture, use **Utilities → Growth Curve…** (`Ctrl+Shift+G`) / **Utilitários → Curva de Crescimento…**.
 - TR: [§10](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#10-aperture-photometry-and-zero-point--fotometria-de-abertura-e-zero-point),
   [§11](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#11-differential-photometry--fotometria-diferencial),
   [§12](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#12-airmass--massa-de-ar).
@@ -332,11 +332,11 @@ precisão.*
 *In short: to stack images, AstroFind first lines them up, using the stars or a frequency-domain
 trick (FFT). Then it averages, medians or adds them.*
 
-- **Images → Re-Stack Images** / **Imagens → Re-empilhar Imagens**: aligns on the star list when
+- **Image Tools → Rebuild Stack** / **Ferramentas de Imagem → Reconstruir Empilhamento**: aligns on the star list when
   every image has detected stars; otherwise it uses **FFT phase correlation** (fftw3). The
   output is `stacked.fits`.
   - In the code the sub-pixel peak is found by parabolic interpolation (TR §15 says Gaussian fit).
-- **Astrometry → Stack Images...** (`Ctrl+T`) / **Astrometria → Empilhar Imagens...**: *Track &
+- **Astrometry Tools → Stack Images...** (`Ctrl+T`) / **Ferramentas de Astrometria → Empilhar Imagens...**: *Track &
   Stack*. You type the object's motion as dX/dY per frame (−500…500 px). The output is
   `track_stacked.fits`. Use it for objects too faint in single frames.
 - Modes: **Average**, **Median** (rejects outliers such as satellites), **Add** (keeps total
@@ -441,7 +441,7 @@ ruins isolados. Um gráfico de frequências ajuda a achar ruído periódico e pr
 *In short: AstroFind looks for sources that move in a straight line at a steady rate across your
 frames.*
 
-- **Astrometry → Moving Object Detection...** (`Ctrl+M`) / **Astrometria → Detecção de Objetos em
+- **Astrometry Tools → Detect Moving Objects...** (`Ctrl+M`) / **Ferramentas de Astrometria → Detectar Objetos em
   Movimento...** needs at least 2 images with detected stars.
 - It pairs sources across frames and groups motion vectors that agree within
   `detection/modTolerance` (2 px). It keeps tracks seen in ≥ `detection/modMinFrames` (3) frames
@@ -469,7 +469,7 @@ longo dos seus quadros.*
 *In short: AstroFind can draw the ecliptic and the Milky Way plane on the image, and it warns
 you when the field is crowded and dimmed by dust.*
 
-- **Tools → Ecliptic / Galactic Overlay** (`Ctrl+E`).
+- **Utilities → Ecliptic / Galactic Overlay** (`Ctrl+E`).
 - The warning badge appears when |b| < **15°** (the code value; TR §14 says 10°).
 - TR: [§14](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#14-ecliptic-and-galactic-coordinates--coordenadas-eclípticas-e-galácticas).
 
@@ -566,11 +566,11 @@ before you submit anything. Version 1.1.0 had time-handling traps that the next 
    (`QDateTime::msecsTo`, not the truncating `secsTo`). *Version 1.1.0 and earlier kept whole
    seconds only, dropping the fractional part of DATE-OBS.*
 
-**What Data Reduction then does to the JD:**
+**What Run Data Reduction then does to the JD:**
 
 - It adds **Settings → Observer → Time Offset:** as *seconds* (a camera-clock correction).
   This is done **once** per image: AstroFind remembers the correction already applied (it is
-  also saved in the `.gus` project), so re-running Data Reduction or re-opening a project
+  also saved in the `.gus` project), so re-running Run Data Reduction or re-opening a project
   never adds it again. If you change the value, only the difference is applied.
 - It does **not** add ΔT. The JD stays **UTC**, and the ADES `obsTime` is written from it with
   `Z`, as ADES expects.
@@ -589,11 +589,11 @@ before you submit anything. Version 1.1.0 had time-handling traps that the next 
 - **Time Zone:** (`observer/timeZone`) is saved, but nothing in the pipeline uses it. It does
   **not** convert a local-time DATE-OBS.
 
-> ⚠️ **Version 1.1.0 and earlier (AUD-CORR-15).** There, Data Reduction added ΔT (68 s) and
+> ⚠️ **Version 1.1.0 and earlier (AUD-CORR-15).** There, Run Data Reduction added ΔT (68 s) and
 > Time Offset to the JD **on every run**, and the report still labelled the result UTC, so
 > `obsTime` came out about 68 s late (more after each re-run). Time Offset was also auto-filled
 > with *longitude / 15* (hours, then read as seconds; longitude −35° gave −2.3 s). If you are
-> still on 1.1.0: set **ΔT** and **Time Offset** to `0` before the first Data Reduction, run it
+> still on 1.1.0: set **ΔT** and **Time Offset** to `0` before the first Run Data Reduction, run it
 > only once per loaded session, and reload the images if you already ran it.
 
 **Recommended procedure:**
@@ -604,9 +604,9 @@ before you submit anything. Version 1.1.0 had time-handling traps that the next 
 2. In **File → Settings...** (`Ctrl+,`) / **Arquivo → Configurações...**, leave
    **Camera → ΔT (TT − UTC):** at its default, and set **Observer → Time Offset:** to `0`, or
    to a real clock error in seconds if you know one. The range is −999…999 s.
-3. Run **Data Reduction** (`Ctrl+A`). Running it again is safe.
+3. Run **Run Data Reduction** (`Ctrl+A`). Running it again is safe.
 4. For a single image, or a DSLR with a known clock error, you can type the correct
-   mid-exposure JD in **Images → Edit Image Parameters...** / **Imagens → Editar Parâmetros da
+   mid-exposure JD in **Image Tools → Edit Image Settings...** / **Ferramentas de Imagem → Editar Configurações da
    Imagem...** (field "Julian Date:", 6 decimals ≈ 0.09 s). If the JD you type is already
    corrected, keep Time Offset at 0.
 5. Before submitting, compare the `obsTime` in the ADES preview with the mid-exposure UTC you
@@ -742,7 +742,7 @@ checks.*
    - Keep **Catalog mag (bright):** so that saturated stars are excluded, and check
      **Saturation Level:**.
 5. **Residual checks.**
-   - Read `WCS RMS = …" (N matched stars)` in the log after **Tools → Known Object Overlay**
+   - Read `WCS RMS = …" (N matched stars)` in the log after **Utilities → Show Known Objects**
      (`Ctrl+K`). Values much above ~1″, or N below ~10, mean the solution or the matching is
      poor. Do not submit.
    - Measure one or two **known** asteroids in the same frames and compare them with an

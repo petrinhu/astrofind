@@ -53,7 +53,7 @@ truth). / Os comandos de instalação de cada distribuição estão em [Installa
 | RAW camera files are refused with "DSLR RAW support is not available in this build of AstroFind (compiled without LibRaw): …" | AstroFind was compiled without the optional LibRaw library (the library that reads camera RAW files). | Install LibRaw and build again. Package names: `LibRaw-devel` (Fedora; Rocky Linux 9 from the CRB repository), `libraw-dev` (Debian, Ubuntu, Mint, Pop!_OS, Zorin), `libraw` (Arch, Manjaro, CachyOS), `libraw-devel` (openSUSE). When you run `cmake`, check that it prints "Found LibRaw" and not "LibRaw NOT found — DSLR RAW loading disabled". |
 | A TAR.GZ, TAR.BZ2, TAR.XZ, 7Z or RAR archive does not open. The Log panel says "Cannot extract '…': libarchive not available. Install libarchive-devel and recompile." | AstroFind was compiled without the optional libarchive library. | Install `libarchive-devel` (Fedora, Rocky, openSUSE), `libarchive-dev` (Debian/Ubuntu family) or `libarchive` (Arch family), then build again. Or extract the archive yourself and load the images. |
 | A ZIP file does not open. The Log panel says "Timed out extracting ZIP: …" | ZIP files are extracted with the system `unzip` program. If `unzip` is not installed, or the file is very large (limit 30 s), extraction stops. | Install `unzip` with your package manager (for example `sudo dnf install unzip` or `sudo apt install unzip`), or extract the ZIP yourself. |
-| "No image files found in ZIP: …" | The ZIP has no files of a type AstroFind extracts. BMP, JPEG and PDS4 `.xml` are not extracted from archives. | Extract the ZIP yourself and load the files with **File → Load Images…**. |
+| "No image files found in ZIP: …" | The ZIP has no files of a type AstroFind extracts. BMP, JPEG and PDS4 `.xml` are not extracted from archives. | Extract the ZIP yourself and load the files with **File → Import Images…**. |
 | Settings → Connections shows "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for secure storage" | AstroFind was built without qt6keychain, so the astrometry.net API key is saved in the normal settings file. | This works, but the key is readable by anyone with access to your account. To store it securely, install the keychain packages listed in INSTALL.md and build again. |
 | `cmake` stops with an error about Qt6 or a missing package | A required build package is missing (Qt 6.4 or newer, Qt Charts, cfitsio, fftw). | Install the "Required" packages of your distribution from INSTALL.md, delete the `build` folder and run `cmake` again. |
 
@@ -88,7 +88,7 @@ terminal window. The name has a capital A and a capital F.)
 |---|---|---|
 | The terminal says that a shared library (a file ending in `.so`, for example one whose name starts with `libQt6`, `libcfitsio` or `libraw`) cannot be found | A library AstroFind needs is not installed. | With the RPM package, install the extra dependencies listed in INSTALL.md (`sudo dnf install qt6-qtbase qt6-qtcharts …`). With the DEB package, install it with `sudo apt-get install ./astrofind_1.1.0_amd64.deb`, which installs the dependencies too. |
 | The terminal mentions the Qt "platform plugin" (for example `xcb` or `wayland`) | Graphics libraries used by Qt are missing. | Install the graphics packages listed for your distribution in INSTALL.md (on Fedora the RPM section lists `mesa-libGL` and `libxkbcommon`). |
-| The window opens in a strange place, off screen, or with panels missing | The saved window layout does not fit your current screen. | Use **Windows → Arrange all Windows** and the **Windows → View …** items to show the panels again. If that does not help, reset the settings (see [below](#how-to-reset-the-settings--como-restaurar-as-configurações)). |
+| The window opens in a strange place, off screen, or with panels missing | The saved window layout does not fit your current screen. | Use **Window → Auto-Arrange Windows** and the **Window → View …** items to show the panels again. If that does not help, reset the settings (see [below](#how-to-reset-the-settings--como-restaurar-as-configurações)). |
 | AstroFind closes right after starting | Could be a bad settings file or a bug. | Reset the settings as explained below. If it still closes, report a bug with the terminal output. |
 
 🇧🇷 **Português**
@@ -124,7 +124,7 @@ the messages below. More about formats: [File-Formats](https://github.com/petrin
 | "Unsupported image format '.…' — supported: fits, ser, xisf, tiff, tif, png, bmp, jpg, PDS3 (img/lbl), PDS4 (xml), DSLR RAW" | The file extension is not one AstroFind knows. | Check the file is really an image. Convert it to FITS with another program if needed. |
 | "Cannot load image (unsupported or corrupt): …" | A TIFF/PNG/BMP/JPEG file could not be decoded. | Open it in an image viewer to check that it is not damaged. Save it again as 16-bit TIFF or PNG, or as FITS. |
 | "Cannot open FITS file: … (…)" | cfitsio (the FITS library) could not open the file; the text in parentheses gives its reason. | Check the file is complete (download it again) and that you have permission to read it. |
-| "FITS file has no 2D image: …" | The FITS file has no picture, only tables or a header. | Use a FITS file with an image. Star tables can be loaded with **Astrometry → Import Detected Stars (DAOPHOT/SExtractor)…**. |
+| "FITS file has no 2D image: …" | The FITS file has no picture, only tables or a header. | Use a FITS file with an image. Star tables can be loaded with **Astrometry Tools → Import Detected Stars (DAOPHOT/SExtractor)…**. |
 | "Declared image size (… px) in '…' exceeds the …-byte file on disk (lying/corrupt header)" | The header promises more pixels than the file contains, usually because the download was cut off. | Download or copy the file again. |
 | "PDS label declares … bytes of image data but '…' has only … (lying/corrupt label)" | Same problem for a PDS file: the image file is shorter than its label says. | Download the `.img` again. Make sure the `.lbl` belongs to that `.img`. |
 | "Not a PDS3 file (no attached or detached label): …" | The `.img` has no label inside and there is no `.lbl` with the same name next to it. | Put the matching `.lbl` file in the same folder, with the same base name. |
@@ -135,14 +135,14 @@ the messages below. More about formats: [File-Formats](https://github.com/petrin
 | "File too small to be a valid SER file: …" or "SER file truncated (…)" | The SER video is incomplete. | Copy or record the file again. |
 | "Not an XISF 1.0 file: …" or "XISF: unsupported sampleFormat '…' in: …" | The XISF file uses a variant AstroFind does not read. | Save it again from PixInsight as FITS or as a simple XISF. |
 | "Session Limit Reached" | The session already has 20 images. The message says to "increase the limit in Settings", but that field does not exist. | See "How many images can I load?" in the [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ). |
-| You drop a TIFF, PNG, RAW or PDS file onto the window and nothing happens | Drag and drop accepts only `.fits`, `.fit`, `.fts`, ZIP and the other archive types. | Use **File → Load Images…** (`Ctrl+L`). |
-| **File → Open Recent…** does not load all files of the folder | This list only looks for FITS, SER, XISF, TIFF, PNG, PDS3 and the common RAW types. It skips archives, BMP, JPEG and PDS4 `.xml`. | Use **File → Load Images…**. |
+| You drop a TIFF, PNG, RAW or PDS file onto the window and nothing happens | Drag and drop accepts only `.fits`, `.fit`, `.fts`, ZIP and the other archive types. | Use **File → Import Images…** (`Ctrl+L`). |
+| **File → Open Recent…** does not load all files of the folder | This list only looks for FITS, SER, XISF, TIFF, PNG, PDS3 and the common RAW types. It skips archives, BMP, JPEG and PDS4 `.xml`. | Use **File → Import Images…**. |
 | A "Spectrum" window opens instead of an image | The FITS file is a 1-D spectrum (NAXIS=1), not an image. | This is expected; spectra cannot be used for astrometry. |
-| **Images → Display Header…** does nothing | This item reads FITS headers only. | For other formats the information is in the Log panel line "Loaded: …" and in **Images → Edit Image Parameters…**. |
+| **Image Tools → View FITS Header…** does nothing | This item reads FITS headers only. | For other formats the information is in the Log panel line "Loaded: …" and in **Image Tools → Edit Image Settings…**. |
 | A dark or flat frame does not load ("Cannot load: …") | Dark and flat frames must be FITS files. | Convert the calibration frames to FITS. |
 | **File → Open Project…** asks "Localizar…" / "Pular" / "Cancelar tudo" | An image of the project was moved or deleted (projects store the path, not the pixels). | Click "Localizar…" and point to the file. If nothing can be found, the log says "Projeto: nenhuma imagem pôde ser carregada." |
 
-> ⚠️ **Watch out:** **File → Save as FITS…** copies the original file and adds the WCS. For a
+> ⚠️ **Watch out:** **File → Save FITS Copy…** copies the original file and adds the WCS. For a
 > file that is not FITS (RAW, PDS, TIFF…), the copy is still in the original format, only with a
 > `.fits` name, and the Log panel shows "WCS write warning: …".
 
@@ -186,7 +186,7 @@ carregar:" seguido do nome do arquivo e do motivo, e o painel de Log mostra "Fal
 
 🇬🇧 **English**
 Plate solving (finding which part of the sky an image shows) runs inside
-**Astrometry → Data Reduction…** (`Ctrl+A`). Each failed image gets a Log line
+**Astrometry Tools → Run Data Reduction…** (`Ctrl+A`). Each failed image gets a Log line
 "Plate solving falhou: …" with one of the reasons below. The end summary looks like
 "Redução concluída: … resolvidas, … falhou".
 
@@ -195,7 +195,7 @@ Plate solving (finding which part of the sky an image shows) runs inside
 | Window "ASTAP não configurado" | The backend is ASTAP but "Executável ASTAP:" is empty. | Fill it in **File → Settings…** → **Connections**. |
 | "Não foi possível iniciar o ASTAP. Verifique o caminho: …" | The path does not point to a working ASTAP program. | Click "…" next to "Executável ASTAP:" and select the ASTAP program file. Check it runs from a terminal. |
 | "ASTAP: estrelas insuficientes para resolver a placa" | ASTAP found too few stars. | Use a longer exposure, check the focus, or see [No stars detected](#no-stars-detected--nenhuma-estrela-detectada). |
-| "ASTAP: nenhuma solução de placa encontrada" | ASTAP could not match the stars. Common reasons: no ASTAP star database installed, a database that does not cover your field size, or a wrong position hint in the header. | Install an ASTAP star database suitable for your field of view (see [hnsky.org](https://www.hnsky.org/astap.htm)). Check the RA/Dec in **Images → Edit Image Parameters…**. |
+| "ASTAP: nenhuma solução de placa encontrada" | ASTAP could not match the stars. Common reasons: no ASTAP star database installed, a database that does not cover your field size, or a wrong position hint in the header. | Install an ASTAP star database suitable for your field of view (see [hnsky.org](https://www.hnsky.org/astap.htm)). Check the RA/Dec in **Image Tools → Edit Image Settings…**. |
 | "ASTAP: arquivo de solução não encontrado: …" | ASTAP writes a `.wcs` file next to the image. It could not, or it did not solve. | Make sure the image folder is writable (copy the images to a folder in your home directory). |
 | "ASTAP falhou (código …)" or "ASTAP encerrado de forma inesperada" | ASTAP stopped with an error. | Run ASTAP alone on the same file to see its message. |
 | "…: chave API ausente — plate solving ignorado." or "Astrometry.net API key is not set" | No astrometry.net API key. | Get a free key at nova.astrometry.net and paste it in **Settings → Connections → API Key:**. |
@@ -241,19 +241,19 @@ O plate solving (descobrir qual parte do céu a imagem mostra) roda dentro de
 🟡 Intermediate / Intermediário
 
 🇬🇧 **English**
-These messages come from **Tools → Known Object Overlay** (`Ctrl+K`), which downloads reference
+These messages come from **Utilities → Show Known Objects** (`Ctrl+K`), which downloads reference
 stars (VizieR or a local file) and known asteroids (SkyBoT or MPCORB.DAT).
 
 | Problem / message | Cause | Fix |
 |---|---|---|
 | "Catalog download failed: …" | VizieR could not be reached, or it returned an error. | Check your internet connection and try again later. Offline, use a local catalog (**Settings → Connections** → "Source:" → "Local FITS BINTABLE"). |
-| "No catalog stars found in field" | No catalog star in the field fits the magnitude limits, or the field centre is wrong. | Check "Catalog mag (faint):" (default 16) and "Catalog mag (bright):" (default 10) in **Settings → Detection**. Make sure Data Reduction solved image 1: without a solution the search uses the header position and a 0.5° radius. |
+| "No catalog stars found in field" | No catalog star in the field fits the magnitude limits, or the field centre is wrong. | Check "Catalog mag (faint):" (default 16) and "Catalog mag (bright):" (default 10) in **Settings → Detection**. Make sure Run Data Reduction solved image 1: without a solution the search uses the header position and a 0.5° radius. |
 | You changed "VizieR mirror:" and nothing changed | The field needs the full address of a VizieR TAP service (`https://…/TAPVizieR/tap/sync`). A bare host name, or `http://` for anything other than `localhost`, is rejected, and AstroFind keeps using the default `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was always rejected; the next version (after 1.1.0) replaces that old value with the default.) | Leave the default. If you type another server, give its complete `https://` TAP address. |
 | "No local catalog file configured. Set it in Settings → Connections." | "Source:" is "Local FITS BINTABLE" but "Local catalog:" is empty. | Choose the file with "Browse…". |
 | "Local catalog error: …" or "No RA/Dec columns found in local catalog" | The local file is not a FITS table with RA/Dec columns. | Use a FITS BINTABLE export (for example from VizieR) that includes RA and Dec columns. |
-| "SkyBoT query failed: …" | The IMCCE SkyBoT service could not be reached. | Download MPCORB.DAT once with **Internet → Download MPCOrb**; AstroFind then uses it when SkyBoT is unreachable. |
-| "MPCORB.DAT not found. Use Internet → Download MPCOrb." | The offline asteroid file is missing. | Use **Internet → Download MPCOrb** (about 200 MB). The file path is shown in **Settings → Connections** → "MPCORB.DAT:". **Internet → Update MPCOrb** needs the file to exist first. |
-| No known objects at all, and no SkyBoT line in the log | Known objects are only searched when the image has a valid date (Julian Date above 2400000). | Check the date in **Images → Edit Image Parameters…** ("Julian Date:"). |
+| "SkyBoT query failed: …" | The IMCCE SkyBoT service could not be reached. | Download MPCORB.DAT once with **Internet → Download MPCOrb Database**; AstroFind then uses it when SkyBoT is unreachable. |
+| "MPCORB.DAT not found. Use Internet → Download MPCOrb Database." | The offline asteroid file is missing. | Use **Internet → Download MPCOrb Database** (about 200 MB). The file path is shown in **Settings → Connections** → "MPCORB.DAT:". **Internet → Update MPCOrb Database** needs the file to exist first. |
+| No known objects at all, and no SkyBoT line in the log | Known objects are only searched when the image has a valid date (Julian Date above 2400000). | Check the date in **Image Tools → Edit Image Settings…** ("Julian Date:"). |
 | High "WCS RMS" value in the log (well over 1") | Poor match between image and catalog: wrong solution, distortion, or few matched stars. | Check focus and plate solution; try the other catalog. |
 
 🇧🇷 **Português**
@@ -280,7 +280,7 @@ MPCORB.DAT).
 🟡 Intermediate / Intermediário
 
 🇬🇧 **English**
-During Data Reduction the Log panel shows "Image …: … stars found" for each image. If the number
+During Run Data Reduction the Log panel shows "Image …: … stars found" for each image. If the number
 is 0 or very small:
 
 | Cause | Fix |
@@ -290,7 +290,7 @@ is 0 or very small:
 | Strong gradients (light pollution, moonlight) hide faint stars. | Tick "Subtrair modelo de fundo antes da detecção" in **Settings → Detection**. |
 | The dark or flat frame does not match the image size. The log shows "Image …: dark frame size mismatch — skipped" (or flat field). | Use calibration frames of the same size and binning as the images. |
 | The image is out of focus or trailed. | Check the image; long trails are drawn in orange and may not count as stars. |
-| Tools → Growth Curve… says "No stars detected in this image.\nRun plate solving or star detection first." | Run **Astrometry → Data Reduction…** first. |
+| Utilities → Growth Curve… says "No stars detected in this image.\nRun plate solving or star detection first." | Run **Astrometry Tools → Run Data Reduction…** first. |
 
 > 💡 **Tip:** at most 500 stars (the brightest) are kept per image. That is enough for plate
 > solving.
@@ -323,13 +323,13 @@ imagem. Se o número é 0 ou muito pequeno:
 |---|---|---|
 | "Load at least 2 images to use blink mode." | Blink needs two or more images. | Load at least 2 images of the same field (3–5 is better). |
 | The blink view shows only 4 thumbnails | The blink view has 4 slots. | Normal. |
-| "Run Data Reduction first to detect stars in the images." (Moving Object Detection) | No stars were detected yet. | Run **Astrometry → Data Reduction…** (`Ctrl+A`) first. |
+| "Run Data Reduction first to detect stars in the images." (Detect Moving Objects) | No stars were detected yet. | Run **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`) first. |
 | "No moving objects detected across … images." | Nothing matched the search rules. By default an object must appear in at least 3 images, move steadily (within 2 px), and have SNR (signal-to-noise ratio) of at least 5. | Use at least 3 images. Lower "MOD min. SNR:" in **Settings → Detection**. Blink the images yourself: very fast objects may appear as trails. |
 | Clicking on the image measures nothing | The **Select** tool is active. | Press `M` (Measure Object) or `A` (**Edit → Aperture Tool**) before clicking. |
 | Log shows "Centroid failed — no source found at click position" | No star-like dot was found where you clicked. | Zoom in (mouse wheel) and click exactly on the dot. |
 | A window "Blink em execução" asks "Parar e Medir" / "Continuar Blink" | You clicked while the blink was playing. | Choose "Parar e Medir" to measure. Pause with Space first to avoid the question. |
 | Log shows "PSF elongation=… — check tracking, focus, or coma" | The star images are stretched (elongated). | Check the telescope tracking and focus. Measurements still work, but may be less precise. |
-| Log shows "Photometry: no catalog stars matched — using instrumental mag" | No catalog star near the object could calibrate the brightness. | Run the Known Object Overlay (`Ctrl+K`) before measuring. The position is still valid. |
+| Log shows "Photometry: no catalog stars matched — using instrumental mag" | No catalog star near the object could calibrate the brightness. | Run Show Known Objects (`Ctrl+K`) before measuring. The position is still valid. |
 
 🇧🇷 **Português**
 
@@ -355,7 +355,7 @@ imagem. Se o número é 0 ou muito pequeno:
 
 | Problem / message | Cause | Fix |
 |---|---|---|
-| **File → View ADES Report File** is greyed out | It is enabled only after Data Reduction. | Run **Astrometry → Data Reduction…** first. |
+| **File → View ADES Report File** is greyed out | It is enabled only after Run Data Reduction. | Run **Astrometry Tools → Run Data Reduction…** first. |
 | "No observations yet.\n\nUse the Measure tool (M) to click on moving objects first." | No accepted measurement. | Measure the object and click "✓ Aceitar" in the Verification window. |
 | The summary says "Station: (not set)" and the report uses `XXX` | "MPC Station Code:" is empty. | Fill it in **Settings → Observer**, or keep `XXX` if you have no code yet (see the [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ)). |
 | Window "MPC Submission Failed" with "HTTP submission failed: …" | The MPC server returned an error or could not be reached. | Answer Yes to send by e-mail instead, or save the report and try later. |
@@ -397,8 +397,8 @@ imagem. Se o número é 0 ou muito pequeno:
 
 | Problem | Cause | Fix |
 |---|---|---|
-| Almost black image | Normal: the screen cannot show the full brightness range. | **Images → Background and Range…** → **"⟳ Auto"**; try the "Asinh" or "Raiz Quadrada (Sqrt)" transfer function. |
-| Almost white image | **Invert Display** is on, or the range is set too low. | Turn off **Images → Invert Display** (`Ctrl+I`); click "⟳ Auto". |
+| Almost black image | Normal: the screen cannot show the full brightness range. | **Image Tools → Background and Range…** → **"⟳ Auto"**; try the "Asinh" or "Raiz Quadrada (Sqrt)" transfer function. |
+| Almost white image | **Invert Colors** is on, or the range is set too low. | Turn off **Image Tools → Invert Colors** (`Ctrl+I`); click "⟳ Auto". |
 | Only some images look right | The display settings were applied to one image. | Tick "Apply to all images in session" in Background and Range. |
 | Magenta pixels | Those pixels have no value (NaN) in the file, for example outside the camera's area. | Nothing to fix; they are ignored. |
 | Strange colours | A false-colour palette is active. | Set "Cor falsa (LUT):" to "Cinza (Grayscale)". |
@@ -427,12 +427,12 @@ Esses ajustes mudam só o que você vê, nunca as medições.
 
 | Problem | Cause | Fix |
 |---|---|---|
-| `Ctrl+L` does nothing (1.1.0 and earlier) | In 1.1.0 `Ctrl+L` was assigned to both **File → Load Images…** and **Tools → Light Curve…**. When one key has two actions, Qt may run neither. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`. | Update, or use the menu or the "Load Images (Ctrl+L)" toolbar button. |
-| `Ctrl+Shift+T` does not change the theme (1.1.0 and earlier) | In 1.1.0 it was assigned twice (menu item and toolbar button). In the next version (after 1.1.0) it belongs only to the toolbar theme button and works. | Update, or click the moon/sun icon on the toolbar, or use **Windows → Toggle Day/Night Mode**, or **Settings → Display → Theme:**. |
+| `Ctrl+L` does nothing (1.1.0 and earlier) | In 1.1.0 `Ctrl+L` was assigned to both **File → Import Images…** and **Utilities → Light Curve…**. When one key has two actions, Qt may run neither. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`. | Update, or use the menu or the "Import Images (Ctrl+L)" toolbar button. |
+| `Ctrl+Shift+T` does not change the theme (1.1.0 and earlier) | In 1.1.0 it was assigned twice (menu item and toolbar button). In the next version (after 1.1.0) it belongs only to the toolbar theme button and works. | Update, or click the moon/sun icon on the toolbar, or use **Window → Toggle Day/Night Mode**, or **Settings → Display → Theme:**. |
 | `S`, `A`, `N` or `M` do nothing | A text field or another window has the keyboard focus. | Click on an image window first, then press the key. |
-| `Ctrl+A` does not select all text | In AstroFind `Ctrl+A` starts **Data Reduction**. | Use the mouse to select text. |
+| `Ctrl+A` does not select all text | In AstroFind `Ctrl+A` starts **Run Data Reduction**. | Use the mouse to select text. |
 | Space, Left/Right do not control the blink | These keys work only while the blink view has focus. | Click inside the blink view first. |
-| Images disappeared after `Ctrl+W` or `Ctrl+R` | `Ctrl+W` (**File → Fechar Imagens**) and `Ctrl+R` (**File → Reset Files**) close all images **without asking** to save. | Reopen the images or your saved `.gus` project with **File → Open Project…**. Save often with `Ctrl+S`. |
+| Images disappeared after `Ctrl+W` or `Ctrl+R` | `Ctrl+W` (**File → Fechar Imagens**) and `Ctrl+R` (**File → Reset Session Files**) close all images **without asking** to save. | Reopen the images or your saved `.gus` project with **File → Open Project…**. Save often with `Ctrl+S`. |
 
 Full shortcut list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference).
 
@@ -485,7 +485,7 @@ AstroFind (a mensagem de reinício lembra você).
 AstroFind writes its messages to the **Log panel** ("Log" dock, at the bottom of the window).
 Warnings are orange with "⚠", errors are red with "✗". The panel keeps the last 2000 lines.
 
-- If the panel is hidden, use **Windows → View Log Panel**. **File → View Log File** does the
+- If the panel is hidden, use **Window → View Log Panel**. **File → View Log File** does the
   same thing: it only shows the panel. **There is no log file on disk.**
 - **"Copy all"** copies every line to the clipboard (to paste into a bug report).
   **"Clear"** empties the panel.
@@ -532,7 +532,7 @@ janela). Avisos aparecem em laranja com "⚠", erros em vermelho com "✗". O pa
 3. Click **OK** to save.
 
 This keeps your name, telescope and MPC code, but resets the location to manual 0°, 0° (set it
-again, or Data Reduction will warn "Localização não configurada").
+again, or Run Data Reduction will warn "Localização não configurada").
 
 **Full reset** (for example when AstroFind does not start): close AstroFind and rename the
 settings file, so AstroFind starts as if it were new:

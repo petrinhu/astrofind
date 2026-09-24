@@ -26,8 +26,8 @@ em [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 |---|---|
 | A. Start and files / Início e arquivos | 1 Setup and Settings · 2 Loading images · 3 Multi-HDU, colour, cubes, spectra · 4 Projects · 5 Image parameters and header |
 | B. Viewing / Visualização | 6 Zoom, pan, windows · 7 Display stretch and LUT · 8 Overlays and markings · 9 Histogram, power spectrum, region statistics · 10 Annotate, copy, export |
-| C. Preparing / Preparação | 11 Calibration (dark, flat) · 12 Bad pixels and background · 13 Data Reduction · 14 Import external tables |
-| D. Finding / Busca | 15 Known objects and catalogs · 16 Blink · 17 Moving Object Detection · 18 Stacking · 19 Compare Sessions |
+| C. Preparing / Preparação | 11 Calibration (dark, flat) · 12 Bad pixels and background · 13 Run Data Reduction · 14 Import external tables |
+| D. Finding / Busca | 15 Known objects and catalogs · 16 Blink · 17 Detect Moving Objects · 18 Stacking · 19 Compare Sessions |
 | E. Measuring / Medição | 20 Measuring and verification · 21 What happens in a measurement · 22 Growth and light curves |
 | F. Reporting / Relatório | 23 ADES report and submission |
 | G. Interface | 24 Workflow panel and school mode · 25 Themes, language, panels · 26 Help and About |
@@ -85,7 +85,7 @@ relatório, e precisa da sua localização e de uma chave do astrometry.net.
 **What it is:** opening picture files as a **session** (the set of images you work on together).
 **What it's for:** every measurement starts from images of one sky field taken minutes apart.
 **How to do it:**
-1. **File → Load Images...** / **Arquivo → Carregar Imagens...**. Select all frames at once.
+1. **File → Import Images...** / **Arquivo → Importar Imagens...**. Select all frames at once.
 2. Or **File → Open Recent...** / **Arquivo → Abrir Recente...**: lists the last 8 *folders*;
    clicking one loads every supported image in it (archives, BMP, JPEG and PDS4 `.xml` are not
    scanned). **Clear Recent** / **Limpar Recentes** empties the list.
@@ -105,7 +105,7 @@ of ✓/⚠ chips above the images (pixel scale, WCS, UTC date/time, saturation, 
 such as pixel scale and location are filled from the first image's header when they are empty.
 
 > 🇬🇧 ⚠️ **Watch out:**
-> - The shortcut is `Ctrl+L`. (In 1.1.0 and earlier it was also given to Tools → Light
+> - The shortcut is `Ctrl+L`. (In 1.1.0 and earlier it was also given to Utilities → Light
 >   Curve…, so the key might do nothing; there, use the menu.)
 > - Loading while images are open asks **Acréscimo** (add) or **Novo Projeto** (new project).
 >   *Novo Projeto* also resets pixel scale, saturation and location (Time Offset is kept).
@@ -114,7 +114,7 @@ such as pixel scale and location are filled from the first image's header when t
 > - **DSLR RAW:** the time comes from the camera clock and is marked uncertain. The Log warns
 >   "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC…". Check your camera clock was set
 >   to UTC. A build without LibRaw refuses RAW files with a clear message.
-> - **PDS (mission) images** rarely contain a sky solution: run Data Reduction (item 13).
+> - **PDS (mission) images** rarely contain a sky solution: run Run Data Reduction (item 13).
 
 🇧🇷 **Português**
 **O que é:** abrir arquivos de imagem como uma **sessão** (o conjunto de imagens em que você
@@ -203,9 +203,9 @@ reloaded from disk (or re-extracted from their archive).
 - **File → Projetos Recentes**: the last 5 projects.
 - **File → Close Project** / **Arquivo → Fechar Projeto**: offers to save, then clears everything.
 
-> 🇬🇧 ⚠️ **Watch out:** **File → Reset Files** (`Ctrl+R`), **File → Fechar Imagens** (`Ctrl+W`)
-> and **Windows → Close all Images** clear the whole session **without asking to save**.
-> **Windows → Close all Windows** only closes the windows and keeps the session.
+> 🇬🇧 ⚠️ **Watch out:** **File → Reset Session Files** (`Ctrl+R`), **File → Fechar Imagens** (`Ctrl+W`)
+> and **Window → Close all Images** clear the whole session **without asking to save**.
+> **Window → Close all Windows** only closes the windows and keeps the session.
 
 🇧🇷 **Português**
 **O que é:** um arquivo de projeto `.gus` guarda sua sessão: caminhos das imagens, soluções de
@@ -235,10 +235,10 @@ guardados**; as imagens são recarregadas do disco (ou extraídas de novo do com
 **What it's for:** checking or fixing wrong metadata (for example a missing time or pixel scale)
 before measuring.
 **How to do it:**
-- **Images → Display Header...** / **Imagens → Exibir Cabeçalho...** (or right-click →
+- **Image Tools → View FITS Header...** / **Ferramentas de Imagem → Ver Cabeçalho FITS...** (or right-click →
   **FITS Header…** / **Cabeçalho FITS…**): read-only. It shows nothing for files that are not
   FITS (RAW, PDS3, SER…).
-- **Images → Edit Image Parameters...** / **Imagens → Editar Parâmetros da Imagem...**: object
+- **Image Tools → Edit Image Settings...** / **Ferramentas de Imagem → Editar Configurações da Imagem...**: object
   name, filter, observer, telescope, RA/Dec, Julian Date of mid-exposure, exposure time, plate
   scale, gain, saturation.
 
@@ -267,14 +267,14 @@ faltando) antes de medir.
 **How to do it:**
 - Mouse wheel zooms around the cursor. Drag with the left or middle button to move (pan).
   Arrow keys also pan.
-- **Images → Zoom In** (`Ctrl++`, `+`) / **Imagens → Ampliar Mais**; **Zoom Out** (`Ctrl+-`, `-`)
-  / **Ampliar Menos**; **Fit Window Size** (`Ctrl+F`, `0`) / **Ajustar ao Tamanho da Janela**.
-- **Images → Invert Display** (`Ctrl+I`) / **Inverter Exibição**: black stars on white.
-- **Images → Flip Horizontal / Flip Vertical** / **Espelhar na Horizontal / na Vertical**: mirror
+- **Image Tools → Zoom In** (`Ctrl++`, `+`) / **Ferramentas de Imagem → Ampliar Mais**; **Zoom Out** (`Ctrl+-`, `-`)
+  / **Ampliar Menos**; **Fit to Window** (`Ctrl+F`, `0`) / **Ajustar à Janela**.
+- **Image Tools → Invert Colors** (`Ctrl+I`) / **Inverter Cores**: black stars on white.
+- **Image Tools → Flip Horizontal / Flip Vertical** / **Espelhar na Horizontal / na Vertical**: mirror
   the view, to match a chart with another orientation.
-- **Images → Magnifying Glass** (`Ctrl+G`) / **Imagens → Lupa**: an enlarged view under the
+- **Image Tools → Magnifier Tool** (`Ctrl+G`) / **Ferramentas de Imagem → Ferramenta Lupa**: an enlarged view under the
   cursor.
-- **Windows → Tile Windows / Cascade Windows / Arrange all Windows** / **Janelas → Organizar em
+- **Window → Tile All Windows / Cascade All Windows / Auto-Arrange Windows** / **Janela → Organizar em
   Grade / Cascata de Janelas / Organizar todas as Janelas**. Click a thumbnail in the Images bar
   to bring that image forward.
 - The status bar shows the pixel value and RA/Dec (decimal degrees) under the cursor.
@@ -306,7 +306,7 @@ faltando) antes de medir.
 used; a **LUT** (look-up table) paints brightness with colours.
 **What it's for:** making faint stars and asteroids visible. It never changes the data used for
 measurement.
-**How to do it:** **Images → Background and Range...** / **Imagens → Fundo e Intervalo...** (or
+**How to do it:** **Image Tools → Background and Range...** / **Ferramentas de Imagem → Fundo e Intervalo...** (or
 the Display toolbar). In the window:
 - Sliders **Background (min)** / **Fundo (mín)** and **Range (max)** / **Intervalo (máx)**, with
   a histogram preview.
@@ -346,9 +346,9 @@ cross = catalog reference star; green circle = known asteroid (light blue = plan
 comet); "Cand #N" = automatic candidate; red = selected item.
 **What it's for:** seeing at a glance what AstroFind found.
 **How to do it:**
-- **Images → Select Markings...** / **Imagens → Selecionar Marcações...**: choose which types to
+- **Image Tools → Select Markings...** / **Ferramentas de Imagem → Selecionar Marcações...**: choose which types to
   show (detected stars, catalog stars, known objects, object labels). Applies to all windows.
-- **Tools → Ecliptic / Galactic Overlay** (`Ctrl+E`) / **Ferramentas → Sobreposição Eclíptica /
+- **Utilities → Ecliptic / Galactic Overlay** (`Ctrl+E`) / **Utilitários → Sobreposição Eclíptica /
   Galáctica**: draws the **ecliptic** (the Sun's path, where most asteroids are) and the plane of
   the Milky Way. If the field is within 15° of the Milky Way, a badge warns
   "Plano galáctico — alta extinção interestelar": many stars and dust make the work harder.
@@ -390,7 +390,7 @@ numbers for a rectangle you draw.
 - Right-click the image → **Show Histogram** / **Exibir Histograma**.
 - Right-click → **Show Power Spectrum** / **Mostrar Espectro de Potência** (large images are
   reduced to 1024 px for speed).
-- **Images → Region Statistics** (`Ctrl+Shift+R`) / **Imagens → Estatísticas de Região**: drag a
+- **Image Tools → Region Statistics** (`Ctrl+Shift+R`) / **Ferramentas de Imagem → Estatísticas de Região**: drag a
   rectangle; `Esc` cancels.
 
 🇧🇷 **Português**
@@ -419,10 +419,10 @@ uma curva de sino ao céu (dando o nível do céu μ e o ruído σ). O **espectr
   it is drawn in magenta. **Edit → Select Tool** (`S`) / **Ferramenta Seleção** returns to normal.
 - **Edit → Copy Image** (`Ctrl+C`) / **Editar → Copiar Imagem**: copies the image window to the
   clipboard.
-- **File → Export Image to...** / **Arquivo → Exportar Imagem como...** → **JPEG / PNG / BMP…**,
+- **File → Export Image As...** / **Arquivo → Exportar Imagem Como...** → **JPEG / PNG / BMP…**,
   **JPEG (quick)…** or **PNG…** (also right-click → **Export as JPEG/PNG…**). Saves the image as
   displayed.
-- **File → Save as FITS...** / **Salvar como FITS...** and **File → Save all FITS** / **Salvar
+- **File → Save FITS Copy...** / **Salvar Cópia em FITS...** and **File → Save all FITS** / **Salvar
   todos como FITS**: write copies named `<name>_wcs.fits`, including the sky solution (WCS) when
   the image is solved. Use this to reuse the solution in other programs.
 
@@ -464,7 +464,7 @@ data).
   Field...** / **Carregar Flat Field...** (FITS only). The **Calibration** panel appears.
 - **File → Calibration Wizard…** / **Arquivo → Assistente de Calibração…**: Step 1 Dark, Step 2
   Flat, Step 3 Apply. If "Apply calibration to currently loaded images now" is unticked, the frames
-  are applied at the next Data Reduction.
+  are applied the next time you run Data Reduction.
 - In the **Calibration** panel: **Load…**, **Build Master…** (combine ≥ 2 frames by Average or
   Median), **Clear**, and **Apply to All Images**.
 - Right-click one image → **Apply Dark Frame…** / **Apply Flat Field…** for that image only.
@@ -504,7 +504,7 @@ brilho. Pule se suas imagens já vêm calibradas (comum em dados de campanha ou 
 🟡 Intermediate / Intermediário
 
 🇬🇧 **English**
-**What it is:** two clean-up steps inside Data Reduction. **Bad-pixel correction** replaces
+**What it is:** two clean-up steps inside Run Data Reduction. **Bad-pixel correction** replaces
 "hot" pixels (stuck bright) with the median of their neighbours. **Background subtraction**
 removes a smooth sky glow or gradient.
 **What it's for:** hot pixels can be detected as false stars or false moving objects; gradients
@@ -538,8 +538,8 @@ blended sources), then **plate solving**: matching the stars to the sky to get a
 formula from pixel to RA/Dec).
 **What it's for:** without a WCS no sky position can be measured.
 **How to do it:**
-1. **Astrometry → Data Reduction...** (`Ctrl+A`) / **Astrometria → Redução de Dados...**.
-2. To cancel: **Astrometry → Stop Data Reduction** (`Ctrl+.`) / **Parar Redução de Dados**.
+1. **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`) / **Ferramentas de Astrometria → Executar Redução de Dados...**.
+2. To cancel: **Astrometry Tools → Stop Data Reduction** (`Ctrl+.`) / **Parar Redução de Dados**.
 3. Choose the solver in **Settings → Connections → Backend**: "astrometry.net (online)" (default,
    needs a free API key) or "ASTAP (local, offline)" (needs the separate ASTAP program and its
    path in "Executável ASTAP").
@@ -548,7 +548,7 @@ formula from pixel to RA/Dec).
   ignorado").
 - If the location is not set, a warning "Localização não configurada" offers to open Settings.
 - "Save WCS back to FITS file after plate solve" (Settings → Connections) writes the solution
-  **into your original file**. Off by default. File → Save as FITS... is the safer option.
+  **into your original file**. Off by default. File → Save FITS Copy... is the safer option.
 - Supported sky projections read from the header: TAN, SIN, ARC, STG, CAR, MER, GLS/SFL, AIT.
 - Detection options (threshold, streak elongation, minimum SNR): **Settings → Detection**.
 
@@ -593,8 +593,8 @@ limpa).
 inside a FITS file).
 **What it's for:** reusing a DAOPHOT, SExtractor, IRAF or Astropy reduction instead of AstroFind's
 own detection.
-**How to do it:** with an image active, **Astrometry → Import Detected Stars
-(DAOPHOT/SExtractor)…** or **Astrometry → Import Reduction Table (IRAF/Astropy)…** /
+**How to do it:** with an image active, **Astrometry Tools → Import Detected Stars
+(DAOPHOT/SExtractor)…** or **Astrometry Tools → Import Reduction Table (IRAF/Astropy)…** /
 **Astrometria → Importar Estrelas Detectadas (DAOPHOT/SExtractor)…** / **Importar Tabela de
 Redução (IRAF/Astropy)…**. The stars replace the active image's detected stars; rows with RA/Dec
 count as matched.
@@ -617,7 +617,7 @@ estrelas substituem as detectadas da imagem ativa; linhas com AR/Dec contam como
 🟢 Beginner / Iniciante (🟡 for MPCOrb and Horizons / 🟡 em MPCOrb e Horizons)
 
 🇬🇧 **English**
-**What it is:** **Tools → Known Object Overlay** (`Ctrl+K`) / **Ferramentas → Sobreposição de
+**What it is:** **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos
 Objetos Conhecidos** does two things for the field:
 - downloads **reference stars** from a **catalog** (a precise star list): UCAC4 (default) or
   Gaia DR3 from VizieR, or a local FITS catalog for offline use. They are used for the position
@@ -627,11 +627,11 @@ Objetos Conhecidos** does two things for the field:
 
 **What it's for:** telling a new object from a known one, and calibrating positions.
 **How to do it:**
-- Run Ctrl+K after Data Reduction. Catalog choice: **Settings → Connections** ("Catalog",
+- Run Ctrl+K after Run Data Reduction. Catalog choice: **Settings → Connections** ("Catalog",
   "Source", "Local catalog"). Magnitude limits: **Settings → Detection**.
-- **Internet → Download MPCOrb** / **Internet → Baixar MPCOrb**: the full asteroid list
+- **Internet → Download MPCOrb Database** / **Internet → Baixar Banco MPCOrb**: the full asteroid list
   (about 200 MB; the status tip says ~500 MB, the confirmation dialog 200 MB). **Internet →
-  Update MPCOrb** / **Atualizar MPCOrb** adds new objects from the daily file. **File → Reload
+  Update MPCOrb Database** / **Atualizar Banco MPCOrb** adds new objects from the daily file. **File → Reload
   MPCOrb** / **Arquivo → Recarregar MPCOrb** reloads the file from disk.
 - **Internet → Query Horizons…** / **Internet → Consultar Horizons…**: type a target (e.g. `433`,
   `Eros`, `2023 DW`), click **Query**, then **Add to Overlay** to mark it on every image.
@@ -675,8 +675,8 @@ campo:
 **What it is:** showing the images one after another in the same place.
 **What it's for:** the eye easily spots a dot that jumps while stars stay still. This is the
 classic way to find asteroids.
-**How to do it:** **Tools → Blink Images** (`Ctrl+B`) / **Ferramentas → Piscar Imagens** (needs ≥ 2
-images). **Tools → Stop Blinking** (`Ctrl+F9`) / **Parar Piscar** closes it.
+**How to do it:** **Utilities → Begin Blink Mode** (`Ctrl+B`) / **Utilitários → Ativar Modo de Piscagem** (needs ≥ 2
+images). **Utilities → Stop Blinking** (`Ctrl+F9`) / **Parar Piscar** closes it.
 - In the Blink View: `Space` play/pause, `←`/`→` previous/next, `Esc` stop, `+`/`-`/`0` zoom.
 - Bottom bar: `◀ ⏸ ▶`, **■ Stop**, **Sharpen** (Off → USM → LoG: unsharp mask and Laplacian
   filters that make faint dots stand out), **Speed** slider (50–2000 ms), and 4 thumbnails.
@@ -703,7 +703,7 @@ o jeito clássico de achar asteroides.
 
 ---
 
-## 17. Moving Object Detection (MOD) / Detecção de Objetos em Movimento (MOD)
+## 17. Detect Moving Objects (MOD) / Detectar Objetos em Movimento (MOD)
 
 🟡 Intermediate / Intermediário
 
@@ -711,7 +711,7 @@ o jeito clássico de achar asteroides.
 **What it is:** an automatic search. It links detected sources that move in a straight line at a
 steady rate across the frames (a **tracklet**).
 **What it's for:** finding faint or easy-to-miss candidates in many images.
-**How to do it:** after Data Reduction, **Astrometry → Moving Object Detection...** (`Ctrl+M`) /
+**How to do it:** after Run Data Reduction, **Astrometry Tools → Detect Moving Objects...** (`Ctrl+M`) /
 **Astrometria → Detecção de Objetos em Movimento...**. There is no options dialog: it keeps
 tracks seen in ≥ 3 frames with SNR ≥ "MOD min. SNR" (**Settings → Detection**, default 5). A box
 lists the candidates (motion dx, dy in px/frame, SNR, frames) and they are marked "Cand #N".
@@ -739,9 +739,9 @@ candidato piscando** antes de medir.
 one sharp dot while the stars trail.
 **What it's for:** more signal than noise (**SNR**), so objects too faint for one image appear.
 **How to do it:**
-- **Images → Re-Stack Images** / **Imagens → Re-empilhar Imagens**: choose the method. Images are
+- **Image Tools → Rebuild Stack** / **Ferramentas de Imagem → Reconstruir Empilhamento**: choose the method. Images are
   aligned on their stars (or by FFT if stars are missing). Opens `stacked.fits`.
-- **Astrometry → Stack Images...** (`Ctrl+T`) / **Astrometria → Empilhar Imagens...**: this is
+- **Astrometry Tools → Stack Images...** (`Ctrl+T`) / **Ferramentas de Astrometria → Empilhar Imagens...**: this is
   Track & Stack. Type the motion **dX/frame** and **dY/frame** in pixels (e.g. from a MOD
   candidate or Horizons), then the method. Opens `track_stacked.fits`.
 
@@ -768,7 +768,7 @@ imagem só.
 **What it is:** subtracting a reference image of the same field from your images; what remains
 (the **residual**) is what changed.
 **What it's for:** finding new or moving objects against an older image.
-**How to do it:** **Tools → Compare Sessions…** (`Ctrl+Shift+C`) / **Ferramentas → Comparar
+**How to do it:** **Utilities → Compare Sessions…** (`Ctrl+Shift+C`) / **Utilitários → Comparar
 Sessões…**: pick a reference FITS file or folder (**Browse…**), set the detection threshold,
 click **Compare**. A "Residual" window opens and the result line gives the number of residual
 sources and the method ("WCS warp" or "direct subtraction").
@@ -804,7 +804,7 @@ referência (**Browse…**), ajuste o limiar de detecção e clique em **Compare
 3. **✓ Aceitar** (window stays open), **✓ Aceitar e Fechar**, or **✗ Rejeitar**.
 4. Repeat on every image.
 
-The **Observations** panel (also **Windows → View Observations** or **File → View Photometry
+The **Observations** panel (also **Window → View Observations** or **File → View Photometry
 File**) lists `#`, Object, RA, Dec, Mag, Band, FWHM", SNR, Airmass, JD, Image. Double-click
 **Object** or **Band** to edit them. **Edit → Undo** (`Ctrl+Z`) / **Redo** (`Ctrl+Shift+Z`)
 work on accepted measurements.
@@ -906,14 +906,14 @@ growing radius. The **light curve** plots the magnitude of your measurements aga
 **What it's for:** choosing the best aperture radius; seeing an asteroid's brightness change
 (rotation) or spotting a bad measurement.
 **How to do it:**
-- **Tools → Growth Curve…** (`Ctrl+Shift+G`) / **Ferramentas → Curva de Crescimento…** (needs
+- **Utilities → Growth Curve…** (`Ctrl+Shift+G`) / **Utilitários → Curva de Crescimento…** (needs
   detected stars): choose a star and radii, **Compute**, then **Use optimal aperture (N px)**,
   which switches the aperture to manual mode in Settings.
-- **Tools → Light Curve…** (`Ctrl+Shift+L`) / **Ferramentas → Curva de Luz…**: choose "All objects" or one object;
+- **Utilities → Light Curve…** (`Ctrl+Shift+L`) / **Utilitários → Curva de Luz…**: choose "All objects" or one object;
   **Export PNG…**. It updates when you add measurements; click a point to open its image.
 
 > 🇬🇧 💡 **Shortcut:** Light Curve is `Ctrl+Shift+L`. In 1.1.0 and earlier the menu showed
-> `Ctrl+L`, which clashed with Load Images and could do nothing; there, use the menu.
+> `Ctrl+L`, which clashed with Import Images and could do nothing; there, use the menu.
 >
 > 🇧🇷 💡 **Atalho:** a Curva de Luz é `Ctrl+Shift+L`. Na 1.1.0 e anteriores o menu mostrava
 > `Ctrl+L`, que conflitava com Carregar Imagens e podia não fazer nada; lá, use o menu.
@@ -998,12 +998,12 @@ separadas por `|`). Ele **não** gera o antigo formato MPC de 80 colunas.
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-**What it is:** the **Workflow** panel (left) lists six steps: 1 Load Images, 2 Data Reduction,
-3 Known Object Overlay, 4 Blink Images, 5 Measure Objects, 6 ADES Report. ○ = not yet, ▶ = next,
+**What it is:** the **Workflow** panel (left) lists six steps: 1 Import Images, 2 Run Data Reduction,
+3 Show Known Objects, 4 Begin Blink Mode, 5 Measure Objects, 6 ADES Report. ○ = not yet, ▶ = next,
 ✓ = done. The next step has a **▶ Do it** button (during reduction it becomes **⏹ Parar**).
 **What it's for:** guiding beginners and classes step by step.
 **How to do it:**
-- Show/hide: **Windows → View Workflow Panel** / **Janelas → Exibir painel de fluxo de trabalho**.
+- Show/hide: **Window → View Workflow Panel** / **Janela → Exibir painel de fluxo de trabalho**.
 - Tick **Fluxo automático** to run steps 2, 3 and 4 by themselves after loading.
 - For teachers: **File → Exportar Configuração da Escola...** saves all settings to an `.ini`
   file; students load it with **File → Importar Configuração da Escola...** (both shown in
@@ -1035,12 +1035,12 @@ redução vira **⏹ Parar**).
 **What it's for:** a dark theme protects your night vision at the telescope; hidden panels can
 be brought back.
 **How to do it:**
-- **Windows → Toggle Day/Night Mode** / **Janelas → Alternar modo Dia/Noite**, or the moon/sun
+- **Window → Toggle Day/Night Mode** / **Janela → Alternar modo Dia/Noite**, or the moon/sun
   icon on the toolbar: Night → Day → Auto (follows the system). Also **Settings → Display →
   Theme**. The shortcut `Ctrl+Shift+T` does the same as the icon. (In 1.1.0 and earlier it
   was assigned twice and might not respond; there, use the menu or icon.)
 - **Settings → Display → Language**: English or Português (BR). A restart is needed.
-- **Windows → View …**: Standard, Display and Blink toolbars; Workflow, Calibration, Images, Log,
+- **Window → View …**: Standard, Display and Blink toolbars; Workflow, Calibration, Images, Log,
   Observations and Image Catalog panels.
 - The **Log** panel (**File → View Log File** only shows this panel, no file is opened) has
   **Copy all** and **Clear** buttons.
@@ -1067,10 +1067,10 @@ podem voltar.
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-- **Help → Help Contents** (`F1`) / **Ajuda → Conteúdo da Ajuda**: built-in help, with an
+- **Help → Help Topics** (`F1`) / **Ajuda → Tópicos de Ajuda**: built-in help, with an
   English / Português (BR) selector.
 - **Help → About...** / **Ajuda → Sobre...**: version, credits and licence (AGPL-3.0).
-- **Help → Registration...** / **Ajuda → Registro...** only shows a status-bar message:
+- **Help → Product Registration...** / **Ajuda → Registro do Produto...** only shows a status-bar message:
   "Registration — not needed (free software, AGPL-3.0)". (Version 1.1.0 and earlier wrongly
   said "MIT open source".)
 - **File → Exit** (`Ctrl+Q`) / **Arquivo → Sair** offers to save a modified project.

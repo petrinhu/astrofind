@@ -188,7 +188,7 @@ Uma boa astrometria de asteroides começa antes da primeira foto:
    [Part 5](#part-5--data-reduction-background-star-detection-and-plate-solving--parte-5--redução-de-dados-fundo-detecção-de-estrelas-e-plate-solving)).
 4. Click **OK**. The status bar toasts "Settings saved.".
 
-> ⚠️ **Watch out / Atenção** — If the site stays at 0°, 0°, Data Reduction warns
+> ⚠️ **Watch out / Atenção** — If the site stays at 0°, 0°, Run Data Reduction warns
 > "Localização não configurada": your positions would be reported as if seen from the centre of
 > the Earth. Fix the location before reporting.
 
@@ -231,7 +231,7 @@ Uma boa astrometria de asteroides começa antes da primeira foto:
 
 🇬🇧 **English**
 
-1. Choose **File → Load Images...** / **Arquivo → Carregar Imagens...** (toolbar button, or the
+1. Choose **File → Import Images...** / **Arquivo → Importar Imagens...** (toolbar button, or the
    **▶ Do it** button of step 1 in the Workflow panel).
 2. Select all the frames of one field (FITS, SER, XISF, TIFF/PNG/BMP/JPEG, DSLR RAW, NASA PDS,
    or an archive — details in [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-Formats)). You can also drag and drop FITS files or
@@ -246,7 +246,7 @@ chips such as "✓ Escala …\"/px", "✓ WCS pré-resolvido", "✓ Data/hora UT
 "✓ Localização …", or "⚠" chips with a button that opens Settings. A notice "Imagens
 carregadas" says whether the images are black-and-white or colour.
 
-- If the image looks black, that is only the display: use **Images → Background and Range...**
+- If the image looks black, that is only the display: use **Image Tools → Background and Range...**
   / **Imagens → Fundo e Intervalo...** (⟳ Auto, transfer function, false colour). This does not
   change the data.
 - The session holds up to **20 images**. The limit message says to raise it in Settings, but
@@ -255,18 +255,18 @@ carregadas" says whether the images are black-and-white or colour.
   your settings are empty.
 
 > 💡 **Version 1.1.0 / Versão 1.1.0** — in 1.1.0 and earlier `Ctrl+L` was assigned to both
-> **Load Images...** and **Tools → Light Curve…**, so the key could do nothing; use the menu or
+> **Import Images...** and **Utilities → Light Curve…**, so the key could do nothing; use the menu or
 > the toolbar there. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`.
 
 > ⚠️ **DSLR RAW and files without a time zone** — the Log shows
 > "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a câmera grava hora
 > local." This means AstroFind *assumed* the time is UTC. Read
 > [Part 11](#part-11--getting-the-time-right--parte-11--acertando-o-horário) before measuring.
-> **NASA PDS** images rarely have a plate solution: run Data Reduction before measuring.
+> **NASA PDS** images rarely have a plate solution: run Run Data Reduction before measuring.
 
 🇧🇷 **Português**
 
-1. Escolha **Arquivo → Carregar Imagens...** / **File → Load Images...** (botão da barra de
+1. Escolha **Arquivo → Importar Imagens...** / **File → Import Images...** (botão da barra de
    ferramentas, ou o botão **▶ Executar** da etapa 1 no painel de Fluxo).
 2. Selecione todos os quadros de um campo (FITS, SER, XISF, TIFF/PNG/BMP/JPEG, RAW de DSLR,
    NASA PDS, ou um arquivo compactado — detalhes em [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-Formats)). Também dá para arrastar
@@ -283,7 +283,7 @@ Configurações. Um aviso "Imagens carregadas" informa se as imagens são preto 
 coloridas.
 
 - Se a imagem parecer preta, é só a exibição: use **Imagens → Fundo e Intervalo...** /
-  **Images → Background and Range...** (⟳ Auto, função de transferência, cor falsa). Isso não
+  **Ferramentas de Imagem → Background and Range...** (⟳ Auto, função de transferência, cor falsa). Isso não
   altera os dados.
 - A sessão aceita até **20 imagens**. A mensagem de limite manda aumentar nas Configurações, mas
   esse campo não existe.
@@ -338,12 +338,12 @@ Calibration removes the camera's own signature from your images (see [Glossary](
    **File → Calibration Wizard…** / **Arquivo → Assistente de Calibração…**.
 3. Apply: **Apply to All Images** / **Aplicar a Todas as Imagens** in the dock, or right-click one
    image → **Apply Dark Frame…** / **Apply Flat Field…**. If you skip this, the frames are
-   applied automatically during Data Reduction.
+   applied automatically during Run Data Reduction.
 
 **What you should see:** the dock shows "✓ <name>" with the frame size; a toast
 "Calibration applied to N image(s)".
 
-Two more corrections run inside Data Reduction:
+Two more corrections run inside Run Data Reduction:
 
 - **Bad pixels** (hot pixels, bad columns) are replaced by the median of their 3×3 neighbours.
   On by default (**Camera → Bad Pixel Correction**, threshold 5σ). Keep it on.
@@ -403,8 +403,8 @@ Mais duas correções rodam dentro da Redução de Dados:
 
 🇬🇧 **English**
 
-Run **Astrometry → Data Reduction...** (`Ctrl+A`) / **Astrometria → Redução de Dados...**, or
-**▶ Do it** on workflow step 2. **Astrometry → Stop Data Reduction** (`Ctrl+.`) cancels it. For
+Run **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`) / **Ferramentas de Astrometria → Executar Redução de Dados...**, or
+**▶ Do it** on workflow step 2. **Astrometry Tools → Stop Data Reduction** (`Ctrl+.`) cancels it. For
 each image AstroFind:
 
 1. Applies calibration, bad-pixel correction and (if enabled) background subtraction
@@ -430,20 +430,20 @@ each image AstroFind:
 
 **What you should see:** "  Solved! RA=… Dec=… scale=…\"/px" per image, then
 "Redução concluída: N resolvidas, N com WCS pré-existente, N falhou". The status bar says
-"Step 2 done — run Known Object Overlay (Ctrl+K)".
+"Step 2 done - show Known Objects (Ctrl+K)".
 
 > 💡 **Tip / Dica** — **Connections → Save WCS back to FITS file after plate solve** writes the
 > solution into your *original* file. Leave it off unless you want that; use
-> **File → Save as FITS...** to write a `<name>_wcs.fits` copy instead.
+> **File → Save FITS Copy...** to write a `<name>_wcs.fits` copy instead.
 
-> 💡 **Time / Horário** — Data Reduction adds your **Time Offset** (camera-clock correction, in
+> 💡 **Time / Horário** — Run Data Reduction adds your **Time Offset** (camera-clock correction, in
 > seconds) to each image's time **once**; running it again is safe. ΔT is not added to the
 > report time. (Version 1.1.0 and earlier added Time Offset and ΔT again on every run.) See
 > [Part 11](#part-11--getting-the-time-right--parte-11--acertando-o-horário).
 
 🇧🇷 **Português**
 
-Rode **Astrometria → Redução de Dados...** (`Ctrl+A`) / **Astrometry → Data Reduction...**, ou
+Rode **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) / **Astrometry Tools → Run Data Reduction...**, ou
 **▶ Executar** na etapa 2 do fluxo. **Astrometria → Parar Redução de Dados** (`Ctrl+.`)
 cancela. Para cada imagem o AstroFind:
 
@@ -468,13 +468,13 @@ cancela. Para cada imagem o AstroFind:
 
 **O que você deve ver:** "  Solved! RA=… Dec=… scale=…\"/px" para cada imagem e depois
 "Redução concluída: N resolvidas, N com WCS pré-existente, N falhou". A barra de status diz
-"Step 2 done — run Known Object Overlay (Ctrl+K)".
+"Step 2 done - show Known Objects (Ctrl+K)".
 
 > 💡 **Dica** — **Conexões → Salvar WCS no arquivo FITS após solução de campo** grava a solução
 > no seu arquivo *original*. Deixe desligado, a menos que queira isso; use
-> **Arquivo → Salvar como FITS...** para gravar uma cópia `<nome>_wcs.fits`.
+> **Arquivo → Salvar Cópia em FITS...** para gravar uma cópia `<nome>_wcs.fits`.
 
-> 💡 **Horário** — A Redução de Dados soma o seu **Deslocamento de tempo** (correção do relógio
+> 💡 **Horário** — A Execução da Redução de Dados soma o seu **Deslocamento de tempo** (correção do relógio
 > da câmera, em segundos) ao horário de cada imagem **uma vez**; rodar de novo não causa
 > problema. O ΔT não é somado ao horário do relatório. (A versão 1.1.0 e anteriores somavam o
 > Deslocamento de tempo e o ΔT de novo a cada execução.) Veja a
@@ -488,7 +488,7 @@ cancela. Para cada imagem o AstroFind:
 
 🇬🇧 **English**
 
-Run **Tools → Known Object Overlay** (`Ctrl+K`) / **Ferramentas → Sobreposição de Objetos
+Run **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos
 Conhecidos**, or workflow step 3. It does two things:
 
 **1. Reference stars (catalog).** Stars of a precise catalog are matched to your detected
@@ -512,20 +512,20 @@ asteroids and comets are in the field at the image time. If SkyBoT cannot be rea
 Known objects are green (asteroids), light blue (planets) or orange (comets), labelled with
 their number or name. Log: "SkyBoT: N known object(s) in field".
 
-- Get MPCORB.DAT with **Internet → Download MPCOrb** / **Internet → Baixar MPCOrb** (the dialog
-  says ~200 MB; the status-bar tip says ~500 MB). Refresh it with **Internet → Update MPCOrb**.
+- Get MPCORB.DAT with **Internet → Download MPCOrb Database** / **Internet → Baixar Banco MPCOrb** (the dialog
+  says ~200 MB; the status-bar tip says ~500 MB). Refresh it with **Internet → Update MPCOrb Database**.
   **File → Reload MPCOrb** re-reads the file from disk.
 - **Internet → Query Horizons…** asks JPL Horizons for one object and can **Add to Overlay**.
   The ephemeris is geocentric (from the Earth's centre), so it can differ from your view by a
   few arcseconds for nearby objects.
-- **Tools → Ecliptic / Galactic Overlay** (`Ctrl+E`) draws the ecliptic and the Milky Way plane.
+- **Utilities → Ecliptic / Galactic Overlay** (`Ctrl+E`) draws the ecliptic and the Milky Way plane.
 
 **What you should see:** yellow crosses on catalog stars, green labels on known asteroids, the
 **Image Catalog** dock listing "Estrela", "Estrela Guia" and "Asteroide Conhecido" rows.
 
 🇧🇷 **Português**
 
-Rode **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`) / **Tools → Known Object
+Rode **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) / **Utilities → Show Known
 Overlay**, ou a etapa 3 do fluxo. Ela faz duas coisas:
 
 **1. Estrelas de referência (catálogo).** Estrelas de um catálogo preciso são casadas com as
@@ -550,7 +550,7 @@ responder e o **MPCORB.DAT** existir, ele calcula as posições a partir desse a
 ("Scanning MPCORB…"). Objetos conhecidos aparecem em verde (asteroides), azul-claro (planetas)
 ou laranja (cometas), com número ou nome. Registro: "SkyBoT: N known object(s) in field".
 
-- Baixe o MPCORB.DAT em **Internet → Baixar MPCOrb** / **Internet → Download MPCOrb** (a janela
+- Baixe o MPCORB.DAT em **Internet → Baixar Banco MPCOrb** / **Internet → Download MPCOrb Database** (a janela
   diz ~200 MB; a dica da barra de status diz ~500 MB). Atualize com **Internet → Atualizar
   MPCOrb**. **Arquivo → Recarregar MPCOrb** relê o arquivo do disco.
 - **Internet → Consultar Horizons…** pede ao JPL Horizons a posição de um objeto e permite
@@ -573,20 +573,20 @@ Guia" e "Asteroide Conhecido".
 
 **Blink** (showing the frames one after another; stars stay still, the asteroid jumps):
 
-1. **Tools → Blink Images** (`Ctrl+B`) / **Ferramentas → Piscar Imagens**. Needs at least 2
+1. **Utilities → Begin Blink Mode** (`Ctrl+B`) / **Utilitários → Ativar Modo de Piscagem**. Needs at least 2
    images.
 2. Keys in the blink view: `Space` play/pause, `←`/`→` previous/next, `Esc` stop. The
    **Speed** slider sets 50–2000 ms per frame.
 3. For faint objects click **Sharpen: Off** to cycle *USM* (unsharp mask) → *LoG* (Laplacian).
-4. Stop with **Tools → Stop Blinking** (`Ctrl+F9`).
+4. Stop with **Utilities → Stop Blinking** (`Ctrl+F9`).
 
-**Automatic Moving Object Detection (MOD):** **Astrometry → Moving Object Detection...**
+**Automatic Moving Object Detection (MOD):** **Astrometry Tools → Detect Moving Objects...**
 (`Ctrl+M`) / **Astrometria → Detecção de Objetos em Movimento...**. It links detections that
 move in a straight line at a steady rate across at least 3 frames, with SNR ≥ 5 (**Detection →
 MOD min. SNR:**). A box lists the candidates ("#1 dx=… dy=… px/frame …"), and each is marked
 "Cand #N" on the images. **Always confirm a candidate by eye in the blink.**
 
-**Compare Sessions** (**Tools → Compare Sessions…**, `Ctrl+Shift+C`) subtracts a reference
+**Compare Sessions** (**Utilities → Compare Sessions…**, `Ctrl+Shift+C`) subtracts a reference
 image of the same field from your images and shows what is left in a "Residual" window — useful
 to spot anything new.
 
@@ -597,7 +597,7 @@ measure and report it: known objects need observations too.
 
 **Blink** (mostrar os quadros um após o outro; as estrelas ficam paradas, o asteroide pula):
 
-1. **Ferramentas → Piscar Imagens** (`Ctrl+B`) / **Tools → Blink Images**. Precisa de pelo menos
+1. **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`) / **Utilities → Begin Blink Mode**. Precisa de pelo menos
    2 imagens.
 2. Teclas no blink: `Espaço` toca/pausa, `←`/`→` anterior/próxima, `Esc` para. O controle
    **Speed** ajusta de 50 a 2000 ms por quadro.
@@ -606,7 +606,7 @@ measure and report it: known objects need observations too.
 4. Pare com **Ferramentas → Parar Piscar** (`Ctrl+F9`).
 
 **Detecção automática de objetos em movimento (MOD):** **Astrometria → Detecção de Objetos em
-Movimento...** (`Ctrl+M`) / **Astrometry → Moving Object Detection...**. Ela liga detecções que
+Movimento...** (`Ctrl+M`) / **Astrometry Tools → Detect Moving Objects...**. Ela liga detecções que
 andam em linha reta, com velocidade constante, em pelo menos 3 quadros, com SNR ≥ 5 (**Detecção
 → MOD SNR mín.:**). Uma janela lista os candidatos ("#1 dx=… dy=… px/frame …"), e cada um é
 marcado "Cand #N" nas imagens. **Sempre confirme um candidato a olho no blink.**
@@ -626,10 +626,10 @@ ainda pode medir e relatar: objetos conhecidos também precisam de observações
 
 🇬🇧 **English**
 
-- **Images → Re-Stack Images** / **Imagens → Re-empilhar Imagens** combines the frames aligned
+- **Image Tools → Rebuild Stack** / **Ferramentas de Imagem → Reconstruir Empilhamento** combines the frames aligned
   on the *stars* (Average, Median or Add). Stars get deeper; a moving asteroid smears. Result:
   `stacked.fits` in a new window.
-- **Astrometry → Stack Images...** (`Ctrl+T`) / **Astrometria → Empilhar Imagens...** is
+- **Astrometry Tools → Stack Images...** (`Ctrl+T`) / **Ferramentas de Astrometria → Empilhar Imagens...** is
   **Track & Stack**: you type the object's motion in pixels per frame (dX, dY — read them from
   the MOD candidate list) and choose the method. The frames are shifted to follow the
   *asteroid*, so it becomes a sharp dot while stars trail. Result: `track_stacked.fits`.
@@ -639,10 +639,10 @@ can; a stack has one combined time, and each single-frame position is worth more
 
 🇧🇷 **Português**
 
-- **Imagens → Re-empilhar Imagens** / **Images → Re-Stack Images** combina os quadros alinhados
+- **Ferramentas de Imagem → Reconstruir Empilhamento** / **Image Tools → Rebuild Stack** combina os quadros alinhados
   nas *estrelas* (Average, Median ou Add). As estrelas ficam mais profundas; um asteroide em
   movimento borra. Resultado: `stacked.fits` numa nova janela.
-- **Astrometria → Empilhar Imagens...** (`Ctrl+T`) / **Astrometry → Stack Images...** é o
+- **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`) / **Astrometry Tools → Stack Images...** é o
   **Track & Stack**: você digita o movimento do objeto em pixels por quadro (dX, dY — leia na
   lista de candidatos do MOD) e escolhe o método. Os quadros são deslocados para seguir o
   *asteroide*, que vira um ponto nítido enquanto as estrelas viram traços. Resultado:
@@ -744,9 +744,9 @@ magnitude, so do not report it (untick **Detection → Include magnitude in ADES
   clear/unfiltered). Remember the catalog band: UCAC4 is V-like, Gaia is G.
 - **Airmass** (how much air the light crossed) is always computed; the extinction correction
   is applied only if **Extinction coeff k:** is above 0.
-- **Tools → Growth Curve…** (`Ctrl+Shift+G`) shows how much light each aperture radius captures
+- **Utilities → Growth Curve…** (`Ctrl+Shift+G`) shows how much light each aperture radius captures
   and can set the optimal radius for you.
-- **Tools → Light Curve…** (`Ctrl+Shift+L`) plots magnitude against time. **Export PNG…**
+- **Utilities → Light Curve…** (`Ctrl+Shift+L`) plots magnitude against time. **Export PNG…**
   saves the plot. (In 1.1.0 and earlier its shortcut was `Ctrl+L`, which clashed with Load
   Images; open it from the menu there.)
 
@@ -791,16 +791,16 @@ every position will be computed for the wrong moment.
 What to do:
 
 1. Best: **set the camera clock to UTC** before observing, and sync it.
-2. If the clock was on local time or drifted, fix each image's time in **Images → Edit Image
-   Parameters...** / **Imagens → Editar Parâmetros da Imagem...** → **Julian Date:** (mid-exposure)
-   **before** running Data Reduction.
+2. If the clock was on local time or drifted, fix each image's time in **Image Tools → Edit Image
+   Settings...** / **Ferramentas de Imagem → Editar Configurações da Imagem...** → **Julian Date:** (mid-exposure)
+   **before** running Run Data Reduction.
 3. **Settings → Observer → Time Zone:** is *not* used to correct the images. Do not rely on it.
 
-**What Data Reduction does to the time:**
+**What Run Data Reduction does to the time:**
 
 - It adds **Time Offset** (**Observer → Time Offset:**, in seconds) to each image. This is a
   camera-clock correction: leave it at `0` unless you know your clock error. It is applied
-  **once** — running Data Reduction again, or re-opening a project, does not add it again, and
+  **once** — running Run Data Reduction again, or re-opening a project, does not add it again, and
   changing the value applies only the difference. AstroFind never fills this field by itself.
 - It does **not** add **ΔT** (**Camera → ΔT (TT − UTC):**, default 68 s). The report time
   `obsTime` stays in UTC (`Z`). ΔT is used only to compute known asteroids from the offline
@@ -808,10 +808,10 @@ What to do:
 - **Time Precision:** (0–3) is the number of decimals of the seconds in `obsTime`
   (1 = tenths).
 
-> ⚠️ **Still on version 1.1.0?** There, Data Reduction added Time Offset and ΔT to each image
+> ⚠️ **Still on version 1.1.0?** There, Run Data Reduction added Time Offset and ΔT to each image
 > **again on every run**, so `obsTime` came out about 68 s late, and loading images filled Time
 > Offset with *longitude ÷ 15* (hours, applied as seconds). Workaround for 1.1.0: set **ΔT**
-> and **Time Offset** to `0` after loading and before Data Reduction, and reload the images
+> and **Time Offset** to `0` after loading and before Run Data Reduction, and reload the images
 > before running it a second time. The next version (after 1.1.0) needs none of this; on its
 > first start it resets an old non-zero Time Offset to 0 once, with a warning in the Log.
 
@@ -834,7 +834,7 @@ O que fazer:
 
 1. Melhor: **acerte o relógio da câmera em UTC** antes de observar e sincronize-o.
 2. Se o relógio estava em hora local ou atrasado/adiantado, corrija o horário de cada imagem em
-   **Imagens → Editar Parâmetros da Imagem...** / **Images → Edit Image Parameters...** →
+   **Ferramentas de Imagem → Editar Configurações da Imagem...** / **Image Tools → Edit Image Settings...** →
    **Julian Date:** (meio da exposição) **antes** de rodar a Redução de Dados.
 3. **Configurações → Observador → Fuso horário:** *não* é usado para corrigir as imagens. Não
    conte com ele.
@@ -938,7 +938,7 @@ UTC de meio de exposição que você espera para uma imagem.
 - **File → Open Project...** (`Ctrl+O`) reloads the images from disk (and re-extracts them from
   their archive). If a file moved, choose **Localizar…**, **Pular** or **Cancelar tudo**.
   **Projetos Recentes** lists the last 5 projects.
-- **File → Close Project** offers to save first. **File → Reset Files** (`Ctrl+R`) and
+- **File → Close Project** offers to save first. **File → Reset Session Files** (`Ctrl+R`) and
   **Fechar Imagens** (`Ctrl+W`) clear everything **without asking to save**.
 - **File → Open Recent...** reopens every image in one of the last 8 folders.
 
@@ -963,8 +963,8 @@ UTC de meio de exposição que você espera para uma imagem.
 
 🇬🇧 **English**
 
-- The **Workflow** panel (left) lists the 6 steps: Load Images, Data Reduction, Known Object
-  Overlay, Blink Images, Measure Objects, ADES Report. ○ = not yet, ▶ = next, ✓ = done. Click
+- The **Workflow** panel (left) lists the 6 steps: Import Images, Run Data Reduction, Show Known
+  Objects, Begin Blink Mode, Measure Objects, ADES Report. ○ = not yet, ▶ = next, ✓ = done. Click
   **▶ Do it** / **▶ Executar** on the next step.
 - **Fluxo automático** (checkbox, off by default) runs steps 2, 3 and 4 by itself after loading.
 - Teachers: set everything up once, then **File → Exportar Configuração da Escola...** writes

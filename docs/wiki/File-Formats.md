@@ -90,7 +90,7 @@ completo veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual); par
 
 🇬🇧 **English**
 
-1. **File → Load Images...** / **Arquivo → Carregar Imagens...**. The dialog "Load Astronomical
+1. **File → Import Images...** / **Arquivo → Importar Imagens...**. The dialog "Load Astronomical
    Images" has filters: *Astronomical Images* (everything), *FITS*, *SER video*, *XISF —
    PixInsight*, *NASA PDS3 / PDS4*, *DSLR RAW*, *TIFF / PNG / BMP / JPEG*, *ZIP archives*,
    *Compressed archives*, *All files*.
@@ -100,14 +100,14 @@ completo veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual); par
   Other files dropped on the window are ignored: use the menu.
 - **File → Open Recent...** reopens a folder and loads FITS, SER, XISF, TIFF, PNG, PDS3
   (`.img`/`.lbl`) and the common RAW types in it — not archives, BMP, JPEG or PDS4 `.xml`.
-- **Images → Display Header...** shows the FITS header; for files that are not FITS it does
+- **Image Tools → View FITS Header...** shows the FITS header; for files that are not FITS it does
   nothing.
 - An unknown extension gives: "Unsupported image format '.xyz' — supported: fits, ser, xisf,
   tiff, tif, png, bmp, jpg, PDS3 (img/lbl), PDS4 (xml), DSLR RAW".
 
 🇧🇷 **Português**
 
-1. **Arquivo → Carregar Imagens...** / **File → Load Images...**. A janela "Carregar Imagens
+1. **Arquivo → Importar Imagens...** / **File → Import Images...**. A janela "Carregar Imagens
    Astronômicas" tem filtros (em inglês): *Astronomical Images* (tudo), *FITS*, *SER video*,
    *XISF — PixInsight*, *NASA PDS3 / PDS4*, *DSLR RAW*, *TIFF / PNG / BMP / JPEG*, *ZIP
    archives*, *Compressed archives*, *All files*.
@@ -224,7 +224,7 @@ and Bayer (RGGB, GRBG, GBRG, BGGR) SER files with 8 or 16 bits. Bayer frames are
 
 - ⚠️ **Only the first frame** is loaded (the log warns "SER file has N frames — only frame 1
   loaded").
-- ⚠️ **The time stamp is not read.** Enter the mid-exposure time in **Images → Edit Image
+- ⚠️ **The time stamp is not read.** Enter the mid-exposure time in **Image Tools → Edit Image
   Parameters...** → **Julian Date:**, and the exposure in **Exposure time:**.
 - Observer and telescope names are read from the header.
 
@@ -253,7 +253,7 @@ channels (colour), samples UInt8/16/32 or Float32/64, stored as attachment or em
 
 - It reads these FITS keywords stored in the XISF: `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`,
   `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` (`DATE-OBS` is taken as UTC).
-- The plate solution is **not** read: Data Reduction will plate-solve it.
+- The plate solution is **not** read: Run Data Reduction will plate-solve it.
 - Save the XISF **without compression** in PixInsight; compressed data is not decoded.
 
 🇧🇷 **Português**
@@ -281,8 +281,8 @@ Ordinary image files, read through Qt.
 - **Colour** files are converted to 8 bits per channel (even a 16-bit colour TIFF loses
   precision). Prefer grayscale 16-bit if you must use TIFF/PNG.
 - **No metadata is read**: no time, exposure, position or site. Type the time and exposure in
-  **Images → Edit Image Parameters...** / **Imagens → Editar Parâmetros da Imagem...**, set the
-  site in Settings, and let Data Reduction plate-solve.
+  **Image Tools → Edit Image Settings...** / **Ferramentas de Imagem → Editar Configurações da Imagem...**, set the
+  site in Settings, and let Run Data Reduction plate-solve.
 - Archives do not extract BMP or JPEG files.
 
 🇧🇷 **Português**
@@ -294,7 +294,7 @@ Arquivos de imagem comuns, lidos pelo Qt.
 - Arquivos **coloridos** são convertidos para 8 bits por canal (até um TIFF colorido de 16 bits
   perde precisão). Prefira cinza 16 bits se precisar usar TIFF/PNG.
 - **Nenhum metadado é lido**: sem horário, exposição, posição ou local. Digite horário e
-  exposição em **Imagens → Editar Parâmetros da Imagem...** / **Images → Edit Image
+  exposição em **Ferramentas de Imagem → Editar Configurações da Imagem...** / **Image Tools → Edit Image
   Parameters...**, configure o local nas Configurações e deixe a Redução de Dados fazer o plate
   solving.
 - Arquivos compactados não extraem BMP nem JPEG.
@@ -338,13 +338,13 @@ it with the **LibRaw** library.
 1. **Before observing, set the camera clock to UTC** (Universal Time, not your local time) and
    set it accurately. The RAW file stores only what the clock showed, with no time zone.
 2. Shoot in RAW (not JPEG only). Take several frames of the same field.
-3. **File → Load Images...** → filter *DSLR RAW* → select the files.
+3. **File → Import Images...** → filter *DSLR RAW* → select the files.
 4. The Log shows "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a câmera
    grava hora local." for each file. This is expected for RAW: AstroFind *assumed* the clock was
-   UTC. If it was not, correct the **Julian Date:** in **Images → Edit Image Parameters...**
-   before Data Reduction (see [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), Part 11).
+   UTC. If it was not, correct the **Julian Date:** in **Image Tools → Edit Image Settings...**
+   before Run Data Reduction (see [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), Part 11).
 5. Set your **location** in **File → Settings... → Observer** — RAW files do not contain it.
-6. Run **Astrometry → Data Reduction...** (`Ctrl+A`) to plate-solve; RAW files have no plate
+6. Run **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`) to plate-solve; RAW files have no plate
    solution.
 
 **Why linear and "no demosaic" matter.** A colour sensor has a mosaic of red, green and blue
@@ -446,12 +446,12 @@ planetary missions and some telescopes. Its images are raw binary files describe
 
 1. Put the label and the data file in the **same folder**, with their original names
    (upper/lower case does not matter).
-2. **File → Load Images...** → filter *NASA PDS3 / PDS4* and select:
+2. **File → Import Images...** → filter *NASA PDS3 / PDS4* and select:
    - PDS3 with attached label: the `.img`.
    - PDS3 with detached label: the `.img` **or** the `.lbl` (if you select both, the extra `.lbl`
      is dropped).
    - PDS4: the `.xml` label. If the label points to a FITS file, that FITS is opened.
-3. Run **Astrometry → Data Reduction...** before measuring: mission images **rarely have a plate
+3. Run **Astrometry Tools → Run Data Reduction...** before measuring: mission images **rarely have a plate
    solution**.
 
 **What is read:** the first band of the image (other bands are skipped with a log warning);
@@ -552,9 +552,9 @@ AstroFind also reads **FITS BINTABLE** (binary table) files — not images, but 
 
 - **Local star catalog** (offline reference stars: USNO-B, UCAC, Gaia exports): **Settings →
   Connections → Source: Local FITS BINTABLE** → **Local catalog:**.
-- **Astrometry → Import Detected Stars (DAOPHOT/SExtractor)…** (`.fits .fit .fts .cat`) replaces
+- **Astrometry Tools → Import Detected Stars (DAOPHOT/SExtractor)…** (`.fits .fit .fts .cat`) replaces
   the detected stars of the active image.
-- **Astrometry → Import Reduction Table (IRAF/Astropy)…** does the same for external reduction
+- **Astrometry Tools → Import Reduction Table (IRAF/Astropy)…** does the same for external reduction
   tables; rows with RA/Dec are marked as matched.
 
 🇧🇷 **Português**
@@ -601,15 +601,15 @@ compactado) onde estavam. Salve com **Arquivo → Salvar Projeto** (`Ctrl+S`), a
 
 | What | Format | Where |
 |---|---|---|
-| Image as you see it | JPEG, PNG, BMP | **File → Export Image to...** / right-click → **Export as JPEG/PNG…** |
-| Image + plate solution | FITS copy `<name>_wcs.fits` | **File → Save as FITS...**, **File → Save all FITS** |
+| Image as you see it | JPEG, PNG, BMP | **File → Export Image As...** / right-click → **Export as JPEG/PNG…** |
+| Image + plate solution | FITS copy `<name>_wcs.fits` | **File → Save FITS Copy...**, **File → Save all FITS** |
 | MPC report | ADES 2022 XML and PSV | Report window: **Save…**, **Save to Reports Folder** |
 | Printable report | PDF | Report window: **Export PDF…** |
-| Light curve | PNG | **Tools → Light Curve…** → **Export PNG…** |
+| Light curve | PNG | **Utilities → Light Curve…** → **Export PNG…** |
 | School settings | `.ini` | **File → Exportar Configuração da Escola...** |
 | Session | `.gus` | **File → Save Project** |
 
-> ⚠️ **Watch out / Atenção** — **Save as FITS** copies the *original file* and writes the WCS
+> ⚠️ **Watch out / Atenção** — **Save FITS Copy** copies the *original file* and writes the WCS
 > into the copy. The copy keeps the original pixels (calibration is not saved), and it only works
 > for images that came from a FITS file: it does not convert RAW, TIFF or other formats to FITS.
 > No MPC 80-column report is produced.

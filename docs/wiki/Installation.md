@@ -686,11 +686,11 @@ final: you can change everything later.
 3. **"Step 3 of 3 — Asteroid Catalog (optional)"**: **"Download now (~200 MB)"** fetches
    **MPCORB.DAT**, the MPC's list of all known asteroid orbits. AstroFind uses it only when the
    online SkyBoT service can't be reached. You can do it later with
-   **Internet → Download MPCOrb**.
+   **Internet → Download MPCOrb Database**.
 
 The wizard does **not** ask for your location. Set it afterwards in
 **File → Settings...** (`Ctrl+,`) → **Observer** → group "Location (topocentric correction)".
-Without it, Data Reduction warns "Localização não configurada" and your positions would be
+Without it, Run Data Reduction warns "Localização não configurada" and your positions would be
 reported as if seen from the centre of the Earth. See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 To open the wizard again: **Help → Setup Wizard…**. To turn its automatic start on or off:
@@ -698,7 +698,7 @@ To open the wizard again: **Help → Setup Wizard…**. To turn its automatic st
 
 **What you should see:** a dark window (the "Night" theme is the default) titled
 `AstroFind 1.1.0`, with the **Workflow** panel on the left and the text "No image loaded / Use
-File → Load Images…" in the middle. Next step: [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
+File → Import Images…" in the middle. Next step: [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 🇧🇷 **Português**
 
@@ -854,7 +854,7 @@ AstroFind's installer does not install it.
      `/usr/bin/astap`).
 4. Click **OK**.
 
-Without a path, Data Reduction shows "ASTAP não configurado".
+Without a path, Run Data Reduction shows "ASTAP não configurado".
 
 🇧🇷 **Português**
 
@@ -936,7 +936,7 @@ Repeat the installation with the new version number. For example, for a future r
   step 4 of [4.5](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte).
 
 Your settings, API key, MPCORB.DAT and projects are kept. To refresh the asteroid list, use
-**Internet → Update MPCOrb**.
+**Internet → Update MPCOrb Database**.
 
 🇧🇷 **Português**
 

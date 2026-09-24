@@ -98,10 +98,10 @@ with real observatory data**. Treat every result as something to check before yo
 the MPC (Minor Planet Center, the body that collects asteroid observations). Good checks:
 
 1. Measure a **known** asteroid in your field and compare with a prediction. Use
-   **Tools → Known Object Overlay** (`Ctrl+K`), or **Internet → Query Horizons…**. The Horizons
+   **Utilities → Show Known Objects** (`Ctrl+K`), or **Internet → Query Horizons…**. The Horizons
    query is **geocentric** (seen from the centre of the Earth), so expect small differences for
    nearby objects.
-2. Look at the WCS RMS line in the Log panel after the Known Object Overlay, for example
+2. Look at the WCS RMS line in the Log panel after you Show Known Objects, for example
    `Image 1: WCS RMS = 0.4" (35 matched stars)`. A small value (well under 1") is a good sign.
 3. Check the observation time and your MPC station code in the report preview.
 4. Read the report itself (XML and PSV tabs) before pressing any Submit button.
@@ -139,7 +139,7 @@ overlay known objects, blink, measure, report. Main differences:
 | Plate solving | Blind solving with astrometry.net (online) or ASTAP (offline). Images that already have a WCS in the header are not solved again. |
 | Reference catalog | UCAC4 (default) or Gaia DR3 from VizieR, or a local FITS BINTABLE file. The **Legacy** tab paths (USNO-A2.0, UCAC-2/3, CMC-14) are stored but never used. |
 | Known objects | IMCCE SkyBoT online; offline fallback with MPCORB.DAT. |
-| Main keys | `Ctrl+A` Data Reduction, `Ctrl+K` Known Object Overlay, `Ctrl+B` Blink, `Ctrl+M` Moving Object Detection, `M` Measure. Full list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference). |
+| Main keys | `Ctrl+A` Run Data Reduction, `Ctrl+K` Show Known Objects, `Ctrl+B` Blink, `Ctrl+M` Detect Moving Objects, `M` Measure. Full list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference). |
 | Positions | Refraction correction only applies to a ground-based measurement not already derived from a catalog plate solution (which absorbs it); the report is an astrometric position, `sys=ICRF`. |
 | Session size | 20 images per session by default (see below). |
 
@@ -165,7 +165,7 @@ reduzir, sobrepor objetos conhecidos, piscar, medir, reportar. Principais difere
 
 🇬🇧 **English**
 Usually a **FITS** file (`.fits`, `.fit` or `.fts`), the standard format for astronomical
-images (see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary)). Open it with **File → Load Images…** (`Ctrl+L`; in 1.1.0 and earlier this key could do nothing, see "What are the most common problems?" below).
+images (see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary)). Open it with **File → Import Images…** (`Ctrl+L`; in 1.1.0 and earlier this key could do nothing, see "What are the most common problems?" below).
 AstroFind also reads:
 
 - SER video (`.ser`) and PixInsight XISF (`.xisf`);
@@ -180,7 +180,7 @@ AstroFind also reads:
 Full details: [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-Formats).
 
 > ⚠️ **Watch out:** dragging files onto the window only accepts `.fits`, `.fit`, `.fts`, ZIP
-> and the other archive types. Use **File → Load Images…** for everything else.
+> and the other archive types. Use **File → Import Images…** for everything else.
 
 🇧🇷 **Português**
 Normalmente um arquivo **FITS** (`.fits`, `.fit` ou `.fts`), o formato padrão de imagens
@@ -210,7 +210,7 @@ Detalhes completos: [File-Formats](https://github.com/petrinhu/astrofind/wiki/Fi
 🟢 Beginner / Iniciante · 🟡 Intermediate / Intermediário
 
 🇬🇧 **English**
-Yes. Open the camera's RAW file directly with **File → Load Images…**; no conversion to FITS
+Yes. Open the camera's RAW file directly with **File → Import Images…**; no conversion to FITS
 is needed. AstroFind keeps the data linear (no gamma curve, no white balance), which is what
 measurements need. It detects stars on a 2×2 "superpixel" brightness image, made from each
 group of four coloured sensor pixels. For the screen it builds a simple colour picture. Three
@@ -219,7 +219,7 @@ things to check:
 - **Time.** The time comes from the camera clock (EXIF data inside the file). It is usually
   local time with no time zone, so AstroFind flags it as **ambiguous** (see "Why is the time
   flagged ambiguous?" below). Set the camera clock to UTC before observing, or correct the time
-  of each image in **Images → Edit Image Parameters…** (field "Julian Date:", the mid-exposure
+  of each image in **Image Tools → Edit Image Settings…** (field "Julian Date:", the mid-exposure
   time).
 - **Build.** RAW support needs the LibRaw library when AstroFind is compiled: `LibRaw-devel` on
   Fedora and Rocky Linux 9 (CRB repository), `libraw-dev` on Debian/Ubuntu/Mint, `libraw` on
@@ -265,7 +265,7 @@ Yes. PDS (Planetary Data System) is NASA's archive format for mission data.
   FITS.
 
 Mission images rarely carry a plate solution (the link between pixels and sky coordinates), so
-run **Astrometry → Data Reduction…** (`Ctrl+A`) first. Some old PDS3 files use VAX number
+run **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`) first. Some old PDS3 files use VAX number
 formats; those are refused ("VAX floating point PDS3 images are not supported").
 
 > ⚠️ **Watch out:** observations made from a spacecraft need extra information for the MPC
@@ -370,13 +370,13 @@ Not always. These parts use the internet:
 |---|---|---|
 | Plate solving | astrometry.net | ASTAP (install the program and a star database) |
 | Reference stars | VizieR (UCAC4 or Gaia DR3) | Local FITS BINTABLE catalog (**Settings → Connections** → "Source:" → "Local FITS BINTABLE") |
-| Known asteroids | IMCCE SkyBoT | MPCORB.DAT, downloaded once with **Internet → Download MPCOrb** (about 200 MB) |
+| Known asteroids | IMCCE SkyBoT | MPCORB.DAT, downloaded once with **Internet → Download MPCOrb Database** (about 200 MB) |
 | Ephemeris of one object | JPL Horizons | none |
 | Sending the report | MPC (HTTP or e-mail) | Save the report file and send it later |
 
 Images that already have a plate solution in their header skip the solving step completely.
 
-> ⚠️ **Watch out:** the Download MPCOrb status tip says "~500 MB", but the confirmation dialog
+> ⚠️ **Watch out:** the Download MPCOrb Database status tip says "~500 MB", but the confirmation dialog
 > and the Setup Wizard say "~200 MB".
 
 🇧🇷 **Português**
@@ -508,7 +508,7 @@ vazio: o relatório usa `XXX`, o marcador do MPC para "ainda sem código".
 This is normal and your data is fine. Astronomical images hold a much larger range of brightness
 than a screen can show, so most of the picture looks dark. To see more:
 
-1. Open **Images → Background and Range…**.
+1. Open **Image Tools → Background and Range…**.
 2. Click **"⟳ Auto"**.
 3. If it is still dark, change "Função de transferência:" to "Raiz Quadrada (Sqrt)", "Asinh"
    or "Equalização de Histograma" (these labels are in Portuguese in both languages).
@@ -518,7 +518,7 @@ than a screen can show, so most of the picture looks dark. To see more:
 **What you should see:** a grey sky background with many white dots (stars).
 
 This only changes the view, never the measured data. If the image is almost **white**, check
-whether **Images → Invert Display** (`Ctrl+I`) is switched on. Pixels shown in **magenta** have
+whether **Image Tools → Invert Colors** (`Ctrl+I`) is switched on. Pixels shown in **magenta** have
 no value (NaN) in the file. More cases: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
 🇧🇷 **Português**
@@ -551,7 +551,7 @@ Isso só muda a visualização, nunca os dados medidos. Se a imagem está quase 
 2. Set your location in **File → Settings…** → **Observer** (or use "Automático (do FITS)" when
    the files contain it). If the location is 0°, 0°, AstroFind warns "Localização não
    configurada".
-3. Run **Astrometry → Data Reduction…** (`Ctrl+A`).
+3. Run **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`).
 
 **What you should see:** in the Log panel, `Solved! RA=… Dec=… scale=…"/px` for each image, then
 a summary line starting with "Redução concluída:".
@@ -625,7 +625,7 @@ What to do:
 1. If your camera or capture software already records UTC, nothing is wrong. You can ignore the
    warning.
 2. If it records local time, fix the time before reporting. For each image, open
-   **Images → Edit Image Parameters…** and correct "Julian Date:" (the Julian Date, a day count
+   **Image Tools → Edit Image Settings…** and correct "Julian Date:" (the Julian Date, a day count
    used by astronomers, of the middle of the exposure).
 3. For the future, set the camera or software clock to UTC.
 
@@ -676,9 +676,9 @@ that **changes position** from one image to the next while the stars stay still.
 streak across the screen like a meteor. Tips:
 
 - Use images of the same field taken over at least 30–60 minutes, so the motion is visible.
-- Run **Tools → Known Object Overlay** (`Ctrl+K`) first: green circles mark known asteroids
+- Run **Utilities → Show Known Objects** (`Ctrl+K`) first: green circles mark known asteroids
   that should be in the field. Watch one of them in the blink as a check.
-- Try **Astrometry → Moving Object Detection…** (`Ctrl+M`), which searches automatically and
+- Try **Astrometry Tools → Detect Moving Objects…** (`Ctrl+M`), which searches automatically and
   marks candidates as "Cand #N".
 - In the blink view, the "Sharpen:" button can make faint dots easier to see.
 
@@ -708,7 +708,7 @@ estrelas ficam paradas. Ele não risca a tela como um meteoro. Dicas:
 2. Measure the object in each image with the **Measure Object** toolbar button (`M`) or
    **Edit → Aperture Tool** (`A`), and click **"✓ Aceitar"** in the Verification window.
 3. Open **File → View ADES Report File** (or step 6 of the Workflow panel). This item is enabled
-   only after Data Reduction.
+   only after Run Data Reduction.
 4. Check the XML and PSV tabs. Then use **"Submit to MPC (HTTP)"** or **"Submit to MPC
    (Email)"**, or save the file with **"Save…"**.
 
@@ -737,13 +737,13 @@ O AstroFind só escreve o formato **ADES** (XML e PSV). Detalhes: [Manual](https
 
 | Symptom | Likely cause / fix |
 |---|---|
-| Image is all black or all white | Adjust the view in **Images → Background and Range…**, or turn off **Invert Display** (`Ctrl+I`) |
+| Image is all black or all white | Adjust the view in **Image Tools → Background and Range…**, or turn off **Invert Colors** (`Ctrl+I`) |
 | Clicking the image measures nothing | The **Select** tool (`S`) is active. Press `M` or `A` first |
 | Log says "Centroid failed — no source found at click position" | Click closer to the centre of the dot, or zoom in first |
-| **View ADES Report File** is greyed out | Run **Astrometry → Data Reduction…** (`Ctrl+A`) first |
+| **View ADES Report File** is greyed out | Run **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`) first |
 | "No observations yet." | Measure and accept at least one object first |
 | Report shows station `XXX` | "MPC Station Code:" is empty in **Settings → Observer** |
-| `Ctrl+L` does nothing (1.1.0 and earlier) | It was assigned twice (Load Images and Light Curve); use the menu or the toolbar. Fixed in the next version (after 1.1.0): Light Curve is now `Ctrl+Shift+L` |
+| `Ctrl+L` does nothing (1.1.0 and earlier) | It was assigned twice (Import Images and Light Curve); use the menu or the toolbar. Fixed in the next version (after 1.1.0): Light Curve is now `Ctrl+Shift+L` |
 | Verification window shows "Nenhum objeto conhecido próximo" | Normal when no known object is nearby |
 
 Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).

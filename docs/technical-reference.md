@@ -1235,7 +1235,7 @@ $$
 JD_\text{TT} = JD_\text{UTC} + \frac{\Delta T}{86400}
 $$
 
-(Version 1.1.0 and earlier added $\Delta T$ to the image JD during Data Reduction, so
+(Version 1.1.0 and earlier added $\Delta T$ to the image JD during Run Data Reduction, so
 `obsTime` was about 68 s late; the next version (after 1.1.0) fixes this.)
 
 **Mid-exposure JD and sub-second precision (AUD-CORR-13).** `julianDateUtc()`
