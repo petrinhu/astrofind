@@ -1270,6 +1270,14 @@ QString saveWcsToFits(const QString& filePath, const PlateSolution& wcs)
     return {};
 }
 
+// AUD-CORR-15: fold the clock correction into jd once; see FitsImage.h.
+void applyClockCorrection(FitsImage& img, double offsetSec)
+{
+    if (!(img.jd > 0.0) || !std::isfinite(offsetSec)) return;
+    img.jd += (offsetSec - img.clockCorrectionSec) / 86400.0;
+    img.clockCorrectionSec = offsetSec;
+}
+
 // Public wrapper so the non-FITS loaders (PDS, RAW) apply the SAME sanity
 // ceiling and file-size cross-check as loadFits (L-17: one ceiling for every
 // loader, no drift between twins).

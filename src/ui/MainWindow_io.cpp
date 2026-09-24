@@ -723,42 +723,9 @@ void MainWindow::autoFillSettingsFromSession()
         }
     }
 
-    // ── Fuso horário — deriva da longitude do observatório (longitude / 15) ──
-    // Usar o relógio do sistema seria errado: o computador pode estar em fuso
-    // diferente do telescópio. A fórmula astronômica correta é longitude/15,
-    // que dá o tempo solar local e ignora DST (apropriado para observações).
-    if (settings_.value(QStringLiteral("observer/timeOffset"), 0.0).toDouble() == 0.0) {
-        double lon = std::numeric_limits<double>::quiet_NaN();
-
-        // 1. Longitude do próprio FITS (se presente)
-        if (!std::isnan(img0.siteLon))
-            lon = img0.siteLon;
-
-        // 2. Longitude do observatório preset (se configurado)
-        if (std::isnan(lon)) {
-            const QString code = settings_.value(QStringLiteral("observer/presetMpcCode")).toString();
-            if (!code.isEmpty()) {
-                const QByteArray ba = code.toLatin1();
-                if (const Observatory* o = ObservatoryDatabase::byCode(ba.constData()))
-                    lon = o->lon;
-            }
-        }
-
-        // 3. Longitude manual (se configurada)
-        if (std::isnan(lon)) {
-            const double manLon = settings_.value(QStringLiteral("observer/longitude"), 0.0).toDouble();
-            if (manLon != 0.0) lon = manLon;
-        }
-
-        if (!std::isnan(lon)) {
-            const double offsetHours = lon / 15.0;
-            settings_.setValue(QStringLiteral("observer/timeOffset"), offsetHours);
-            logPanel_->appendInfo(tr("  Auto-fill: fuso horário = UTC%1%2h (longitude %3°)")
-                .arg(offsetHours >= 0 ? QStringLiteral("+") : QString())
-                .arg(offsetHours, 0, 'f', 1)
-                .arg(lon, 0, 'f', 2));
-        }
-    }
+    // observer/timeOffset is a clock correction in SECONDS set by the user
+    // (Settings → Observatory → Time Offset). It is never auto-filled: the old
+    // longitude/15 guess wrote HOURS of local solar time into it (AUD-CORR-15).
 }
 
 void MainWindow::resetSessionSettings()
@@ -772,7 +739,6 @@ void MainWindow::resetSessionSettings()
         QStringLiteral("observer/latitude"),
         QStringLiteral("observer/longitude"),
         QStringLiteral("observer/altitude"),
-        QStringLiteral("observer/timeOffset"),
     };
     for (const QString& k : keys) settings_.setValue(k, 0.0);
     settings_.setValue(QStringLiteral("observer/locationMode"), QStringLiteral("fits"));

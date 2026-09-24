@@ -151,7 +151,7 @@ void KooEngine::startOfflineScan()
     const double  ra     = savedRa_;
     const double  dec    = savedDec_;
     const double  radius = savedRad_;
-    const double  jd     = savedJd_;
+    const double  jd     = savedJd_ + deltaTSec_ / 86400.0;   // UTC → TT
     const double  lat    = obsLat_;
     const double  lon    = obsLon_;
     const double  alt    = obsAlt_;
