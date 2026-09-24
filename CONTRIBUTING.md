@@ -30,7 +30,7 @@ Thank you for your interest in contributing to AstroFind! / Obrigado pelo seu in
 ```
 C++ compiler supporting C++23 (GCC 12+ — Debian 12 is the oldest tested — or Clang 16+)
 Qt 6.4+ (Core, Gui, Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml)
-CMake 3.20+
+CMake 3.22+
 cfitsio, fftw3
 spdlog, nlohmann_json, SEP, Catch2 (fetched automatically by CMake FetchContent)
 CCfits (bundled, extracted automatically from originals/CCfits.tar.gz)
@@ -47,7 +47,7 @@ extracts and builds it automatically as part of the project build.
 ```
 Compilador C++ com suporte a C++23 (GCC 12+ — o Debian 12 é o mais antigo testado — ou Clang 16+)
 Qt 6.4+ (Core, Gui, Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml)
-CMake 3.20+
+CMake 3.22+
 cfitsio, fftw3
 spdlog, nlohmann_json, SEP, Catch2 (baixados automaticamente pelo FetchContent do CMake)
 CCfits (empacotado, extraído automaticamente de originals/CCfits.tar.gz)

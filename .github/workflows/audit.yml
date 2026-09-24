@@ -46,6 +46,7 @@ on:
   pull_request:
     branches: [ main ]
   push:
+    branches: [ main ]    # keeps the README Fedora/CachyOS/Audit badges live
     tags:
       - 'v*'
   workflow_dispatch:

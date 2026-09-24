@@ -8,13 +8,13 @@
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v1.1.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
-[![Build](https://github.com/petrinhu/astrofind/actions/workflows/build.yml/badge.svg)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
-[![Audit](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml/badge.svg)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/build.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
+[![Audit](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=audit&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
 <!-- Stack -->
-[![C++23](https://img.shields.io/badge/C%2B%2B-23-00599C?logo=cplusplus&logoColor=white)](CMakeLists.txt)
-[![Qt](https://img.shields.io/badge/Qt-6.4%2B-41cd52?logo=qt)](https://www.qt.io/)
-[![CMake](https://img.shields.io/badge/CMake-%E2%89%A53.20-064F8C?logo=cmake)](CMakeLists.txt)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-00599C?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/23)
+[![Qt6](https://img.shields.io/badge/Qt6-6.4%2B-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qt-6/)
+[![CMake](https://img.shields.io/badge/CMake-%E2%89%A53.22-064F8C?logo=cmake)](CMakeLists.txt)
 [![Platform](https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&logoColor=black)](INSTALL.md)
 
 <!-- Quality -->
@@ -23,18 +23,18 @@
 [![cppcheck](https://img.shields.io/badge/cppcheck-clean-success)](.github/workflows/audit.yml)
 [![clang-tidy](https://img.shields.io/badge/clang--tidy-checked-success)](.github/workflows/audit.yml)
 
-<!-- QA matrix, validated distros -->
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04-E95420?logo=ubuntu&logoColor=white)](docs/qa-distros.md)
-[![Debian](https://img.shields.io/badge/Debian-12-A81D33?logo=debian&logoColor=white)](docs/qa-distros.md)
-[![Fedora](https://img.shields.io/badge/Fedora-44-51A2DA?logo=fedora&logoColor=white)](docs/qa-distros.md)
-[![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1DC7A5)](docs/qa-distros.md)
-[![Arch Linux](https://img.shields.io/badge/Arch%20Linux-rolling-1793D1?logo=archlinux&logoColor=white)](docs/qa-distros.md)
-[![Manjaro](https://img.shields.io/badge/Manjaro-rolling-35BF5C?logo=manjaro&logoColor=white)](docs/qa-distros.md)
-[![openSUSE](https://img.shields.io/badge/openSUSE-Tumbleweed-73BA25?logo=opensuse&logoColor=white)](docs/qa-distros.md)
-[![Rocky Linux](https://img.shields.io/badge/Rocky%20Linux-9-10B981?logo=rockylinux&logoColor=white)](docs/qa-distros.md)
-[![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22-87CF3E?logo=linuxmint&logoColor=white)](docs/qa-distros.md)
-[![Pop!_OS](https://img.shields.io/badge/Pop!__OS-22.04-48B9C7?logo=popos&logoColor=white)](docs/qa-distros.md)
-[![Zorin OS](https://img.shields.io/badge/Zorin%20OS-17-0CC1F3)](docs/qa-distros.md)
+<!-- QA matrix, validated distros: live CI status on main (green "passing" = build + tests OK); Fedora and CachyOS run in the audit matrix -->
+[![Ubuntu](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-ubuntu-24.yml?branch=main&label=Ubuntu%2024.04&logo=ubuntu&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-ubuntu-24.yml)
+[![Debian](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-debian-12.yml?branch=main&label=Debian%2012&logo=debian&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-debian-12.yml)
+[![Fedora](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=Fedora%2044&logo=fedora&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
+[![CachyOS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=CachyOS)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
+[![Arch Linux](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-arch.yml?branch=main&label=Arch%20Linux&logo=archlinux&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-arch.yml)
+[![Manjaro](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-manjaro.yml?branch=main&label=Manjaro&logo=manjaro&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-manjaro.yml)
+[![openSUSE](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-opensuse-tw.yml?branch=main&label=openSUSE%20Tumbleweed&logo=opensuse&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-opensuse-tw.yml)
+[![Rocky Linux](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-rocky-9.yml?branch=main&label=Rocky%20Linux%209&logo=rockylinux&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-rocky-9.yml)
+[![Linux Mint](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-mint-22.yml?branch=main&label=Linux%20Mint%2022&logo=linuxmint&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-mint-22.yml)
+[![Pop!_OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-pop-os-22.yml?branch=main&label=Pop!_OS%2022.04&logo=popos&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-pop-os-22.yml)
+[![Zorin OS](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-zorin-17.yml?branch=main&label=Zorin%20OS%2017)](https://github.com/petrinhu/astrofind/actions/workflows/qa-zorin-17.yml)
 
 <!-- Community -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
@@ -331,13 +331,13 @@ absolutos, com referência de menus e de configurações.
 
 ### 🇬🇧 English
 
-C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.20+,
+C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
 cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; optional: LibRaw,
 libarchive, QuaZip, Qt6Keychain.
 
 ### 🇧🇷 Português
 
-C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.20+,
+C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
 cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; opcionais: LibRaw,
 libarchive, QuaZip, Qt6Keychain.
 
@@ -358,7 +358,7 @@ libarchive, QuaZip, Qt6Keychain.
 | spdlog | >= 1.11 | MIT | Logging (FetchContent) |
 | nlohmann/json | >= 3.11 | MIT | Project file serialisation (bundled) |
 | Qt6Keychain | any | LGPL-2.1 | Secure API key storage (dynamically linked, required at runtime) |
-| CMake | >= 3.20 | n/a | Build system, not distributed |
+| CMake | >= 3.22 | n/a | Build system, not distributed |
 | C++ | 23 | n/a | Compiler: GCC 12+ (Debian 12 is the oldest tested) or Clang 16+, not distributed |
 
 **Optional**
@@ -389,7 +389,7 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 | spdlog | >= 1.11 | MIT | Log (FetchContent) |
 | nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (bundled) |
 | Qt6Keychain | qualquer | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente, obrigatório em runtime) |
-| CMake | >= 3.20 | n/a | Sistema de build, não distribuído |
+| CMake | >= 3.22 | n/a | Sistema de build, não distribuído |
 | C++ | 23 | n/a | Compilador: GCC 12+ (o Debian 12 é o mais antigo testado) ou Clang 16+, não distribuído |
 
 **Opcionais**
