@@ -1,8 +1,8 @@
 # AstroFind: QA Multi-Distro Documentation / Documentação de QA Multi-Distro
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v0.9.0+
+> **Applies to / Aplica-se a:** AstroFind v1.1.0+
 
 ---
 
@@ -1504,4 +1504,4 @@ Qt 6.4+.
 
 ---
 
-*AstroFind. Last updated / Última atualização: 2026-07-10, AstroFind v0.9.0.*
+*AstroFind. Last updated / Última atualização: 2026-09-24, AstroFind v1.1.0.*

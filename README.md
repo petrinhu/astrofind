@@ -137,7 +137,8 @@ para submissões).
 - **Reporting**: ADES 2022 XML/PSV generation, MPC report preview and direct submission,
   Solar System body identification (IMCCE SkyBoT, JPL Horizons).
 - **File formats**: FITS (single/multi-HDU, RGB, temporal cubes), SER video, XISF
-  (PixInsight), TIFF/PNG/BMP/JPEG, and compressed archives (ZIP, TAR.*, 7Z, RAR).
+  (PixInsight), DSLR RAW (CR2/CR3/NEF/ARW/DNG/… via LibRaw, optional), NASA PDS3/PDS4,
+  TIFF/PNG/BMP/JPEG, and compressed archives (ZIP, TAR.*, 7Z, RAR).
 - **Image display**: zoom/pan/blink comparison across frames, multiple stretch/LUT modes,
   histogram and 2-D power-spectrum diagnostics.
 - **Calibration**: bias/dark/flat pipeline, calibration wizard, bad-pixel masking.
@@ -169,7 +170,8 @@ for the complete feature list and how-to guides.
 - **Relatórios**: geração ADES 2022 XML/PSV, pré-visualização e submissão direta ao MPC,
   identificação de corpos do Sistema Solar (IMCCE SkyBoT, JPL Horizons).
 - **Formatos de arquivo**: FITS (HDU único/multi-HDU, RGB, cubos temporais), vídeo SER,
-  XISF (PixInsight), TIFF/PNG/BMP/JPEG, e arquivos compactados (ZIP, TAR.*, 7Z, RAR).
+  XISF (PixInsight), RAW de DSLR (CR2/CR3/NEF/ARW/DNG/… via LibRaw, opcional), NASA
+  PDS3/PDS4, TIFF/PNG/BMP/JPEG, e arquivos compactados (ZIP, TAR.*, 7Z, RAR).
 - **Visualização de imagem**: zoom/pan/comparação em blink entre quadros, múltiplos modos
   de esticamento/LUT, diagnósticos de histograma e espectro de potência 2-D.
 - **Calibração**: pipeline bias/dark/flat, assistente de calibração, máscara de pixels

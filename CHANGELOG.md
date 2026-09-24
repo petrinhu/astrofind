@@ -1,6 +1,6 @@
 # Changelog
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
 > Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
@@ -10,7 +10,12 @@ primeiro.
 
 ---
 
-## [Unreleased]
+## [1.1.0] - 2026-09-24
+
+> **Why 1.1.0 and not 1.0.0 / Por que 1.1.0 e não 1.0.0:** 0.9.0 already had 1.0.0
+> maturity but was never tagged as such; this release adds new features on top of it, so it
+> is the next minor version. / A 0.9.0 já tinha maturidade de 1.0.0, mas nunca recebeu essa
+> tag; esta versão acrescenta funcionalidades sobre ela, então é a próxima versão minor.
 
 ### 🇬🇧 English
 

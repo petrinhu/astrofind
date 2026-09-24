@@ -1,8 +1,8 @@
 # AstroFind: Installation Instructions / Instruções de Instalação
 
-> **Last reviewed / Última revisão:** 2026-07-10
+> **Last reviewed / Última revisão:** 2026-09-24
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v0.9.0+
+> **Applies to / Aplica-se a:** AstroFind v1.1.0+
 
 ---
 
@@ -28,11 +28,11 @@
 
 ### 🇬🇧 English (binary packages, recommended)
 
-Download the universal installer from the
-[latest release](https://github.com/petrinhu/astrofind/releases/latest):
+Download the universal installer for the release you want (here v1.1.0; the
+[releases page](https://github.com/petrinhu/astrofind/releases) lists every tag):
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -45,26 +45,26 @@ interactive interface.
 
 #### Direct package download
 
-Replace `v0.9.0` with the tag of the release you want.
+Replace `v1.1.0`/`1.1.0` with the release you want.
 
 **Fedora / RHEL / Rocky Linux (RPM package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-1.x86_64.rpm
-sudo rpm -i astrofind-0.9.0-1.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind-1.1.0-1.x86_64.rpm
+sudo dnf install ./astrofind-1.1.0-1.x86_64.rpm
 ```
 
 Dependencies not bundled in the RPM (install separately):
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive mesa-libGL libxkbcommon
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive LibRaw mesa-libGL libxkbcommon
 ```
 
 **Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (DEB package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/astrofind_0.9.0_amd64.deb
-sudo apt-get install ./astrofind_0.9.0_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind_1.1.0_amd64.deb
+sudo apt-get install ./astrofind_1.1.0_amd64.deb
 ```
 
 `apt-get install ./file.deb` resolves dependencies automatically.
@@ -73,9 +73,8 @@ sudo apt-get install ./astrofind_0.9.0_amd64.deb
 manager):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-arch-PKGBUILD.tar.gz
-tar xzf astrofind-0.9.0-arch-PKGBUILD.tar.gz
-cd astrofind-arch
+mkdir astrofind-arch && cd astrofind-arch
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
@@ -84,11 +83,11 @@ package.
 
 ### 🇧🇷 Português (pacotes binários, recomendado)
 
-Baixe o instalador universal da
-[última versão](https://github.com/petrinhu/astrofind/releases/latest):
+Baixe o instalador universal da versão desejada (aqui v1.1.0; a
+[página de releases](https://github.com/petrinhu/astrofind/releases) lista todas as tags):
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -101,26 +100,26 @@ interativa bilíngue (EN/PT-BR).
 
 #### Download direto do pacote
 
-Substitua `v0.9.0` pela tag da versão desejada.
+Substitua `v1.1.0`/`1.1.0` pela versão desejada.
 
 **Fedora / RHEL / Rocky Linux (pacote RPM):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-1.x86_64.rpm
-sudo rpm -i astrofind-0.9.0-1.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind-1.1.0-1.x86_64.rpm
+sudo dnf install ./astrofind-1.1.0-1.x86_64.rpm
 ```
 
 Dependências não incluídas no RPM (instalar separadamente):
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive mesa-libGL libxkbcommon
+sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive LibRaw mesa-libGL libxkbcommon
 ```
 
 **Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (pacote DEB):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/astrofind_0.9.0_amd64.deb
-sudo apt-get install ./astrofind_0.9.0_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind_1.1.0_amd64.deb
+sudo apt-get install ./astrofind_1.1.0_amd64.deb
 ```
 
 `apt-get install ./arquivo.deb` resolve dependências automaticamente.
@@ -129,9 +128,8 @@ sudo apt-get install ./astrofind_0.9.0_amd64.deb
 pacotes do Arch):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v0.9.0/astrofind-0.9.0-arch-PKGBUILD.tar.gz
-tar xzf astrofind-0.9.0-arch-PKGBUILD.tar.gz
-cd astrofind-arch
+mkdir astrofind-arch && cd astrofind-arch
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
@@ -199,11 +197,11 @@ cmake --build build -j$(nproc)
 sudo dnf install \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
+
+> Qt Network, Sql, Xml, Concurrent and OpenGL come inside `qt6-qtbase-devel` on Fedora;
+> there are no separate `qt6-qtnetwork-devel`/`qt6-qtopengl-devel` packages.
 
 **Optional:**
 
@@ -225,11 +223,11 @@ sudo dnf install \
 sudo dnf install \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
+
+> No Fedora, Qt Network, Sql, Xml, Concurrent e OpenGL vêm dentro do `qt6-qtbase-devel`;
+> não existem pacotes separados `qt6-qtnetwork-devel`/`qt6-qtopengl-devel`.
 
 **Opcionais:**
 
@@ -727,9 +725,6 @@ sudo dnf config-manager --set-enabled crb
 sudo dnf install -y \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
 
@@ -763,9 +758,6 @@ sudo dnf config-manager --set-enabled crb
 sudo dnf install -y \
     cmake gcc-c++ \
     qt6-qtbase-devel qt6-qtcharts-devel \
-    qt6-qtopengl-devel qt6-qtnetwork-devel \
-    qt6-qtsql-devel qt6-qtxml-devel \
-    qt6-qtconcurrent-devel \
     cfitsio-devel fftw-devel
 ```
 
