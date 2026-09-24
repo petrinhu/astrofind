@@ -144,7 +144,7 @@ para submissões).
   TIFF/PNG/BMP/JPEG, and compressed archives (ZIP, TAR.*, 7Z, RAR).
 - **Image display**: zoom/pan/blink comparison across frames, multiple stretch/LUT modes,
   histogram and 2-D power-spectrum diagnostics.
-- **Calibration**: bias/dark/flat pipeline with master-frame builder, calibration wizard,
+- **Calibration**: dark/flat pipeline with master-frame builder, calibration wizard,
   bad-pixel correction, sliding-median background removal.
 - **Interface**: bilingual UI (English / Brazilian Portuguese), Night/Day/Auto theme, a
   six-step guided workflow panel (with an optional automatic mode), and school features
@@ -182,7 +182,7 @@ for the complete feature list and how-to guides.
   PDS3/PDS4, TIFF/PNG/BMP/JPEG, e arquivos compactados (ZIP, TAR.*, 7Z, RAR).
 - **Visualização de imagem**: zoom/pan/comparação em blink entre quadros, múltiplos modos
   de esticamento/LUT, diagnósticos de histograma e espectro de potência 2-D.
-- **Calibração**: pipeline bias/dark/flat com construtor de master frames, assistente de
+- **Calibração**: pipeline dark/flat com construtor de master frames, assistente de
   calibração, correção de pixels ruins, remoção de fundo por mediana deslizante.
 - **Interface**: UI bilíngue (inglês / português brasileiro), tema Noite/Dia/Automático,
   painel de fluxo guiado em seis passos (com modo automático opcional) e recursos para
