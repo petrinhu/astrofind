@@ -70,13 +70,13 @@ jobs:
           cat /etc/os-release
           gcc --version | head -1 || true
           nproc
-          free -h
+          free -h 2>/dev/null || grep -E "MemTotal|MemAvailable" /proc/meminfo  # fedora:42 image ships without procps-ng
 
       # ── 2. INSTALL TOOLCHAIN + AUDIT TOOLS ──────────────────────────────────
       - name: "Install build + audit toolchain"
         run: |
           dnf install -y \
-            cmake ninja-build gcc-c++ git pkgconf-pkg-config file \
+            cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file \
             qt6-qtbase-devel qt6-qtcharts-devel qt6-qtopengl-devel \
             qt6-qtnetwork-devel qt6-qtsql-devel qt6-qtxml-devel \
             qt6-qtconcurrent-devel qt6-qttools-devel qt6-qt5compat-devel \
