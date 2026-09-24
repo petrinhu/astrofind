@@ -436,9 +436,15 @@ sudo apt-get install -y \
 
 ## Pop!_OS 22.04
 
-> Item 55.7, Docker QA target. Pop!_OS 22.04 is based on Ubuntu 22.04 (Jammy). Qt 6.4
-> is available from the Ubuntu repos / Pop!_OS 22.04 é baseado no Ubuntu 22.04
-> (Jammy). Qt 6.4 está disponível nos repositórios do Ubuntu.
+> ⚠️ Pop!_OS 22.04 is based on Ubuntu 22.04 (Jammy), whose repositories ship **Qt 6.2**;
+> AstroFind needs **Qt 6.4+**, so these packages will not build it as-is. Use Pop!_OS 24.04
+> (Ubuntu 24.04 base, same commands as [Ubuntu 24.04](#ubuntu-2404-lts)), or install a newer
+> Qt yourself. The CI job named "Pop!_OS 22.04" actually runs in an `ubuntu:24.04` container
+> (AUD-CI-6). / Pop!_OS 22.04 é baseado no Ubuntu 22.04 (Jammy), cujos repositórios trazem
+> **Qt 6.2**; o AstroFind precisa de **Qt 6.4+**, então estes pacotes não o compilam como
+> estão. Use o Pop!_OS 24.04 (base Ubuntu 24.04, mesmos comandos do
+> [Ubuntu 24.04](#ubuntu-2404-lts)) ou instale um Qt mais novo por conta própria. O job de CI
+> chamado "Pop!_OS 22.04" roda, na verdade, num container `ubuntu:24.04` (AUD-CI-6).
 
 ### 🇬🇧 English
 
@@ -490,9 +496,12 @@ sudo apt-get install -y \
 
 ## Zorin OS 17
 
-> Item 55.9, Docker QA target. Zorin OS 17 is based on Ubuntu 22.04. Use the same
-> commands as Pop!_OS 22.04 / Zorin OS 17 é baseado no Ubuntu 22.04. Use os mesmos
-> comandos do Pop!_OS 22.04.
+> ⚠️ Zorin OS 17 is based on Ubuntu 22.04, whose repositories ship **Qt 6.2** (AstroFind
+> needs **Qt 6.4+**); same caveat as [Pop!_OS 22.04](#popos-2204). Zorin OS 18 (Ubuntu 24.04
+> base) can use the [Ubuntu 24.04](#ubuntu-2404-lts) commands. / O Zorin OS 17 é baseado no
+> Ubuntu 22.04, cujos repositórios trazem **Qt 6.2** (o AstroFind precisa de **Qt 6.4+**);
+> mesma ressalva do [Pop!_OS 22.04](#popos-2204). O Zorin OS 18 (base Ubuntu 24.04) pode
+> usar os comandos do [Ubuntu 24.04](#ubuntu-2404-lts).
 
 ### 🇬🇧 English
 
