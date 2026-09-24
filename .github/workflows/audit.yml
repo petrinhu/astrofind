@@ -73,13 +73,14 @@ jobs:
           free -h 2>/dev/null || grep -E "MemTotal|MemAvailable" /proc/meminfo  # fedora:42 image ships without procps-ng
 
       # ── 2. INSTALL TOOLCHAIN + AUDIT TOOLS ──────────────────────────────────
+      # Fedora ships Qt Network/Sql/Xml/Concurrent/OpenGL inside
+      # qt6-qtbase-devel; there are no separate qt6-qt{network,sql,...}-devel.
       - name: "Install build + audit toolchain"
         run: |
           dnf install -y \
             cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file \
-            qt6-qtbase-devel qt6-qtcharts-devel qt6-qtopengl-devel \
-            qt6-qtnetwork-devel qt6-qtsql-devel qt6-qtxml-devel \
-            qt6-qtconcurrent-devel qt6-qttools-devel qt6-qt5compat-devel \
+            qt6-qtbase-devel qt6-qtcharts-devel \
+            qt6-qttools-devel qt6-qt5compat-devel \
             cfitsio-devel fftw-devel eigen3-devel libarchive-devel \
             mesa-libGL-devel libxkbcommon-devel \
             clang-tools-extra cppcheck valgrind
