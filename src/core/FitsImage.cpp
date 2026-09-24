@@ -78,7 +78,7 @@ inline void sincosDeg(double deg, double& s, double& c) noexcept
 // WCSLIB 8.x cel.c celset() (which astropy.wcs uses): δ_p has up to two
 // solutions u±v; LATPOLE picks the closer valid one. With the default
 // φ_p/LATPOLE this reduces to the closed form used below (checked by the
-// [wcs] tests in tests/test_wcs_poles.cpp). Returns false when no valid δ_p
+// [wcs] tests in tests/test_astronomy.cpp). Returns false when no valid δ_p
 // exists (WCSLIB: "ill-conditioned", e.g. δ0 > 0 with φ_p = 180°).
 inline bool celestialPoleGeneral(double crval1, double crval2, double phi_p,
                                  double latpole,
