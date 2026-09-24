@@ -158,3 +158,40 @@ TEST_CASE("generateAdesPsv - header and data row", "[ades]")
     CHECK(header.contains("|dec|"));
     CHECK(header.contains("|obsTime|"));
 }
+
+// ── AUD-CORR-14: sys=ICRF frame declaration ──────────────────────────────────
+//
+// ADES 2022 §4.2 requires an explicit `sys` field declaring the reference
+// frame of RA/Dec. AstroFind's positions are astrometric ICRF (fitted
+// against an ICRS catalog plate solution; aberration/nutation are only
+// logged, never applied — see AUD-CORR-4/AUD-CORR-7), so `sys` must always
+// read "ICRF", in both the XML and PSV report formats. This had no assertion
+// before this remediation: a regression that dropped the field, or wrote
+// the wrong frame name (e.g. "J2000" or "apparent"), would have gone
+// unnoticed by the existing structural tests above.
+
+TEST_CASE("generateAdesXml - sys is ICRF", "[ades]")
+{
+    const QVector<core::Observation> obs = { makeCeresObs() };
+    const QString xml = core::generateAdesXml(obs, makeCtx());
+    CHECK(xml.contains("<sys>ICRF</sys>"));
+}
+
+TEST_CASE("generateAdesPsv - sys column is ICRF", "[ades]")
+{
+    const QVector<core::Observation> obs = { makeCeresObs() };
+    const QString psv = core::generateAdesPsv(obs, makeCtx());
+
+    const QStringList lines = psv.split('\n', Qt::SkipEmptyParts);
+    REQUIRE(lines.size() >= 3);
+    const QString& header = lines[1];
+    CHECK(header.contains("|sys|"));
+
+    const QStringList headerCols = header.split('|');
+    const int sysCol = headerCols.indexOf(QStringLiteral("sys"));
+    REQUIRE(sysCol >= 0);
+
+    const QStringList dataCols = lines[2].split('|');
+    REQUIRE(dataCols.size() > sysCol);
+    CHECK(dataCols[sysCol] == QStringLiteral("ICRF"));
+}

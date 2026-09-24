@@ -14,6 +14,8 @@ add_executable(astrofind_tests
     test_hostile_regression.cpp
     test_loaders_extra.cpp
     test_astronomy.cpp
+    test_ephemeris.cpp
+    test_fits_time.cpp
     test_photometry.cpp
     test_robustness.cpp
     test_url_scheme_guard.cpp
