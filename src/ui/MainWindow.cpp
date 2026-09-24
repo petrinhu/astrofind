@@ -102,7 +102,7 @@ void MainWindow::setupMenus()
     actSaveProjectAs_->setStatusTip(tr("Save the current session to a new .gus project file"));
     actOpenProject_ = fileMenu_->addAction(tr("&Open Project..."), QKeySequence("Ctrl+O"), this, &MainWindow::onOpenProject);
     actOpenProject_->setStatusTip(tr("Open a previously saved .gus project file"));
-    recentProjectsMenu_ = fileMenu_->addMenu(tr("Projetos &Recentes"));
+    recentProjectsMenu_ = fileMenu_->addMenu(tr("Recent &Projects"));
     updateRecentProjectsMenu();
     actCloseProject_ = fileMenu_->addAction(tr("&Close Project"), this, &MainWindow::onCloseProject);
     actCloseProject_->setStatusTip(tr("Close the current project and reset the session"));
@@ -156,7 +156,7 @@ void MainWindow::setupMenus()
     fileMenu_->addSeparator();
     actViewAdes_ = fileMenu_->addAction(tr("View &ADES Report File"), this, &MainWindow::onViewAdesReport);
     actViewAdes_->setStatusTip(tr("View the generated ADES astrometry report"));
-    actViewPhot_ = fileMenu_->addAction(tr("Show &Photometry Results"), this, &MainWindow::onViewPhotometryFile);
+    actViewPhot_ = fileMenu_->addAction(tr("Show P&hotometry Results"), this, &MainWindow::onViewPhotometryFile);
     actViewPhot_->setStatusTip(tr("Show the measured photometry values"));
     fileMenu_->addAction(tr("View Lo&g File"), this, &MainWindow::onViewLogFile)
         ->setStatusTip(tr("View the session log file"));
@@ -164,15 +164,15 @@ void MainWindow::setupMenus()
     fileMenu_->addSeparator();
     actResetFiles_ = fileMenu_->addAction(tr("&Reset Session Files"), QKeySequence("Ctrl+R"), this, &MainWindow::onResetFiles);
     actResetFiles_->setStatusTip(tr("Reset session and close all images"));
-    fileMenu_->addAction(tr("&Fechar Imagens"), QKeySequence::Close,
+    fileMenu_->addAction(tr("Close Loaded I&mages"), QKeySequence::Close,
                          this, &MainWindow::onCloseAllImages)
-        ->setStatusTip(tr("Fechar todas as imagens e reiniciar a sessão"));
+        ->setStatusTip(tr("Close all loaded images and reset the session"));
     fileMenu_->addAction(tr("Reload MPC&Orb"), this, &MainWindow::onReloadMpcOrb)
         ->setStatusTip(tr("Reload the MPCOrb asteroid database from disk"));
 
     fileMenu_->addSeparator();
     fileMenu_->addAction(tr("Se&ttings..."), QKeySequence("Ctrl+,"), this, &MainWindow::onSettings)
-        ->setStatusTip(tr("Edit program settings"));
+        ->setStatusTip(tr("Adjust program preferences and options"));
 
     fileMenu_->addSeparator();
     fileMenu_->addAction(tr("Exportar Configuração da Escola..."), this, &MainWindow::onExportSchoolConfig)
@@ -315,8 +315,8 @@ void MainWindow::setupMenus()
     // ── Windows ───────────────────────────────────────────────────────────────
     windowMenu_ = menuBar()->addMenu(tr("&Window"));
 
-    windowMenu_->addAction(tr("&Tile All Windows"),    this, &MainWindow::onTileWindows);
-    windowMenu_->addAction(tr("&Cascade All Windows"), this, &MainWindow::onCascadeWindows);
+    windowMenu_->addAction(tr("A&rrange Windows Side by Side"), this, &MainWindow::onTileWindows);
+    windowMenu_->addAction(tr("&Stack Windows Diagonally"),     this, &MainWindow::onCascadeWindows);
     windowMenu_->addAction(tr("&Auto-Arrange Windows"), this, &MainWindow::onArrangeWindows);
     windowMenu_->addSeparator();
     windowMenu_->addAction(tr("Close Every &Open Image"), this, &MainWindow::onCloseAllImages);

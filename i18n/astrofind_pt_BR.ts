@@ -1038,7 +1038,7 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="88" />
-        <source>Projetos &amp;Recentes</source>
+        <source>Recent &amp;Projects</source>
         <translation>Projetos &amp;Recentes</translation>
     </message>
     <message>
@@ -1079,7 +1079,7 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="135" />
         <source>Use F&amp;lat Field for Calibration…</source>
-        <translation>Usar Fl&amp;at de Calibração</translation>
+        <translation>&amp;Usar Flat de Calibração</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="136" />
@@ -1103,7 +1103,7 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="142" />
-        <source>Show &amp;Photometry Results</source>
+        <source>Show P&amp;hotometry Results</source>
         <translation>&amp;Mostrar Resultados de Fotometria</translation>
     </message>
     <message>
@@ -1128,12 +1128,12 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="150" />
-        <source>&amp;Fechar Imagens</source>
+        <source>Close Loaded I&amp;mages</source>
         <translation>&amp;Fechar Imagens</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="152" />
-        <source>Fechar todas as imagens e reiniciar a sessão</source>
+        <source>Close all loaded images and reset the session</source>
         <translation>Fechar todas as imagens e reiniciar a sessão</translation>
     </message>
     <message>
@@ -1153,8 +1153,8 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="158" />
-        <source>Edit program settings</source>
-        <translation>Editar configurações do programa</translation>
+        <source>Adjust program preferences and options</source>
+        <translation>Ajustar preferências e opções do programa</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="161" />
@@ -1438,13 +1438,13 @@ Use a ferramenta Medir (M) para clicar nos objetos.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="301" />
-        <source>&amp;Tile All Windows</source>
-        <translation>&amp;Organizar Todas em Grade</translation>
+        <source>A&amp;rrange Windows Side by Side</source>
+        <translation>Organizar Janelas &amp;Lado a Lado</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="302" />
-        <source>&amp;Cascade All Windows</source>
-        <translation>&amp;Cascata de Todas as Janelas</translation>
+        <source>&amp;Stack Windows Diagonally</source>
+        <translation>&amp;Empilhar Janelas na Diagonal</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="303" />

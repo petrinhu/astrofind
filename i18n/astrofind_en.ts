@@ -1079,8 +1079,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="88" />
-        <source>Projetos &amp;Recentes</source>
-        <translation>Projetos &amp;Recentes</translation>
+        <source>Recent &amp;Projects</source>
+        <translation>Recent &amp;Projects</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="90" />
@@ -1154,8 +1154,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="142" />
-        <source>Show &amp;Photometry Results</source>
-        <translation>Show &amp;Photometry Results</translation>
+        <source>Show P&amp;hotometry Results</source>
+        <translation>Show P&amp;hotometry Results</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="143" />
@@ -1184,13 +1184,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="150" />
-        <source>&amp;Fechar Imagens</source>
-        <translation>&amp;Fechar Imagens</translation>
+        <source>Close Loaded I&amp;mages</source>
+        <translation>Close Loaded I&amp;mages</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="152" />
-        <source>Fechar todas as imagens e reiniciar a sessão</source>
-        <translation>Fechar todas as imagens e reiniciar a sessão</translation>
+        <source>Close all loaded images and reset the session</source>
+        <translation>Close all loaded images and reset the session</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="153" />
@@ -1209,8 +1209,8 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="158" />
-        <source>Edit program settings</source>
-        <translation>Edit program settings</translation>
+        <source>Adjust program preferences and options</source>
+        <translation>Adjust program preferences and options</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="161" />
@@ -1570,13 +1570,13 @@ Use the Measure tool (M) to click on objects.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="301" />
-        <source>&amp;Tile All Windows</source>
-        <translation>&amp;Tile All Windows</translation>
+        <source>A&amp;rrange Windows Side by Side</source>
+        <translation>A&amp;rrange Windows Side by Side</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="302" />
-        <source>&amp;Cascade All Windows</source>
-        <translation>&amp;Cascade All Windows</translation>
+        <source>&amp;Stack Windows Diagonally</source>
+        <translation>&amp;Stack Windows Diagonally</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="303" />
