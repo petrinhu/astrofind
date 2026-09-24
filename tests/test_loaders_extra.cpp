@@ -781,6 +781,37 @@ TEST_CASE("extractArchiveImages refuses symlink and FIFO entries and path traver
     CHECK(ex.files.contains(QDir(dest).filePath("ok.fits")));
 }
 
+TEST_CASE("extractArchiveImages refuses a TAR hardlink entry pointing outside destDir",
+          "[archive][hostile]")
+{
+    // A ustar hardlink entry (typeflag '1') reports archive_entry_filetype()
+    // == AE_IFREG -- it looks like a plain file to a filetype-only check --
+    // but archive_write_disk() resolves archive_entry_hardlink() with
+    // link(2) using the ORIGINAL (unflattened) target name, never the
+    // flattened destPath this extractor computes for the entry's own
+    // pathname. A hostile TAR can name that target outside destDir and get
+    // a hard link to an arbitrary file created on disk under an innocuous
+    // "*.fits" name.
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString secret = dir.filePath("secret.txt");
+    REQUIRE(writeBytes(secret, "top secret"));
+    const QString tar = dir.filePath("hardlink.tar");
+    REQUIRE(writeBytes(tar, tarEntry("evil.fits", '1', {}, secret.toLocal8Bit())
+                            + tarEntry("ok.fits", '0', "OK")
+                            + tarEnd()));
+    const QString dest = dir.filePath("out");
+    REQUIRE(QDir().mkpath(dest));
+
+    const auto ex = core::extractArchiveImages(tar, dest);
+    CHECK(ex.status == core::ArchiveExtraction::Status::Ok);
+    CHECK(ex.skippedNonRegular.contains(QStringLiteral("evil.fits")));
+    CHECK_FALSE(QFileInfo::exists(QDir(dest).filePath("evil.fits")));
+    for (const QString& f : ex.files)
+        CHECK(readBytes(f) != QByteArray("top secret"));
+    CHECK(ex.files.contains(QDir(dest).filePath("ok.fits")));
+}
+
 TEST_CASE("extractArchiveImages reports a missing archive and survives garbage",
           "[archive][hostile]")
 {

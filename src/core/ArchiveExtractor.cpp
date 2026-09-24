@@ -106,6 +106,24 @@ ArchiveExtraction extractArchiveImages(const QString& archivePath, const QString
             continue;
         }
 
+        // AUD-INPUT-4 twin (mutation review, 2026-09-24): a TAR hardlink
+        // entry reports filetype AE_IFREG (it looks like a plain file to the
+        // check above) but carries a second name via archive_entry_hardlink()
+        // that archive_write_disk() resolves with link(2) — the ORIGINAL,
+        // unflattened target name, never sanitised the way this entry's own
+        // pathname is flattened to destDir a few lines below. A hostile TAR
+        // can point that target outside destDir (e.g. "../../etc/passwd" or
+        // an absolute path) and get a hard link to it created on disk under
+        // an innocuous "*.fits" name — the same arbitrary-file exposure the
+        // symlink check above exists to prevent, just one filetype removed.
+        // Rejected exactly like symlink/FIFO/device: AE_IFREG alone is not
+        // enough, it must ALSO not be a hardlink.
+        if (archive_entry_hardlink(entry) != nullptr) {
+            out.skippedNonRegular.append(QString::fromUtf8(pathname));
+            archive_read_data_skip(ar);
+            continue;
+        }
+
         // Flatten to basename — avoids recreating the archive's directory
         // tree, and with it any "../" component of a hostile entry name.
         const QString baseName = QFileInfo(QString::fromUtf8(pathname)).fileName();

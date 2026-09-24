@@ -1454,7 +1454,7 @@ QStringList MainWindow::expandArchive(const QString& archivePath)
     }
     for (const QString& skipped : ex.skippedNonRegular)
         logPanel_->appendWarning(
-            tr("Skipped non-regular archive entry (symlink/device/FIFO not allowed): %1")
+            tr("Skipped non-regular archive entry (symlink/hardlink/device/FIFO not allowed): %1")
                 .arg(skipped));
 
     if (ex.files.isEmpty())

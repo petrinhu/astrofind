@@ -38,6 +38,19 @@ primeiro.
   XISF files now get a JD from DATE-OBS/MJD-OBS. 🇧🇷 O Dia Juliano mantém os milissegundos
   do DATE-OBS e prefere o MJD-OBS quando existe; arquivos XISF passam a ter JD a partir do
   DATE-OBS/MJD-OBS.
+- **TAR hardlink entries in archive extraction / Entradas hardlink de TAR na extração de
+  arquivos compactados (twin of AUD-INPUT-4).** 🇬🇧 A TAR entry stored as a hardlink
+  reports the same filetype as a plain file to libarchive, so it slipped past the
+  symlink/FIFO/device filter; its (unflattened) link target could point outside the
+  extraction folder, letting a hostile archive create a hard link to an arbitrary file
+  on disk under an innocuous name (e.g. "*.fits"). Hardlink entries are now rejected the
+  same way symlinks/FIFOs/devices already were. 🇧🇷 Uma entrada de TAR armazenada como
+  hardlink reporta o mesmo tipo de arquivo que um arquivo comum para o libarchive, e por
+  isso passava pelo filtro de link simbólico/FIFO/dispositivo; o alvo do link (não
+  tratado) podia apontar para fora da pasta de extração, permitindo que um arquivo
+  compactado malicioso criasse um hard link para um arquivo arbitrário do disco sob um
+  nome inofensivo (ex.: "*.fits"). Entradas hardlink agora são recusadas do mesmo jeito
+  que link simbólico/FIFO/dispositivo já eram.
 
 - **Observation time (AUD-CORR-15, critical).** 🇬🇧 Data Reduction no longer adds ΔT
   (68 s by default) to the image Julian Date, so the ADES `obsTime` is UTC again instead
