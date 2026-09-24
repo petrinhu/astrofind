@@ -42,7 +42,7 @@ core::AsteroidRecord makeOrbit(double epoch, double M, double omega, double Omeg
 
 // ─── solveKepler ──────────────────────────────────────────────────────────────
 
-TEST_CASE("solveKepler matches Meeus example 30.a (e=0.1, M=5deg -> E=5.554589deg)",
+TEST_CASE("solveKepler matches Meeus example 30.a (e=0.1 M=5deg -> E=5.554589deg)",
           "[ephemeris][kepler]")
 {
     // Astronomical Algorithms, 2nd ed., example 30.a: M=5 deg, e=0.1.
@@ -53,7 +53,7 @@ TEST_CASE("solveKepler matches Meeus example 30.a (e=0.1, M=5deg -> E=5.554589de
     CHECK_THAT(E * kR2D, WithinAbs(5.554589253872315, 1e-8));
 }
 
-TEST_CASE("solveKepler satisfies M = E - e*sin(E) to 1e-12 for e in [0, 0.999]",
+TEST_CASE("solveKepler satisfies M = E - e*sin(E) to 1e-12 for e between 0 and 0.999",
           "[ephemeris][kepler]")
 {
     // Property-based sweep (not a single fixed value): for ANY valid
@@ -75,7 +75,7 @@ TEST_CASE("solveKepler satisfies M = E - e*sin(E) to 1e-12 for e in [0, 0.999]",
 
 // ─── heliocentricPosition ─────────────────────────────────────────────────────
 
-TEST_CASE("heliocentricPosition: circular orbit (e=0, a=1) returns to the same point after one period",
+TEST_CASE("heliocentricPosition: circular orbit (e=0 a=1) returns to the same point after one period",
           "[ephemeris][heliocentric]")
 {
     // A circular orbit's period in days is exactly 360/n for a mean motion n
@@ -100,7 +100,7 @@ TEST_CASE("heliocentricPosition: circular orbit (e=0, a=1) returns to the same p
     CHECK_THAT(h1.z, WithinAbs(h0.z, 1e-9));
 }
 
-TEST_CASE("heliocentricPosition: eccentric orbit (e=0.5, a=2) gives r_peri=1 and r_apo=3",
+TEST_CASE("heliocentricPosition: eccentric orbit (e=0.5 a=2) gives r_peri=1 and r_apo=3",
           "[ephemeris][heliocentric]")
 {
     // Textbook identity, independent of this codebase: r_perihelion = a(1-e),
