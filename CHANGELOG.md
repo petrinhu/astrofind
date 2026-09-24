@@ -231,6 +231,37 @@ primeiro.
   | Close all Images → Close Every Open Image | Fechar todas as Imagens → Fechar Todas as Imagens Abertas |
   | Close all Windows → Close Every Window | Fechar todas as Janelas → Fechar Todas as Janelas |
 
+- **Review round for AUD-PROV-10: two more near-matches, one statusTip copy, two Portuguese source
+  strings, and one mnemonic collision / Rodada de revisão do AUD-PROV-10: mais duas
+  quase-identidades, um statusTip copiado, duas strings-fonte em português e uma colisão de
+  mnemônico.** 🇬🇧 Independent review against the exe strings found that `Tile All Windows` /
+  `Cascade All Windows` (from the earlier 29-item pass) had drifted back close to
+  `Tile all Windows` / `Cascade all Windows` in the original; they are now `Arrange Windows Side
+  by Side` / `Stack Windows Diagonally`. The `Settings` statusTip `Edit program settings` (an
+  exact exe match) is now `Adjust program preferences and options`. Two menu strings had
+  **Portuguese text baked into the English `tr()` source** (`Projetos &Recentes`,
+  `&Fechar Imagens` plus its statusTip), so English users were seeing Portuguese even though
+  `i18n/astrofind_en.ts` reported "0 unfinished" (the source itself was wrong, not the
+  translation). Sources are now `Recent &Projects` / `Close Loaded I&mages`, with the existing
+  Portuguese wording moved to `i18n/astrofind_pt_BR.ts` as a real translation. A new pt-BR
+  mnemonic collision introduced by the first AUD-PROV-10 fix (`Usar Fl&at de Calibração` × `&Abrir
+  Projeto`, both `A`) is resolved (`&Usar Flat de Calibração`). Single-word generic labels
+  (`Window`, `Display`, `Images`, `Image Catalog`) are kept, same criterion as the 11 approved
+  generics. 🇧🇷 A revisão independente contra os textos do exe achou que `Tile All Windows` /
+  `Cascade All Windows` (da rodada anterior de 29 itens) tinham voltado a ficar parecidos com
+  `Tile all Windows` / `Cascade all Windows` do original; agora são `Arrange Windows Side by
+  Side` / `Stack Windows Diagonally`. O statusTip de `Settings`, `Edit program settings`
+  (identidade exata com o exe), agora é `Adjust program preferences and options`. Duas strings de
+  menu tinham **texto em português cravado na fonte `tr()` em inglês**
+  (`Projetos &Recentes`, `&Fechar Imagens` e o statusTip dela), então usuários em inglês viam
+  português mesmo com `i18n/astrofind_en.ts` reportando "0 unfinished" (a fonte estava errada,
+  não a tradução). As fontes agora são `Recent &Projects` / `Close Loaded I&mages`, com o texto em
+  português já existente movido para `i18n/astrofind_pt_BR.ts` como tradução de verdade. Uma nova
+  colisão de mnemônico em pt-BR introduzida pela primeira correção do AUD-PROV-10
+  (`Usar Fl&at de Calibração` × `&Abrir Projeto`, ambos `A`) foi resolvida (`&Usar Flat de
+  Calibração`). Os rótulos genéricos de uma palavra (`Window`, `Display`, `Images`, `Image
+  Catalog`) foram mantidos, mesmo critério dos 11 genéricos já aprovados.
+
 ### Added / Adicionado
 
 - 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in

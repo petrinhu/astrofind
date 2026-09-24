@@ -937,9 +937,9 @@ UTC de meio de exposição que você espera para uma imagem.
   image files where they are.
 - **File → Open Project...** (`Ctrl+O`) reloads the images from disk (and re-extracts them from
   their archive). If a file moved, choose **Localizar…**, **Pular** or **Cancelar tudo**.
-  **Projetos Recentes** lists the last 5 projects.
+  **Recent Projects** lists the last 5 projects.
 - **File → Close Project** offers to save first. **File → Reset Session Files** (`Ctrl+R`) and
-  **Fechar Imagens** (`Ctrl+W`) clear everything **without asking to save**.
+  **Close Loaded Images** (`Ctrl+W`) clear everything **without asking to save**.
 - **File → Open Recent...** reopens every image in one of the last 8 folders.
 
 🇧🇷 **Português**

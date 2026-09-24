@@ -52,9 +52,8 @@ e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma
   Astrometry Tools items need loaded images first.
 - **Portuguese labels in the English UI.** A few labels were written in Portuguese directly in
   the program code, so they stay in Portuguese even when you choose English. On this page they
-  are marked **(PT in both languages)**. Examples: **Projetos Recentes**, **Fechar Imagens**,
-  **Exportar/Importar Configuração da Escola…**, the "Session in progress" dialog, and the
-  column titles of the Image Catalog.
+  are marked **(PT in both languages)**. Examples: **Exportar/Importar Configuração da
+  Escola…**, the "Session in progress" dialog, and the column titles of the Image Catalog.
 
 🇧🇷 **Português**
 
@@ -71,9 +70,9 @@ e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma
   maior parte do menu Ferramentas de Astrometria precisa de imagens carregadas antes.
 - **Rótulos em português na interface em inglês.** Alguns textos foram escritos em português
   direto no código do programa, então continuam em português mesmo com o idioma inglês. Nesta
-  página eles aparecem marcados **(PT nos dois idiomas)**. Exemplos: **Projetos Recentes**,
-  **Fechar Imagens**, **Exportar/Importar Configuração da Escola…**, a janela "Sessão em
-  andamento" e os títulos das colunas do Catálogo de Imagem.
+  página eles aparecem marcados **(PT nos dois idiomas)**. Exemplos: **Exportar/Importar
+  Configuração da Escola…**, a janela "Sessão em andamento" e os títulos das colunas do
+  Catálogo de Imagem.
 
 ---
 
@@ -94,7 +93,7 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 | Save Project | Salvar Projeto | `Ctrl+S` | Saves the session to its `.gus` file. If it has no file yet, works like Save Project As. Needs loaded images. | Salva a sessão no arquivo `.gus`. Se ainda não tem arquivo, funciona como Salvar Projeto Como. Precisa de imagens carregadas. | 🟢 |
 | Save Project As... | Salvar Projeto Como... | `Ctrl+Shift+S` | Asks for a new `.gus` file name. The default folder is `~/projects` (created if missing). | Pede um novo nome de arquivo `.gus`. A pasta padrão é `~/projects` (criada se não existir). | 🟢 |
 | Open Project... | Abrir Projeto... | `Ctrl+O` | Offers to save the current project, then opens a `.gus`. Reloads the images from disk (or re-extracts them from the original archive). If a file is missing, offers **Localizar…**, **Pular** or **Cancelar tudo**. | Oferece salvar o projeto atual e abre um `.gus`. Recarrega as imagens do disco (ou extrai de novo do arquivo compactado original). Se faltar um arquivo, oferece **Localizar…**, **Pular** ou **Cancelar tudo**. | 🟢 |
-| Projetos Recentes ▸ (PT in both languages) | Projetos Recentes ▸ | — | Submenu with the last 5 projects, then **Limpar Recentes**. Empty shows "(nenhum projeto recente)". | Submenu com os 5 últimos projetos e **Limpar Recentes**. Vazio mostra "(nenhum projeto recente)". | 🟢 |
+| Recent Projects ▸ | Projetos Recentes ▸ | — | Submenu with the last 5 projects, then **Limpar Recentes**. Empty shows "(nenhum projeto recente)". | Submenu com os 5 últimos projetos e **Limpar Recentes**. Vazio mostra "(nenhum projeto recente)". | 🟢 |
 | Close Project | Fechar Projeto | — | Offers to save, then clears the session, the observations and the undo history. | Oferece salvar e depois limpa a sessão, as observações e o histórico de desfazer. | 🟢 |
 | Save all FITS | Salvar todos como FITS | — | Asks for a folder and writes a copy of every image as `<name>_wcs.fits`, with the plate solution (WCS) written in when the image is solved. | Pede uma pasta e grava uma cópia de cada imagem como `<nome>_wcs.fits`, com a solução de placa (WCS) gravada quando a imagem foi resolvida. | 🟡 |
 | Save FITS Copy... | Salvar Cópia em FITS... | — | Same, for the active image only. | O mesmo, só para a imagem ativa. | 🟡 |
@@ -106,7 +105,7 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 | Show Photometry Results | Mostrar Resultados de Fotometria | — | **Does not open a file.** It only shows the Observations panel. | **Não abre arquivo.** Só mostra o painel Observações. | 🟢 |
 | View Log File | Ver Arquivo de Log | — | **Does not open a file.** It only shows the Log panel. | **Não abre arquivo.** Só mostra o painel Registro (Log). | 🟢 |
 | Reset Session Files | Limpar Arquivos da Sessão | `Ctrl+R` | Closes all images and clears the session. **Does not ask to save.** | Fecha todas as imagens e limpa a sessão. **Não pergunta se quer salvar.** | 🟢 |
-| Fechar Imagens (PT in both languages) | Fechar Imagens | `Ctrl+W` | Exactly the same as Reset Session Files. **Does not ask to save.** | Exatamente o mesmo que Limpar Arquivos da Sessão. **Não pergunta se quer salvar.** | 🟢 |
+| Close Loaded Images | Fechar Imagens | `Ctrl+W` | Exactly the same as Reset Session Files. **Does not ask to save.** | Exatamente o mesmo que Limpar Arquivos da Sessão. **Não pergunta se quer salvar.** | 🟢 |
 | Reload MPCOrb | Recarregar MPCOrb | — | Re-reads the offline asteroid list `MPCORB.DAT`. If it is missing, the log says to use **Internet → Download MPCOrb Database**. | Relê a lista offline de asteroides `MPCORB.DAT`. Se não existir, o registro manda usar **Internet → Baixar Banco MPCOrb**. | 🟡 |
 | Settings... | Configurações... | `Ctrl+,` | Opens the Settings window. See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings). | Abre a janela de Configurações. Veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings). | 🟢 |
 | Exportar Configuração da Escola... (PT in both languages) | Exportar Configuração da Escola... | — | Saves **all** settings to an `.ini` file (default `~/astrofind_escola.ini`) so a teacher can hand the same setup to students. | Grava **todas** as configurações num arquivo `.ini` (padrão `~/astrofind_escola.ini`) para o professor distribuir aos alunos. | 🔴 |
@@ -263,8 +262,8 @@ cores e mostrar/esconder barras e painéis.
 
 | EN label | PT label | Shortcut | What it does | O que faz | Level |
 |---|---|---|---|---|---|
-| Tile All Windows | Organizar Todas em Grade | — | Arranges the image windows side by side. | Organiza as janelas de imagem lado a lado. | 🟢 |
-| Cascade All Windows | Cascata de Todas as Janelas | — | Stacks them diagonally. | Empilha na diagonal. | 🟢 |
+| Arrange Windows Side by Side | Organizar Janelas Lado a Lado | — | Arranges the image windows side by side. | Organiza as janelas de imagem lado a lado. | 🟢 |
+| Stack Windows Diagonally | Empilhar Janelas na Diagonal | — | Stacks them diagonally. | Empilha na diagonal. | 🟢 |
 | Auto-Arrange Windows | Organizar Automaticamente | — | Restores minimized/maximized windows and fits each image. | Restaura janelas minimizadas/maximizadas e encaixa cada imagem. | 🟢 |
 | Close Every Open Image | Fechar Todas as Imagens Abertas | — | Same as **File → Reset Session Files**: clears the session **without asking**. | Igual a **Arquivo → Limpar Arquivos da Sessão**: limpa a sessão **sem perguntar**. | 🟢 |
 | Close Every Window | Fechar Todas as Janelas | — | Closes the image windows but keeps the session. | Fecha as janelas de imagem mas mantém a sessão. | 🟢 |
@@ -629,7 +628,7 @@ foco do teclado (clique nela antes).
 | `Ctrl+R` | Reset Session Files (no save prompt) | Limpar Arquivos da Sessão (sem perguntar) | File menu |
 | `Ctrl+S` | Save Project | Salvar Projeto | File menu |
 | `Ctrl+T` | Stack Images (Track & Stack) | Empilhar Imagens | Astrometry Tools menu |
-| `Ctrl+W` | Fechar Imagens (= Reset Session Files, no save prompt) | Fechar Imagens (sem perguntar) | File menu |
+| `Ctrl+W` | Close Loaded Images (= Reset Session Files, no save prompt) | Fechar Imagens (sem perguntar) | File menu |
 | `Ctrl+Y` | Redo (alternative) | Refazer (alternativo) | Edit menu |
 | `Ctrl+Z` | Undo | Desfazer | Edit menu |
 | `Ctrl+Shift+C` | Compare Sessions | Comparar Sessões | Utilities menu |

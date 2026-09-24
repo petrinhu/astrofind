@@ -14,11 +14,11 @@ português exatamente como o programa mostra. Palavras desconhecidas estão no
 em [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 > 🇬🇧 **Note on language:** some labels appear **in Portuguese even in the English interface**
-> (for example "Fluxo automático", "Projetos Recentes", "&Fechar Imagens", "✓ Aceitar"). This
+> (for example "Fluxo automático", "✓ Aceitar"). This
 > page quotes them as the program shows them.
 >
 > 🇧🇷 **Nota sobre idioma:** alguns rótulos aparecem **em português mesmo na interface em
-> inglês** (ex.: "Fluxo automático", "Projetos Recentes", "Fechar Imagens", "✓ Aceitar").
+> inglês** (ex.: "Fluxo automático", "✓ Aceitar").
 
 ## Contents / Conteúdo
 
@@ -200,10 +200,10 @@ reloaded from disk (or re-extracted from their archive).
   As...** (`Ctrl+Shift+S`) / **Salvar Projeto Como...**. Default folder `~/projects`.
 - **File → Open Project...** (`Ctrl+O`) / **Arquivo → Abrir Projeto...**. If an image is missing
   it offers **Localizar…**, **Pular**, **Cancelar tudo**.
-- **File → Projetos Recentes**: the last 5 projects.
+- **File → Recent Projects**: the last 5 projects.
 - **File → Close Project** / **Arquivo → Fechar Projeto**: offers to save, then clears everything.
 
-> 🇬🇧 ⚠️ **Watch out:** **File → Reset Session Files** (`Ctrl+R`), **File → Fechar Imagens** (`Ctrl+W`)
+> 🇬🇧 ⚠️ **Watch out:** **File → Reset Session Files** (`Ctrl+R`), **File → Close Loaded Images** (`Ctrl+W`)
 > and **Window → Close Every Open Image** clear the whole session **without asking to save**.
 > **Window → Close Every Window** only closes the windows and keeps the session.
 
@@ -274,9 +274,9 @@ faltando) antes de medir.
   the view, to match a chart with another orientation.
 - **Image Tools → Magnifier Tool** (`Ctrl+G`) / **Ferramentas de Imagem → Ferramenta Lupa**: an enlarged view under the
   cursor.
-- **Window → Tile All Windows / Cascade All Windows / Auto-Arrange Windows** / **Janela → Organizar em
-  Grade / Cascata de Janelas / Organizar todas as Janelas**. Click a thumbnail in the Images bar
-  to bring that image forward.
+- **Window → Arrange Windows Side by Side / Stack Windows Diagonally / Auto-Arrange Windows** /
+  **Janela → Organizar Janelas Lado a Lado / Empilhar Janelas na Diagonal / Organizar
+  Automaticamente**. Click a thumbnail in the Images bar to bring that image forward.
 - The status bar shows the pixel value and RA/Dec (decimal degrees) under the cursor.
 
 🇧🇷 **Português**

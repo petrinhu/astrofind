@@ -432,7 +432,7 @@ Esses ajustes mudam só o que você vê, nunca as medições.
 | `S`, `A`, `N` or `M` do nothing | A text field or another window has the keyboard focus. | Click on an image window first, then press the key. |
 | `Ctrl+A` does not select all text | In AstroFind `Ctrl+A` starts **Run Data Reduction**. | Use the mouse to select text. |
 | Space, Left/Right do not control the blink | These keys work only while the blink view has focus. | Click inside the blink view first. |
-| Images disappeared after `Ctrl+W` or `Ctrl+R` | `Ctrl+W` (**File → Fechar Imagens**) and `Ctrl+R` (**File → Reset Session Files**) close all images **without asking** to save. | Reopen the images or your saved `.gus` project with **File → Open Project…**. Save often with `Ctrl+S`. |
+| Images disappeared after `Ctrl+W` or `Ctrl+R` | `Ctrl+W` (**File → Close Loaded Images**) and `Ctrl+R` (**File → Reset Session Files**) close all images **without asking** to save. | Reopen the images or your saved `.gus` project with **File → Open Project…**. Save often with `Ctrl+S`. |
 
 Full shortcut list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference).
 
@@ -457,8 +457,8 @@ Lista completa de atalhos: [Menu-Reference](https://github.com/petrinhu/astrofin
 
 🇬🇧 **English**
 Some labels and messages are written in Portuguese in the program itself, so they stay in
-Portuguese with the English interface too. Examples: **File → Projetos Recentes**,
-**File → Fechar Imagens**, "Fluxo automático", "✓ Aceitar", "Função de transferência:", and many Log
+Portuguese with the English interface too. Examples: "Fluxo automático", "✓ Aceitar",
+"Função de transferência:", and many Log
 lines about plate solving and time. This is known and harmless. The other way round, a few new
 messages have no Portuguese translation yet and appear in English in the Portuguese interface.
 
@@ -467,8 +467,8 @@ AstroFind (the message "⟳ Restart required to apply language change." reminds 
 
 🇧🇷 **Português**
 Alguns rótulos e mensagens foram escritos em português no próprio programa, então continuam em
-português mesmo com a interface em inglês. Exemplos: **Arquivo → Projetos Recentes**,
-**Fechar Imagens**, "Fluxo automático", "✓ Aceitar", "Função de transferência:", e muitas linhas
+português mesmo com a interface em inglês. Exemplos: "Fluxo automático", "✓ Aceitar",
+"Função de transferência:", e muitas linhas
 do Log sobre plate solving e horário. Isso é conhecido e não causa problema. Ao contrário,
 algumas mensagens novas ainda não têm tradução e aparecem em inglês na interface em português.
 

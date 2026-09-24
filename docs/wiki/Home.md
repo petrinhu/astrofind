@@ -171,7 +171,7 @@ Portuguese UI label). The last column says what is **different**.
 | Local catalog folders (USNO-A2, UCAC-2/3, CMC-14) | **Settings → Legacy** / **Configurações → Legado** | Kept for compatibility only. **The pipeline never reads them.** Use VizieR or a local FITS BINTABLE catalog (Connections tab). |
 
 > ⚠️ **Watch out:** some labels stay in Portuguese even when the interface is in English (for
-> example "Fluxo automático", "✓ Aceitar", "Fechar Imagens"). This is how the app is today, not
+> example "Fluxo automático", "✓ Aceitar"). This is how the app is today, not
 > a problem on your side. [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference) lists them.
 
 🇧🇷 **Português**
@@ -184,7 +184,7 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 |---|---|---|
 | Dados do observador, código MPC, câmera | **Arquivo → Configurações...** (`Ctrl+,`) / **File → Settings...** — abas Observador, Câmera, Conexões, Detecção, Exibição, Legado | O local pode vir do cabeçalho FITS, de uma lista embutida de 84 observatórios, de coordenadas manuais ou de "Telescópio Espacial". Veja [Configurações](https://github.com/petrinhu/astrofind/wiki/Settings). |
 | Carregar a série de imagens | **Arquivo → Importar Imagens...** (`Ctrl+L`) / **File → Import Images...** | Também abre SER, XISF, TIFF/PNG, RAW de DSLR, NASA PDS e arquivos compactados (ZIP, TAR, 7Z, RAR). Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Utilitários → Curva de Luz…** e podia não fazer nada (lá, use o menu ou a barra de ferramentas); a próxima versão (depois da 1.1.0) passa a Curva de Luz para `Ctrl+Shift+L`. |
-| Calibração com dark / flat | **Arquivo → Carregar Dark Frame...** / **Carregar Flat Field...** / **Assistente de Calibração…** | Dá para montar masters no painel Calibração ("Construir Master…"). A calibração é aplicada dentro da Execução da Redução de Dados. |
+| Calibração com dark / flat | **Arquivo → Usar Dark de Calibração...** / **Usar Flat de Calibração...** / **Assistente de Calibração…** | Dá para montar masters no painel Calibração ("Construir Master…"). A calibração é aplicada dentro da Execução da Redução de Dados. |
 | Redução de Dados | **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) / **Astrometry Tools → Run Data Reduction...** | A solução de placa vem do **astrometry.net** (online, chave de API gratuita) ou do **ASTAP** (offline). Imagens que já têm WCS (solução de coordenadas do céu) no cabeçalho são puladas. |
 | Estrelas de referência e objetos conhecidos | **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) / **Utilities → Show Known Objects** | Estrelas de referência: UCAC4 ou Gaia DR3 via VizieR (online) ou tabela FITS local. Objetos conhecidos: IMCCE SkyBoT online, com o MPCORB.DAT como reserva offline. |
 | Blink (piscar) | **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`) / **Utilities → Begin Blink Mode**; parar com `Ctrl+F9` | A visão de piscar mostra até 4 miniaturas; Espaço = tocar/pausar, Esquerda/Direita = avançar/voltar. |
@@ -196,7 +196,7 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 | Pastas de catálogos locais (USNO-A2, UCAC-2/3, CMC-14) | **Configurações → Legado** / **Settings → Legacy** | Mantidas só por compatibilidade. **O processamento nunca as lê.** Use o VizieR ou um catálogo local FITS BINTABLE (aba Conexões). |
 
 > ⚠️ **Atenção:** alguns rótulos ficam em português mesmo com a interface em inglês (por
-> exemplo "Fluxo automático", "✓ Aceitar", "Fechar Imagens"). O programa é assim hoje; não é
+> exemplo "Fluxo automático", "✓ Aceitar"). O programa é assim hoje; não é
 > problema do seu lado. A [Referência de Menus](https://github.com/petrinhu/astrofind/wiki/Menu-Reference) lista esses casos.
 
 ---
