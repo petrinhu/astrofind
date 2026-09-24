@@ -1022,6 +1022,11 @@ Use the Measure tool (M) to click on objects.</translation>
 <context>
     <name>MainWindow</name>
     <message>
+        <location filename="../src/ui/MainWindow.cpp" line="54" />
+        <source>Time Offset reset from %1 to 0 s: older versions filled it automatically with a wrong value. If your camera clock has a known error, set it again in Settings (seconds).</source>
+        <translation>Time Offset reset from %1 to 0 s: older versions filled it automatically with a wrong value. If your camera clock has a known error, set it again in Settings (seconds).</translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow.cpp" line="8" />
         <location filename="../src/ui/MainWindow_io.cpp" line="777" />
         <source>AstroFind</source>
@@ -3676,8 +3681,8 @@ Download it first via Internet → Download MPCOrb.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="1021" />
-        <source>Registration — N/A (MIT open source)</source>
-        <translation>Registration — N/A (MIT open source)</translation>
+        <source>Registration — not needed (free software, AGPL-3.0)</source>
+        <translation>Registration — not needed (free software, AGPL-3.0)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="1029" />
@@ -5142,8 +5147,8 @@ Este modo é habilitado automaticamente quando detectado no cabeçalho FITS.</tr
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="481" />
-        <source>Timing precision of your observations, reported in ADES. Use 1.0 h for typical CCD observations.</source>
-        <translation>Timing precision of your observations, reported in ADES. Use 1.0 h for typical CCD observations.</translation>
+        <source>Decimal places of the seconds in the reported observation time (0 = whole seconds, 1 = tenths, 2 = hundredths, 3 = milliseconds). Use 1 for typical CCD observations.</source>
+        <translation>Decimal places of the seconds in the reported observation time (0 = whole seconds, 1 = tenths, 2 = hundredths, 3 = milliseconds). Use 1 for typical CCD observations.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="483" />
@@ -5224,8 +5229,8 @@ Leave at 0.0 to let the plate solver determine it automatically.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="538" />
-        <source>Pixel scale in X (degrees per pixel). 0 = auto.</source>
-        <translation>Pixel scale in X (degrees per pixel). 0 = auto.</translation>
+        <source>Pixel scale in X (arcseconds per pixel, unbinned). 0 = auto.</source>
+        <translation>Pixel scale in X (arcseconds per pixel, unbinned). 0 = auto.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="539" />
@@ -5240,8 +5245,8 @@ Leave at 0.0 to let the plate solver determine it automatically.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="545" />
-        <source>Pixel scale in Y (degrees per pixel). 0 = auto.</source>
-        <translation>Pixel scale in Y (degrees per pixel). 0 = auto.</translation>
+        <source>Pixel scale in Y (arcseconds per pixel, unbinned). 0 = auto.</source>
+        <translation>Pixel scale in Y (arcseconds per pixel, unbinned). 0 = auto.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="547" />
@@ -5480,8 +5485,8 @@ Current value (2024): ~68 s.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="741" />
-        <source>VizieR mirror server hostname. Change only if the default server is unreachable from your location.</source>
-        <translation>VizieR mirror server hostname. Change only if the default server is unreachable from your location.</translation>
+        <source>Full https:// URL of a VizieR TAP endpoint (…/TAPVizieR/tap/sync). Change only if the default server is unreachable from your location.</source>
+        <translation>Full https:// URL of a VizieR TAP endpoint (…/TAPVizieR/tap/sync). Change only if the default server is unreachable from your location.</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsDialog.cpp" line="743" />

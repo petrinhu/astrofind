@@ -1111,6 +1111,26 @@ The Modified Julian Date: $\text{MJD} = JD - 2400000.5$.
 
 The Julian century from J2000.0: $t = (JD - 2451545.0) / 36525$.
 
+**Time scales in AstroFind.** The image JD is the mid-exposure in **UTC**, plus the
+user's camera-clock correction $\Delta t_\text{clock}$ (Settings → Observer → Time
+Offset, in seconds), which is applied exactly once per image:
+
+$$
+JD_\text{UTC} = JD_\text{mid} + \frac{\Delta t_\text{clock}}{86400}
+$$
+
+This $JD_\text{UTC}$ is what the ADES report writes as `obsTime` (with `Z`) and what
+is sent to SkyBoT, which expects UTC. $\Delta T = TT - UTC$ (Settings → Camera,
+default 68 s) is **not** added to the reported time. It is used only for the offline
+MPCORB ephemeris scan, whose orbital elements are propagated in TT:
+
+$$
+JD_\text{TT} = JD_\text{UTC} + \frac{\Delta T}{86400}
+$$
+
+(Version 1.1.0 and earlier added $\Delta T$ to the image JD during Data Reduction, so
+`obsTime` was about 68 s late; the next version (after 1.1.0) fixes this.)
+
 ### 🇧🇷 Português
 
 A "Data Juliana" (JD) é uma contagem contínua de dias usada em astronomia,
@@ -1128,6 +1148,28 @@ Válida para datas após 1582-10-15 (calendário gregoriano).
 A Data Juliana Modificada: $\text{MJD} = JD - 2400000.5$.
 
 O século juliano a partir de J2000.0: $t = (JD - 2451545.0) / 36525$.
+
+**Escalas de tempo no AstroFind.** O JD da imagem é o meio da exposição em **UTC**,
+mais a correção do relógio da câmera $\Delta t_\text{clock}$ (Configurações →
+Observador → Deslocamento de tempo, em segundos), aplicada exatamente uma vez por
+imagem:
+
+$$
+JD_\text{UTC} = JD_\text{mid} + \frac{\Delta t_\text{clock}}{86400}
+$$
+
+Esse $JD_\text{UTC}$ é o que o relatório ADES grava como `obsTime` (com `Z`) e o que é
+enviado ao SkyBoT, que espera UTC. O $\Delta T = TT - UTC$ (Configurações → Câmera,
+padrão 68 s) **não** é somado ao horário reportado. Ele só é usado na busca offline de
+efemérides pelo MPCORB, cujos elementos orbitais são propagados em TT:
+
+$$
+JD_\text{TT} = JD_\text{UTC} + \frac{\Delta T}{86400}
+$$
+
+(A versão 1.1.0 e anteriores somavam o $\Delta T$ ao JD da imagem na Redução de Dados,
+e o `obsTime` saía cerca de 68 s atrasado; a próxima versão (depois da 1.1.0) corrige
+isso.)
 
 ---
 

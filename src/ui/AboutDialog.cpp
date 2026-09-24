@@ -125,7 +125,7 @@ AboutDialog::AboutDialog(QWidget* parent)
     dedicLabel->setStyleSheet("font-style:italic; font-size:11px; margin:2px 8px;");
 
     // ── Credits ──────────────────────────────────────────────────────────────
-    // "MIT License" is a clickable link that opens the bilingual license dialog.
+    // "AGPL-3.0" is a clickable link that opens the bilingual license dialog.
     auto* credLabel = new QLabel(
         tr("Inspired by <a href=\"http://www.astrometrica.at/\">Astrometrica</a> by Herbert Raab.<br>"
            "Built with Qt6, cfitsio, Eigen3, SEP.<br>"

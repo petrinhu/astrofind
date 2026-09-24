@@ -83,7 +83,7 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 
 | EN label | PT label | Shortcut | What it does | O que faz | Level |
 |---|---|---|---|---|---|
-| Load Images... | Carregar Imagens... | `Ctrl+L` ⚠️ | Opens the "Load Astronomical Images" file dialog. You can pick many files, or a ZIP/TAR/7Z/RAR archive. One window opens per image. If images are already loaded, asks whether to add them (**Acréscimo**) or start a **Novo Projeto**. | Abre a janela "Carregar Imagens Astronômicas". Você pode escolher vários arquivos ou um arquivo compactado ZIP/TAR/7Z/RAR. Abre uma janela por imagem. Se já houver imagens, pergunta se quer acrescentar (**Acréscimo**) ou começar um **Novo Projeto**. | 🟢 |
+| Load Images... | Carregar Imagens... | `Ctrl+L` | Opens the "Load Astronomical Images" file dialog. You can pick many files, or a ZIP/TAR/7Z/RAR archive. One window opens per image. If images are already loaded, asks whether to add them (**Acréscimo**) or start a **Novo Projeto**. | Abre a janela "Carregar Imagens Astronômicas". Você pode escolher vários arquivos ou um arquivo compactado ZIP/TAR/7Z/RAR. Abre uma janela por imagem. Se já houver imagens, pergunta se quer acrescentar (**Acréscimo**) ou começar um **Novo Projeto**. | 🟢 |
 | Open Recent... ▸ | Abrir Recente... ▸ | — | Submenu with the last 8 folders you loaded images from. Clicking one loads every supported image in that folder. Ends with **Clear Recent** / **Limpar Recentes**. Empty list shows "(no recent files)". | Submenu com as 8 últimas pastas de onde você carregou imagens. Clicar numa carrega todas as imagens suportadas dela. Termina com **Limpar Recentes**. Vazio mostra "(nenhum arquivo recente)". | 🟢 |
 | Save Project | Salvar Projeto | `Ctrl+S` | Saves the session to its `.gus` file. If it has no file yet, works like Save Project As. Needs loaded images. | Salva a sessão no arquivo `.gus`. Se ainda não tem arquivo, funciona como Salvar Projeto Como. Precisa de imagens carregadas. | 🟢 |
 | Save Project As... | Salvar Projeto Como... | `Ctrl+Shift+S` | Asks for a new `.gus` file name. The default folder is `~/projects` (created if missing). | Pede um novo nome de arquivo `.gus`. A pasta padrão é `~/projects` (criada se não existir). | 🟢 |
@@ -113,13 +113,13 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 > 🇧🇷 `Ctrl+R` e `Ctrl+W` descartam a sessão atual **sem perguntar**. Salve o projeto antes
 > (`Ctrl+S`) se quiser guardar o trabalho.
 
-> ⚠️ **Watch out / Atenção**
-> 🇬🇧 `Ctrl+L` is also given to **Tools → Light Curve…**. Because the same key has two jobs,
-> the keyboard may do nothing. Use the menu entry **File → Load Images...** or the toolbar
-> button instead. See [the shortcut table](#all-keyboard-shortcuts--todos-os-atalhos-de-teclado).
-> 🇧🇷 `Ctrl+L` também foi dado a **Ferramentas → Curva de Luz…**. Como a mesma tecla tem duas
-> funções, o teclado pode não fazer nada. Use o menu **Arquivo → Carregar Imagens...** ou o
-> botão da barra de ferramentas.
+> 💡 **Version 1.1.0 / Versão 1.1.0**
+> 🇬🇧 In 1.1.0 and earlier `Ctrl+L` was also given to **Tools → Light Curve…**, so the key
+> could do nothing; there, use the menu or the toolbar button. In the next version (after
+> 1.1.0) `Ctrl+L` is only Load Images. See [the shortcut table](#all-keyboard-shortcuts--todos-os-atalhos-de-teclado).
+> 🇧🇷 Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Ferramentas → Curva de Luz…**, então
+> a tecla podia não fazer nada; lá, use o menu ou o botão da barra. Na próxima versão (depois
+> da 1.1.0) o `Ctrl+L` é só Carregar Imagens.
 
 ---
 
@@ -210,15 +210,16 @@ seus arquivos originais.
 | Stop Blinking | Parar Piscar | `Ctrl+F9` | Closes the Blink View. | Fecha a Visão de piscar. | 🟢 |
 | Known Object Overlay | Sobreposição de Objetos Conhecidos | `Ctrl+K` | Downloads reference stars (UCAC4 or Gaia DR3 from VizieR, or a local file) and the known asteroids/comets in the field (SkyBoT, or offline `MPCORB.DAT`), and marks them on the images. | Baixa estrelas de referência (UCAC4 ou Gaia DR3 do VizieR, ou arquivo local) e os asteroides/cometas conhecidos no campo (SkyBoT, ou `MPCORB.DAT` offline) e marca nas imagens. | 🟢 |
 | Ecliptic / Galactic Overlay | Sobreposição Eclíptica / Galáctica | `Ctrl+E` | On/off. Draws the ecliptic (the Sun's path, where most asteroids are; label "Eclíptica") and the Milky Way plane (label "Via Láctea"). Warns when the field is near the galactic plane (many stars, more dust). | Liga/desliga. Desenha a eclíptica (caminho do Sol, onde ficam a maioria dos asteroides; rótulo "Eclíptica") e o plano da Via Láctea (rótulo "Via Láctea"). Avisa quando o campo está perto do plano galáctico (muitas estrelas, mais poeira). | 🟡 |
-| Light Curve… | Curva de Luz… | `Ctrl+L` ⚠️ | Plots magnitude against time for your measurements. Can export PNG. | Faz o gráfico de magnitude contra tempo das suas medições. Exporta PNG. | 🟡 |
+| Light Curve… | Curva de Luz… | `Ctrl+Shift+L` | Plots magnitude against time for your measurements. Can export PNG. | Faz o gráfico de magnitude contra tempo das suas medições. Exporta PNG. | 🟡 |
 | Growth Curve… | Curva de Crescimento… | `Ctrl+Shift+G` | Shows how a star's measured light grows with the aperture (measuring circle) size and can set the best aperture in Settings. | Mostra como a luz medida de uma estrela cresce com o tamanho da abertura (círculo de medição) e pode gravar a melhor abertura nas Configurações. | 🔴 |
 | Compare Sessions… | Comparar Sessões… | `Ctrl+Shift+C` | Subtracts a reference image from the session images and opens a "Residual" window with what changed. | Subtrai uma imagem de referência das imagens da sessão e abre uma janela "Residual" com o que mudou. | 🔴 |
 
-> ⚠️ **Watch out / Atenção**
-> 🇬🇧 Open Light Curve from the menu (**Tools → Light Curve…**). `Ctrl+L` is shared with Load
-> Images and may not work.
-> 🇧🇷 Abra a Curva de Luz pelo menu (**Ferramentas → Curva de Luz…**). `Ctrl+L` é
-> compartilhado com Carregar Imagens e pode não funcionar.
+> 💡 **Version 1.1.0 / Versão 1.1.0**
+> 🇬🇧 In 1.1.0 and earlier Light Curve showed `Ctrl+L`, shared with Load Images, so the key
+> might not work; there, open it from the menu (**Tools → Light Curve…**).
+> 🇧🇷 Na 1.1.0 e anteriores a Curva de Luz mostrava `Ctrl+L`, compartilhado com Carregar
+> Imagens, então a tecla podia não funcionar; lá, abra pelo menu (**Ferramentas → Curva de
+> Luz…**).
 
 ---
 
@@ -250,7 +251,7 @@ seus arquivos originais.
 | Arrange all Windows | Organizar todas as Janelas | — | Restores minimized/maximized windows and fits each image. | Restaura janelas minimizadas/maximizadas e encaixa cada imagem. | 🟢 |
 | Close all Images | Fechar todas as Imagens | — | Same as **File → Reset Files**: clears the session **without asking**. | Igual a **Arquivo → Resetar Arquivos**: limpa a sessão **sem perguntar**. | 🟢 |
 | Close all Windows | Fechar todas as Janelas | — | Closes the image windows but keeps the session. | Fecha as janelas de imagem mas mantém a sessão. | 🟢 |
-| Toggle Day/Night Mode | Alternar modo Dia/Noite | `Ctrl+Shift+T` ⚠️ | Cycles the colour theme: Night → Day → Auto → Night. | Alterna o tema de cores: Noite → Dia → Automático → Noite. | 🟢 |
+| Toggle Day/Night Mode | Alternar modo Dia/Noite | — (`Ctrl+Shift+T` via the toolbar theme button) | Cycles the colour theme: Night → Day → Auto → Night. The menu item shows no shortcut; `Ctrl+Shift+T` belongs to the theme button of the Standard toolbar and does the same. | Alterna o tema de cores: Noite → Dia → Automático → Noite. O item de menu não mostra atalho; o `Ctrl+Shift+T` é do botão de tema da barra Padrão e faz o mesmo. | 🟢 |
 | View Standard Toolbar | Exibir barra de ferramentas padrão | — | Shows/hides that toolbar. | Mostra/esconde essa barra. | 🟢 |
 | View Display Toolbar | Exibir barra de ferramentas de exibição | — | Shows/hides that toolbar. | Mostra/esconde essa barra. | 🟢 |
 | View Blink Toolbar | Exibir barra de ferramentas de piscar | — | Shows/hides that toolbar. | Mostra/esconde essa barra. | 🟢 |
@@ -277,7 +278,7 @@ seus arquivos originais.
 |---|---|---|---|---|---|
 | Help Contents | Conteúdo da Ajuda | `F1` | Opens the built-in help. A "Language:" box switches between English and Português (BR). | Abre a ajuda embutida. A caixa "Language:" troca entre English e Português (BR). | 🟢 |
 | Setup Wizard… | Assistente de Configuração… | — | Opens the 3-step first-run wizard (name, MPC code, API key, MPCORB download). See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings) (section Setup Wizard). | Abre o assistente de 3 etapas (nome, código MPC, chave de API, download do MPCORB). Veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings) (seção Assistente). | 🟢 |
-| Registration... | Registro... | — | Only shows a status-bar message "Registration — N/A (MIT open source)". This text is outdated: the real license is **AGPL-3.0** (shown in About). | Só mostra na barra de status "Registro — N/D (código aberto MIT)". O texto está desatualizado: a licença real é **AGPL-3.0** (mostrada em Sobre). | 🟢 |
+| Registration... | Registro... | — | Only shows a status-bar message "Registration — not needed (free software, AGPL-3.0)". (1.1.0 and earlier wrongly said "MIT open source".) | Só mostra na barra de status "Registro — não é necessário (software livre, AGPL-3.0)". (A 1.1.0 e anteriores diziam, errado, "código aberto MIT".) | 🟢 |
 | About... | Sobre... | — | Version, credits, license and reference software. | Versão, créditos, licença e programas de referência. | 🟢 |
 
 ---
@@ -319,8 +320,8 @@ Imagens...** para eles.
 
 - **"Sessão em andamento"** (PT in both languages): appears when you load images while others
   are open. **Acréscimo** = add the new images to the session. **Novo Projeto** = unload
-  everything and start clean; it also resets pixel scale, saturation, location and time
-  offset to 0 and sets location to "from FITS". **Cancel** = do nothing.
+  everything and start clean; it also resets pixel scale, saturation and location to 0 and
+  sets location to "from FITS" (Time Offset is kept; 1.1.0 and earlier also reset it). **Cancel** = do nothing.
 - **"Salvar projeto?"** (PT in both languages): **Salvar** (save) / **Não salvar** (don't
   save) / **Cancelar** (go back).
 - **"Imagens carregadas"** (PT in both languages): tells you whether the images are black &
@@ -336,8 +337,8 @@ Imagens...** para eles.
 
 - **"Sessão em andamento"**: aparece quando você carrega imagens com outras já abertas.
   **Acréscimo** = junta as novas à sessão. **Novo Projeto** = descarrega tudo e começa do zero;
-  também zera escala de pixel, saturação, localização e deslocamento de tempo e coloca a
-  localização em "do FITS". **Cancelar** = não faz nada.
+  também zera escala de pixel, saturação e localização e coloca a localização em "do FITS"
+  (o Deslocamento de tempo é mantido; a 1.1.0 e anteriores também o zeravam). **Cancelar** = não faz nada.
 - **"Salvar projeto?"**: **Salvar** / **Não salvar** / **Cancelar**.
 - **"Imagens carregadas"**: diz se as imagens são preto e branco ou coloridas. Desmarque
   **Mostrar sempre este aviso** para não ver mais.
@@ -604,7 +605,7 @@ foco do teclado (clique nela antes).
 | `Ctrl+G` | Magnifying Glass | Lupa | Images menu |
 | `Ctrl+I` | Invert Display | Inverter Exibição | Images menu |
 | `Ctrl+K` | Known Object Overlay | Sobreposição de Objetos Conhecidos | Tools menu |
-| `Ctrl+L` ⚠️ | Load Images **and** Light Curve (clash) | Carregar Imagens **e** Curva de Luz (conflito) | File / Tools menu |
+| `Ctrl+L` | Load Images | Carregar Imagens | File menu |
 | `Ctrl+M` | Moving Object Detection | Detecção de Objetos em Movimento | Astrometry menu |
 | `Ctrl+O` | Open Project | Abrir Projeto | File menu |
 | `Ctrl+Q` | Exit | Sair | File menu |
@@ -616,27 +617,25 @@ foco do teclado (clique nela antes).
 | `Ctrl+Z` | Undo | Desfazer | Edit menu |
 | `Ctrl+Shift+C` | Compare Sessions | Comparar Sessões | Tools menu |
 | `Ctrl+Shift+G` | Growth Curve | Curva de Crescimento | Tools menu |
+| `Ctrl+Shift+L` | Light Curve | Curva de Luz | Tools menu |
 | `Ctrl+Shift+R` | Region Statistics | Estatísticas de Região | Images menu |
 | `Ctrl+Shift+S` | Save Project As | Salvar Projeto Como | File menu |
-| `Ctrl+Shift+T` ⚠️ | Toggle Day/Night/Auto theme (assigned twice) | Alternar tema (atribuído duas vezes) | Windows menu + toolbar |
+| `Ctrl+Shift+T` | Toggle Night/Day/Auto theme | Alternar tema Noite/Dia/Automático | Standard toolbar (theme button) |
 | `Ctrl+Shift+Z` | Redo | Refazer | Edit menu |
 | `Shift+Ctrl+F10` | Step to previous image | Imagem anterior | Blink toolbar |
 
-> ⚠️ **Watch out: shortcut clashes / Atenção: atalhos em conflito**
+> 💡 **Shortcut clashes in 1.1.0 / Atalhos em conflito na 1.1.0**
 >
-> 🇬🇧 Two keys are given to two actions at once. When that happens the program cannot decide,
-> so pressing the key may do **nothing**.
-> - **`Ctrl+L`** = **File → Load Images...** and **Tools → Light Curve…**. Use the menu entries
->   (or the Load Images toolbar button / the **▶ Do it** button of Workflow step 1) instead.
-> - **`Ctrl+Shift+T`** = **Windows → Toggle Day/Night Mode** and the theme button of the
->   Standard toolbar. Click the theme button (moon/sun icon) or use the Windows menu instead.
+> 🇬🇧 In 1.1.0 and earlier two keys were given to two actions at once, so pressing them could
+> do **nothing**: `Ctrl+L` (Load Images and Light Curve) and `Ctrl+Shift+T` (the Windows menu
+> item and the toolbar theme button). The next version (after 1.1.0) fixes both: Light Curve
+> moved to `Ctrl+Shift+L`, and `Ctrl+Shift+T` belongs only to the toolbar theme button. If you
+> are still on 1.1.0, use the menu entries or the toolbar buttons instead.
 >
-> 🇧🇷 Duas teclas foram dadas a duas ações ao mesmo tempo. Quando isso acontece o programa não
-> sabe qual escolher, e apertar a tecla pode não fazer **nada**.
-> - **`Ctrl+L`** = **Arquivo → Carregar Imagens...** e **Ferramentas → Curva de Luz…**. Use os
->   itens de menu (ou o botão Carregar Imagens da barra / o botão **▶ Executar** da etapa 1 do
->   Fluxo de Trabalho).
-> - **`Ctrl+Shift+T`** = **Janelas → Alternar modo Dia/Noite** e o botão de tema da barra
->   Padrão. Clique no botão de tema (ícone lua/sol) ou use o menu Janelas.
+> 🇧🇷 Na 1.1.0 e anteriores duas teclas estavam em duas ações ao mesmo tempo, e apertá-las
+> podia não fazer **nada**: `Ctrl+L` (Carregar Imagens e Curva de Luz) e `Ctrl+Shift+T` (o item
+> do menu Janelas e o botão de tema da barra). A próxima versão (depois da 1.1.0) corrige as
+> duas: a Curva de Luz passou para `Ctrl+Shift+L`, e o `Ctrl+Shift+T` é só do botão de tema da
+> barra. Se ainda usa a 1.1.0, use os itens de menu ou os botões da barra.
 
 See also / Veja também: [Settings](https://github.com/petrinhu/astrofind/wiki/Settings), [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), [Tutorial](https://github.com/petrinhu/astrofind/wiki/Tutorial), [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting), [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).

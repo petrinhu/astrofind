@@ -237,8 +237,8 @@ Uma boa astrometria de asteroides começa antes da primeira foto:
    or an archive — details in [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-Formats)). You can also drag and drop FITS files or
    archives onto the window.
 3. If images are already loaded, AstroFind asks "Sessão em andamento": **Acréscimo** adds the new
-   files, **Novo Projeto** starts clean (and resets pixel scale, saturation, location and time
-   offset).
+   files, **Novo Projeto** starts clean (and resets pixel scale, saturation and location; your
+   Time Offset is kept).
 
 **What you should see:** one window per image, tiled; thumbnails in the **Images** bar; the
 Log shows `Loaded: <file> [W×H] JD=…` for each file; an information bar above the images shows
@@ -254,8 +254,9 @@ carregadas" says whether the images are black-and-white or colour.
 - AstroFind reads pixel scale, saturation, location and MPC code from the first image when
   your settings are empty.
 
-> ⚠️ **Watch out / Atenção** — `Ctrl+L` is assigned to both **Load Images...** and **Tools →
-> Light Curve…**; the key may do nothing. Use the menu or the toolbar.
+> 💡 **Version 1.1.0 / Versão 1.1.0** — in 1.1.0 and earlier `Ctrl+L` was assigned to both
+> **Load Images...** and **Tools → Light Curve…**, so the key could do nothing; use the menu or
+> the toolbar there. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`.
 
 > ⚠️ **DSLR RAW and files without a time zone** — the Log shows
 > "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a câmera grava hora
@@ -272,7 +273,7 @@ carregadas" says whether the images are black-and-white or colour.
    e soltar arquivos FITS ou compactados na janela.
 3. Se já houver imagens carregadas, o AstroFind pergunta "Sessão em andamento": **Acréscimo**
    adiciona os novos arquivos, **Novo Projeto** começa do zero (e zera escala de pixel,
-   saturação, localização e deslocamento de tempo).
+   saturação e localização; seu Deslocamento de tempo é mantido).
 
 **O que você deve ver:** uma janela por imagem, lado a lado; miniaturas na barra **Imagens**; o
 Registro mostra `Loaded: <arquivo> [L×A] JD=…` para cada arquivo; uma barra de informações
@@ -289,8 +290,10 @@ coloridas.
 - O AstroFind lê escala de pixel, saturação, localização e código MPC da primeira imagem quando
   suas configurações estão vazias.
 
-> ⚠️ **Atenção** — `Ctrl+L` está ligado a **Carregar Imagens...** e também a **Ferramentas →
-> Curva de Luz…**; a tecla pode não fazer nada. Use o menu ou a barra de ferramentas.
+> 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Carregar
+> Imagens...** e também a **Ferramentas → Curva de Luz…**, então a tecla podia não fazer nada;
+> lá, use o menu ou a barra de ferramentas. A próxima versão (depois da 1.1.0) passa a Curva de
+> Luz para `Ctrl+Shift+L`.
 
 > ⚠️ **RAW de DSLR e arquivos sem fuso horário** — o Registro mostra
 > "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a câmera grava hora
@@ -433,8 +436,9 @@ each image AstroFind:
 > solution into your *original* file. Leave it off unless you want that; use
 > **File → Save as FITS...** to write a `<name>_wcs.fits` copy instead.
 
-> ⚠️ **Watch out / Atenção** — Data Reduction also adds the **Time Offset** and **ΔT** to each
-> image's time, and does so again every time you run it. See
+> 💡 **Time / Horário** — Data Reduction adds your **Time Offset** (camera-clock correction, in
+> seconds) to each image's time **once**; running it again is safe. ΔT is not added to the
+> report time. (Version 1.1.0 and earlier added Time Offset and ΔT again on every run.) See
 > [Part 11](#part-11--getting-the-time-right--parte-11--acertando-o-horário).
 
 🇧🇷 **Português**
@@ -470,8 +474,10 @@ cancela. Para cada imagem o AstroFind:
 > no seu arquivo *original*. Deixe desligado, a menos que queira isso; use
 > **Arquivo → Salvar como FITS...** para gravar uma cópia `<nome>_wcs.fits`.
 
-> ⚠️ **Atenção** — A Redução de Dados também soma o **Deslocamento de tempo** e o **ΔT** ao
-> horário de cada imagem, e soma de novo toda vez que você a roda. Veja a
+> 💡 **Horário** — A Redução de Dados soma o seu **Deslocamento de tempo** (correção do relógio
+> da câmera, em segundos) ao horário de cada imagem **uma vez**; rodar de novo não causa
+> problema. O ΔT não é somado ao horário do relatório. (A versão 1.1.0 e anteriores somavam o
+> Deslocamento de tempo e o ΔT de novo a cada execução.) Veja a
 > [Parte 11](#part-11--getting-the-time-right--parte-11--acertando-o-horário).
 
 ---
@@ -735,8 +741,9 @@ magnitude, so do not report it (untick **Detection → Include magnitude in ADES
   is applied only if **Extinction coeff k:** is above 0.
 - **Tools → Growth Curve…** (`Ctrl+Shift+G`) shows how much light each aperture radius captures
   and can set the optimal radius for you.
-- **Tools → Light Curve…** plots magnitude against time (open it from the menu; its `Ctrl+L`
-  clashes with Load Images). **Export PNG…** saves the plot.
+- **Tools → Light Curve…** (`Ctrl+Shift+L`) plots magnitude against time. **Export PNG…**
+  saves the plot. (In 1.1.0 and earlier its shortcut was `Ctrl+L`, which clashed with Load
+  Images; open it from the menu there.)
 
 🇧🇷 **Português**
 
@@ -754,8 +761,9 @@ no relatório ADES**).
   aplicada se **Coef. de extinção k:** for maior que 0.
 - **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`) mostra quanta luz cada raio de
   abertura captura e pode ajustar o raio ideal para você.
-- **Ferramentas → Curva de Luz…** traça magnitude contra tempo (abra pelo menu; o `Ctrl+L`
-  conflita com Carregar Imagens). **Export PNG…** salva o gráfico.
+- **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`) traça magnitude contra tempo. **Export
+  PNG…** salva o gráfico. (Na 1.1.0 e anteriores o atalho era `Ctrl+L`, que conflitava com
+  Carregar Imagens; lá, abra pelo menu.)
 
 ---
 
@@ -783,21 +791,24 @@ What to do:
    **before** running Data Reduction.
 3. **Settings → Observer → Time Zone:** is *not* used to correct the images. Do not rely on it.
 
-**What Data Reduction does to the time** (as the app is today):
+**What Data Reduction does to the time:**
 
-- It adds **Time Offset** (**Observer → Time Offset:**, in seconds) to each image. ⚠️ When
-  this field is 0, loading images fills it with *longitude ÷ 15* (log: "Auto-fill: fuso
-  horário = UTC…h") — a value in hours that is then applied as seconds. Unless you really need a
-  clock correction in seconds, **set Time Offset back to 0 after loading and before Data
-  Reduction**.
-- It adds **ΔT** (**Camera → ΔT (TT − UTC):**, default 68 s). The report writes this time with
-  a `Z` (UTC) mark, so with the default value `obsTime` comes out about 68 s later than the UTC
-  mid-exposure. If you want `obsTime` to equal the UTC mid-exposure, set ΔT to 0 before Data
-  Reduction.
-- Both are added **again every time** you run Data Reduction. If you need to run it twice,
-  reload the images first.
-- **Time Precision:** (labelled "h") is really the number of decimals of the seconds in
-  `obsTime` (1 = tenths).
+- It adds **Time Offset** (**Observer → Time Offset:**, in seconds) to each image. This is a
+  camera-clock correction: leave it at `0` unless you know your clock error. It is applied
+  **once** — running Data Reduction again, or re-opening a project, does not add it again, and
+  changing the value applies only the difference. AstroFind never fills this field by itself.
+- It does **not** add **ΔT** (**Camera → ΔT (TT − UTC):**, default 68 s). The report time
+  `obsTime` stays in UTC (`Z`). ΔT is used only to compute known asteroids from the offline
+  MPCORB file; **leave it at the default**.
+- **Time Precision:** (0–3) is the number of decimals of the seconds in `obsTime`
+  (1 = tenths).
+
+> ⚠️ **Still on version 1.1.0?** There, Data Reduction added Time Offset and ΔT to each image
+> **again on every run**, so `obsTime` came out about 68 s late, and loading images filled Time
+> Offset with *longitude ÷ 15* (hours, applied as seconds). Workaround for 1.1.0: set **ΔT**
+> and **Time Offset** to `0` after loading and before Data Reduction, and reload the images
+> before running it a second time. The next version (after 1.1.0) needs none of this; on its
+> first start it resets an old non-zero Time Offset to 0 once, with a warning in the Log.
 
 ✅ **Check before sending:** open the PSV tab of the report and compare `obsTime` with the
 mid-exposure UTC time you expect for one image.
@@ -823,21 +834,26 @@ O que fazer:
 3. **Configurações → Observador → Fuso horário:** *não* é usado para corrigir as imagens. Não
    conte com ele.
 
-**O que a Redução de Dados faz com o horário** (como o app está hoje):
+**O que a Redução de Dados faz com o horário:**
 
 - Soma o **Deslocamento de tempo** (**Observador → Deslocamento de tempo:**, em segundos) a cada
-  imagem. ⚠️ Quando esse campo está em 0, carregar imagens o preenche com *longitude ÷ 15*
-  (registro: "Auto-fill: fuso horário = UTC…h") — um valor em horas que depois é aplicado como
-  segundos. A menos que você realmente precise de uma correção de relógio em segundos,
-  **volte o Deslocamento de tempo para 0 depois de carregar e antes da Redução de Dados**.
-- Soma o **ΔT** (**Câmera → ΔT (TT − UTC):**, padrão 68 s). O relatório grava esse horário com a
-  marca `Z` (UTC), então com o valor padrão o `obsTime` sai cerca de 68 s depois do meio da
-  exposição em UTC. Se quiser que o `obsTime` seja igual ao meio da exposição em UTC, ponha ΔT
-  em 0 antes da Redução de Dados.
-- Os dois são somados **de novo a cada vez** que você roda a Redução de Dados. Se precisar rodar
-  duas vezes, recarregue as imagens antes.
-- **Precisão de tempo:** (marcada "h") é na verdade o número de casas decimais dos segundos no
-  `obsTime` (1 = décimos).
+  imagem. É uma correção do relógio da câmera: deixe em `0`, a menos que saiba o erro do seu
+  relógio. Ele é aplicado **uma vez** — rodar a Redução de Dados de novo, ou reabrir um
+  projeto, não soma outra vez, e mudar o valor aplica só a diferença. O AstroFind nunca
+  preenche esse campo sozinho.
+- **Não** soma o **ΔT** (**Câmera → ΔT (TT − UTC):**, padrão 68 s). O horário do relatório
+  `obsTime` fica em UTC (`Z`). O ΔT só é usado para calcular os asteroides conhecidos pelo
+  arquivo offline MPCORB; **deixe no padrão**.
+- **Precisão de tempo:** (0–3) é o número de casas decimais dos segundos no `obsTime`
+  (1 = décimos).
+
+> ⚠️ **Ainda na versão 1.1.0?** Nela, a Redução de Dados somava o Deslocamento de tempo e o ΔT
+> a cada imagem **de novo a cada execução**, então o `obsTime` saía cerca de 68 s atrasado, e
+> carregar imagens preenchia o Deslocamento de tempo com *longitude ÷ 15* (horas, aplicadas
+> como segundos). Contorno na 1.1.0: ponha **ΔT** e **Deslocamento de tempo** em `0` depois de
+> carregar e antes da Redução de Dados, e recarregue as imagens antes de rodar uma segunda vez.
+> A próxima versão (depois da 1.1.0) não precisa de nada disso; na primeira execução ela zera
+> uma vez um Deslocamento de tempo antigo diferente de 0, com um aviso no Registro.
 
 ✅ **Confira antes de enviar:** abra a aba PSV do relatório e compare o `obsTime` com o horário
 UTC de meio de exposição que você espera para uma imagem.

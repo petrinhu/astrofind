@@ -100,7 +100,8 @@ struct FitsImage {
     double   expTime  = 0.0;   ///< Exposure time (seconds)
     QDateTime dateObs;          ///< DATE-OBS (always UTC after load)
     bool dateObsAmbiguous = false; ///< True when no explicit timezone marker and TIMESYS absent
-    double   jd       = 0.0;   ///< Julian Date (mid-exposure)
+    double   jd       = 0.0;   ///< Julian Date (mid-exposure), UTC
+    double   clockCorrectionSec = 0.0; ///< observer/timeOffset already folded into jd (s)
     QString  filter;
     QString  telescope;
     QString  origin;      ///< ORIGIN header (observatory/instrument origin)
@@ -184,6 +185,12 @@ loadFitsCube(const QString& filePath, int hduNumber = 1);
 /// non-positive or oversized dimensions and a declared pixel count larger than
 /// the file on disk. Returns false and fills `err` when the image must be refused.
 bool validateLoaderDims(long w, long h, long depth, const QString& filePath, QString& err);
+
+/// Fold the user's constant clock correction (seconds) into img.jd exactly once:
+/// only the difference from the correction already applied is added, so running
+/// the reduction again (or changing the setting) never accumulates offsets.
+/// jd stays UTC — it is what ADES reports as obsTime.
+void applyClockCorrection(FitsImage& img, double offsetSec);
 
 /// Compute display stretch using sigma-clipping. Fills displayMin/displayMax.
 void computeAutoStretch(FitsImage& img, float sigmaLow = 2.0f, float sigmaHigh = 6.0f);

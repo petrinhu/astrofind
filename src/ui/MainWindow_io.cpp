@@ -663,14 +663,18 @@ void MainWindow::autoFillSettingsFromSession()
     const core::FitsImage& img0 = session_->image(0);
 
     // ── Câmera — pixel scale e saturação ─────────────────────────────────────
+    // The setting is the UNBINNED scale (the reduction multiplies it by each
+    // image's binning), while img0.pixScale* is the scale of the binned image.
     if (settings_.value(QStringLiteral("camera/pixelScaleX"), 0.0).toDouble() == 0.0
             && img0.pixScaleX > 0.0) {
-        settings_.setValue(QStringLiteral("camera/pixelScaleX"), img0.pixScaleX);
-        logPanel_->appendInfo(tr("  Auto-fill: escala X = %1\"/px (FITS)").arg(img0.pixScaleX, 0, 'f', 4));
+        const double sx = img0.pixScaleX / std::max(1, img0.binningX);
+        settings_.setValue(QStringLiteral("camera/pixelScaleX"), sx);
+        logPanel_->appendInfo(tr("  Auto-fill: escala X = %1\"/px (FITS)").arg(sx, 0, 'f', 4));
     }
     if (settings_.value(QStringLiteral("camera/pixelScaleY"), 0.0).toDouble() == 0.0
             && img0.pixScaleY > 0.0) {
-        settings_.setValue(QStringLiteral("camera/pixelScaleY"), img0.pixScaleY);
+        settings_.setValue(QStringLiteral("camera/pixelScaleY"),
+                           img0.pixScaleY / std::max(1, img0.binningY));
     }
     if (settings_.value(QStringLiteral("camera/saturation"), 0.0).toDouble() == 0.0
             && img0.saturation > 0.0 && img0.saturation < 1e9) {
@@ -723,42 +727,9 @@ void MainWindow::autoFillSettingsFromSession()
         }
     }
 
-    // ── Fuso horário — deriva da longitude do observatório (longitude / 15) ──
-    // Usar o relógio do sistema seria errado: o computador pode estar em fuso
-    // diferente do telescópio. A fórmula astronômica correta é longitude/15,
-    // que dá o tempo solar local e ignora DST (apropriado para observações).
-    if (settings_.value(QStringLiteral("observer/timeOffset"), 0.0).toDouble() == 0.0) {
-        double lon = std::numeric_limits<double>::quiet_NaN();
-
-        // 1. Longitude do próprio FITS (se presente)
-        if (!std::isnan(img0.siteLon))
-            lon = img0.siteLon;
-
-        // 2. Longitude do observatório preset (se configurado)
-        if (std::isnan(lon)) {
-            const QString code = settings_.value(QStringLiteral("observer/presetMpcCode")).toString();
-            if (!code.isEmpty()) {
-                const QByteArray ba = code.toLatin1();
-                if (const Observatory* o = ObservatoryDatabase::byCode(ba.constData()))
-                    lon = o->lon;
-            }
-        }
-
-        // 3. Longitude manual (se configurada)
-        if (std::isnan(lon)) {
-            const double manLon = settings_.value(QStringLiteral("observer/longitude"), 0.0).toDouble();
-            if (manLon != 0.0) lon = manLon;
-        }
-
-        if (!std::isnan(lon)) {
-            const double offsetHours = lon / 15.0;
-            settings_.setValue(QStringLiteral("observer/timeOffset"), offsetHours);
-            logPanel_->appendInfo(tr("  Auto-fill: fuso horário = UTC%1%2h (longitude %3°)")
-                .arg(offsetHours >= 0 ? QStringLiteral("+") : QString())
-                .arg(offsetHours, 0, 'f', 1)
-                .arg(lon, 0, 'f', 2));
-        }
-    }
+    // observer/timeOffset is a clock correction in SECONDS set by the user
+    // (Settings → Observatory → Time Offset). It is never auto-filled: the old
+    // longitude/15 guess wrote HOURS of local solar time into it (AUD-CORR-15).
 }
 
 void MainWindow::resetSessionSettings()
@@ -772,7 +743,6 @@ void MainWindow::resetSessionSettings()
         QStringLiteral("observer/latitude"),
         QStringLiteral("observer/longitude"),
         QStringLiteral("observer/altitude"),
-        QStringLiteral("observer/timeOffset"),
     };
     for (const QString& k : keys) settings_.setValue(k, 0.0);
     settings_.setValue(QStringLiteral("observer/locationMode"), QStringLiteral("fits"));

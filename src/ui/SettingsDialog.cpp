@@ -479,10 +479,12 @@ void SettingsDialog::buildObserverTab(QTabWidget* tabs)
     form->addRow(tr("Time Offset:"), timeOffsetSpin_);
 
     timePrecSpin_ = new QDoubleSpinBox(page);
-    timePrecSpin_->setRange(0.001,24.0); timePrecSpin_->setDecimals(3);
-    timePrecSpin_->setSuffix(QStringLiteral("  h"));
-    timePrecSpin_->setToolTip(tr("Timing precision of your observations, reported in ADES. "
-        "Use 1.0 h for typical CCD observations."));
+    // Stored as observer/timePrecision and used as the number of decimal places
+    // of the seconds in the ADES obsTime (AdesContext::timePrecision).
+    timePrecSpin_->setRange(0,3); timePrecSpin_->setDecimals(0);
+    timePrecSpin_->setToolTip(tr("Decimal places of the seconds in the reported observation time "
+        "(0 = whole seconds, 1 = tenths, 2 = hundredths, 3 = milliseconds). "
+        "Use 1 for typical CCD observations."));
     form->addRow(tr("Time Precision:"), timePrecSpin_);
 
     form->addRow(new QLabel(tr(""), page));
@@ -536,16 +538,16 @@ void SettingsDialog::buildCameraTab(QTabWidget* tabs)
     form->addRow(psNote);
 
     pixScaleXSpin_ = new QDoubleSpinBox(page);
-    pixScaleXSpin_->setRange(0,1); pixScaleXSpin_->setDecimals(6);
-    pixScaleXSpin_->setSuffix(QStringLiteral("  °/px"));
-    pixScaleXSpin_->setToolTip(tr("Pixel scale in X (degrees per pixel). 0 = auto."));
+    pixScaleXSpin_->setRange(0,100); pixScaleXSpin_->setDecimals(3);
+    pixScaleXSpin_->setSuffix(QStringLiteral("  \u2033/px"));
+    pixScaleXSpin_->setToolTip(tr("Pixel scale in X (arcseconds per pixel, unbinned). 0 = auto."));
     pixScaleXSpin_->setSpecialValueText(tr("Auto"));
     form->addRow(tr("Pixel Scale X:"), pixScaleXSpin_);
 
     pixScaleYSpin_ = new QDoubleSpinBox(page);
-    pixScaleYSpin_->setRange(0,1); pixScaleYSpin_->setDecimals(6);
-    pixScaleYSpin_->setSuffix(QStringLiteral("  °/px"));
-    pixScaleYSpin_->setToolTip(tr("Pixel scale in Y (degrees per pixel). 0 = auto."));
+    pixScaleYSpin_->setRange(0,100); pixScaleYSpin_->setDecimals(3);
+    pixScaleYSpin_->setSuffix(QStringLiteral("  \u2033/px"));
+    pixScaleYSpin_->setToolTip(tr("Pixel scale in Y (arcseconds per pixel, unbinned). 0 = auto."));
     pixScaleYSpin_->setSpecialValueText(tr("Auto"));
     form->addRow(tr("Pixel Scale Y:"), pixScaleYSpin_);
 
@@ -741,7 +743,7 @@ void SettingsDialog::buildConnectionsTab(QTabWidget* tabs)
     vizForm->addRow(tr("Catalog:"), catalogTypeCombo_);
 
     vizierEdit_ = new QLineEdit(vizGroup);
-    vizierEdit_->setToolTip(tr("VizieR mirror server hostname. "
+    vizierEdit_->setToolTip(tr("Full https:// URL of a VizieR TAP endpoint (…/TAPVizieR/tap/sync). "
         "Change only if the default server is unreachable from your location."));
     vizForm->addRow(tr("VizieR mirror:"), vizierEdit_);
 
@@ -839,7 +841,7 @@ void SettingsDialog::buildDetectionTab(QTabWidget* tabs)
 
     minFwhmSpin_ = new QDoubleSpinBox(detGroup);
     minFwhmSpin_->setRange(0.1,10.0); minFwhmSpin_->setDecimals(2);
-    minFwhmSpin_->setSuffix(QStringLiteral("  px"));
+    minFwhmSpin_->setSuffix(QStringLiteral("  \u2033"));   // arcsec: divided by pixScaleX in the reduction
     minFwhmSpin_->setToolTip(tr("Minimum FWHM for a source to be accepted as a star. "
         "Sources smaller than this are likely cosmic rays."));
     detForm->addRow(tr("Minimum FWHM:"), minFwhmSpin_);
@@ -1140,8 +1142,17 @@ void SettingsDialog::loadFromSettings()
         const int ci = catalogTypeCombo_->findData(ct);
         catalogTypeCombo_->setCurrentIndex(ci >= 0 ? ci : 0);
     }
-    vizierEdit_->setText(settings_.value(QStringLiteral("catalog/vizierServer"),
-        QStringLiteral("vizier.cfa.harvard.edu")).toString());
+    {
+        // The old dialog default "vizier.cfa.harvard.edu" has no scheme and is not a
+        // TAP endpoint: CatalogClient rejected it and silently kept its default.
+        // Show (and save) the endpoint that is really used instead.
+        const QString kVizierDefault =
+            QStringLiteral("https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync");
+        QString vz = settings_.value(QStringLiteral("catalog/vizierServer"), kVizierDefault).toString();
+        if (vz.trimmed().isEmpty() || vz.trimmed() == QLatin1String("vizier.cfa.harvard.edu"))
+            vz = kVizierDefault;
+        vizierEdit_->setText(vz);
+    }
     mpcSubmitEdit_->setText(settings_.value(QStringLiteral("mpc/submitUrl"),
         QStringLiteral("https://www.minorplanetcenter.net/report_ades")).toString());
     {
@@ -1342,7 +1353,7 @@ void SettingsDialog::resetToDefaults()
     reportDirEdit_->setText(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
     saveWcsChk_->setChecked(false);
     catalogTypeCombo_->setCurrentIndex(0);  // UCAC4
-    vizierEdit_->setText(QStringLiteral("vizier.cfa.harvard.edu"));
+    vizierEdit_->setText(QStringLiteral("https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync"));
     mpcSubmitEdit_->setText(QStringLiteral("https://www.minorplanetcenter.net/report_ades"));
 
     // Detection

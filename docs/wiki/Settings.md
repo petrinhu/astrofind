@@ -139,8 +139,8 @@ Manual coordinates / Coordenadas manuais:
 | EN label | PT label | Meaning | Significado | Default | Range | Key | Level |
 |---|---|---|---|---|---|---|---|
 | Time Zone: | Fuso horário: | Your UTC offset in hours. Filled from your computer clock the first time Settings opens. | Seu fuso em horas em relação ao UTC. Preenchido pelo relógio do computador na primeira vez que as Configurações abrem. | system offset | −14 … 14 h | `observer/timeZone` | 🟡 |
-| Time Offset: | Deslocamento de tempo: | A fixed correction added to every image time, in seconds (e.g. your camera clock is known to be 2 s late). | Uma correção fixa somada ao horário de toda imagem, em segundos (ex.: o relógio da câmera atrasa 2 s). | 0 | −999 … 999 s | `observer/timeOffset` | 🔴 |
-| Time Precision: | Precisão de tempo: | How many decimals of seconds are written in the report time (see warning). | Quantas casas decimais de segundos vão no horário do relatório (veja o aviso). | 1.0 | 0.001 … 24 "h" | `observer/timePrecision` | 🔴 |
+| Time Offset: | Deslocamento de tempo: | A fixed correction of your camera clock, in seconds, added once to every image time (e.g. `2` if your camera clock is known to be 2 s late). Leave 0 if you know of no error. | Uma correção fixa do relógio da câmera, em segundos, somada uma vez ao horário de toda imagem (ex.: `2` se o relógio da câmera atrasa 2 s). Deixe 0 se não sabe de nenhum erro. | 0 | −999 … 999 s | `observer/timeOffset` | 🔴 |
+| Time Precision: | Precisão de tempo: | Number of decimal places of the seconds in the report time: 0 = whole seconds, 1 = tenths, 2 = hundredths, 3 = milliseconds. | Número de casas decimais dos segundos no horário do relatório: 0 = segundos inteiros, 1 = décimos, 2 = centésimos, 3 = milésimos. | 1 | 0 … 3 | `observer/timePrecision` | 🔴 |
 
 > ⚠️ **Watch out: Time Zone / Atenção: Fuso horário**
 > 🇬🇧 The tooltip says this is "Used only if FITS headers do not contain UTC timestamps". In
@@ -156,37 +156,40 @@ Manual coordinates / Coordenadas manuais:
 > local, corrija na origem (câmera/programa de captura) ou por imagem em **Imagens → Editar
 > Parâmetros da Imagem...** (Data Juliana).
 
-> ⚠️ **Watch out: Time Offset / Atenção: Deslocamento de tempo**
-> 🇬🇧 The label says **seconds**, and Data Reduction really adds it as seconds. But whenever
-> the field is exactly 0 and a longitude is known, AstroFind fills it **by itself** with
-> *longitude ÷ 15* — a number of **hours** (local solar time), e.g. `-2.33` for Recife. That
-> number is then used as −2.33 **seconds**, which shifts all your times by a couple of
-> seconds. It happens on loading images and on opening Settings; the Log shows
-> "Auto-fill: fuso horário = UTC…h (longitude …°)".
-> **What to enter:** your real clock correction in seconds if you know it. If you have none,
-> enter `0.01` (one hundredth of a second — harmless). A value different from 0 stops the
-> automatic fill. Check this field again after **Novo Projeto**, which resets it to 0.
-> 🇧🇷 O rótulo diz **segundos**, e a Redução de Dados de fato soma em segundos. Mas sempre que
-> o campo está exatamente em 0 e a longitude é conhecida, o AstroFind preenche **sozinho** com
-> *longitude ÷ 15* — um número de **horas** (hora solar local), ex.: `-2.33` para Recife. Esse
-> número é usado como −2,33 **segundos**, deslocando todos os horários em alguns segundos.
-> Acontece ao carregar imagens e ao abrir as Configurações; o Registro mostra "Auto-fill:
-> fuso horário = UTC…h (longitude …°)".
-> **O que digitar:** sua correção real de relógio em segundos, se souber. Se não tiver,
-> digite `0.01` (um centésimo de segundo — inofensivo). Um valor diferente de 0 impede o
-> preenchimento automático. Confira de novo depois de **Novo Projeto**, que volta o campo a 0.
+> 💡 **Time Offset / Deslocamento de tempo**
+> 🇬🇧 This is a **camera-clock correction in seconds**. Data Reduction applies it **exactly
+> once** per image: running the reduction again or re-opening a project never adds it a second
+> time, and if you change the value only the difference is applied. AstroFind never fills
+> this field by itself. **What to enter:** `0` unless you know your camera clock error (for
+> example from a time-sync program); then type that error in seconds.
+> **Upgrading:** versions 1.1.0 and earlier filled this field automatically with
+> *longitude ÷ 15* (a number of hours, used as seconds). So the first time you start the next
+> version (after 1.1.0), a stored non-zero Time Offset is reset to 0 once, and the Log shows a
+> warning ("Time Offset reset from … to 0 s …"). If you had typed a real clock error, type it
+> again in seconds.
+> 🇧🇷 É uma **correção do relógio da câmera, em segundos**. A Redução de Dados a aplica **uma
+> única vez** por imagem: rodar a redução de novo ou reabrir um projeto nunca soma o valor
+> outra vez, e se você mudar o valor só a diferença é aplicada. O AstroFind nunca preenche
+> este campo sozinho. **O que digitar:** `0`, a menos que você saiba o erro do relógio da
+> câmera (por exemplo, por um programa de sincronização de hora); aí digite esse erro em
+> segundos.
+> **Ao atualizar:** as versões 1.1.0 e anteriores preenchiam este campo sozinhas com
+> *longitude ÷ 15* (um número de horas, usado como segundos). Por isso, na primeira vez que
+> você abre a próxima versão (depois da 1.1.0), um Deslocamento de tempo diferente de 0 é
+> zerado uma vez, e o Registro mostra um aviso ("Time Offset redefinido de … para 0 s …"). Se você
+> tinha digitado um erro real de relógio, digite de novo em segundos.
 
-> ⚠️ **Watch out: Time Precision / Atenção: Precisão de tempo**
-> 🇬🇧 The field shows "h" (hours), but it is **not** hours. AstroFind takes the whole-number
-> part and uses it as the **number of decimal places of the seconds** in the report time
-> (limited to 0–3). `1` (the default, shown `1.000 h`) = tenths of a second, e.g.
-> `…T03:12:45.3Z`. **What to enter:** `1` for normal amateur timing; `2` only if your times
-> are good to about 0.01 s; `0` for whole seconds. Values like `0.5` become 0 decimals.
-> 🇧🇷 O campo mostra "h" (horas), mas **não** são horas. O AstroFind pega a parte inteira e usa
-> como **número de casas decimais dos segundos** no horário do relatório (limitado a 0–3).
-> `1` (o padrão, mostrado `1,000 h`) = décimos de segundo, ex.: `…T03:12:45.3Z`. **O que
-> digitar:** `1` para cronometragem amadora normal; `2` só se seus horários forem bons até
-> ~0,01 s; `0` para segundos inteiros. Valores como `0,5` viram 0 casas.
+> 💡 **Time Precision / Precisão de tempo**
+> 🇬🇧 A whole number from 0 to 3: the **number of decimal places of the seconds** in the
+> report time. `1` (the default) = tenths of a second, e.g. `…T03:12:45.3Z`. **What to
+> enter:** `1` for normal amateur timing; `2` only if your times are good to about 0.01 s;
+> `0` for whole seconds. In 1.1.0 and earlier the box showed "h" (hours) and accepted
+> decimals, but the value already meant decimal places.
+> 🇧🇷 Um número inteiro de 0 a 3: o **número de casas decimais dos segundos** no horário do
+> relatório. `1` (o padrão) = décimos de segundo, ex.: `…T03:12:45.3Z`. **O que digitar:** `1`
+> para cronometragem amadora normal; `2` só se seus horários forem bons até ~0,01 s; `0` para
+> segundos inteiros. Na 1.1.0 e anteriores a caixa mostrava "h" (horas) e aceitava decimais,
+> mas o valor já significava casas decimais.
 
 ### Contact and school / Contato e escola
 
@@ -211,53 +214,54 @@ placa.
 
 | EN label | PT label | Meaning | Significado | Default | Range | Key | Level |
 |---|---|---|---|---|---|---|---|
-| Pixel Scale X: | Escala de pixel X: | How much sky one pixel covers, horizontally. Used only when the image has no scale of its own. "Auto" = 0. | Quanto céu um pixel cobre, na horizontal. Usado só quando a imagem não tem escala própria. "Automático" = 0. | 0 (Auto) | 0 … 1 (shown "°/px") | `camera/pixelScaleX` | 🔴 |
-| Pixel Scale Y: | Escala de pixel Y: | Same, vertically. | O mesmo, na vertical. | 0 (Auto) | 0 … 1 | `camera/pixelScaleY` | 🔴 |
+| Pixel Scale X: | Escala de pixel X: | How much sky one pixel covers, horizontally. Used only when the image has no scale of its own. "Auto" = 0. | Quanto céu um pixel cobre, na horizontal. Usado só quando a imagem não tem escala própria. "Automático" = 0. | 0 (Auto) | 0 … 100 ″/px (3 decimals) | `camera/pixelScaleX` | 🔴 |
+| Pixel Scale Y: | Escala de pixel Y: | Same, vertically. | O mesmo, na vertical. | 0 (Auto) | 0 … 100 ″/px | `camera/pixelScaleY` | 🔴 |
 | Focal Length: | Comprimento focal: | Telescope focal length. For display only. "Unknown" = 0. | Distância focal do telescópio. Só para exibição. "Desconhecido" = 0. | 0 | 0 … 20000 mm | `camera/focalLength` | 🟡 |
 | Saturation Level: | Nível de saturação: | The brightest value your camera can record before a pixel "fills up". Saturated stars give bad positions. | O maior valor que a câmera registra antes de o pixel "encher". Estrelas saturadas dão posições ruins. | 60000 | 100 … 1 000 000 ADU | `camera/saturation` | 🟡 |
-| ΔT (TT − UTC): | ΔT (TT − UTC): | Difference between Terrestrial Time and UTC, added to image times. "Current value (2024): ~68 s." | Diferença entre Tempo Terrestre e UTC, somada aos horários. "Valor atual (2024): ~68 s." | 68.0 s | 0 … 200 s | `camera/deltaT` | 🔴 |
+| ΔT (TT − UTC): | ΔT (TT − UTC): | Difference between Terrestrial Time and UTC. Used only to compute the positions of known asteroids from the offline MPCORB file; image and report times stay in UTC. "Current value (2024): ~68 s." | Diferença entre Tempo Terrestre e UTC. Usada só para calcular as posições dos asteroides conhecidos pelo arquivo offline MPCORB; os horários das imagens e do relatório ficam em UTC. "Valor atual (2024): ~68 s." | 68.0 s | 0 … 200 s | `camera/deltaT` | 🔴 |
 | ☑ Corrigir pixels ruins automaticamente (ativado por padrão) (PT in both languages, group "Bad Pixel Correction" / "Correção de Pixels Ruins") | same | Replaces hot pixels and bad columns with the median of their neighbours before star detection. Turning it off shows a warning: expect false detections. | Troca pixels quentes e colunas ruins pela mediana dos vizinhos antes da detecção. Desligar mostra um aviso: espere falsas detecções. | on | — | `camera/badPixelCorrection` | 🟡 |
 | Limiar (σ): (PT in both languages) | Limiar (σ): | How far (in σ, noise units) a pixel must stand out to count as bad. Lower = more pixels fixed. | Quanto (em σ, unidades de ruído) um pixel precisa destoar para ser considerado ruim. Menor = mais pixels corrigidos. | 5.0 | 2.0 … 15.0 | `camera/badPixelSigma` | 🔴 |
 
-> ⚠️ **Watch out: ΔT makes report times ~68 s late / Atenção: o ΔT atrasa o horário do relatório em ~68 s**
-> 🇬🇧 In 1.1.0, **Data Reduction** adds this ΔT to every image time, **each time you run it**,
-> and the ADES report then labels that time as UTC (`…Z`). With the default 68 s, `obsTime`
-> comes out about 68 s late (136 s after two runs). This is bug **AUD-CORR-15** (see
-> [TODO.md](https://github.com/petrinhu/astrofind/blob/main/TODO.md)). **Until it is fixed:**
-> set **ΔT (TT − UTC):** to **0** and **Time Offset:** to **0** *before* the first Data
-> Reduction; if you already ran it, reload the images. See [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) for details.
+> 💡 **ΔT and report times / ΔT e horário do relatório**
+> 🇬🇧 ΔT does **not** change the image times. The time written as `obsTime` in the ADES report
+> is the UTC mid-exposure (plus your Time Offset, if any). ΔT is used only when AstroFind
+> computes known asteroids from the **offline** MPCORB file, whose orbits use TT. The online
+> SkyBoT service takes UTC directly. **Leave ΔT at its default** (68 s).
+> **Version 1.1.0 and earlier** added ΔT (and Time Offset) to every image time on each Data
+> Reduction, so `obsTime` came out about 68 s late (bug **AUD-CORR-15**). If you are still on
+> 1.1.0: set **ΔT (TT − UTC):** and **Time Offset:** to **0** *before* the first Data
+> Reduction, and reload the images if you already ran it. The next version (after 1.1.0)
+> does not need this. See [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) for details.
 >
-> 🇧🇷 Na 1.1.0, a **Redução de Dados** soma este ΔT ao horário de cada imagem, **a cada vez que
-> é executada**, e o relatório ADES marca esse horário como UTC (`…Z`). Com o padrão de 68 s, o
-> `obsTime` sai cerca de 68 s atrasado (136 s depois de duas execuções). É o bug **AUD-CORR-15**
-> (veja o [TODO.md](https://github.com/petrinhu/astrofind/blob/main/TODO.md)). **Até ser
-> corrigido:** coloque **ΔT (TT − UTC):** em **0** e **Deslocamento de tempo:** em **0** *antes*
-> da primeira Redução de Dados; se já rodou, recarregue as imagens. Detalhes em
+> 🇧🇷 O ΔT **não** muda o horário das imagens. O horário gravado como `obsTime` no relatório
+> ADES é o meio da exposição em UTC (mais o seu Deslocamento de tempo, se houver). O ΔT só é
+> usado quando o AstroFind calcula os asteroides conhecidos pelo arquivo **offline** MPCORB,
+> cujas órbitas usam TT. O serviço online SkyBoT recebe UTC diretamente. **Deixe o ΔT no
+> padrão** (68 s).
+> **Na versão 1.1.0 e anteriores** a Redução de Dados somava o ΔT (e o Deslocamento de tempo)
+> ao horário de cada imagem a cada execução, e o `obsTime` saía cerca de 68 s atrasado (bug
+> **AUD-CORR-15**). Se ainda usa a 1.1.0: ponha **ΔT (TT − UTC):** e **Deslocamento de
+> tempo:** em **0** *antes* da primeira Redução de Dados, e recarregue as imagens se já rodou.
+> A próxima versão (depois da 1.1.0) não precisa disso. Detalhes em
 > [Avançado](https://github.com/petrinhu/astrofind/wiki/Advanced).
 
-> ⚠️ **Watch out: Pixel Scale / Atenção: Escala de pixel**
-> 🇬🇧 The box says **°/px** (degrees per pixel) and its tooltip says degrees, but AstroFind
-> really uses the number as **arcseconds per pixel** (″/px). When it fills the field from a
-> FITS file it writes arcseconds too (Log: "Auto-fill: escala X = 1.5200"/px (FITS)").
-> **What to enter:** leave it at **Auto (0)** — the plate solver finds the true scale. If you
-> must type it, type **arcseconds per pixel** (formula: 206.265 × pixel size in µm ÷ focal
-> length in mm; e.g. 3.76 µm and 530 mm → 1.46″/px). **Do not** convert to degrees.
-> The box cannot hold more than **1**: if your scale is above 1″/px (common for small
-> telescopes), a value filled from FITS is cut to `1.000000` when you press **OK**. In that
-> case set it back to Auto (0) before pressing OK, and give the real scale per image in
-> **Images → Edit Image Parameters...** → "Plate scale X/Y" ("/px), which is labelled
-> correctly.
-> 🇧🇷 A caixa diz **°/px** (graus por pixel) e a dica diz graus, mas o AstroFind usa o número
-> como **segundos de arco por pixel** (″/px). Quando preenche o campo a partir de um FITS, ele
-> também grava segundos de arco (Registro: "Auto-fill: escala X = 1.5200"/px (FITS)").
-> **O que digitar:** deixe em **Automático (0)** — o plate solver acha a escala real. Se
-> precisar digitar, digite **segundos de arco por pixel** (fórmula: 206,265 × tamanho do pixel
-> em µm ÷ distância focal em mm; ex.: 3,76 µm e 530 mm → 1,46″/px). **Não** converta para
-> graus. A caixa não aceita mais que **1**: se sua escala for maior que 1″/px (comum em
-> telescópios pequenos), um valor vindo do FITS é cortado para `1,000000` ao apertar **OK**.
-> Nesse caso volte para Automático (0) antes do OK e informe a escala real por imagem em
-> **Imagens → Editar Parâmetros da Imagem...** → "Plate scale X/Y" ("/px), que tem o rótulo
-> certo.
+> 💡 **Pixel Scale / Escala de pixel**
+> 🇬🇧 The box is in **arcseconds per pixel** (″/px), for the camera **without binning**; Data
+> Reduction multiplies it by the binning of each image. It is used only when an image has no
+> scale of its own. **What to enter:** leave it at **Auto (0)** — the plate solver finds the
+> true scale. If you must type it, use the formula 206.265 × pixel size in µm ÷ focal length
+> in mm (e.g. 3.76 µm and 530 mm → 1.46″/px). The box accepts 0 to 100 with 3 decimals.
+> In 1.1.0 and earlier the box was wrongly labelled **°/px** and could not go above 1, although
+> the value was already read as ″/px; there, scales above 1″/px had to be given per image in
+> **Images → Edit Image Parameters...**.
+> 🇧🇷 A caixa está em **segundos de arco por pixel** (″/px), para a câmera **sem binning**; a
+> Redução de Dados multiplica pelo binning de cada imagem. Só é usada quando a imagem não tem
+> escala própria. **O que digitar:** deixe em **Automático (0)** — o plate solver acha a
+> escala real. Se precisar digitar, use a fórmula 206,265 × tamanho do pixel em µm ÷ distância
+> focal em mm (ex.: 3,76 µm e 530 mm → 1,46″/px). A caixa aceita de 0 a 100 com 3 decimais.
+> Na 1.1.0 e anteriores a caixa tinha o rótulo errado **°/px** e não passava de 1, embora o
+> valor já fosse lido em ″/px; lá, escalas acima de 1″/px precisavam ser dadas por imagem em
+> **Imagens → Editar Parâmetros da Imagem...**.
 
 ---
 
@@ -324,23 +328,28 @@ ela aponta.
 | EN label | PT label | Meaning | Significado | Default | Key |
 |---|---|---|---|---|---|
 | Catalog: | Catálogo: | Reference stars used to measure positions and magnitudes: "UCAC4 (recommended)" or "Gaia DR3" (labels not translated). | Estrelas de referência para medir posições e magnitudes: "UCAC4 (recommended)" ou "Gaia DR3". | UCAC4 | `catalog/type` (`UCAC4` / `GaiaDR3`) |
-| VizieR mirror: | Espelho VizieR: | The server the star catalog is downloaded from. | O servidor de onde o catálogo é baixado. | shown `vizier.cfa.harvard.edu`; really used: `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync` | `catalog/vizierServer` |
+| VizieR mirror: | Espelho VizieR: | The server the star catalog is downloaded from. | O servidor de onde o catálogo é baixado. | `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync` | `catalog/vizierServer` |
 | Source: | Fonte: | "VizieR (online, recommended)" or "Local FITS BINTABLE" (a catalog file on your disk, for no-internet use). | "VizieR (online, recommended)" ou "Local FITS BINTABLE" (arquivo de catálogo no disco, para uso sem internet). | VizieR | `catalog/source` (`vizier` / `local`) |
 | Local catalog: | Catálogo local: | Path of that file (`/path/to/catalog.fits`), with **Browse…**. Enabled only when Source = local. | Caminho do arquivo, com **Procurar…**. Só habilitado quando Fonte = local. | empty | `catalog/localPath` |
 
-> ⚠️ **Watch out: VizieR mirror / Atenção: espelho VizieR**
-> 🇬🇧 The value shown by default, `vizier.cfa.harvard.edu`, is **rejected** by AstroFind
-> because it does not start with `https://`. The program then silently keeps its built-in
-> server, `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`, which works. So: **leave the
-> field as it is.** If you really want another server, type its **complete TAP address**
-> starting with `https://` (for example the default above); a bare host name will not work.
-> **Reset to Defaults** puts the rejected Harvard value back, which is harmless.
-> 🇧🇷 O valor mostrado por padrão, `vizier.cfa.harvard.edu`, é **rejeitado** pelo AstroFind
-> porque não começa com `https://`. O programa então mantém em silêncio o servidor embutido,
-> `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`, que funciona. Então: **deixe o campo
-> como está.** Se quiser mesmo outro servidor, digite o **endereço TAP completo** começando com
-> `https://` (por exemplo o padrão acima); só o nome do host não funciona. **Restaurar
-> padrões** volta o valor de Harvard, o que é inofensivo.
+> 💡 **VizieR mirror / Espelho VizieR**
+> 🇬🇧 The field holds the **full address of a VizieR TAP service**, ending in
+> `…/TAPVizieR/tap/sync`. The default is the real CDS server,
+> `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. **Leave it as it is** unless that
+> server is unreachable from where you are. Another server must start with `https://`
+> (`http://` is accepted only for `localhost`); a bare host name does not work.
+> In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was silently rejected.
+> The next version (after 1.1.0) shows and saves an old `vizier.cfa.harvard.edu` (or empty)
+> value as the default address above; **Reset to Defaults** also puts that address back.
+> 🇧🇷 O campo guarda o **endereço completo de um serviço TAP do VizieR**, terminando em
+> `…/TAPVizieR/tap/sync`. O padrão é o servidor real do CDS,
+> `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. **Deixe como está**, a menos que
+> esse servidor não seja acessível de onde você está. Outro servidor precisa começar com
+> `https://` (`http://` só é aceito para `localhost`); só o nome do host não funciona.
+> Na 1.1.0 e anteriores o campo mostrava `vizier.cfa.harvard.edu`, que era recusado em
+> silêncio. A próxima versão (depois da 1.1.0) mostra e salva um valor antigo
+> `vizier.cfa.harvard.edu` (ou vazio) como o endereço padrão acima; **Restaurar padrões**
+> também volta esse endereço.
 
 ### MPC Submission / Envio ao MPC
 
@@ -370,21 +379,23 @@ ela aponta.
 | EN label | PT label | Meaning | Significado | Default | Range | Key |
 |---|---|---|---|---|---|---|
 | Detection threshold: | Limiar de detecção: | How many times brighter than the noise (σ) a spot must be to count as a star. Lower = more (and fainter, and more false) detections. | Quantas vezes acima do ruído (σ) uma mancha precisa estar para contar como estrela. Menor = mais detecções (mais fracas e mais falsas). | 4.0 σ | 1 … 20 | `detection/sigmaLimit` |
-| Minimum FWHM: | FWHM mínimo: | Smallest star size accepted; smaller spots (hot pixels, cosmic rays) are dropped. FWHM = star width at half its peak. | Menor tamanho de estrela aceito; manchas menores (pixels quentes, raios cósmicos) são descartadas. FWHM = largura da estrela na metade do pico. | 0.70 | 0.1 … 10 (shown "px") | `detection/minFwhm` |
+| Minimum FWHM: | FWHM mínimo: | Smallest star size accepted; smaller spots (hot pixels, cosmic rays) are dropped. FWHM = star width at half its peak. | Menor tamanho de estrela aceito; manchas menores (pixels quentes, raios cósmicos) são descartadas. FWHM = largura da estrela na metade do pico. | 0.70″ | 0.1 … 10 ″ | `detection/minFwhm` |
 | MOD min. SNR: | MOD SNR mín.: | Minimum signal-to-noise ratio for a moving-object candidate in **Moving Object Detection**. | Relação sinal/ruído mínima de um candidato em **Detecção de Objetos em Movimento**. | 5.0 | 1 … 50 | `detection/minSnr` |
 | Streak threshold (a/b): | Limiar de traço (a/b): | How elongated (long axis ÷ short axis) a source must be to be flagged as a streak (orange). | Quão alongada (eixo maior ÷ menor) uma fonte precisa ser para virar traço (laranja). | 3.0 | 1.5 … 20, step 0.5 | `detection/streakElongation` |
 
-> ⚠️ **Watch out: Minimum FWHM / Atenção: FWHM mínimo**
-> 🇬🇧 The box says **px** (pixels), but AstroFind treats the number as **arcseconds** and
-> divides it by the pixel scale. It is applied only when the image scale is known.
-> **What to enter:** a size in **arcseconds**. The default `0.70` (0.7″) is fine for almost
-> everyone. If real faint stars disappear, lower it; if hot pixels are detected as stars, raise
-> it toward about half your typical seeing (e.g. `1.0` when stars are ~2″ wide).
-> 🇧🇷 A caixa diz **px** (pixels), mas o AstroFind trata o número como **segundos de arco** e
-> divide pela escala do pixel. Só é aplicado quando a escala da imagem é conhecida.
-> **O que digitar:** um tamanho em **segundos de arco**. O padrão `0,70` (0,7″) serve para
-> quase todos. Se estrelas fracas reais somem, diminua; se pixels quentes viram estrelas,
-> aumente até mais ou menos metade do seu seeing típico (ex.: `1,0` quando as estrelas têm ~2″).
+> 💡 **Minimum FWHM / FWHM mínimo**
+> 🇬🇧 The box is in **arcseconds** (″). Data Reduction divides it by the pixel scale, so it is
+> applied only when the image scale is known. **What to enter:** the default `0.70` (0.7″) is
+> fine for almost everyone. If real faint stars disappear, lower it; if hot pixels are
+> detected as stars, raise it toward about half your typical seeing (e.g. `1.0` when stars are
+> ~2″ wide). In 1.1.0 and earlier the box was wrongly labelled **px**, but the value was
+> already read as arcseconds.
+> 🇧🇷 A caixa está em **segundos de arco** (″). A Redução de Dados divide pela escala do pixel,
+> então só é aplicado quando a escala da imagem é conhecida. **O que digitar:** o padrão `0,70`
+> (0,7″) serve para quase todos. Se estrelas fracas reais somem, diminua; se pixels quentes
+> viram estrelas, aumente até mais ou menos metade do seu seeing típico (ex.: `1,0` quando as
+> estrelas têm ~2″). Na 1.1.0 e anteriores a caixa tinha o rótulo errado **px**, mas o valor
+> já era lido em segundos de arco.
 
 ### Photometry / Fotometria
 
@@ -507,11 +518,12 @@ happens after loading images and also just before the Settings window opens. The
 - **Location**: space telescope → mode Telescópio Espacial; FITS site coordinates → mode
   Automático; an MPC code in the header that matches the built-in list → mode Observatório
   predefinido.
-- **Time Offset**: filled with longitude ÷ 15 when it is 0 (see the warning in the Observer
-  tab).
+- **Time Offset** is **not** filled automatically (1.1.0 and earlier filled it with
+  longitude ÷ 15; see the note in the Observer tab).
 - **Time Zone**: filled from your computer clock the first time Settings opens.
 - Choosing **Novo Projeto** in the "Sessão em andamento" dialog sets pixel scale, saturation,
-  latitude, longitude, altitude and time offset back to 0 and the location mode to FITS.
+  latitude, longitude and altitude back to 0 and the location mode to FITS. Your Time Offset
+  is kept.
 
 🇧🇷 **Português** — O AstroFind preenche algumas configurações a partir da **primeira** imagem
 da sessão. Isso acontece depois de carregar imagens e também logo antes de abrir a janela de
@@ -521,12 +533,13 @@ Configurações. O Registro mostra uma linha "Auto-fill:" a cada vez.
 - **Localização**: telescópio espacial → modo Telescópio Espacial; coordenadas no FITS → modo
   Automático; código MPC no cabeçalho que existe na lista embutida → modo Observatório
   predefinido.
-- **Deslocamento de tempo**: preenchido com longitude ÷ 15 quando está em 0 (veja o aviso na
-  aba Observador).
+- O **Deslocamento de tempo** **não** é preenchido sozinho (a 1.1.0 e anteriores o
+  preenchiam com longitude ÷ 15; veja a nota na aba Observador).
 - **Fuso horário**: preenchido pelo relógio do computador na primeira vez que as
   Configurações abrem.
 - Escolher **Novo Projeto** na janela "Sessão em andamento" volta escala, saturação, latitude,
-  longitude, altitude e deslocamento de tempo para 0 e o modo de localização para FITS.
+  longitude e altitude para 0 e o modo de localização para FITS. Seu Deslocamento de tempo é
+  mantido.
 
 ---
 
@@ -615,14 +628,22 @@ da Escola...** lê no outro computador.
 
 | Field | Shown as | Really means | Enter / Digite |
 |---|---|---|---|
-| Camera → Pixel Scale X/Y | °/px, max 1 | ″/px (arcsec per pixel) | Auto (0), or arcsec/px; if > 1″/px use Images → Edit Image Parameters |
-| Detection → Minimum FWHM | px | arcseconds | Keep 0.70 (arcsec) |
-| Observer → Time Offset | s | seconds, but auto-filled with hours (longitude ÷ 15) | Your real correction in s, or 0.01 |
-| Observer → Time Precision | h | number of decimals of seconds (0–3) | 1 |
 | Observer → Time Zone | h, "used if no UTC" | not used by the processing | anything; fix times at the source |
-| Connections → VizieR mirror | vizier.cfa.harvard.edu | rejected; built-in https TAP server is used | leave as is, or a full `https://` TAP URL |
 | Connections → Report output folder | one folder | only auto-save; "Save to Reports Folder" uses your home folder | use **Save…** to choose |
 | (no field) session limit | "increase the limit in Settings" | no such field; 20 images | load ≤ 20 images |
+
+> 💡 **Fixed in the next version (after 1.1.0) / Corrigido na próxima versão (depois da 1.1.0)**
+> 🇬🇧 These rows were in this table for 1.1.0 and are now labelled correctly: Camera → Pixel
+> Scale X/Y (was "°/px", max 1; now ″/px, 0–100), Detection → Minimum FWHM (was "px"; now ″),
+> Observer → Time Precision (was "h"; now 0–3 decimal places), Observer → Time Offset (was
+> auto-filled with longitude ÷ 15; now only what you type, in seconds) and Connections →
+> VizieR mirror (was `vizier.cfa.harvard.edu`, rejected; now the real TAP address).
+> 🇧🇷 Estas linhas estavam nesta tabela na 1.1.0 e agora têm o rótulo certo: Câmera → Escala
+> de pixel X/Y (era "°/px", máx. 1; agora ″/px, 0–100), Detecção → FWHM mínimo (era "px";
+> agora ″), Observador → Precisão de tempo (era "h"; agora 0–3 casas decimais), Observador →
+> Deslocamento de tempo (era preenchido com longitude ÷ 15; agora só o que você digita, em
+> segundos) e Conexões → Espelho VizieR (era `vizier.cfa.harvard.edu`, recusado; agora o
+> endereço TAP real).
 
 See also / Veja também: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference), [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting), [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ),
 [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary).

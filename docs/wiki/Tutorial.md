@@ -52,10 +52,10 @@ needs your location and an astrometry.net key.
   Connections, Detection, Display, Legacy**. **Reset to Defaults** restores recommended values.
   Tabs with a yellow banner are for advanced users. Details: [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
-> 🇬🇧 ⚠️ **Watch out:** some unit labels do not match what the program really uses: pixel
-> scale is labelled °/px but used as arcsec/px; Minimum FWHM is labelled px but read as
-> arcsec; Time Offset is labelled s; Time Precision is labelled h but means "decimal places of
-> the seconds". Leave these at their defaults unless you know why. See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
+> 🇬🇧 💡 **Units:** pixel scale is in ″/px (arcseconds per pixel); Minimum FWHM is in ″
+> (arcseconds); Time Offset is a camera-clock correction in seconds; Time Precision (0–3) is
+> the number of decimal places of the seconds in the report. Leave these at their defaults
+> unless you know why. In 1.1.0 and earlier some of these labels were wrong (°/px, px, h). See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 🇧🇷 **Português**
 **O que é:** o assistente da primeira execução e a janela principal de opções.
@@ -69,10 +69,11 @@ relatório, e precisa da sua localização e de uma chave do astrometry.net.
   Exibição, Legado**. **Restaurar padrões** volta aos valores recomendados. Abas com faixa
   amarela são para usuários avançados. Detalhes: [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
-> 🇧🇷 ⚠️ **Atenção:** alguns rótulos de unidade não batem com o que o programa usa de fato: a
-> escala de pixel diz °/px mas é usada como arcseg/px; o FWHM mínimo diz px mas é lido em
-> arcseg; o Deslocamento de tempo diz s; a Precisão de tempo diz h mas significa "casas decimais
-> dos segundos". Deixe nos padrões, a não ser que saiba o motivo. Veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
+> 🇧🇷 💡 **Unidades:** a escala de pixel é em ″/px (segundos de arco por pixel); o FWHM mínimo
+> é em ″ (segundos de arco); o Deslocamento de tempo é uma correção do relógio da câmera em
+> segundos; a Precisão de tempo (0–3) é o número de casas decimais dos segundos no relatório.
+> Deixe nos padrões, a não ser que saiba o motivo. Na 1.1.0 e anteriores alguns desses rótulos
+> estavam errados (°/px, px, h). Veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 ---
 
@@ -104,10 +105,10 @@ of ✓/⚠ chips above the images (pixel scale, WCS, UTC date/time, saturation, 
 such as pixel scale and location are filled from the first image's header when they are empty.
 
 > 🇬🇧 ⚠️ **Watch out:**
-> - `Ctrl+L` is assigned to both Load Images and Tools → Light Curve…, so the key may do
->   nothing. **Use the menu.**
+> - The shortcut is `Ctrl+L`. (In 1.1.0 and earlier it was also given to Tools → Light
+>   Curve…, so the key might do nothing; there, use the menu.)
 > - Loading while images are open asks **Acréscimo** (add) or **Novo Projeto** (new project).
->   *Novo Projeto* also resets pixel scale, saturation, location and time offset.
+>   *Novo Projeto* also resets pixel scale, saturation and location (Time Offset is kept).
 > - A session holds at most **20 images**. The message says to raise the limit in Settings, but
 >   there is no such field.
 > - **DSLR RAW:** the time comes from the camera clock and is marked uncertain. The Log warns
@@ -142,10 +143,11 @@ Configurações como escala de pixel e localização são preenchidas a partir d
 primeira imagem quando estão vazias.
 
 > 🇧🇷 ⚠️ **Atenção:**
-> - `Ctrl+L` está ligado a Carregar Imagens e a Ferramentas → Curva de Luz…, então a tecla pode
->   não fazer nada. **Use o menu.**
+> - O atalho é `Ctrl+L`. (Na 1.1.0 e anteriores ele também estava em Ferramentas → Curva de
+>   Luz…, então a tecla podia não fazer nada; lá, use o menu.)
 > - Carregar com imagens abertas pergunta **Acréscimo** (somar) ou **Novo Projeto**. *Novo
->   Projeto* também zera escala de pixel, saturação, localização e deslocamento de tempo.
+>   Projeto* também zera escala de pixel, saturação e localização (o Deslocamento de tempo é
+>   mantido).
 > - Uma sessão aceita no máximo **20 imagens**. A mensagem diz para aumentar o limite nas
 >   Configurações, mas esse campo não existe.
 > - **RAW de DSLR:** a hora vem do relógio da câmera e é marcada como incerta. O Registro avisa
@@ -898,14 +900,14 @@ growing radius. The **light curve** plots the magnitude of your measurements aga
 - **Tools → Growth Curve…** (`Ctrl+Shift+G`) / **Ferramentas → Curva de Crescimento…** (needs
   detected stars): choose a star and radii, **Compute**, then **Use optimal aperture (N px)**,
   which switches the aperture to manual mode in Settings.
-- **Tools → Light Curve…** / **Ferramentas → Curva de Luz…**: choose "All objects" or one object;
+- **Tools → Light Curve…** (`Ctrl+Shift+L`) / **Ferramentas → Curva de Luz…**: choose "All objects" or one object;
   **Export PNG…**. It updates when you add measurements; click a point to open its image.
 
-> 🇬🇧 ⚠️ **Watch out:** the menu shows `Ctrl+L` for Light Curve, but the same key belongs to
-> Load Images, so it may do nothing. **Use the menu.**
+> 🇬🇧 💡 **Shortcut:** Light Curve is `Ctrl+Shift+L`. In 1.1.0 and earlier the menu showed
+> `Ctrl+L`, which clashed with Load Images and could do nothing; there, use the menu.
 >
-> 🇧🇷 ⚠️ **Atenção:** o menu mostra `Ctrl+L` para Curva de Luz, mas a mesma tecla é de Carregar
-> Imagens, então pode não fazer nada. **Use o menu.**
+> 🇧🇷 💡 **Atalho:** a Curva de Luz é `Ctrl+Shift+L`. Na 1.1.0 e anteriores o menu mostrava
+> `Ctrl+L`, que conflitava com Carregar Imagens e podia não fazer nada; lá, use o menu.
 
 🇧🇷 **Português**
 **O que é:** a **curva de crescimento** mostra quanto da luz de uma estrela cai dentro de
@@ -917,7 +919,7 @@ tempo.
 - **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`) (precisa de estrelas detectadas):
   escolha uma estrela e os raios, **Compute**, depois **Use optimal aperture (N px)**, que passa a
   abertura para o modo manual nas Configurações.
-- **Ferramentas → Curva de Luz…**: escolha "All objects" ou um objeto; **Export PNG…**. Atualiza
+- **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`): escolha "All objects" ou um objeto; **Export PNG…**. Atualiza
   quando você adiciona medições; clique num ponto para abrir a imagem dele.
 
 ---
@@ -1026,8 +1028,8 @@ be brought back.
 **How to do it:**
 - **Windows → Toggle Day/Night Mode** / **Janelas → Alternar modo Dia/Noite**, or the moon/sun
   icon on the toolbar: Night → Day → Auto (follows the system). Also **Settings → Display →
-  Theme**. `Ctrl+Shift+T` is assigned twice (menu and toolbar), so it may not respond; use the
-  menu or icon.
+  Theme**. The shortcut `Ctrl+Shift+T` does the same as the icon. (In 1.1.0 and earlier it
+  was assigned twice and might not respond; there, use the menu or icon.)
 - **Settings → Display → Language**: English or Português (BR). A restart is needed.
 - **Windows → View …**: Standard, Display and Blink toolbars; Workflow, Calibration, Images, Log,
   Observations and Image Catalog panels.
@@ -1040,8 +1042,9 @@ be brought back.
 podem voltar.
 **Como fazer:**
 - **Janelas → Alternar modo Dia/Noite**, ou o ícone de lua/sol na barra: Noite → Dia →
-  Automático (segue o sistema). Também **Configurações → Exibição → Tema**. `Ctrl+Shift+T` está
-  ligado duas vezes (menu e barra), então pode não responder; use o menu ou o ícone.
+  Automático (segue o sistema). Também **Configurações → Exibição → Tema**. O atalho
+  `Ctrl+Shift+T` faz o mesmo que o ícone. (Na 1.1.0 e anteriores ele estava ligado duas vezes e
+  podia não responder; lá, use o menu ou o ícone.)
 - **Configurações → Exibição → Idioma**: English ou Português (BR). É preciso reiniciar.
 - **Janelas → Exibir …**: barras padrão, de exibição e de piscar; painéis de fluxo de trabalho,
   calibração, imagens, log, observações e catálogo de imagens.
@@ -1058,15 +1061,17 @@ podem voltar.
 - **Help → Help Contents** (`F1`) / **Ajuda → Conteúdo da Ajuda**: built-in help, with an
   English / Português (BR) selector.
 - **Help → About...** / **Ajuda → Sobre...**: version, credits and licence (AGPL-3.0).
-- **Help → Registration...** / **Ajuda → Registro...** only shows a status-bar message. It says
-  "MIT open source", which is wrong: the licence is **AGPL-3.0**, as About says.
+- **Help → Registration...** / **Ajuda → Registro...** only shows a status-bar message:
+  "Registration — not needed (free software, AGPL-3.0)". (Version 1.1.0 and earlier wrongly
+  said "MIT open source".)
 - **File → Exit** (`Ctrl+Q`) / **Arquivo → Sair** offers to save a modified project.
 
 🇧🇷 **Português**
 - **Ajuda → Conteúdo da Ajuda** (`F1`): ajuda embutida, com seletor English / Português (BR).
 - **Ajuda → Sobre...**: versão, créditos e licença (AGPL-3.0).
-- **Ajuda → Registro...** só mostra uma mensagem na barra de status. Ela diz "código aberto MIT",
-  o que está errado: a licença é **AGPL-3.0**, como diz o Sobre.
+- **Ajuda → Registro...** só mostra uma mensagem na barra de status: "Registro — não é
+  necessário (software livre, AGPL-3.0)". (A versão 1.1.0 e anteriores diziam, errado, "código
+  aberto MIT".)
 - **Arquivo → Sair** (`Ctrl+Q`) oferece salvar um projeto modificado.
 
 ---

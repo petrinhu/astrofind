@@ -558,12 +558,19 @@ See / Veja *RA / Dec*.
 🇬🇧 **English**
 TT (Terrestrial Time) is a smooth time scale used for calculations; UTC follows the Earth's
 slightly irregular rotation. ΔT is the difference TT − UTC, about 68–69 seconds today. AstroFind
-has it in **Settings → Camera** ("ΔT (TT − UTC):", default 68.0 s).
+has it in **Settings → Camera** ("ΔT (TT − UTC):", default 68.0 s). It is used **only** to
+compute known-asteroid positions from the offline MPCORB file (orbits are given in TT). Image
+times and the report time (`obsTime`) stay in UTC; ΔT is not added to them. (Version 1.1.0 and
+earlier wrongly added ΔT to the image times; see [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).)
 
 🇧🇷 **Português**
 O TT (Tempo Terrestre) é uma escala de tempo uniforme usada nos cálculos; o UTC acompanha a
 rotação um pouco irregular da Terra. O ΔT é a diferença TT − UTC, cerca de 68–69 segundos hoje. O
-AstroFind tem esse valor em **Configurações → Câmera** ("ΔT (TT − UTC):", padrão 68,0 s).
+AstroFind tem esse valor em **Configurações → Câmera** ("ΔT (TT − UTC):", padrão 68,0 s). Ele é
+usado **só** para calcular a posição de asteroides conhecidos pelo arquivo offline MPCORB (as
+órbitas são dadas em TT). Os horários das imagens e do relatório (`obsTime`) ficam em UTC; o ΔT
+não é somado a eles. (A versão 1.1.0 e anteriores somavam o ΔT aos horários das imagens, o que
+era um erro; veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).)
 
 ---
 
@@ -1017,12 +1024,13 @@ arquivos RAW são recusados com "DSLR RAW support is not available in this build
 
 🇬🇧 **English**
 A plot of an object's brightness over time. It can show an asteroid's rotation. In AstroFind:
-**Tools → Light Curve…** (its `Ctrl+L` shortcut clashes with Load Images, so use the menu).
+**Tools → Light Curve…** (`Ctrl+Shift+L`; in 1.1.0 and earlier its `Ctrl+L` clashed with Load
+Images, so use the menu there).
 
 🇧🇷 **Português**
 Um gráfico do brilho de um objeto ao longo do tempo. Pode mostrar a rotação de um asteroide. No
-AstroFind: **Ferramentas → Curva de Luz…** (o atalho `Ctrl+L` conflita com Carregar Imagens,
-então use o menu).
+AstroFind: **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`; na 1.1.0 e anteriores o atalho
+`Ctrl+L` conflitava com Carregar Imagens, então lá use o menu).
 
 ---
 
@@ -1199,14 +1207,15 @@ See / Veja *Plate scale*.
 🇬🇧 **English**
 How much sky one pixel covers, usually in arcseconds per pixel. It depends on the focal length
 and the pixel size. AstroFind gets it from the plate solution or the header. In
-**Settings → Camera** the field says "°/px", but AstroFind uses the value as **arcsec/px**; leave
-it at 0 ("Auto") unless you know it.
+**Settings → Camera** the field is in **″/px** (arcsec per pixel, without binning); leave it at 0
+("Auto") unless you know it. (In 1.1.0 and earlier the field was wrongly labelled "°/px".)
 
 🇧🇷 **Português**
 Quanto céu um pixel cobre, normalmente em segundos de arco por pixel. Depende da distância focal e
 do tamanho do pixel. O AstroFind obtém esse valor da solução de placa ou do cabeçalho. Em
-**Configurações → Câmera** o campo diz "°/px", mas o AstroFind usa o valor como **arcsec/px**;
-deixe em 0 ("Automático"), a menos que você saiba o valor.
+**Configurações → Câmera** o campo é em **″/px** (segundos de arco por pixel, sem binning); deixe
+em 0 ("Automático"), a menos que você saiba o valor. (Na 1.1.0 e anteriores o campo tinha o
+rótulo errado "°/px".)
 
 ---
 

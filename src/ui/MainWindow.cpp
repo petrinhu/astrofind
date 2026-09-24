@@ -46,6 +46,20 @@ MainWindow::MainWindow(QWidget* parent)
 
     loadSettings();  // also calls applySettingsToSubsystems()
 
+    // AUD-CORR-15 migration: versions up to 1.1.0 auto-filled observer/timeOffset
+    // with longitude/15 (HOURS of local solar time) while the field is a clock
+    // correction in SECONDS. Reset it once so no stale value shifts obsTime.
+    if (settings_.value(QStringLiteral("observer/timeOffsetSchema"), 1).toInt() < 2) {
+        const double old = settings_.value(QStringLiteral("observer/timeOffset"), 0.0).toDouble();
+        if (old != 0.0) {
+            settings_.setValue(QStringLiteral("observer/timeOffset"), 0.0);
+            logPanel_->appendWarning(tr("Time Offset reset from %1 to 0 s: older versions filled it "
+                "automatically with a wrong value. If your camera clock has a known error, "
+                "set it again in Settings (seconds).").arg(old, 0, 'f', 2));
+        }
+        settings_.setValue(QStringLiteral("observer/timeOffsetSchema"), 2);
+    }
+
     applyTheme();
     onUpdateMenuState();
 
@@ -276,7 +290,7 @@ void MainWindow::setupMenus()
     actEcliptic_->setStatusTip(tr("Show ecliptic and galactic plane overlays; warns when field is near the galactic plane (high dust extinction)"));
 
     toolsMenu_->addSeparator();
-    toolsMenu_->addAction(tr("&Light Curve…"), QKeySequence("Ctrl+L"), this, &MainWindow::onLightCurve)
+    toolsMenu_->addAction(tr("&Light Curve…"), QKeySequence("Ctrl+Shift+L"), this, &MainWindow::onLightCurve)
         ->setStatusTip(tr("Show magnitude vs. time plot for all current observations"));
 
     toolsMenu_->addAction(tr("&Growth Curve…"), QKeySequence("Ctrl+Shift+G"), this, &MainWindow::onGrowthCurve)
@@ -308,8 +322,10 @@ void MainWindow::setupMenus()
     windowMenu_->addAction(tr("Close all &Images"),  this, &MainWindow::onCloseAllImages);
     windowMenu_->addAction(tr("Close &all Windows"), this, &MainWindow::onCloseAllWindows);
     windowMenu_->addSeparator();
-    windowMenu_->addAction(tr("Toggle &Day/Night Mode"), QKeySequence("Ctrl+Shift+T"),
-                           this, &MainWindow::onToggleTheme);
+    // No shortcut here: Ctrl+Shift+T belongs to the theme action created in
+    // setupToolBar(); declaring it twice made Qt treat it as ambiguous and
+    // the key did nothing.
+    windowMenu_->addAction(tr("Toggle &Day/Night Mode"), this, &MainWindow::onToggleTheme);
 
     // ── Help ──────────────────────────────────────────────────────────────────
     helpMenu_ = menuBar()->addMenu(tr("&Help"));
@@ -347,6 +363,7 @@ void MainWindow::setupToolBar()
     actThemeToggle_->setShortcut(QKeySequence("Ctrl+Shift+T"));
     connect(actThemeToggle_, &QAction::triggered, this, &MainWindow::onToggleTheme);
     stdTb->addAction(actThemeToggle_);
+    addAction(actThemeToggle_);   // keep Ctrl+Shift+T working when the toolbar is hidden
 
     stdTb->addSeparator();
 
@@ -1033,7 +1050,7 @@ void MainWindow::onHelpContents()
     helpDialog_->raise();
     helpDialog_->activateWindow();
 }
-void MainWindow::onRegistration()  { statusBar()->showMessage(tr("Registration — N/A (MIT open source)"), 3000); }
+void MainWindow::onRegistration()  { statusBar()->showMessage(tr("Registration — not needed (free software, AGPL-3.0)"), 3000); }
 
 void MainWindow::onSetupWizard()
 {
