@@ -459,7 +459,7 @@ de release. Localmente: `cmake --build build --target audit` (relatórios em
 | [`INSTALL.md`](INSTALL.md) | How-to | Exact install commands per distribution |
 | [`docs/technical-reference.md`](docs/technical-reference.md) | Reference | Algorithms and coordinate-system math (WCS, refraction, PSF, ADES) |
 | [`docs/qa-distros.md`](docs/qa-distros.md) | Reference | Multi-distro QA strategy and per-distro results |
-| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Guided walkthroughs, screenshots, day-to-day usage |
+| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Beginner-to-advanced guides: installation, first measurement, every menu and setting, troubleshooting (source in [`docs/wiki/`](docs/wiki/), published with `scripts/sync-wiki.sh`) |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How-to | Project layout, code style, how to submit a change |
 | [`CHANGELOG.md`](CHANGELOG.md) | Reference | Release notes per version |
 
@@ -470,7 +470,7 @@ de release. Localmente: `cmake --build build --target audit` (relatórios em
 | [`INSTALL.md`](INSTALL.md) | How-to | Comandos exatos de instalação por distribuição |
 | [`docs/technical-reference.md`](docs/technical-reference.md) | Reference | Matemática de algoritmos e sistemas de coordenadas (WCS, refração, PSF, ADES) |
 | [`docs/qa-distros.md`](docs/qa-distros.md) | Reference | Estratégia de QA multi-distro e resultados por distribuição |
-| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Passo a passo guiado, capturas de tela, uso do dia a dia |
+| [Wiki](https://github.com/petrinhu/astrofind/wiki) | Tutorial / How-to | Guias do iniciante ao avançado: instalação, primeira medição, cada menu e configuração, solução de problemas (fonte em [`docs/wiki/`](docs/wiki/), publicada com `scripts/sync-wiki.sh`) |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How-to | Estrutura do projeto, estilo de código, como enviar uma mudança |
 | [`CHANGELOG.md`](CHANGELOG.md) | Reference | Notas de lançamento por versão |
 
