@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Petrus Silva Costa
 //
-// AUD-CORR-12: solveKepler()/heliocentricPosition() had zero direct tests
-// before this remediation — only the end-to-end computeEphemeris() output was
-// exercised indirectly through the field-query tests. The two bugs fixed
-// under AUD-CORR-12 (MPCORB epoch off by 0.5 day; Sun longitude computed in
-// the equinox of date instead of J2000) both lived inside these two
-// functions, and a regression to either would not necessarily move
-// computeEphemeris() far enough to fail a coarse end-to-end check.
+// AUD-CORR-12: solveKepler()/heliocentricPosition()/computeEphemeris() had
+// zero direct tests before this remediation. Mutation review (2026-09-24)
+// confirmed the gap was real: removing the Sun-longitude-to-J2000 precession
+// term in Ephemeris.cpp's earthHeliocentricEcliptic() — the actual
+// AUD-CORR-12 fix — passed the ENTIRE suite, because nothing here called
+// computeEphemeris() at all (only its two Earth-independent helpers,
+// solveKepler and heliocentricPosition, were covered). The two
+// computeEphemeris() tests below close that gap with real orbital elements
+// and an independent JPL Horizons oracle (fetched via curl, L-78 — never
+// WebFetch for an API call).
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include "core/Astronomy.h"
 #include "core/Ephemeris.h"
 #include "core/MpcOrb.h"
 
@@ -118,4 +122,88 @@ TEST_CASE("heliocentricPosition: eccentric orbit (e=0.5 a=2) gives r_peri=1 and 
     const auto apo = core::heliocentricPosition(orb, orb.epoch + dtToApo);
     CHECK_THAT(apo.r, WithinAbs(3.0, 1e-9));
     CHECK_THAT(apo.E * kR2D, WithinAbs(180.0, 1e-6));
+}
+
+// ─── computeEphemeris vs JPL Horizons (AUD-CORR-12) ──────────────────────────
+//
+// Real osculating heliocentric elements and the independent astrometric
+// (ICRF J2000, geocentric) RA/Dec, both fetched live from the JPL Horizons
+// API on 2026-09-24 via curl (L-78 — WebFetch is never used for an
+// authenticated/data API call; this endpoint needs no key but the same rule
+// of thumb applies to any such lookup: local HTTP request, not a routed
+// fetch). jd == orb.epoch exactly in both cases, so dt=0 and solveKepler()/
+// the two-body radius-vector math contribute zero propagation error — any
+// residual is earthHeliocentricEcliptic() (Earth's position) plus the
+// inherent low-precision-Sun-position/no-perturbation approximation this
+// module always had. Tolerance is 60″: comfortably above the current
+// implementation's residual (~13-49″ measured in the AUD-CORR-12 fix,
+// f6b0712) and comfortably below what removing the J2000 precession
+// correction produces (hundreds to low thousands of arcsec — see the
+// REDCHECK evidence for this file's commit).
+//
+// Query used for Ceres (curl -G https://ssd.jpl.nasa.gov/api/horizons.api):
+//   Elements: COMMAND=1; CENTER=500@10 EPHEM_TYPE=ELEMENTS REF_PLANE=ECLIPTIC
+//             REF_SYSTEM=J2000 OUT_UNITS=AU-D TLIST=2460450.5
+//   Observer: COMMAND=1; CENTER=500@399 EPHEM_TYPE=OBSERVER QUANTITIES=1
+//             (astrometric RA&DEC) ANG_FORMAT=DEG TLIST=2460450.5
+// Eros: identical queries with COMMAND=433; TLIST=2455957.5 (2012-Jan-31, near
+// its 2012 close approach to Earth, ~0.18 AU).
+
+TEST_CASE("computeEphemeris: Ceres 2024-May-20 astrometric RA/Dec matches JPL Horizons",
+          "[ephemeris][horizons]")
+{
+    // Real (1) Ceres osculating elements at JD 2460450.5 TDB, heliocentric
+    // ecliptic J2000 (JPL Horizons, fetched 2026-09-24; EC/OM/W/IN/N/MA/A
+    // map directly onto AsteroidRecord's e/Omega/omega/incl/n/M/a).
+    auto orb = makeOrbit(/*epoch=*/2460450.5,
+                          /*M=*/113.6800190017589,
+                          /*omega=*/73.33598956358216,
+                          /*Omega=*/80.25365960043708,
+                          /*incl=*/10.58773174310077,
+                          /*e=*/0.07906268261892506,
+                          /*n=*/0.2141410062839562,
+                          /*a=*/2.766959632117654);
+    orb.number = 1;
+    orb.H = 3.34f;
+    orb.G = 0.12f;
+
+    // Horizons astrometric (ICRF J2000) geocentric RA/Dec at the same instant.
+    const double horizonsRa  = 293.46991;
+    const double horizonsDec = -25.39378;
+
+    const core::EphemerisMatch m = core::computeEphemeris(orb, orb.epoch);
+    const double sepArcsec = core::angularDistance(m.ra, m.dec, horizonsRa, horizonsDec) * 3600.0;
+    INFO("computeEphemeris ra=" << m.ra << " dec=" << m.dec
+                                << " Horizons ra=" << horizonsRa << " dec=" << horizonsDec
+                                << " separation(arcsec)=" << sepArcsec);
+    CHECK(sepArcsec < 60.0);
+}
+
+TEST_CASE("computeEphemeris: Eros 2012-Jan-31 astrometric RA/Dec matches JPL Horizons",
+          "[ephemeris][horizons]")
+{
+    // Real (433) Eros osculating elements at JD 2455957.5 TDB, near its 2012
+    // close approach to Earth (large angular rate -> any Earth-position
+    // error shows up strongly). JPL Horizons, fetched 2026-09-24.
+    auto orb = makeOrbit(/*epoch=*/2455957.5,
+                          /*M=*/7.461306477359140,
+                          /*omega=*/178.7556219376383,
+                          /*Omega=*/304.34943864178,
+                          /*incl=*/10.82900379833996,
+                          /*e=*/0.2225690094319617,
+                          /*n=*/0.5598647921259432,
+                          /*a=*/1.457965602360455);
+    orb.number = 433;
+    orb.H = 10.4f;
+    orb.G = 0.46f;
+
+    const double horizonsRa  = 158.32917;
+    const double horizonsDec = -4.80639;
+
+    const core::EphemerisMatch m = core::computeEphemeris(orb, orb.epoch);
+    const double sepArcsec = core::angularDistance(m.ra, m.dec, horizonsRa, horizonsDec) * 3600.0;
+    INFO("computeEphemeris ra=" << m.ra << " dec=" << m.dec
+                                << " Horizons ra=" << horizonsRa << " dec=" << horizonsDec
+                                << " separation(arcsec)=" << sepArcsec);
+    CHECK(sepArcsec < 60.0);
 }
