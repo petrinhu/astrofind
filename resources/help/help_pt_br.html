@@ -280,7 +280,7 @@ kbd {
     <li><strong>Detecção de estrelas</strong> via algoritmo SEP / Source Extractor</li>
     <li><strong>Solução de placa</strong> via API do astrometry.net ou ASTAP offline</li>
     <li><strong>Projeções WCS</strong>: TAN, SIN, ARC, GLS, MER, AIT, STG (Calabretta &amp; Greisen 2002)</li>
-    <li><strong>Correção de refração atmosférica</strong> e cadeia completa ICRS→CIRS→topocêntrico</li>
+    <li><strong>Correção de refração atmosférica</strong> para posições terrestres não absorvidas por uma solução de plate-solve por catálogo; aberração anual e precessão/nutação são registradas em log como diagnóstico, sem serem aplicadas à coordenada exportada (as posições ficam astrométricas ICRF)</li>
     <li><strong>Sobreposição de Objetos Conhecidos (KOO)</strong> — asteroides e cometas MPCORB.DAT</li>
     <li><strong>Ferramenta de abertura</strong> — ajuste PSF elíptico (Levenberg-Marquardt) para posição e magnitude precisas</li>
     <li><strong>Empilhamento de imagens</strong> com alinhamento FFT (Somar / Média / Mediana)</li>
@@ -446,10 +446,12 @@ kbd {
 
   <div class="callout info">
     <div class="ct">Palavras-chave FITS Utilizadas pelo AstroFind</div>
-    <code>DATE-OBS</code>, <code>EXPTIME</code> (ou <code>EXPOSURE</code>), <code>TELESCOP</code>,
-    <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>, <code>RA</code>, <code>DEC</code>,
-    <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>, <code>RDNOISE</code> e palavras-chave
-    WCS (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>, <code>CD1_1</code>, <code>CD1_2</code>, etc.)
+    <code>DATE-OBS</code>, <code>MJD-OBS</code> (preferida sobre <code>DATE-OBS</code> para o horário
+    do meio da exposição quando presente e finita), <code>EXPTIME</code> (ou <code>EXPOSURE</code>),
+    <code>TELESCOP</code>, <code>INSTRUME</code>, <code>FILTER</code>, <code>OBJECT</code>,
+    <code>RA</code>, <code>DEC</code>, <code>NAXIS1</code>, <code>NAXIS2</code>, <code>GAIN</code>,
+    <code>RDNOISE</code> e palavras-chave WCS (<code>CRPIX1/2</code>, <code>CRVAL1/2</code>,
+    <code>CD1_1</code>, <code>CD1_2</code>, <code>LONPOLE</code>, <code>LATPOLE</code>, etc.)
     após a solução astrométrica.
   </div>
 </section>
@@ -1075,9 +1077,12 @@ kbd {
   <h3>Exportação ADES XML / PSV</h3>
   <p>
     <em>Arquivo → Exportar ADES XML…</em> escreve um arquivo XML ADES 2017 completo com marcação
-    de coordenadas ICRF (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>), refração atmosférica aplicada e
-    o bloco completo de observador/medidor/telescópio. O formato PSV também está disponível no
-    diálogo de Pré-visualização do Relatório.
+    de coordenadas ICRF (<code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>) e o bloco completo de
+    observador/medidor/telescópio. O RA/Dec reportado é uma posição astrométrica ICRF: a refração
+    atmosférica só é removida para uma posição terrestre não derivada de uma solução de plate-solve
+    por catálogo, e a aberração anual/precessão/nutação nunca são somadas, já que uma solução de
+    plate-solve contra um catálogo alinhado ao ICRS já as absorve. O formato PSV também está
+    disponível no diálogo de Pré-visualização do Relatório.
   </p>
 </section>
 
@@ -1100,9 +1105,12 @@ kbd {
   <h3>Como Funciona</h3>
   <p>
     Para cada objeto no MPCORB.DAT cujos elementos orbitais estão dentro do intervalo de busca, o
-    AstroFind integra a órbita (usando um propagador de dois corpos simplificado ou N-corpos) até a
+    AstroFind integra a órbita (usando um propagador de dois corpos simplificado) até a
     época de observação e calcula a RA/Dec prevista. Objetos cuja posição prevista cai dentro do campo
-    de visão da imagem são exibidos como marcadores ciano rotulados com sua designação MPC.
+    de visão da imagem são exibidos como marcadores ciano rotulados com sua designação MPC. Esse
+    propagador offline não modela tempo-luz nem usa uma posição de alta precisão do Sol, então trate-o
+    como uma conferência aproximada (tipicamente dezenas de arcossegundos de diferença de uma efeméride
+    do JPL Horizons), não como uma previsão no nível do Horizons.
   </p>
   <p>
     Alterne a sobreposição com <kbd>Ctrl</kbd>+<kbd>K</kbd> ou pelo menu Exibir. Ao passar o cursor,
@@ -1322,10 +1330,10 @@ kbd {
   <p class="gd">Padrão FITS (Papers I–IV, Calabretta &amp; Greisen 2002) para codificar o mapeamento matemático entre coordenadas de pixel e coordenadas físicas do céu (RA, Dec). O AstroFind implementa oito projeções: TAN, SIN, ARC, GLS, MER, AIT, STG, além do padrão TAN.</p>
 
   <p class="gt">CIRS — Celestial Intermediate Reference System (Sistema de Referência Celeste Intermediário)</p>
-  <p class="gd">Referencial intermediário definido pelo equador terrestre e a Origem Celeste Intermediária em uma dada época. Usado na cadeia ICRS → CIRS → Topocêntrico ao calcular posições aparentes precisas, incluindo aberração anual e nutação, conforme exigido pelo padrão ADES.</p>
+  <p class="gd">Referencial intermediário definido pelo equador terrestre e a Origem Celeste Intermediária em uma dada época. Uma redução rigorosa (ICRS até CIRS até Topocêntrico) o usaria para somar aberração anual e nutação e chegar a uma posição aparente. O AstroFind não implementa essa cadeia: uma solução de plate-solve por catálogo já absorve aberração e precessão/nutação como um sistemático de todo o campo, então aplicá-las de novo corrigiria duas vezes. O RA/Dec exportado pelo AstroFind é a posição astrométrica ICRF, não uma posição aparente CIRS/topocêntrica.</p>
 
   <p class="gt">ICRS — International Celestial Reference System (Sistema Internacional de Referência Celeste)</p>
-  <p class="gd">O referencial celeste padrão da UAI atual, alinhado a fontes rádio extragalácticas (quasares). Essencialmente equivalente ao FK5/J2000 para astrometria terrestre, mas rigorosamente definido sem época de referência. Todas as saídas ADES do AstroFind são marcadas com <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code>.</p>
+  <p class="gd">O referencial celeste padrão da UAI atual, alinhado a fontes rádio extragalácticas (quasares). Essencialmente equivalente ao FK5/J2000 para astrometria terrestre, mas rigorosamente definido sem época de referência. Todas as saídas ADES do AstroFind são marcadas com <code>&lt;sys&gt;ICRF&lt;/sys&gt;</code> como posições astrométricas; a aberração anual e a precessão/nutação só são registradas em log como diagnóstico, nunca somadas à coordenada exportada.</p>
 
   <p class="gt">LUT — Look-Up Table (Tabela de Consulta)</p>
   <p class="gd">Um mapeamento de intensidade de pixel escalar para uma cor RGB. Usado para renderizar imagens astronômicas em tons de cinza com cores falsas. LUTs comuns: Hot (preto-vermelho-amarelo-branco), Viridis, Plasma, Inferno (sequenciais perceptualmente uniformes), Cividis (seguro para daltônicos), Turbo (estilo arco-íris).</p>

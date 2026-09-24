@@ -1374,14 +1374,27 @@ compilado com LibRaw.
 🇬🇧 **English**
 The bending of starlight by the atmosphere, which lifts objects slightly. It is zero straight
 overhead, about 1 arcminute at 45° altitude, and about 34 arcminutes at the horizon. AstroFind
-corrects measured positions of ground-based images (Bennett formula) and skips the correction for
-space telescopes and below 1° altitude.
+skips the correction for space telescopes, below 1° altitude, and (AUD-CORR-7) for **any position
+already derived from a catalog plate solution** (`astrometry.net`/ASTAP against Gaia/UCAC4/2MASS):
+that fit is refracted along with its reference stars, so it already absorbs the mean refraction,
+and correcting it again would double it (up to ~1.7′ at 30° altitude). In practice this means the
+Bennett formula does not run on today's typical measured position, since those come from a plate
+solution; it would only apply to a ground-based position obtained some other way (e.g. raw
+pointing/mount coordinates). *In version 1.1.0 and earlier, Bennett refraction was applied to
+every ground-based measurement regardless of how the sky position was obtained.*
 
 🇧🇷 **Português**
 A curvatura da luz das estrelas pela atmosfera, que levanta um pouco os objetos. É zero bem acima
 da cabeça, cerca de 1 minuto de arco a 45° de altura e cerca de 34 minutos de arco no horizonte. O
-AstroFind corrige as posições medidas em imagens feitas do solo (fórmula de Bennett) e pula a
-correção para telescópios espaciais e abaixo de 1° de altura.
+AstroFind pula a correção para telescópios espaciais, abaixo de 1° de altura e (AUD-CORR-7) para
+**qualquer posição já derivada de uma solução de plate-solve por catálogo** (`astrometry.net`/ASTAP
+contra Gaia/UCAC4/2MASS): esse ajuste é refratado junto com suas estrelas de referência, então já
+absorve a refração média, e corrigi-la de novo dobraria o efeito (até ~1,7′ a 30° de altitude). Na
+prática isso significa que a fórmula de Bennett não roda sobre a posição medida típica de hoje, já
+que estas vêm de uma solução de plate-solve; ela só se aplicaria a uma posição terrestre obtida de
+outro jeito (ex.: coordenadas brutas de apontamento/montagem). *Na versão 1.1.0 e anteriores, a
+refração de Bennett era aplicada a toda medição terrestre, independente de como a posição celeste
+foi obtida.*
 
 ---
 

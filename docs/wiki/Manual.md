@@ -669,10 +669,13 @@ para o MPC.
    - fits an elliptical **PSF** (the star's light profile, see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary)) to find the exact
      centre (**centroid**) to a fraction of a pixel;
    - converts it to RA/Dec with the WCS;
-   - corrects **atmospheric refraction** (not for space telescopes);
+   - corrects **atmospheric refraction**, but only when the position did **not** already come
+     from a catalog plate solution (which absorbs refraction itself), and never for space
+     telescopes;
    - measures brightness (see [Part 10](#part-10--photometry--parte-10--fotometria));
    - names the object if a known object lies within 10 pixels.
-   The Log shows the refraction correction and the PSF shape. "PSF elongation=… — check
+   The Log shows the refraction correction (or, when skipped because of the plate solution,
+   "Refraction: not applied") and the PSF shape. "PSF elongation=… — check
    tracking, focus, or coma" means the star images are not round.
 4. The **Verification** / **Verificação** window opens: a 4× zoom of the spot, RA/Dec, Mag,
    FWHM, SNR, an **Object:** field and the list "Objetos conhecidos próximos:" (double-click an
@@ -699,10 +702,12 @@ observation; the dock's **Remove** button deletes selected rows (this cannot be 
    - ajusta uma **PSF** elíptica (o perfil de luz da estrela, veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary))
      para achar o centro exato (**centroide**) com fração de pixel;
    - converte para AR/Dec com o WCS;
-   - corrige a **refração atmosférica** (não para telescópios espaciais);
+   - corrige a **refração atmosférica**, mas só quando a posição **não** veio de uma solução de
+     plate-solve por catálogo (que já absorve a refração), e nunca para telescópios espaciais;
    - mede o brilho (veja a [Parte 10](#part-10--photometry--parte-10--fotometria));
    - dá nome ao objeto se houver um objeto conhecido a até 10 pixels.
-   O Registro mostra a correção de refração e a forma da PSF. "PSF elongation=… — check
+   O Registro mostra a correção de refração (ou, quando pulada por causa da solução de placa,
+   "Refraction: not applied") e a forma da PSF. "PSF elongation=… — check
    tracking, focus, or coma" quer dizer que as estrelas não estão redondas.
 4. Abre a janela **Verificação** / **Verification**: zoom 4× do ponto, AR/Dec, Mag, FWHM, SNR,
    um campo **Object:** e a lista "Objetos conhecidos próximos:" (clique duplo numa entrada para
@@ -996,16 +1001,22 @@ UTC de meio de exposição que você espera para uma imagem.
 
 🔴 **Advanced / Avançado**
 
-🇬🇧 Positions are reported in the ICRF frame of the reference catalog: the plate solution
-already absorbs annual aberration (AstroFind logs it for information only), and the only
-correction applied on top is atmospheric refraction (Bennett formula). The mathematics of WCS
-projections, PSF fitting, photometry and the ADES format is in [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) and in
+🇬🇧 Positions are reported as astrometric ICRF positions: the plate solution already absorbs
+annual aberration and precession/nutation (AstroFind only logs their size for information). The
+one correction that can still be applied on top is atmospheric refraction (Bennett formula), and
+only when the position was **not** already derived from that catalog plate solution, since such a
+solution already absorbs refraction too, in practice this means Bennett does not run on a typical
+measured position today. The mathematics of WCS projections, PSF fitting, photometry and the ADES
+format is in [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) and in
 `docs/technical-reference.md` in the repository.
 
-🇧🇷 As posições são relatadas no referencial ICRF do catálogo de referência: a solução de placa
-já absorve a aberração anual (o AstroFind só a registra para informação), e a única correção
-aplicada por cima é a refração atmosférica (fórmula de Bennett). A matemática das projeções WCS,
-do ajuste de PSF, da fotometria e do formato ADES está em [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) e em
+🇧🇷 As posições são relatadas como posições astrométricas ICRF: a solução de placa já absorve a
+aberração anual e a precessão/nutação (o AstroFind só registra o tamanho delas em log, para
+informação). A única correção que ainda pode ser aplicada por cima é a refração atmosférica
+(fórmula de Bennett), e só quando a posição **não** veio dessa solução de plate-solve por
+catálogo, já que tal solução também já absorve a refração; na prática isso significa que Bennett
+não roda sobre uma posição medida típica hoje. A matemática das projeções WCS, do ajuste de PSF,
+da fotometria e do formato ADES está em [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) e em
 `docs/technical-reference.md` no repositório.
 
 ---

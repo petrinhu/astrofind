@@ -302,7 +302,16 @@ $$
 \right)
 $$
 
-where $\phi_p = 180°$ for $\delta_0 \geq \theta_0$, else $0°$.
+where $\phi_p = 180°$ for $\delta_0 \geq \theta_0$, else $0°$. **AUD-CORR-10:**
+this default rule only applies when the header has no `LONPOLE` (or its `PV1_3`
+alias) card; when present, $\phi_p$ is taken from that card instead, and
+`LATPOLE` (or `PV1_4`) can additionally fix $\delta_p$ for the ambiguous case
+of a non-zenithal projection whose fiducial point is not on the equator
+($\delta_0 \neq 0°$), following Calabretta & Greisen (2002) §2.4, eqs. 8-10. A
+`LONPOLE`/`LATPOLE` pair that admits no valid celestial pole is logged as a
+warning and the parser falls back to the default above; `PV1_1`/`PV1_2` (a
+native fiducial point away from $(\phi_0,\theta_0)=(0°,0°)$) are not
+supported and are also logged.
 
 ### 🇧🇷 Português
 
@@ -344,7 +353,16 @@ $$
 \right)
 $$
 
-onde $\phi_p = 180°$ para $\delta_0 \geq \theta_0$, senão $0°$.
+onde $\phi_p = 180°$ para $\delta_0 \geq \theta_0$, senão $0°$. **AUD-CORR-10:**
+essa regra padrão só vale quando o cabeçalho não tem o cartão `LONPOLE` (ou seu
+alias `PV1_3`); quando presente, $\phi_p$ vem desse cartão, e `LATPOLE` (ou
+`PV1_4`) pode adicionalmente fixar $\delta_p$ no caso ambíguo de uma projeção
+não zenital cujo ponto fiducial não está no equador ($\delta_0 \neq 0°$),
+seguindo Calabretta & Greisen (2002) §2.4, eqs. 8-10. Um par
+`LONPOLE`/`LATPOLE` que não admite nenhum polo celeste válido gera um aviso no
+log e o parser volta à regra padrão acima; `PV1_1`/`PV1_2` (um ponto fiducial
+nativo fora de $(\phi_0,\theta_0)=(0°,0°)$) não são suportados e também geram
+aviso.
 
 ---
 
@@ -412,6 +430,19 @@ $$
 
 Equal-area full-sky projection. Used for CMB and survey coverage maps.
 
+**AUD-CORR-11 (sky → pixel, catalog overlay):** the *inverse* mapping used to
+place catalog stars and known objects back onto the image (celestial → native
+→ IWC → pixel) computes the native longitude $\phi$ with `atan2`, which
+returns a value in $(-180°,180°]$ *before* the fiducial-longitude offset
+$\phi_p$ is added. For the cylindrical/pseudocylindrical projections whose
+inverse uses $\phi$ directly ($x \propto \phi$: **CAR, MER, GLS, AIT**), this
+came out 360° off whenever the field's $\phi_p$ pushed the result outside
+$(-180°,180°]$ (in practice, every southern-declination field for these
+projections), landing the reprojected pixel roughly $1.3\times10^6$ px away
+at 1″/px, i.e. off the image entirely. Fixed by reducing $\phi$ back into
+$(-180°,180°]$ (`std::remainder`) after adding $\phi_p$. Zenithal projections
+(TAN, SIN, ARC, STG) only use $\sin\phi/\cos\phi$ and were never affected.
+
 ### 🇧🇷 Português
 
 **TAN, Gnomônica (padrão):**
@@ -475,18 +506,33 @@ $$
 Projeção de céu completo de igual área. Usada em mapas de CMB (radiação cósmica de
 fundo) e cobertura de levantamento.
 
+**AUD-CORR-11 (céu → pixel, sobreposição de catálogo):** o mapeamento
+*inverso*, usado para posicionar estrelas de catálogo e objetos conhecidos de
+volta na imagem (celeste → nativo → IWC → pixel), calcula a longitude nativa
+$\phi$ com `atan2`, que devolve um valor em $(-180°,180°]$ *antes* de somar o
+deslocamento de longitude fiducial $\phi_p$. Para as projeções
+cilíndricas/pseudocilíndricas cuja inversa usa $\phi$ diretamente
+($x \propto \phi$: **CAR, MER, GLS, AIT**), isso saía 360° errado sempre que o
+$\phi_p$ do campo empurrava o resultado para fora de $(-180°,180°]$, na
+prática todo campo de declinação sul nessas projeções, levando o pixel
+reprojetado a cerca de $1,3\times10^6$ px de distância a 1″/px, ou seja, fora
+da imagem inteiramente. Corrigido reduzindo $\phi$ de volta a $(-180°,180°]$
+(`std::remainder`) depois de somar $\phi_p$. As projeções zenitais (TAN, SIN,
+ARC, STG) usam só $\sin\phi/\cos\phi$ e nunca foram afetadas.
+
 ---
 
 ## 5. Atmospheric Refraction / Refração Atmosférica
 
 ### 🇬🇧 English
 
-> **Last reviewed:** 2026-07-10 (AUD-DOC-1). This section previously described a
+> **Last reviewed:** 2026-09-24 (AUD-CORR-7). This section previously described a
 > two-branch model (pressure/temperature-corrected formula above 15°, Bennett
-> below 15°) that does not match the implementation. It has been rewritten to
-> describe `applyRefractionCorrection()` (`src/core/Astronomy.cpp`) as it
-> actually exists: the Bennett (1982) formula, applied unconditionally down to a
-> fixed altitude gate, with no pressure/temperature input.
+> below 15°) that does not match the implementation (fixed 2026-07-10,
+> AUD-DOC-1). It has since been updated again: the formula below
+> (`applyRefractionCorrection()`) is unchanged, but the *policy* for when it
+> runs on a reported position changed (`shouldApplyRefraction()`,
+> `src/core/Astronomy.cpp`): see "When the correction is applied" below.
 
 AstroFind uses a single formula for atmospheric refraction, the Bennett (1982)
 approximation, applied uniformly at all altitudes (no separate high-altitude
@@ -513,22 +559,44 @@ would need to be implemented as a new parameter and formula (e.g. the $R = R_0
 \cdot P/P_0 \cdot T_0/T \cdot \tan z$ style correction), not assumed to already
 exist.
 
-**Space telescopes:** the caller (`MainWindow_measurement.cpp`) gates the call
-behind `isSpaceTelescope`, refraction is only applied for ground-based
-observations, since there is no atmosphere to correct for from orbit.
+**When the correction is applied (AUD-CORR-7).** `shouldApplyRefraction()`
+gates every call from the measurement pipeline
+(`MainWindow::runMeasurePipeline`) and returns `true` only when **all** of
+the following hold:
 
-The correction is applied to each measured RA/Dec before writing to the ADES
-report. The log panel shows the applied correction as `Refraction correction: X"
+1. **Not a space telescope** (`isSpaceTelescope`): no atmosphere, so the
+   correction never applies from orbit.
+2. **The position was not derived from a catalog plate solution**
+   (`FitsImage::wcs.solved`, i.e. a WCS fitted by `astrometry.net` or an
+   equivalent solver against Gaia/UCAC4/2MASS star positions in the same
+   exposure). Such a fit maps pixels straight onto catalog (ICRS)
+   coordinates: the reference stars are refracted by the same atmosphere as
+   the target, so the fit already absorbs the mean refraction and, to first
+   order, its variation across the field. Applying Bennett on top of that
+   would correct refraction **twice** (up to ~1.7′ at 30° altitude).
+3. **The Julian Date is a real epoch** (`jd > 2400000`), needed to convert
+   RA/Dec to alt-az.
+
+In practice, essentially every measured position in AstroFind today comes
+from a WCS plate solution, so Bennett refraction (§5's formula) does **not**
+run on the reported RA/Dec; it would only apply to a ground-based position
+derived some other way (e.g. raw pointing/mount coordinates without a plate
+solve). This is a policy change from the pre-AUD-CORR-7 behaviour, which
+applied Bennett to every ground-based measurement regardless of how the sky
+position was obtained. When the correction is skipped for this reason, the
+log panel says "Refraction: not applied (absorbed by the catalog plate
+solution)"; when it does run, it still shows `Refraction correction: X"
 (R=Y')`.
 
 ### 🇧🇷 Português
 
-> **Última revisão:** 2026-07-10 (AUD-DOC-1). Esta seção antes descrevia um
+> **Última revisão:** 2026-09-24 (AUD-CORR-7). Esta seção antes descrevia um
 > modelo de dois ramos (fórmula corrigida por pressão/temperatura acima de 15°,
-> Bennett abaixo de 15°) que não correspondia à implementação. Foi reescrita para
-> descrever `applyRefractionCorrection()` (`src/core/Astronomy.cpp`) como ela
-> realmente existe: a fórmula de Bennett (1982), aplicada incondicionalmente até
-> um teto fixo de altitude, sem entrada de pressão/temperatura.
+> Bennett abaixo de 15°) que não correspondia à implementação (corrigido em
+> 2026-07-10, AUD-DOC-1). Desde então foi atualizada de novo: a fórmula abaixo
+> (`applyRefractionCorrection()`) não mudou, mas a *política* de quando ela roda
+> sobre uma posição reportada mudou (`shouldApplyRefraction()`,
+> `src/core/Astronomy.cpp`), ver "Quando a correção é aplicada" abaixo.
 
 O AstroFind usa uma única fórmula para refração atmosférica, a aproximação de
 Bennett (1982), aplicada uniformemente em todas as altitudes (sem ramo separado
@@ -554,12 +622,34 @@ futuro, precisaria ser implementada como um novo parâmetro e fórmula (ex.: a
 correção estilo $R = R_0 \cdot P/P_0 \cdot T_0/T \cdot \tan z$), não presumida
 como já existente.
 
-**Telescópios espaciais:** o chamador (`MainWindow_measurement.cpp`) protege a
-chamada atrás de `isSpaceTelescope`; a refração só é aplicada para observações
-terrestres, já que não há atmosfera a corrigir a partir da órbita.
+**Quando a correção é aplicada (AUD-CORR-7).** `shouldApplyRefraction()`
+protege toda chamada feita a partir do pipeline de medição
+(`MainWindow::runMeasurePipeline`) e só devolve `true` quando **todas** estas
+condições valem:
 
-A correção é aplicada a cada RA/Dec medido antes de escrever no relatório ADES. O
-painel de log mostra a correção aplicada como `Refraction correction: X" (R=Y')`.
+1. **Não é telescópio espacial** (`isSpaceTelescope`): sem atmosfera, a
+   correção nunca se aplica a partir da órbita.
+2. **A posição não veio de uma solução de plate-solve por catálogo**
+   (`FitsImage::wcs.solved`, isto é, um WCS ajustado pelo `astrometry.net` ou
+   um solver equivalente contra posições de estrelas Gaia/UCAC4/2MASS na
+   mesma exposição). Esse ajuste mapeia pixels diretamente para coordenadas
+   de catálogo (ICRS): as estrelas de referência são refratadas pela mesma
+   atmosfera que o alvo, então o ajuste já absorve a refração média e, em
+   primeira ordem, sua variação pelo campo. Aplicar Bennett em cima disso
+   corrigiria a refração **duas vezes** (até ~1,7′ a 30° de altitude).
+3. **A Data Juliana é uma época real** (`jd > 2400000`), necessária para
+   converter RA/Dec para alt-az.
+
+Na prática, hoje praticamente toda posição medida no AstroFind vem de uma
+solução WCS por plate-solve, então a refração de Bennett (fórmula da §5)
+**não** roda sobre o RA/Dec reportado; ela só se aplicaria a uma posição
+terrestre obtida de outro jeito (ex.: coordenadas brutas de apontamento/
+montagem sem plate-solve). Esta é uma mudança de política em relação ao
+comportamento anterior ao AUD-CORR-7, que aplicava Bennett a toda medição
+terrestre independente de como a posição celeste foi obtida. Quando a
+correção é pulada por esse motivo, o painel de log mostra "Refraction: not
+applied (absorbed by the catalog plate solution)"; quando ela roda, continua
+mostrando `Refraction correction: X" (R=Y')`.
 
 ---
 
@@ -567,9 +657,10 @@ painel de log mostra a correção aplicada como `Refraction correction: X" (R=Y'
 
 ### 🇬🇧 English
 
-> **Updated during audit remediation (AUD-CORR-4, Onda 2, 2026-07-10).** The
-> chain described in earlier revisions of this document (precession → nutation →
-> aberration → topocentric) was **never actually wired into the pipeline**:
+> **Updated during audit remediation (AUD-CORR-4, Onda 2, 2026-07-10; refraction
+> policy revised 2026-09-24, AUD-CORR-7/AUD-DOC-8).** The chain described in
+> earlier revisions of this document (precession → nutation → aberration →
+> topocentric) was **never actually wired into the pipeline**:
 > `applyPrecessionJ2000ToDate()` and `applyNutation()` had zero callers anywhere
 > in `src/` and have since been **removed** as dead code. What AstroFind actually
 > does is described below.
@@ -616,24 +707,33 @@ the ADES/MPC report:
    matching/calibrating against catalog stars at the image epoch, not applied to
    the target itself.
 3. **Atmospheric refraction removal** (`applyRefractionCorrection()`, §5): the
-   one frame correction that IS real and applied: it converts the apparent
-   (refracted) altitude/azimuth back to the true topocentric direction. Skipped
-   for space telescopes (`isSpaceTelescope`, no atmosphere).
+   one frame correction that CAN be real and applied, gated by
+   `shouldApplyRefraction()` (AUD-CORR-7). It converts the apparent (refracted)
+   altitude/azimuth back to the true topocentric direction, but **only** for a
+   ground-based position **not** derived from a catalog plate solution, which,
+   for the reason given above, already absorbs refraction as part of its
+   field-wide systematic. Since essentially every measured position today
+   comes from such a plate solution, this step does not run in practice on
+   the reported RA/Dec; it is skipped both for space telescopes
+   (`isSpaceTelescope`, no atmosphere) and for plate-solved ground-based
+   positions.
 
 `annualAberrationComponents()` (§7) is retained and still has one real call site
 (`MainWindow::runMeasurePipeline`), but purely to **log** the aberration magnitude
 at the epoch as a diagnostic for the observer, its result is never added to or
 subtracted from the reported coordinate.
 
-The ADES XML output tags coordinates with `<sys>ICRF</sys>` because the WCS plate
-solution is itself calibrated against an ICRS-aligned catalog; this is not a
-claim that AstroFind applies its own separate aberration/precession/nutation
-correction.
+The ADES XML output tags coordinates with `<sys>ICRF</sys>` (AUD-CORR-14/
+AUD-DOC-8) because the WCS plate solution is itself calibrated against an
+ICRS-aligned catalog; this is not a claim that AstroFind applies its own
+separate aberration/precession/nutation correction; those two are only ever
+logged (§7, §8), never applied to the exported RA/Dec.
 
 ### 🇧🇷 Português
 
 > **Atualizado durante a remediação da auditoria (AUD-CORR-4, Onda 2,
-> 2026-07-10).** A cadeia descrita em revisões anteriores deste documento
+> 2026-07-10; política de refração revisada em 2026-09-24, AUD-CORR-7/
+> AUD-DOC-8).** A cadeia descrita em revisões anteriores deste documento
 > (precessão → nutação → aberração → topocêntrico) **nunca foi de fato conectada
 > ao pipeline**: `applyPrecessionJ2000ToDate()` e `applyNutation()` não tinham
 > nenhum chamador em lugar nenhum de `src/` e desde então foram **removidas** como
@@ -682,20 +782,27 @@ relatório ADES/MPC:
    ao casar/calibrar contra estrelas de catálogo na época da imagem, não aplicada
    ao próprio alvo.
 3. **Remoção de refração atmosférica** (`applyRefractionCorrection()`, §5): a
-   única correção de referencial que É real e aplicada: converte a
-   altitude/azimute aparente (refratado) de volta à direção topocêntrica
-   verdadeira. Pulada para telescópios espaciais (`isSpaceTelescope`, sem
-   atmosfera).
+   única correção de referencial que PODE ser real e aplicada, protegida por
+   `shouldApplyRefraction()` (AUD-CORR-7). Ela converte a altitude/azimute
+   aparente (refratado) de volta à direção topocêntrica verdadeira, mas
+   **só** para uma posição terrestre **não** derivada de uma solução de
+   plate-solve por catálogo, que, pelo motivo explicado acima, já absorve a
+   refração como parte do seu sistemático de todo o campo. Como praticamente
+   toda posição medida hoje vem de tal solução, essa etapa não roda na
+   prática sobre o RA/Dec reportado; ela é pulada tanto para telescópios
+   espaciais (`isSpaceTelescope`, sem atmosfera) quanto para posições
+   terrestres resolvidas por plate-solve.
 
 `annualAberrationComponents()` (§7) foi mantida e ainda tem um único ponto de
 chamada real (`MainWindow::runMeasurePipeline`), mas puramente para **registrar
 em log** a magnitude da aberração na época como diagnóstico para o observador; seu
 resultado nunca é somado ou subtraído da coordenada reportada.
 
-A saída XML do ADES marca coordenadas com `<sys>ICRF</sys>` porque a própria
-solução de plate-solve WCS é calibrada contra um catálogo alinhado ao ICRS; isso
-não é uma alegação de que o AstroFind aplica sua própria correção separada de
-aberração/precessão/nutação.
+A saída XML do ADES marca coordenadas com `<sys>ICRF</sys>` (AUD-CORR-14/
+AUD-DOC-8) porque a própria solução de plate-solve WCS é calibrada contra um
+catálogo alinhado ao ICRS; isso não é uma alegação de que o AstroFind aplica
+sua própria correção separada de aberração/precessão/nutação; as duas só
+são registradas em log (§7, §8), nunca aplicadas ao RA/Dec exportado.
 
 ---
 
@@ -1131,6 +1238,32 @@ $$
 (Version 1.1.0 and earlier added $\Delta T$ to the image JD during Data Reduction, so
 `obsTime` was about 68 s late; the next version (after 1.1.0) fixes this.)
 
+**Mid-exposure JD and sub-second precision (AUD-CORR-13).** `julianDateUtc()`
+keeps the milliseconds of the input instant (`QDateTime::msecsTo`, not
+`secsTo`, which truncates). `midExposureJd()` prefers `MJD-OBS` (start of
+exposure, same time scale as `DATE-OBS`) over `DATE-OBS` when the header has
+a finite, positive `MJD-OBS`: it logs a warning if the two disagree by more
+than 1 s, and otherwise falls back to `DATE-OBS` at millisecond resolution.
+Half of `EXPTIME`/`EXPOSURE` (when present) is then added to reach the
+mid-point. The XISF loader now computes its JD the same way, from
+`DATE-OBS`, instead of a coarser method (version 1.1.0 and earlier).
+
+**Offline MPCORB ephemeris accuracy (AUD-CORR-12).** The two-body propagator
+used by the offline known-object scan (`Ephemeris.cpp`, `MpcOrb.cpp`) had two
+errors that together threw off predicted positions: the MPCORB packed epoch
+(a calendar date "at 0h TT") was read as if it were the Julian Day Number of
+that date's *noon*, half a day late, and the Sun's ecliptic longitude used to
+locate Earth was left in the mean equinox of date instead of being precessed
+back to J2000 to match the orbital elements. Both are now fixed (epoch minus
+0.5 day; longitude corrected by the IAU 1976 general precession, $p =
+5029.0966''\!\cdot T + 1.11113''\!\cdot T^2$). Against JPL Horizons, the
+resulting error dropped from 348″ to 13″ for Ceres (epoch 2024) and from
+2952″ to 49″ for Eros (epoch 2012). The remaining tens-of-arcsecond
+discrepancy comes from what this propagator still does not model: light-time
+and the low-precision (~36″ accuracy) Sun position; it is a reason to always
+double-check against Horizons before submitting, never a claim of
+Horizons-grade accuracy.
+
 ### 🇧🇷 Português
 
 A "Data Juliana" (JD) é uma contagem contínua de dias usada em astronomia,
@@ -1170,6 +1303,34 @@ $$
 (A versão 1.1.0 e anteriores somavam o $\Delta T$ ao JD da imagem na Redução de Dados,
 e o `obsTime` saía cerca de 68 s atrasado; a próxima versão (depois da 1.1.0) corrige
 isso.)
+
+**JD do meio da exposição e precisão sub-segundo (AUD-CORR-13).**
+`julianDateUtc()` mantém os milissegundos do instante de entrada
+(`QDateTime::msecsTo`, não `secsTo`, que trunca). `midExposureJd()` prefere
+`MJD-OBS` (início da exposição, na mesma escala de tempo do `DATE-OBS`) sobre
+`DATE-OBS` quando o cabeçalho tem um `MJD-OBS` finito e positivo: registra um
+aviso no log se os dois discordarem em mais de 1 s, e senão volta para
+`DATE-OBS` com resolução de milissegundos. Metade do `EXPTIME`/`EXPOSURE`
+(quando presente) é então somada para chegar ao meio da exposição. O leitor
+de XISF agora calcula seu JD do mesmo jeito, a partir do `DATE-OBS`, em vez de
+um método mais grosseiro (versão 1.1.0 e anteriores).
+
+**Precisão da efeméride offline do MPCORB (AUD-CORR-12).** O propagador de
+dois corpos usado na busca offline de objetos conhecidos (`Ephemeris.cpp`,
+`MpcOrb.cpp`) tinha dois erros que juntos desviavam as posições previstas: a
+época empacotada do MPCORB (uma data de calendário "às 0h TT") era lida como
+se fosse o Número do Dia Juliano do *meio-dia* dessa data, meio dia atrasada,
+e a longitude eclíptica do Sol usada para localizar a Terra ficava no
+equinócio médio da data em vez de ser precessionada de volta a J2000 para
+casar com os elementos orbitais. Os dois já estão corrigidos (época menos 0,5
+dia; longitude corrigida pela precessão geral IAU 1976, $p =
+5029,0966''\!\cdot T + 1,11113''\!\cdot T^2$). Contra o JPL Horizons, o erro
+resultante caiu de 348″ para 13″ para Ceres (época 2024) e de 2952″ para 49″
+para Eros (época 2012). A discrepância residual, de dezenas de arcossegundos,
+vem do que esse propagador ainda não modela: tempo-luz e a posição de baixa
+precisão (~36″ de exatidão) do Sol; é motivo para sempre conferir contra o
+Horizons antes de submeter, nunca uma alegação de exatidão no nível do
+Horizons.
 
 ---
 
@@ -1578,14 +1739,18 @@ $$
 </ades>
 ```
 
-The `<sys>ICRF</sys>` tag indicates the reported position is in the ICRF frame:
-this comes from the WCS plate solution being calibrated against an ICRS-aligned
-catalog (Gaia/UCAC4/2MASS), which absorbs annual aberration and precession/
-nutation as a field-wide systematic (see §6), AstroFind does not apply a
-separate aberration/precession/nutation step. The one frame correction AstroFind
-does apply explicitly is atmospheric refraction removal (§5). The
-`<ctr>399</ctr>` tag is the NAIF body code for Earth (NAIF = the numbering
-scheme JPL uses to identify solar-system bodies).
+The `<sys>ICRF</sys>` tag (AUD-CORR-14/AUD-DOC-8) indicates the reported
+position is an **astrometric** ICRF position: this comes from the WCS plate
+solution being calibrated against an ICRS-aligned catalog (Gaia/UCAC4/2MASS),
+which absorbs annual aberration and precession/nutation as a field-wide
+systematic (see §6); AstroFind does not apply a separate aberration/
+precession/nutation step to the exported RA/Dec, those are only logged
+(§7, §8). Atmospheric refraction removal (§5) is the one frame correction
+AstroFind can apply explicitly, but only when `shouldApplyRefraction()`
+(AUD-CORR-7) says the position was **not** derived from a catalog plate
+solution (in practice, not for a typical measured position, since those come
+from a plate solution). The `<ctr>399</ctr>` tag is the NAIF body code for
+Earth (NAIF = the numbering scheme JPL uses to identify solar-system bodies).
 
 **PSV Format:**
 
@@ -1641,14 +1806,19 @@ relatórios de posição de asteroides.
 </ades>
 ```
 
-A tag `<sys>ICRF</sys>` indica que a posição reportada está no referencial ICRF:
-isso vem da solução de plate-solve WCS ser calibrada contra um catálogo alinhado
-ao ICRS (Gaia/UCAC4/2MASS), que absorve a aberração anual e a precessão/nutação
-como um sistemático de todo o campo (ver §6); o AstroFind não aplica uma etapa
-separada de aberração/precessão/nutação. A única correção de referencial que o
-AstroFind de fato aplica explicitamente é a remoção de refração atmosférica
-(§5). A tag `<ctr>399</ctr>` é o código de corpo NAIF para a Terra (NAIF = o
-esquema de numeração que o JPL usa para identificar corpos do Sistema Solar).
+A tag `<sys>ICRF</sys>` (AUD-CORR-14/AUD-DOC-8) indica que a posição reportada
+é uma posição **astrométrica** ICRF: isso vem da solução de plate-solve WCS
+ser calibrada contra um catálogo alinhado ao ICRS (Gaia/UCAC4/2MASS), que
+absorve a aberração anual e a precessão/nutação como um sistemático de todo o
+campo (ver §6); o AstroFind não aplica uma etapa separada de aberração/
+precessão/nutação ao RA/Dec exportado, elas só são registradas em log (§7,
+§8). A remoção de refração atmosférica (§5) é a única correção de referencial
+que o AstroFind pode aplicar explicitamente, mas só quando
+`shouldApplyRefraction()` (AUD-CORR-7) diz que a posição **não** veio de uma
+solução de plate-solve por catálogo, na prática, não para uma posição medida
+típica, já que estas vêm de uma solução de plate-solve. A tag `<ctr>399</ctr>`
+é o código de corpo NAIF para a Terra (NAIF = o esquema de numeração que o JPL
+usa para identificar corpos do Sistema Solar).
 
 **Formato PSV:**
 

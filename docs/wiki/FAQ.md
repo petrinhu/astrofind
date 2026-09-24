@@ -140,7 +140,7 @@ overlay known objects, blink, measure, report. Main differences:
 | Reference catalog | UCAC4 (default) or Gaia DR3 from VizieR, or a local FITS BINTABLE file. The **Legacy** tab paths (USNO-A2.0, UCAC-2/3, CMC-14) are stored but never used. |
 | Known objects | IMCCE SkyBoT online; offline fallback with MPCORB.DAT. |
 | Main keys | `Ctrl+A` Data Reduction, `Ctrl+K` Known Object Overlay, `Ctrl+B` Blink, `Ctrl+M` Moving Object Detection, `M` Measure. Full list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference). |
-| Positions | Refraction correction is applied to ground-based measurements; the report says `sys=ICRF`. |
+| Positions | Refraction correction only applies to a ground-based measurement not already derived from a catalog plate solution (which absorbs it); the report is an astrometric position, `sys=ICRF`. |
 | Session size | 20 images per session by default (see below). |
 
 🇧🇷 **Português**
@@ -154,7 +154,7 @@ reduzir, sobrepor objetos conhecidos, piscar, medir, reportar. Principais difere
 | Catálogo de referência | UCAC4 (padrão) ou Gaia DR3 via VizieR, ou um arquivo FITS BINTABLE local. Os caminhos da aba **Legado** (USNO-A2.0, UCAC-2/3, CMC-14) são guardados mas nunca usados. |
 | Objetos conhecidos | IMCCE SkyBoT online; alternativa offline com o MPCORB.DAT. |
 | Teclas principais | `Ctrl+A` Redução de Dados, `Ctrl+K` Sobreposição de Objetos Conhecidos, `Ctrl+B` Piscar, `Ctrl+M` Detecção de Objetos em Movimento, `M` Medir. Lista completa: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference). |
-| Posições | A correção de refração é aplicada em medições feitas do solo; o relatório usa `sys=ICRF`. |
+| Posições | A correção de refração só se aplica a uma medição terrestre não derivada de uma solução de plate-solve por catálogo (que já a absorve); o relatório é uma posição astrométrica, `sys=ICRF`. |
 | Tamanho da sessão | 20 imagens por sessão por padrão (veja abaixo). |
 
 ---

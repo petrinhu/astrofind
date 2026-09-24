@@ -847,8 +847,12 @@ one.
 1. **Centroid:** an elliptical Gaussian **PSF** (the shape of a star's light) is fitted
    (Levenberg–Marquardt method) to find the exact centre.
 2. **Sky position** from the WCS.
-3. **Atmospheric refraction** (the air bends light, about 1–2′ at 30° altitude, more near the horizon) is corrected
-   for ground-based images. Skipped for space telescopes and below 1° altitude.
+3. **Atmospheric refraction** (the air bends light, about 1-2' at 30° altitude, more near the
+   horizon) is corrected only for a ground-based position that did **not** already come from a
+   catalog plate solution: such a solution is refracted the same way as its reference stars, so
+   it already absorbs the correction, and applying it again would double it. In practice this
+   means the correction does not run on a typical measured position today, since those come from a
+   plate solution; it is also always skipped for space telescopes and below 1° altitude.
 4. **Annual aberration** is only logged: the plate solution against the catalog already includes
    it. Precession and nutation are not applied either, because the catalog stars already give
    ICRF (J2000) coordinates, which is what the report uses (`sys=ICRF`).
@@ -869,8 +873,13 @@ mostra cada um.
 1. **Centroide:** uma **PSF** gaussiana elíptica (a forma da luz de uma estrela) é ajustada
    (método de Levenberg–Marquardt) para achar o centro exato.
 2. **Posição no céu** pelo WCS.
-3. **Refração atmosférica** (o ar curva a luz, cerca de 1–2′ a 30° de altura, mais perto do horizonte) é corrigida em
-   imagens feitas do solo. Ignorada para telescópios espaciais e abaixo de 1° de altura.
+3. **Refração atmosférica** (o ar curva a luz, cerca de 1-2' a 30° de altura, mais perto do
+   horizonte) é corrigida só para uma posição terrestre que **não** tenha vindo de uma solução de
+   plate-solve por catálogo: essa solução é refratada do mesmo jeito que suas estrelas de
+   referência, então já absorve a correção, e aplicá-la de novo dobraria o efeito. Na prática isso
+   significa que a correção não roda sobre a posição medida típica de hoje, já que estas vêm de
+   uma solução de plate-solve; ela também é sempre ignorada para telescópios espaciais e abaixo de
+   1° de altura.
 4. **Aberração anual** só vai para o Registro: a solução de placa com o catálogo já a inclui.
    Precessão e nutação também não são aplicadas, porque as estrelas do catálogo já dão
    coordenadas ICRF (J2000), que é o que o relatório usa (`sys=ICRF`).
