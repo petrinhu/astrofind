@@ -146,6 +146,62 @@ primeiro.
   localhost/127.0.0.1/::1): um aviso indica o campo e o diálogo continua aberto. Os clientes
   e o diálogo usam a mesma verificação.
 
+### Changed / Alterado
+
+- **Menu wording, no longer copied from Astrometrica.exe / Texto de menus, sem mais cópia do
+  Astrometrica.exe (AUD-PROV-10).** 🇬🇧 A programmatic sweep of `tr(...)` menu strings against
+  the original `Astrometrica.exe` found 29 real coincidences (26 exact matches plus 3
+  near-matches, ignoring only `&` mnemonics and ellipsis). Every one of them was rewritten with
+  AstroFind's own wording (same meaning, different words), across the menu bar, toolbars,
+  dialog titles, status messages, translations (`i18n/astrofind_pt_BR.ts`,
+  `i18n/astrofind_en.ts`) and the documentation (wiki, in-app Help EN/PT). The four truly
+  universal single-word menu names (File, Edit, Help, Undo) were kept: they are the same in
+  virtually every desktop application and renaming them would hurt usability for no real
+  reason. Keyboard shortcuts and behavior are unchanged, only the visible text moved. See the
+  table below for old versus new.
+  🇧🇷 Uma varredura programática dos textos de menu (`tr(...)`) contra o `Astrometrica.exe`
+  original achou 29 coincidências reais (26 identidades exatas mais 3 quase-idênticas,
+  ignorando só o mnemônico `&` e as reticências). Todas foram reescritas com redação própria do
+  AstroFind (mesmo significado, palavras diferentes), na barra de menus, barras de ferramentas,
+  títulos de diálogo, mensagens de status, traduções (`i18n/astrofind_pt_BR.ts`,
+  `i18n/astrofind_en.ts`) e na documentação (wiki, Ajuda embutida EN/PT). Os quatro nomes de
+  menu de uma palavra realmente universais (File, Edit, Help, Undo) foram mantidos: são iguais
+  em praticamente todo aplicativo de mesa, e renomeá-los prejudicaria o uso sem ganho real.
+  Atalhos de teclado e comportamento não mudaram, só o texto visível. Veja a tabela abaixo,
+  antigo contra novo.
+
+  | EN (old → new) | PT-BR (old → new) |
+  |---|---|
+  | Load Images... → Import Images... | Carregar Imagens... → Importar Imagens... |
+  | Save as FITS... → Save FITS Copy... | Salvar como FITS... → Salvar Cópia em FITS... |
+  | Export Image to... → Export Image As... | Exportar Imagem como... → Exportar Imagem Como... |
+  | Reset Files → Reset Session Files | Resetar Arquivos → Limpar Arquivos da Sessão |
+  | Astrometry (menu) → Astrometry Tools | Astrometria (menu) → Ferramentas de Astrometria |
+  | Data Reduction... → Run Data Reduction... | Redução de Dados... → Executar Redução de Dados... |
+  | Moving Object Detection... → Detect Moving Objects... | Detecção de Objetos em Movimento... → Detectar Objetos em Movimento... |
+  | Images (menu) → Image Tools | Imagens (menu) → Ferramentas de Imagem |
+  | Edit Image Parameters... → Edit Image Settings... | Editar Parâmetros da Imagem... → Editar Configurações da Imagem... |
+  | Display Header... → View FITS Header... | Exibir Cabeçalho... → Ver Cabeçalho FITS... |
+  | Re-Stack Images → Rebuild Stack | Re-empilhar Imagens → Reconstruir Empilhamento |
+  | Fit Window Size → Fit to Window | Ajustar ao Tamanho da Janela → Ajustar à Janela |
+  | Invert Display → Invert Colors | Inverter Exibição → Inverter Cores |
+  | Magnifying Glass → Magnifier Tool | Lupa → Ferramenta Lupa |
+  | Tools (menu) → Utilities | Ferramentas (menu) → Utilitários |
+  | Blink Images → Begin Blink Mode | Piscar Imagens → Ativar Modo de Piscagem |
+  | Known Object Overlay → Show Known Objects | Sobreposição de Objetos Conhecidos → Mostrar Objetos Conhecidos |
+  | Download MPCOrb → Download MPCOrb Database | Baixar MPCOrb → Baixar Banco MPCOrb |
+  | Update MPCOrb → Update MPCOrb Database | Atualizar MPCOrb → Atualizar Banco MPCOrb |
+  | Windows (menu) → Window | Janelas (menu) → Janela |
+  | Tile Windows → Tile All Windows | Organizar em Grade → Organizar Todas em Grade |
+  | Cascade Windows → Cascade All Windows | Cascata de Janelas → Cascata de Todas as Janelas |
+  | Arrange all Windows → Auto-Arrange Windows | Organizar todas as Janelas → Organizar Automaticamente |
+  | Help Contents → Help Topics | Conteúdo da Ajuda → Tópicos de Ajuda |
+  | Registration... → Product Registration... | Registro... → Registro do Produto... |
+  | About... → About AstroFind... | Sobre... → Sobre o AstroFind... |
+  | View Standard Toolbar → Show Main Toolbar | Exibir barra de ferramentas padrão → Mostrar barra de ferramentas principal |
+  | View Display Toolbar → Show Display Toolbar | Exibir barra de ferramentas de exibição → Mostrar barra de exibição |
+  | View Blink Toolbar → Show Blink Toolbar | Exibir barra de ferramentas de piscar → Mostrar barra de piscagem |
+
 ### Added / Adicionado
 
 - 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in
