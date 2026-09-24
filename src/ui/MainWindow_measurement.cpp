@@ -146,13 +146,13 @@ void MainWindow::runMeasurePipeline(int sessionIdx, QPointF imgPx, double ra, do
     const double kExt = settings_.value(
         QStringLiteral("photometry/extinctionCoeff"), 0.0).toDouble();
     double airmass = 0.0;
-    double extCorr = 0.0;
     if (img.jd > 2400000.0) {
         const SiteLocation site = effectiveSiteLocation();
         airmass = core::computeAirmass(raFinal, decFinal, img.jd, site.lat, site.lon);
-        if (airmass > 0.0 && kExt > 0.0)
-            extCorr = -kExt * airmass;  // sign: subtract extinction to get corrected mag
     }
+    // AUD-CORR-8: one source of truth (unit-tested in test_photometry.cpp).
+    // Correction term = corrected(0) = -k·X, or 0 when disabled / below horizon.
+    const double extCorr = core::applyExtinctionCorrection(0.0, kExt, airmass);
 
     // ── 6. Build Observation ──────────────────────────────────────────────────
     core::Observation obs;

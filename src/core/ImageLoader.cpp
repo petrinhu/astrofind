@@ -343,12 +343,23 @@ std::expected<FitsImage, QString> loadXisf(const QString& filePath)
     if (gp.size() < 2)
         return std::unexpected(QObject::tr("XISF: invalid geometry '%1' in: %2")
             .arg(geom, filePath));
-    const int W  = gp[0].toInt();
-    const int H  = gp[1].toInt();
-    const int Ch = gp.size() >= 3 ? gp[2].toInt() : 1;
-    if (W <= 0 || H <= 0 || Ch <= 0 || Ch > 3)
+    // Parse as long so an oversized axis is not silently turned into 0 by toInt().
+    const long wL  = gp[0].toLong();
+    const long hL  = gp[1].toLong();
+    const long chL = gp.size() >= 3 ? gp[2].toLong() : 1;
+    if (wL <= 0 || hL <= 0 || chL <= 0 || chL > 3)
         return std::unexpected(QObject::tr("XISF: invalid image dimensions %1 in: %2")
             .arg(geom, filePath));
+    // AUD-INPUT-9: same ceiling and file-size cross-check as every other loader,
+    // BEFORE any allocation.
+    {
+        QString dimErr;
+        if (!validateLoaderDims(wL, hL, chL, filePath, dimErr))
+            return std::unexpected(dimErr);
+    }
+    const int W  = static_cast<int>(wL);
+    const int H  = static_cast<int>(hL);
+    const int Ch = static_cast<int>(chL);
 
     int  bps     = 2;
     bool isfloat = false;

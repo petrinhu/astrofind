@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Petrus Silva Costa
 
 #include "SetupWizard.h"
+#include "core/ApiKeyStore.h"
 
 #include <QWizardPage>
 #include <QLineEdit>
@@ -122,7 +123,7 @@ private:
 class ApiKeyPage : public QWizardPage {
     Q_OBJECT
 public:
-    explicit ApiKeyPage(QSettings& s, QWidget* parent = nullptr)
+    explicit ApiKeyPage([[maybe_unused]] QSettings& s, QWidget* parent = nullptr)
         : QWizardPage(parent)
     {
         setTitle(QObject::tr("Step 2 of 3 — Plate-solving API Key"));
@@ -137,7 +138,7 @@ public:
         apiKey_ = new QLineEdit(this);
         apiKey_->setEchoMode(QLineEdit::Password);
         apiKey_->setPlaceholderText(QObject::tr("Paste your key here"));
-        apiKey_->setText(s.value(QStringLiteral("astrometry/apiKey")).toString());
+        apiKey_->setText(core::ApiKeyStore::read());
         auto* showBtn = new QPushButton(QObject::tr("Show"), this);
         showBtn->setCheckable(true);
         showBtn->setFixedWidth(60);
@@ -165,9 +166,12 @@ public:
         vlay->addStretch();
     }
 
-    void save(QSettings& s) const {
+    void save([[maybe_unused]] QSettings& s) const {
+        // AUD-SEC-6: go through ApiKeyStore (system keychain when available,
+        // otherwise QSettings with the file restricted to 0600) — never a raw
+        // QSettings write of the secret.
         if (!apiKey_->text().trimmed().isEmpty())
-            s.setValue(QStringLiteral("astrometry/apiKey"), apiKey_->text().trimmed());
+            core::ApiKeyStore::write(apiKey_->text().trimmed());
     }
 
 private:

@@ -36,10 +36,29 @@ primeiro.
   `Ctrl+Shift+T` estava declarado duas vezes e não fazia nada, agora alterna o tema.
 - **Help → Registration** 🇬🇧 no longer says "MIT" (the license is AGPL-3.0). 🇧🇷 não diz
   mais "MIT" (a licença é AGPL-3.0).
+- **XISF size ceiling / Teto de tamanho no XISF (AUD-INPUT-9).** 🇬🇧 XISF geometry is checked
+  against the same axis/pixel ceiling and file size as FITS before any allocation.
+  🇧🇷 A geometria do XISF passa pelo mesmo teto de eixo/pixels e pela checagem do tamanho
+  do arquivo que o FITS, antes de qualquer alocação.
+- **API key from the Setup Wizard / Chave de API do assistente (AUD-SEC-6).** 🇬🇧 Stored
+  through the keychain (or a 0600 settings file), like Settings already did. 🇧🇷 Gravada
+  pelo chaveiro do sistema (ou num arquivo de configurações 0600), como o Settings já fazia.
+- **Extinction / Extinção (AUD-CORR-8).** 🇬🇧 The MPC magnitude uses the unit-tested
+  extinction function instead of a duplicated inline formula (same result). 🇧🇷 A magnitude
+  do MPC usa a função de extinção testada em vez de uma fórmula duplicada (mesmo resultado).
 - **VizieR mirror / Espelho VizieR.** 🇬🇧 The default shown in Settings was a bare hostname
   that the client rejected; it is now the real TAP endpoint, and the old value is
   replaced on load. 🇧🇷 O padrão mostrado era um hostname sem esquema, rejeitado pelo
   cliente; agora é o endpoint TAP real, e o valor antigo é substituído ao abrir.
+
+### Added / Adicionado
+
+- 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in
+  `scripts/pre-commit` (AUD-SEC-8). Regression tests with hostile headers (NAXIS=4,
+  100000², lying sizes, XISF) and non-finite pixels in the centroids (AUD-TEST-4).
+  🇧🇷 Varredura de segredos: job gitleaks no CI sobre todo o histórico e passo gitleaks no
+  `scripts/pre-commit` (AUD-SEC-8). Testes de regressão com cabeçalhos hostis (NAXIS=4,
+  100000², tamanhos mentirosos, XISF) e pixels não finitos nos centroides (AUD-TEST-4).
 
 ---
 
