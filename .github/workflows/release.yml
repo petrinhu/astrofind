@@ -88,6 +88,7 @@ jobs:
           - { name: "DEB · Ubuntu 24.04",        image: "ubuntu:24.04",                        script: build-deb.sh }
           - { name: "DEB · Debian 13",           image: "debian:13",                           script: build-deb.sh }
           - { name: "Arch Linux",                image: "archlinux:latest",                    script: build-arch.sh }
+          - { name: "CachyOS",                   image: "cachyos/cachyos:latest",              script: build-arch.sh }
           - { name: "AppImage (Debian 12 base)", image: "debian:12",                           script: build-appimage.sh }
     steps:
       # checkout@v4 falls back to the REST API when git is missing in the
@@ -142,11 +143,13 @@ jobs:
           - { name: "openSUSE Tumbleweed RPM",  image: "opensuse/tumbleweed", pattern: "astrofind-*.opensuse-tumbleweed.x86_64.rpm" }
           - { name: "Ubuntu 24.04 DEB",         image: "ubuntu:24.04",        pattern: "astrofind_*~ubuntu24.04_amd64.deb" }
           - { name: "Debian 13 DEB",            image: "debian:13",           pattern: "astrofind_*~debian13_amd64.deb" }
-          - { name: "Arch package",             image: "archlinux:latest",    pattern: "astrofind-*-x86_64.pkg.tar.zst" }
+          - { name: "Arch package",             image: "archlinux:latest",    pattern: "astrofind-*-1-x86_64.pkg.tar.zst" }
+          - { name: "CachyOS package",          image: "cachyos/cachyos:latest", pattern: "astrofind-*-cachyos-x86_64.pkg.tar.zst" }
           - { name: "AppImage on Debian 12",    image: "debian:12",           pattern: "AstroFind-*-x86_64.AppImage" }
           - { name: "AppImage on Ubuntu 24.04", image: "ubuntu:24.04",        pattern: "AstroFind-*-x86_64.AppImage" }
           - { name: "AppImage on Fedora 44",    image: "fedora:44",           pattern: "AstroFind-*-x86_64.AppImage" }
           - { name: "AppImage on Arch Linux",   image: "archlinux:latest",    pattern: "AstroFind-*-x86_64.AppImage" }
+          - { name: "AppImage on CachyOS",      image: "cachyos/cachyos:latest", pattern: "AstroFind-*-x86_64.AppImage" }
           - { name: "AppImage on openSUSE TW",  image: "opensuse/tumbleweed", pattern: "AstroFind-*-x86_64.AppImage" }
     steps:
       - name: Bootstrap tools
@@ -197,7 +200,7 @@ jobs:
           python3 scripts/fetchcontent-sbom.py > "release/astrofind-${v}-fetchcontent.cdx.json"
           (cd release && sha256sum -- * > SHA256SUMS)
           cat release/SHA256SUMS
-          test "$(ls release | wc -l)" -ge 10
+          test "$(ls release | wc -l)" -ge 11
           # Release notes = this version's section of CHANGELOG.md.
           awk -v v="$v" '
             $0 ~ "^## \\[" v "\\]" { on = 1; next }

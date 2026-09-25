@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2026 Petrus Silva Costa
 #
-# Builds the Arch package inside an archlinux container (run as root) with
+# Builds the Arch package inside an archlinux or cachyos container (run as root) with
 # packaging/arch/PKGBUILD. The release source tarball is placed next to the
 # PKGBUILD under the name its source=() entry expects, so makepkg uses it
 # instead of downloading. makepkg refuses to run as root: it runs as an
@@ -28,7 +28,13 @@ cp "$tarball" "$work/${pkgname}-${pkgver}.tar.gz"
 chown -R builder: "$work"
 su builder -c "cd '$work' && PKGDEST='$work' makepkg --noconfirm"
 
+# CachyOS is its own distribution (own repositories and rebuilds): its package
+# is built there and named apart from the Arch one. pacman reads the package
+# metadata from inside the file, so the name does not affect installation.
+. /etc/os-release
 for pkg in "$work"/astrofind-[0-9]*-x86_64.pkg.tar.zst; do
-  cp "$pkg" "$outdir/"
-  echo "$outdir/$(basename "$pkg")"
+  name=$(basename "$pkg")
+  [ "${ID}" = "cachyos" ] && name="${name%-x86_64.pkg.tar.zst}-cachyos-x86_64.pkg.tar.zst"
+  cp "$pkg" "$outdir/$name"
+  echo "$outdir/$name"
 done

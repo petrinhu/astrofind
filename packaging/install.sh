@@ -458,8 +458,8 @@ version_ge() {
 
 # Picks the release file for this machine. Packages are built natively for:
 # Fedora 44, RHEL/Rocky/Alma 9, openSUSE Tumbleweed, Ubuntu 24.04 (and Mint
-# 22 / Pop!_OS 24.04 / Zorin OS 18, which share its base), Debian 13 and the
-# Arch family. Anything else with glibc >= 2.36 (Debian 12 included) gets the
+# 22 / Pop!_OS 24.04 / Zorin OS 18, which share its base), Debian 13,
+# CachyOS and the Arch family. Anything else with glibc >= 2.36 (Debian 12 included) gets the
 # AppImage.
 detect_distro() {
     local ubuntu_codename=""
@@ -497,7 +497,11 @@ detect_distro() {
         # base) from the fallback below.
         PKG_TYPE="deb"; PKG_MANAGER="apt"
         ASSET="astrofind_${VERSION}-1~debian13_amd64.deb"
-    elif [[ "$combined" =~ \ (arch|archlinux|manjaro|endeavouros|garuda|cachyos)\  ]]; then
+    elif [[ "$DISTRO_ID" == "cachyos" ]]; then
+        # CachyOS: its own repositories and rebuilds, so its own package.
+        PKG_TYPE="arch"; PKG_MANAGER="pacman"
+        ASSET="astrofind-${VERSION}-1-cachyos-x86_64.pkg.tar.zst"
+    elif [[ "$combined" =~ \ (arch|archlinux|manjaro|endeavouros|garuda)\  ]]; then
         PKG_TYPE="arch"; PKG_MANAGER="pacman"
         ASSET="astrofind-${VERSION}-1-x86_64.pkg.tar.zst"
     else

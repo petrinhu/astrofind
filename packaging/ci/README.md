@@ -10,7 +10,7 @@ root inside its target distribution, starts from the release source tarball
 | `source-tarball.sh <outdir>` | host (needs git) | `astrofind-X.Y.Z-source.tar.gz` |
 | `build-rpm.sh <tarball> <outdir>` | `fedora:44`, `rockylinux:9`, `opensuse/tumbleweed` | `astrofind-X.Y.Z-1.fc44.x86_64.rpm`, `…el9…`, `…opensuse-tumbleweed…` |
 | `build-deb.sh <tarball> <outdir>` | `ubuntu:24.04`, `debian:13` | `astrofind_X.Y.Z-1~ubuntu24.04_amd64.deb`, `~debian13` |
-| `build-arch.sh <tarball> <outdir>` | `archlinux:latest` | `astrofind-X.Y.Z-1-x86_64.pkg.tar.zst` |
+| `build-arch.sh <tarball> <outdir>` | `archlinux:latest`, `cachyos/cachyos:latest` | `astrofind-X.Y.Z-1-x86_64.pkg.tar.zst`, `…-1-cachyos-x86_64.pkg.tar.zst` |
 | `build-appimage.sh <tarball> <outdir>` | `debian:12` | `AstroFind-X.Y.Z-x86_64.AppImage` (glibc ≥ 2.36) |
 | `smoke-test.sh <file>` | a *fresh* container of the file's distribution | installs it with the native package manager and starts `AstroFind` headless |
 | `version.sh` | anywhere | the version from `CMakeLists.txt` |
