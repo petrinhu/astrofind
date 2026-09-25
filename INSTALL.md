@@ -14,7 +14,7 @@
 - [Ubuntu 24.04 LTS](#ubuntu-2404-lts)
 - [Debian 12 Bookworm](#debian-12-bookworm)
 - [Linux Mint 22](#linux-mint-22)
-- [Pop!_OS 22.04](#popos-2204)
+- [Pop!_OS 22.04](#pop_os-2204)
 - [Zorin OS 17](#zorin-os-17)
 - [Arch Linux](#arch-linux)
 - [Manjaro](#manjaro)
@@ -627,10 +627,10 @@ sudo apt-get install -y \
 ## Zorin OS 17
 
 > ⚠️ Zorin OS 17 is based on Ubuntu 22.04, whose repositories ship **Qt 6.2** (AstroFind
-> needs **Qt 6.4+**); same caveat as [Pop!_OS 22.04](#popos-2204). Zorin OS 18 (Ubuntu 24.04
+> needs **Qt 6.4+**); same caveat as [Pop!_OS 22.04](#pop_os-2204). Zorin OS 18 (Ubuntu 24.04
 > base) can use the [Ubuntu 24.04](#ubuntu-2404-lts) commands. / O Zorin OS 17 é baseado no
 > Ubuntu 22.04, cujos repositórios trazem **Qt 6.2** (o AstroFind precisa de **Qt 6.4+**);
-> mesma ressalva do [Pop!_OS 22.04](#popos-2204). O Zorin OS 18 (base Ubuntu 24.04) pode
+> mesma ressalva do [Pop!_OS 22.04](#pop_os-2204). O Zorin OS 18 (base Ubuntu 24.04) pode
 > usar os comandos do [Ubuntu 24.04](#ubuntu-2404-lts).
 
 ### 🇬🇧 English

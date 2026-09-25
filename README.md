@@ -44,8 +44,8 @@
 <!-- Topics -->
 [![astrometry](https://img.shields.io/badge/topic-astrometry-lightgrey)](docs/technical-reference.md)
 [![asteroid detection](https://img.shields.io/badge/topic-asteroid--detection-lightgrey)](docs/technical-reference.md)
-[![FITS](https://img.shields.io/badge/topic-FITS-lightgrey)](docs/technical-reference.md#1-fits-file-structure)
-[![WCS](https://img.shields.io/badge/topic-WCS-lightgrey)](docs/technical-reference.md#3-wcs-pipeline--pixel-to-sky)
+[![FITS](https://img.shields.io/badge/topic-FITS-lightgrey)](docs/technical-reference.md#1-fits-file-structure--estrutura-de-arquivo-fits)
+[![WCS](https://img.shields.io/badge/topic-WCS-lightgrey)](docs/technical-reference.md#3-wcs-pipeline-pixel-to-sky--pipeline-wcs-pixel-para-céu)
 [![MPC/ADES](https://img.shields.io/badge/topic-MPC%2FADES-lightgrey)](https://minorplanetcenter.net/ades)
 [![photometry](https://img.shields.io/badge/topic-photometry-lightgrey)](docs/technical-reference.md)
 

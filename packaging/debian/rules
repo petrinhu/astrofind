@@ -10,8 +10,12 @@ include /usr/share/dpkg/architecture.mk
 %:
 	dh $@ --buildsystem=cmake+ninja
 
+# debhelper passes -DFETCHCONTENT_FULLY_DISCONNECTED=ON (Debian archive builds
+# are offline). This package is built by release.yml with network access and
+# needs FetchContent for spdlog, nlohmann/json, SEP and Catch2 (pinned SHAs in
+# cmake/dependencies.cmake), so turn it back off; later -D options win.
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DFETCHCONTENT_FULLY_DISCONNECTED=OFF
 
 # Core unit tests only (no display needed); the UI suite runs in the QA
 # workflows. Honours DEB_BUILD_OPTIONS=nocheck.
