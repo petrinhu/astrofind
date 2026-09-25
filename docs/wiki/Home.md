@@ -14,6 +14,8 @@ observadores experientes e desenvolvedores. Nenhum conhecimento prévio é assum
 [Where do I start?](#where-do-i-start--por-onde-começo) ·
 [Coming from Astrometrica](#coming-from-astrometrica--vindo-do-astrometrica) ·
 [Map of the wiki](#map-of-the-wiki--mapa-da-wiki) ·
+[What's new in 1.2.2](#whats-new-in-122--novidades-da-122) ·
+[What's new in 1.2.1](#whats-new-in-121--novidades-da-121) ·
 [What's new in 1.2.0](#whats-new-in-120--novidades-da-120) ·
 [What's new in 1.1.0](#whats-new-in-110--novidades-da-110) ·
 [Validation status](#validation-status--estado-da-validação)
@@ -47,7 +49,7 @@ Think of it as: **camera → AstroFind → report for the MPC**.
 AstroFind is inspired by [Astrometrica](http://www.astrometrica.at/), the classic Windows tool
 used by amateur astronomers worldwide for this exact task (its author, Herbert Raab, is
 credited in **Help → About AstroFind...**). AstroFind is a separate program written from scratch in
-modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.1**
+modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.2**
 (released 2026-09-25). License: **AGPL-3.0** (free software: you can read, change and share
 the source code).
 
@@ -76,7 +78,7 @@ O AstroFind é inspirado no [Astrometrica](http://www.astrometrica.at/), a ferra
 para Windows usada por astrônomos amadores do mundo todo para essa mesma tarefa (o autor,
 Herbert Raab, aparece nos créditos em **Ajuda → Sobre o AstroFind...**). O AstroFind é um programa
 separado, escrito do zero em C++ moderno com o kit Qt 6, e roda só em Linux. Versão atual:
-**1.2.1** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
+**1.2.2** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
 alterar e compartilhar o código-fonte).
 
 ---
@@ -240,6 +242,38 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 
 ---
 
+## What's new in 1.2.2 / Novidades da 1.2.2
+
+🇬🇧 Version 1.2.2 (2026-09-25) only fixes the **CachyOS** package. It was compiled for the
+processor of the machine that built it, so on a computer with an older or different processor
+AstroFind could close at start with "Illegal instruction". It is now compiled for every x86-64
+processor, like the Arch package. The program is otherwise the same as 1.2.0 and 1.2.1: on other
+distributions you do not need to update.
+
+🇧🇷 A versão 1.2.2 (2026-09-25) só corrige o pacote do **CachyOS**. Ele era compilado para o
+processador da máquina que o gerou, então num computador com processador mais antigo ou
+diferente o AstroFind podia fechar ao abrir com "Illegal instruction" (instrução ilegal). Agora
+ele é compilado para qualquer processador x86-64, como o pacote do Arch. De resto o programa é o
+mesmo da 1.2.0 e da 1.2.1: nas outras distribuições não precisa atualizar.
+
+---
+
+## What's new in 1.2.1 / Novidades da 1.2.1
+
+🇬🇧 Version 1.2.1 (2026-09-25) only fixes the installers for **Ubuntu 24.04** (and Mint 22,
+Pop!_OS 24.04, Zorin OS 18) and **Debian 13**. GitHub changes `~` into `.` in download names,
+so in 1.2.0 the universal installer could not find the `.deb` files and stopped with a
+download error. The program itself is the same as 1.2.0: if 1.2.0 already runs on your
+computer, you do not need to update.
+
+🇧🇷 A versão 1.2.1 (2026-09-25) só corrige os instaladores do **Ubuntu 24.04** (e Mint 22,
+Pop!_OS 24.04, Zorin OS 18) e do **Debian 13**. O GitHub troca `~` por `.` nos nomes dos
+downloads, então na 1.2.0 o instalador universal não achava os arquivos `.deb` e parava com
+erro de download. O programa em si é o mesmo da 1.2.0: se a 1.2.0 já funciona no seu
+computador, não precisa atualizar.
+
+---
+
 ## What's new in 1.2.0 / Novidades da 1.2.0
 
 🇬🇧 **English**
@@ -265,7 +299,7 @@ Version 1.2.0 was released on 2026-09-25. It fixes the problems found in a full 
 - **AstroFind's own menu wording.** Menu texts that had been copied from Astrometrica were
   rewritten; shortcuts and behaviour are unchanged.
 - **Ready-made packages** for Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (and Mint 22,
-  Pop!_OS 24.04, Zorin OS 18), Debian 13, and Arch/Manjaro, plus an **AppImage** for Debian 12
+  Pop!_OS 24.04, Zorin OS 18), Debian 13, Arch/Manjaro and CachyOS, plus an **AppImage** for Debian 12
   and other distributions (see [Installation](https://github.com/petrinhu/astrofind/wiki/Installation)).
   A list of all components (SBOM) is now generated automatically, and the packages include
   the full license texts.
@@ -296,7 +330,7 @@ código da 1.1.0; a maioria afeta os números que você envia ao MPC, por isso v
 - **Textos de menu próprios do AstroFind.** Os textos de menu que tinham sido copiados do
   Astrometrica foram reescritos; atalhos e comportamento não mudaram.
 - **Pacotes prontos** para Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (e Mint 22,
-  Pop!_OS 24.04, Zorin OS 18), Debian 13, e Arch/Manjaro, mais um **AppImage** para o Debian 12
+  Pop!_OS 24.04, Zorin OS 18), Debian 13, Arch/Manjaro e CachyOS, mais um **AppImage** para o Debian 12
   e as outras distribuições (veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation)).
   Uma lista de todos os componentes (SBOM) agora é gerada automaticamente, e os pacotes
   incluem os textos completos das licenças.

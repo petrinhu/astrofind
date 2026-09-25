@@ -67,7 +67,7 @@ Escola…** (os alunos carregam esse arquivo).
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-No. AstroFind runs only on **Linux**. Version 1.2.0 is tested on Ubuntu 24.04, Debian 12,
+No. AstroFind runs only on **Linux**. Version 1.2.2 is tested on Ubuntu 24.04, Debian 12,
 Fedora 44, Arch Linux, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 and Linux Mint 22.
 Pop!_OS and Zorin OS are checked with Ubuntu 24.04 containers (test machines that imitate
 those systems), not with the real systems; versions on an Ubuntu 22.04 base (Pop!_OS 22.04,
@@ -78,7 +78,7 @@ If you use Windows or macOS, one option is to run Linux inside a virtual machine
 that runs a second operating system in a window). This is not tested by the project.
 
 🇧🇷 **Português**
-Não. O AstroFind roda apenas no **Linux**. A versão 1.2.0 é testada no Ubuntu 24.04, Debian 12,
+Não. O AstroFind roda apenas no **Linux**. A versão 1.2.2 é testada no Ubuntu 24.04, Debian 12,
 Fedora 44, Arch Linux, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 e Linux Mint 22.
 Pop!_OS e Zorin OS são verificados com containers do Ubuntu 24.04 (máquinas de teste que imitam
 esses sistemas), não com os sistemas reais; versões com base Ubuntu 22.04 (Pop!_OS 22.04,
@@ -775,7 +775,7 @@ Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/pet
 Open an issue on GitHub: <https://github.com/petrinhu/astrofind/issues> (you need a free GitHub
 account). Please include:
 
-1. The AstroFind version from **Help → About AstroFind…** ("Version 1.2.0", for example), or
+1. The AstroFind version from **Help → About AstroFind…** ("Version 1.2.2", for example), or
    from `AstroFind --version` in a terminal.
 2. Your Linux distribution and its version.
 3. What you did, step by step, what you expected, and what happened.
@@ -788,7 +788,7 @@ account). Please include:
 Abra uma issue no GitHub: <https://github.com/petrinhu/astrofind/issues> (é preciso uma conta
 gratuita no GitHub). Inclua, por favor:
 
-1. A versão do AstroFind em **Ajuda → Sobre o AstroFind…** (por exemplo "Versão 1.2.0"), ou
+1. A versão do AstroFind em **Ajuda → Sobre o AstroFind…** (por exemplo "Versão 1.2.2"), ou
    com `AstroFind --version` num terminal.
 2. Sua distribuição Linux e a versão dela.
 3. O que você fez, passo a passo, o que esperava e o que aconteceu.

@@ -1,0 +1,57 @@
+name: Wiki sync
+
+# docs/wiki/ is the source of the GitHub wiki (github.com/petrinhu/astrofind/wiki).
+# Every push to main that changes it copies the pages into the wiki repository
+# (astrofind.wiki.git), so the wiki never lags behind the reviewed Markdown.
+# Edits made directly on the wiki website are overwritten: change docs/wiki/.
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/wiki/**'
+      - '.github/workflows/wiki-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # the wiki repository is written with the workflow token
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync docs/wiki → GitHub wiki
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy pages and push
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          wiki="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+          git clone --depth 1 "$wiki" wiki
+          # Mirror docs/wiki exactly: pages deleted there are deleted on the wiki.
+          find wiki -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r docs/wiki/. wiki/
+          cd wiki
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Wiki already up to date." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "docs(wiki): sync from ${GITHUB_REPOSITORY}@${GITHUB_SHA::7} (docs/wiki)"
+          git push origin HEAD
+          {
+            echo "### Wiki updated from \`${GITHUB_SHA::7}\`"
+            echo ""
+            git show --stat --format= HEAD
+          } >> "$GITHUB_STEP_SUMMARY"

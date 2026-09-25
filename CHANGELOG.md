@@ -14,6 +14,27 @@ primeiro.
 
 ---
 
+## [1.2.2] - 2026-09-25
+
+### Fixed / Corrigido
+
+- **CachyOS package / Pacote do CachyOS.** 🇬🇧 CachyOS compiles packages with
+  `-march=native`, so the 1.2.0 and 1.2.1 CachyOS packages were built for the processor of the
+  GitHub machine that happened to build them, and could stop at start with "Illegal
+  instruction" on a CPU without the same instruction sets (AVX-512, for example). It is now
+  built for the x86-64 baseline, like the Arch package, and the build fails if `native` is
+  still set. Releases are now published automatically when a new version is merged, and the
+  GitHub wiki is synced from `docs/wiki/`. Other packages are unchanged from 1.2.1.
+  🇧🇷 O CachyOS compila pacotes com `-march=native`, então os pacotes CachyOS da 1.2.0 e da
+  1.2.1 foram gerados para o processador da máquina do GitHub que os compilou, e podiam parar
+  ao abrir com "Illegal instruction" numa CPU sem os mesmos conjuntos de instruções (AVX-512,
+  por exemplo). Agora ele é compilado para o x86-64 básico, como o pacote do Arch, e o build
+  falha se `native` continuar ativo. As releases passam a ser publicadas automaticamente quando
+  uma nova versão entra na `main`, e a wiki do GitHub é sincronizada a partir de `docs/wiki/`.
+  Os demais pacotes não mudaram em relação à 1.2.1.
+
+---
+
 ## [1.2.1] - 2026-09-25
 
 ### Fixed / Corrigido

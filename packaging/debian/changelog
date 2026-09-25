@@ -1,3 +1,10 @@
+astrofind (1.2.2-1) unstable; urgency=medium
+
+  * No change for Debian/Ubuntu; the CachyOS package is now built for the
+    x86-64 baseline instead of -march=native.
+
+ -- Petrus Silva Costa <petrinhu@yahoo.com.br>  Fri, 25 Sep 2026 12:00:00 -0300
+
 astrofind (1.2.1-1) unstable; urgency=medium
 
   * Release file names use "." instead of "~" (GitHub renames "~" on upload),

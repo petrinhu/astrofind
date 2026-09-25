@@ -1,6 +1,6 @@
 # Contributing to AstroFind / Contribuindo com o AstroFind
 
-> **Last reviewed / Última revisão:** 2026-09-24
+> **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
 
 Thank you for your interest in contributing to AstroFind! / Obrigado pelo seu interesse em contribuir com o AstroFind!
@@ -75,6 +75,8 @@ build do projeto.
 | `tests/` | Core unit tests (`astrofind_tests`) + UI integration tests (`astrofind_ui_tests`), Catch2 |
 | `cmake/` | Dependency setup (`dependencies.cmake`: FetchContent + optional-library detection), `audit.cmake` (audit targets), `valgrind.supp`, `patches/` for fetched sources |
 | `originals/` | Bundled library archives (CCfits) |
+| `packaging/` | Installers: RPM spec, Debian, PKGBUILD, `install.sh`, and the release build scripts in `packaging/ci/` |
+| `docs/wiki/` | Source of the [GitHub wiki](https://github.com/petrinhu/astrofind/wiki): edit here, not on the website; `wiki-sync.yml` copies it to the wiki on every merge to `main` |
 
 ### 🇧🇷 Português
 
@@ -87,6 +89,8 @@ build do projeto.
 | `tests/` | Testes unitários de core (`astrofind_tests`) + testes de integração de UI (`astrofind_ui_tests`), Catch2 |
 | `cmake/` | Configuração de dependências (`dependencies.cmake`: FetchContent + detecção das bibliotecas opcionais), `audit.cmake` (alvos de auditoria), `valgrind.supp`, `patches/` para os fontes baixados |
 | `originals/` | Arquivos de bibliotecas empacotadas (CCfits) |
+| `packaging/` | Instaladores: spec RPM, Debian, PKGBUILD, `install.sh` e os scripts de build da release em `packaging/ci/` |
+| `docs/wiki/` | Fonte da [wiki do GitHub](https://github.com/petrinhu/astrofind/wiki): edite aqui, não no site; o `wiki-sync.yml` copia para a wiki a cada merge na `main` |
 
 ---
 

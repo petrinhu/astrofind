@@ -20,9 +20,9 @@ Example (Debian 13 package):
 ```bash
 packaging/ci/source-tarball.sh dist
 docker run --rm -v "$PWD":/src:ro -v "$PWD/dist":/dist debian:13 \
-    /src/packaging/ci/build-deb.sh /dist/astrofind-1.2.1-source.tar.gz /dist/out
+    /src/packaging/ci/build-deb.sh /dist/astrofind-1.2.2-source.tar.gz /dist/out
 docker run --rm -v "$PWD":/src:ro -v "$PWD/dist":/dist debian:13 \
-    /src/packaging/ci/smoke-test.sh /dist/out/astrofind_1.2.1-1.debian13_amd64.deb
+    /src/packaging/ci/smoke-test.sh /dist/out/astrofind_1.2.2-1.debian13_amd64.deb
 ```
 
 ## Making a release
@@ -34,6 +34,10 @@ docker run --rm -v "$PWD":/src:ro -v "$PWD/dist":/dist debian:13 \
    if any of them differs.
 2. Rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - date`: that section
    becomes the release notes.
-3. Merge to `main`, then push the tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-   The workflow builds, smoke-tests and publishes the GitHub Release with all files,
-   `SHA256SUMS` and a CycloneDX SBOM of the FetchContent dependencies.
+3. Merge to `main`. Nothing else is needed: the merge changes the version in
+   `CMakeLists.txt`, and since tag `vX.Y.Z` does not exist yet the workflow builds,
+   smoke-tests and publishes the GitHub Release with all files, `SHA256SUMS` and a
+   CycloneDX SBOM of the FetchContent dependencies, creating the tag on the merge
+   commit. If any build or smoke test fails, nothing is published; fix it and merge
+   again. Pushing the tag by hand (`git tag vX.Y.Z && git push origin vX.Y.Z`) still
+   works, but do not do both for the same version.

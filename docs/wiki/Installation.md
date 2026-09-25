@@ -1,13 +1,13 @@
 # Installation / Instalação
 
-🇬🇧 **Who this page is for:** anyone who wants to put AstroFind 1.2.1 on a Linux computer,
+🇬🇧 **Who this page is for:** anyone who wants to put AstroFind 1.2.2 on a Linux computer,
 including people who have never opened a terminal. Every command is explained line by line.
 If you already know your way around Linux, jump to [your distribution](#4-install-for-your-distribution--instalar-na-sua-distribuição).
 The complete per-distribution dependency lists live in
 [`INSTALL.md` on GitHub](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md), the single
 source of truth for the commands on this page.
 
-🇧🇷 **Para quem é esta página:** qualquer pessoa que queira colocar o AstroFind 1.2.1 num
+🇧🇷 **Para quem é esta página:** qualquer pessoa que queira colocar o AstroFind 1.2.2 num
 computador com Linux, inclusive quem nunca abriu um terminal. Cada comando é explicado linha a
 linha. Se você já conhece Linux, pule para [a sua distribuição](#4-install-for-your-distribution--instalar-na-sua-distribuição).
 As listas completas de dependências por distribuição estão no
@@ -54,7 +54,7 @@ You need:
   do": run one command with administrator rights). On a personal computer the first user
   created is normally allowed.
 
-AstroFind 1.2.1 has been built and tested on Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
+AstroFind 1.2.2 has been built and tested on Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
 CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 and Linux Mint 22. Pop!_OS and Zorin OS are
 covered through Ubuntu 24.04 test containers. Distros on an Ubuntu 22.04 base (Pop!_OS 22.04,
 Zorin OS 17, Linux Mint 21) are **not supported**: their Qt 6.2 is too old (AstroFind needs
@@ -73,7 +73,7 @@ Você precisa de:
   do": executar um comando com direitos de administrador). Num computador pessoal, o primeiro
   usuário criado normalmente pode.
 
-O AstroFind 1.2.1 foi compilado e testado em Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
+O AstroFind 1.2.2 foi compilado e testado em Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
 CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 e Linux Mint 22. Pop!_OS e Zorin OS são
 cobertos por containers de teste do Ubuntu 24.04. Distros com base Ubuntu 22.04 (Pop!_OS 22.04,
 Zorin OS 17, Linux Mint 21) **não são suportadas**: o Qt 6.2 delas é antigo demais (o AstroFind
@@ -243,7 +243,7 @@ downloads the right package, installs it, and offers a menu entry and a desktop 
 to you in English or Portuguese.
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -277,7 +277,7 @@ Line by line:
 > ⚠️ **Watch out:** run it as your normal user, **not** as `root` and not with `sudo ./install.sh`.
 > The script calls `sudo` itself when needed.
 
-Other releases: replace `v1.2.1` in the address with the tag you want; the
+Other releases: replace `v1.2.2` in the address with the tag you want; the
 [releases page](https://github.com/petrinhu/astrofind/releases) lists them all.
 
 🇧🇷 **Português**
@@ -287,7 +287,7 @@ distro, baixa o pacote certo, instala e oferece uma entrada no menu e um ícone 
 trabalho. Ele conversa com você em inglês ou português.
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -322,7 +322,7 @@ Linha por linha:
 > ⚠️ **Atenção:** rode como seu usuário normal, **não** como `root` e nem com
 > `sudo ./install.sh`. O script chama o `sudo` sozinho quando precisa.
 
-Outras versões: troque `v1.2.1` no endereço pela tag desejada; a
+Outras versões: troque `v1.2.2` no endereço pela tag desejada; a
 [página de releases](https://github.com/petrinhu/astrofind/releases) lista todas.
 
 ---
@@ -340,11 +340,11 @@ RHEL 9.
 **Fedora 44:**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.fc44.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.fc44.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.fc44.x86_64.rpm
 ```
 
-1. Downloads the AstroFind 1.2.1 package into the current folder.
+1. Downloads the AstroFind 1.2.2 package into the current folder.
 2. Installs it. `./` tells `dnf` to use the file you just downloaded; `dnf` also fetches the
    libraries it needs. Answer `y` when asked "Is this ok".
 
@@ -354,13 +354,13 @@ sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm
 
 ```bash
 sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.el9.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.el9.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.el9.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.el9.x86_64.rpm
 ```
 
 1. Adds the EPEL repository, then turns on the CRB repository (`&&` runs the second command
    only if the first one worked).
-2. Downloads the AstroFind 1.2.1 package for version 9 of these systems.
+2. Downloads the AstroFind 1.2.2 package for version 9 of these systems.
 3. Installs it, with the libraries it needs.
 
 **What you should see:** `Complete!` at the end. Then look for **AstroFind** in your
@@ -375,11 +375,11 @@ AlmaLinux e RHEL 9.
 **Fedora 44:**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.fc44.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.fc44.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.fc44.x86_64.rpm
 ```
 
-1. Baixa o pacote do AstroFind 1.2.1 para a pasta atual.
+1. Baixa o pacote do AstroFind 1.2.2 para a pasta atual.
 2. Instala. O `./` diz ao `dnf` para usar o arquivo que você acabou de baixar; o `dnf` também
    busca as bibliotecas necessárias. Responda `s` (ou `y`) quando ele perguntar se está ok.
 
@@ -389,13 +389,13 @@ sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm
 
 ```bash
 sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.el9.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.el9.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.el9.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.el9.x86_64.rpm
 ```
 
 1. Adiciona o repositório EPEL e depois liga o repositório CRB (o `&&` só roda o segundo
    comando se o primeiro deu certo).
-2. Baixa o pacote do AstroFind 1.2.1 para a versão 9 desses sistemas.
+2. Baixa o pacote do AstroFind 1.2.2 para a versão 9 desses sistemas.
 3. Instala, junto com as bibliotecas necessárias.
 
 **O que você deve ver:** `Complete!` (ou `Concluído!`) no final. Depois procure **AstroFind**
@@ -414,19 +414,19 @@ Pick the file for your system:
 
 | Your system | File |
 |---|---|
-| Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.1-1.ubuntu24.04_amd64.deb` |
-| Debian 13 Trixie | `astrofind_1.2.1-1.debian13_amd64.deb` |
+| Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.2-1.ubuntu24.04_amd64.deb` |
+| Debian 13 Trixie | `astrofind_1.2.2-1.debian13_amd64.deb` |
 | Debian 12 Bookworm | no `.deb`: use the [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 
 Example for Ubuntu 24.04 and its derivatives (for Debian 13, replace `ubuntu24.04` with
 `debian13` in both lines):
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind_1.2.1-1.ubuntu24.04_amd64.deb
-sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind_1.2.2-1.ubuntu24.04_amd64.deb
+sudo apt-get install ./astrofind_1.2.2-1.ubuntu24.04_amd64.deb
 ```
 
-1. Downloads the AstroFind 1.2.1 package.
+1. Downloads the AstroFind 1.2.2 package.
 2. Installs it and, because of the `./`, also downloads every library it depends on. Answer
    `Y` when asked "Do you want to continue?".
 
@@ -438,7 +438,7 @@ sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
 > too). Upgrade to Pop!_OS 24.04, Zorin OS 18 or Linux Mint 22. See
 > [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
-**What you should see:** the last lines mention `Setting up astrofind (1.2.1-1~ubuntu24.04)`
+**What you should see:** the last lines mention `Setting up astrofind (1.2.2-1~ubuntu24.04)`
 (or `~debian13`).
 
 🇧🇷 **Português**
@@ -448,19 +448,19 @@ Escolha o arquivo do seu sistema:
 
 | Seu sistema | Arquivo |
 |---|---|
-| Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.1-1.ubuntu24.04_amd64.deb` |
-| Debian 13 Trixie | `astrofind_1.2.1-1.debian13_amd64.deb` |
+| Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.2-1.ubuntu24.04_amd64.deb` |
+| Debian 13 Trixie | `astrofind_1.2.2-1.debian13_amd64.deb` |
 | Debian 12 Bookworm | sem `.deb`: use o [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 
 Exemplo para o Ubuntu 24.04 e derivadas (no Debian 13, troque `ubuntu24.04` por `debian13` nas
 duas linhas):
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind_1.2.1-1.ubuntu24.04_amd64.deb
-sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind_1.2.2-1.ubuntu24.04_amd64.deb
+sudo apt-get install ./astrofind_1.2.2-1.ubuntu24.04_amd64.deb
 ```
 
-1. Baixa o pacote do AstroFind 1.2.1.
+1. Baixa o pacote do AstroFind 1.2.2.
 2. Instala e, por causa do `./`, também baixa todas as bibliotecas de que ele depende.
    Responda `S` (ou `Y`) quando perguntar se deseja continuar.
 
@@ -473,8 +473,8 @@ sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
 > Pop!_OS 24.04, Zorin OS 18 ou Linux Mint 22. Veja
 > [Solução de Problemas](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
-**O que você deve ver:** as últimas linhas falam em `Setting up astrofind (1.2.1-1~ubuntu24.04)`
-(ou `Configurando astrofind (1.2.1-1~ubuntu24.04)`; no Debian 13, `~debian13`).
+**O que você deve ver:** as últimas linhas falam em `Setting up astrofind (1.2.2-1~ubuntu24.04)`
+(ou `Configurando astrofind (1.2.2-1~ubuntu24.04)`; no Debian 13, `~debian13`).
 
 ---
 
@@ -488,11 +488,11 @@ sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
 `.pkg.tar.zst` file:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-x86_64.pkg.tar.zst
 ```
 
-1. Downloads the AstroFind 1.2.1 package.
+1. Downloads the AstroFind 1.2.2 package.
 2. Installs it (`-U` = install from a file) with the libraries it needs. Answer `Y` when asked
    "Proceed with installation?".
 
@@ -503,8 +503,8 @@ EndeavourOS use exactly the same commands.
 has its own package, built on CachyOS:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
 ```
 
 **Building it yourself (optional, 🟡 Intermediate).** Arch users can also build the package on
@@ -513,15 +513,15 @@ code and how to compile it). `makepkg` follows the recipe:
 
 ```bash
 mkdir astrofind-arch && cd astrofind-arch
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/arch/PKGBUILD
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
 1. Creates a folder `astrofind-arch` and enters it (`mkdir` = make directory, `cd` = change
    directory).
-2. Downloads the PKGBUILD recipe of version 1.2.1.
+2. Downloads the PKGBUILD recipe of version 1.2.2.
 3. `makepkg -si` installs the build tools and libraries the recipe declares (`-s`, through
-   `pacman`), downloads the AstroFind 1.2.1 source code, compiles it, and installs the result
+   `pacman`), downloads the AstroFind 1.2.2 source code, compiles it, and installs the result
    (`-i`). It asks for your password and a few `Y/n` confirmations.
 
 This takes several minutes: it is compiling the whole program. Run it as your **normal user**
@@ -536,11 +536,11 @@ O `pacman` é o gerenciador de pacotes da família Arch. O pacote pronto é um a
 `.pkg.tar.zst`:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-x86_64.pkg.tar.zst
 ```
 
-1. Baixa o pacote do AstroFind 1.2.1.
+1. Baixa o pacote do AstroFind 1.2.2.
 2. Instala (`-U` = instalar a partir de um arquivo) junto com as bibliotecas necessárias.
    Responda `S` (ou `Y`) quando perguntar se deseja continuar a instalação.
 
@@ -551,8 +551,8 @@ O **CachyOS** é uma distribuição separada, com repositórios e pacotes recomp
 tem o seu próprio pacote, compilado no CachyOS:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
 ```
 
 **Compilar você mesmo (opcional, 🟡 Intermediário).** No Arch também dá para montar o pacote no
@@ -561,15 +561,15 @@ código-fonte e como compilá-lo). O `makepkg` segue a receita:
 
 ```bash
 mkdir astrofind-arch && cd astrofind-arch
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/arch/PKGBUILD
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
 1. Cria a pasta `astrofind-arch` e entra nela (`mkdir` = criar diretório, `cd` = mudar de
    diretório).
-2. Baixa a receita PKGBUILD da versão 1.2.1.
+2. Baixa a receita PKGBUILD da versão 1.2.2.
 3. `makepkg -si` instala as ferramentas e bibliotecas declaradas na receita (`-s`, via
-   `pacman`), baixa o código-fonte do AstroFind 1.2.1, compila e instala o resultado (`-i`).
+   `pacman`), baixa o código-fonte do AstroFind 1.2.2, compila e instala o resultado (`-i`).
    Ele pede sua senha e algumas confirmações `S/n`.
 
 Isso leva vários minutos: ele está compilando o programa inteiro. Rode como seu **usuário
@@ -591,11 +591,11 @@ openSUSE also uses **RPM** packages, but its package manager is `zypper`, and it
 AstroFind file:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
-sudo zypper install ./astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
+sudo zypper install ./astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
 ```
 
-1. Downloads the AstroFind 1.2.1 package for openSUSE Tumbleweed.
+1. Downloads the AstroFind 1.2.2 package for openSUSE Tumbleweed.
 2. Installs it with the libraries it needs. Answer `y` when asked "Continue?".
 
 **What you should see:** the installation ends without an error. Then look for **AstroFind** in
@@ -607,11 +607,11 @@ O openSUSE também usa pacotes **RPM**, mas o gerenciador de pacotes dele é o `
 um arquivo próprio do AstroFind:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
-sudo zypper install ./astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
+sudo zypper install ./astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
 ```
 
-1. Baixa o pacote do AstroFind 1.2.1 para o openSUSE Tumbleweed.
+1. Baixa o pacote do AstroFind 1.2.2 para o openSUSE Tumbleweed.
 2. Instala junto com as bibliotecas necessárias. Responda `s` (ou `y`) quando perguntar se
    deseja continuar.
 
@@ -633,9 +633,9 @@ Bookworm** (there is no Debian 12 `.deb`). It works on 64-bit (x86-64) distros w
 Debian 12+, Fedora 37+).
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/AstroFind-1.2.1-x86_64.AppImage
-chmod +x AstroFind-1.2.1-x86_64.AppImage
-./AstroFind-1.2.1-x86_64.AppImage
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/AstroFind-1.2.2-x86_64.AppImage
+chmod +x AstroFind-1.2.2-x86_64.AppImage
+./AstroFind-1.2.2-x86_64.AppImage
 ```
 
 1. Downloads the AppImage.
@@ -657,9 +657,9 @@ Bookworm** (não há `.deb` para o Debian 12). Funciona em distros de 64 bits (x
 Debian 12+, Fedora 37+).
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/AstroFind-1.2.1-x86_64.AppImage
-chmod +x AstroFind-1.2.1-x86_64.AppImage
-./AstroFind-1.2.1-x86_64.AppImage
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/AstroFind-1.2.2-x86_64.AppImage
+chmod +x AstroFind-1.2.2-x86_64.AppImage
+./AstroFind-1.2.2-x86_64.AppImage
 ```
 
 1. Baixa o AppImage.
@@ -684,7 +684,7 @@ If no package fits your system, you can **compile** AstroFind yourself: you down
 **source code** (the human-readable program text) and turn it into a program with the compiler.
 The example below uses openSUSE's `zypper`; the commands for every other distro are in
 [`INSTALL.md`](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md). The release page also
-has the code as `astrofind-1.2.1-source.tar.gz`.
+has the code as `astrofind-1.2.2-source.tar.gz`.
 
 **Step 1 — install the tools and libraries** (from `INSTALL.md`):
 
@@ -716,17 +716,17 @@ sudo zypper install -y \
 (The last line, `valgrind cppcheck clang-tools`, is only for developers who want to run the code
 audits; you may delete it from the block.)
 
-**Step 3 — get the source code of version 1.2.1:**
+**Step 3 — get the source code of version 1.2.2:**
 
 ```bash
 sudo zypper install -y git
-git clone --branch v1.2.1 https://github.com/petrinhu/astrofind.git
+git clone --branch v1.2.2 https://github.com/petrinhu/astrofind.git
 cd astrofind
 ```
 
 1. Installs `git`, the tool that downloads source code. The build also uses it to fetch a few
    helper libraries, so keep your internet on.
-2. Downloads the AstroFind code at the `v1.2.1` tag into a folder `astrofind`.
+2. Downloads the AstroFind code at the `v1.2.2` tag into a folder `astrofind`.
 3. Enters that folder.
 
 **Step 4 — compile and run:**
@@ -754,7 +754,7 @@ Se nenhum pacote serve para o seu sistema, você pode **compilar** o AstroFind: 
 **código-fonte** (o texto do programa, legível por pessoas) e o transforma em programa com o
 compilador. O exemplo abaixo usa o `zypper` do openSUSE; os comandos das outras distros estão no
 [`INSTALL.md`](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md). A página da release
-também traz o código como `astrofind-1.2.1-source.tar.gz`.
+também traz o código como `astrofind-1.2.2-source.tar.gz`.
 
 **Passo 1 — instalar as ferramentas e bibliotecas** (do `INSTALL.md`):
 
@@ -786,17 +786,17 @@ sudo zypper install -y \
 (A última linha, `valgrind cppcheck clang-tools`, é só para desenvolvedores que querem rodar as
 auditorias de código; pode apagá-la do bloco.)
 
-**Passo 3 — obter o código-fonte da versão 1.2.1:**
+**Passo 3 — obter o código-fonte da versão 1.2.2:**
 
 ```bash
 sudo zypper install -y git
-git clone --branch v1.2.1 https://github.com/petrinhu/astrofind.git
+git clone --branch v1.2.2 https://github.com/petrinhu/astrofind.git
 cd astrofind
 ```
 
 1. Instala o `git`, a ferramenta que baixa código-fonte. A compilação também o usa para buscar
    algumas bibliotecas auxiliares, então mantenha a internet ligada.
-2. Baixa o código do AstroFind na tag `v1.2.1` para uma pasta `astrofind`.
+2. Baixa o código do AstroFind na tag `v1.2.2` para uma pasta `astrofind`.
 3. Entra nessa pasta.
 
 **Passo 4 — compilar e executar:**
@@ -828,7 +828,7 @@ Optional. The release also has a file `SHA256SUMS` with a "fingerprint" (checksu
 file. Download it into the folder where your AstroFind file is and run:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/SHA256SUMS
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
@@ -845,7 +845,7 @@ Opcional. A release também traz um arquivo `SHA256SUMS` com uma "impressão dig
 cada arquivo. Baixe-o para a pasta onde está o seu arquivo do AstroFind e rode:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/SHA256SUMS
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
@@ -897,7 +897,7 @@ To open the wizard again: **Help → Setup Wizard…**. To turn its automatic st
 **File → Settings... → Display →** "Show setup wizard when the application starts".
 
 **What you should see:** a dark window (the "Night" theme is the default) titled
-`AstroFind 1.2.1`, with the **Workflow** panel on the left and the text "No image loaded / Use
+`AstroFind 1.2.2`, with the **Workflow** panel on the left and the text "No image loaded / Use
 File → Import Images…" in the middle. Next step: [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 🇧🇷 **Português**
@@ -937,7 +937,7 @@ desligar a abertura automática: **Arquivo → Configurações... → Exibição
 de configuração ao iniciar o aplicativo".
 
 **O que você deve ver:** uma janela escura (o tema "Noite" é o padrão) com o título
-`AstroFind 1.2.1`, o painel **Fluxo de Trabalho** à esquerda e o texto "Nenhuma imagem
+`AstroFind 1.2.2`, o painel **Fluxo de Trabalho** à esquerda e o texto "Nenhuma imagem
 carregada / Use Arquivo → Importar Imagens…" no meio. Próximo passo: [Início Rápido](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 ---
@@ -1126,7 +1126,7 @@ libsecret-devel para armazenamento seguro".
 🇬🇧 **English**
 
 Repeat the installation with the new version number. For example, for a future release, replace
-`v1.2.1` and `1.2.1` in the commands above with the new tag listed on the
+`v1.2.2` and `1.2.2` in the commands above with the new tag listed on the
 [releases page](https://github.com/petrinhu/astrofind/releases).
 
 - **RPM / DEB:** `sudo dnf install ./<new>.rpm` (openSUSE: `sudo zypper install ./<new>.rpm`) or
@@ -1143,7 +1143,7 @@ Your settings, API key, MPCORB.DAT and projects are kept. To refresh the asteroi
 🇧🇷 **Português**
 
 Repita a instalação com o novo número de versão. Por exemplo, para uma versão futura, troque
-`v1.2.1` e `1.2.1` nos comandos acima pela nova tag listada na
+`v1.2.2` e `1.2.2` nos comandos acima pela nova tag listada na
 [página de releases](https://github.com/petrinhu/astrofind/releases).
 
 - **RPM / DEB:** `sudo dnf install ./<novo>.rpm` (openSUSE: `sudo zypper install ./<novo>.rpm`)

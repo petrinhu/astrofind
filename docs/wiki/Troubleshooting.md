@@ -86,7 +86,7 @@ terminal window. The name has a capital A and a capital F.)
 
 | Problem | Cause | Fix |
 |---|---|---|
-| The terminal says that a shared library (a file ending in `.so`, for example one whose name starts with `libQt6`, `libcfitsio` or `libraw`) cannot be found | A library AstroFind needs is not installed. | Install the package with its package manager, which installs the dependencies too: `sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm` (Rocky/RHEL 9: the `.el9` file, after enabling EPEL and CRB; openSUSE: `sudo zypper install ./…opensuse-tumbleweed….rpm`), `sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb` (Debian 13: the `.debian13` file; Debian 12 uses the AppImage) or `sudo pacman -U ./astrofind-1.2.1-1-x86_64.pkg.tar.zst`. Use the file made for your system. See [Installation](https://github.com/petrinhu/astrofind/wiki/Installation). |
+| The terminal says that a shared library (a file ending in `.so`, for example one whose name starts with `libQt6`, `libcfitsio` or `libraw`) cannot be found | A library AstroFind needs is not installed. | Install the package with its package manager, which installs the dependencies too: `sudo dnf install ./astrofind-1.2.2-1.fc44.x86_64.rpm` (Rocky/RHEL 9: the `.el9` file, after enabling EPEL and CRB; openSUSE: `sudo zypper install ./…opensuse-tumbleweed….rpm`), `sudo apt-get install ./astrofind_1.2.2-1.ubuntu24.04_amd64.deb` (Debian 13: the `.debian13` file; Debian 12 uses the AppImage) or `sudo pacman -U ./astrofind-1.2.2-1-x86_64.pkg.tar.zst`. Use the file made for your system. See [Installation](https://github.com/petrinhu/astrofind/wiki/Installation). |
 | The terminal mentions the Qt "platform plugin" (for example `xcb` or `wayland`) | Graphics libraries used by Qt are missing. | Install the OpenGL and keyboard libraries of your distribution (on Fedora: `sudo dnf install mesa-libGL libxkbcommon`; on Ubuntu/Debian: `sudo apt install libgl1 libxkbcommon0`). |
 | The window opens in a strange place, off screen, or with panels missing | The saved window layout does not fit your current screen. | Use **Window → Auto-Arrange Windows** and the **Window → View …** items to show the panels again. If that does not help, reset the settings (see [below](#how-to-reset-the-settings--como-restaurar-as-configurações)). |
 | AstroFind closes right after starting | Could be a bad settings file or a bug. | Reset the settings as explained below. If it still closes, report a bug with the terminal output. |
@@ -103,7 +103,7 @@ terminal. O nome tem A e F maiúsculos.)
 
 | Problema | Causa | Solução |
 |---|---|---|
-| O terminal diz que uma biblioteca compartilhada (um arquivo terminado em `.so`, por exemplo um cujo nome começa com `libQt6`, `libcfitsio` ou `libraw`) não foi encontrada | Falta instalar uma biblioteca de que o AstroFind precisa. | Instale o pacote pelo gerenciador de pacotes, que instala também as dependências: `sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm` (Rocky/RHEL 9: o arquivo `.el9`, depois de ligar EPEL e CRB; openSUSE: `sudo zypper install ./…opensuse-tumbleweed….rpm`), `sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb` (Debian 13: o arquivo `.debian13`; o Debian 12 usa o AppImage) ou `sudo pacman -U ./astrofind-1.2.1-1-x86_64.pkg.tar.zst`. Use o arquivo feito para o seu sistema. Veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation). |
+| O terminal diz que uma biblioteca compartilhada (um arquivo terminado em `.so`, por exemplo um cujo nome começa com `libQt6`, `libcfitsio` ou `libraw`) não foi encontrada | Falta instalar uma biblioteca de que o AstroFind precisa. | Instale o pacote pelo gerenciador de pacotes, que instala também as dependências: `sudo dnf install ./astrofind-1.2.2-1.fc44.x86_64.rpm` (Rocky/RHEL 9: o arquivo `.el9`, depois de ligar EPEL e CRB; openSUSE: `sudo zypper install ./…opensuse-tumbleweed….rpm`), `sudo apt-get install ./astrofind_1.2.2-1.ubuntu24.04_amd64.deb` (Debian 13: o arquivo `.debian13`; o Debian 12 usa o AppImage) ou `sudo pacman -U ./astrofind-1.2.2-1-x86_64.pkg.tar.zst`. Use o arquivo feito para o seu sistema. Veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation). |
 | O terminal fala do "platform plugin" do Qt (por exemplo `xcb` ou `wayland`) | Faltam bibliotecas gráficas usadas pelo Qt. | Instale as bibliotecas de OpenGL e de teclado da sua distribuição (no Fedora: `sudo dnf install mesa-libGL libxkbcommon`; no Ubuntu/Debian: `sudo apt install libgl1 libxkbcommon0`). |
 | A janela abre num lugar estranho, fora da tela, ou sem alguns painéis | O layout de janela salvo não serve para a tela atual. | Use **Janela → Organizar Automaticamente** e os itens **Janela → Exibir …** para mostrar os painéis de novo. Se não resolver, restaure as configurações (veja [abaixo](#how-to-reset-the-settings--como-restaurar-as-configurações)). |
 | O AstroFind fecha logo depois de abrir | Pode ser um arquivo de configurações ruim ou um bug. | Restaure as configurações como explicado abaixo. Se continuar fechando, relate um bug com a saída do terminal. |
@@ -248,7 +248,7 @@ stars (VizieR or a local file) and known asteroids (SkyBoT or MPCORB.DAT).
 |---|---|---|
 | "Catalog download failed: …" | VizieR could not be reached, or it returned an error. | Check your internet connection and try again later. Offline, use a local catalog (**Settings → Connections** → "Source:" → "Local FITS BINTABLE"). |
 | "No catalog stars found in field" | No catalog star in the field fits the magnitude limits, or the field centre is wrong. | Check "Catalog mag (faint):" (default 16) and "Catalog mag (bright):" (default 10) in **Settings → Detection**. Make sure Run Data Reduction solved image 1: without a solution the search uses the header position and a 0.5° radius. |
-| You changed "VizieR mirror:" and nothing changed | The field needs the full address of a VizieR TAP service (`https://…/TAPVizieR/tap/sync`). A bare host name, or `http://` for anything other than `localhost`, is rejected, and AstroFind keeps using the default `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was always rejected; version 1.2.1 replaces that old value with the default.) | Leave the default. If you type another server, give its complete `https://` TAP address. |
+| You changed "VizieR mirror:" and nothing changed | The field needs the full address of a VizieR TAP service (`https://…/TAPVizieR/tap/sync`). A bare host name, or `http://` for anything other than `localhost`, is rejected, and AstroFind keeps using the default `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was always rejected; version 1.2.0 replaces that old value with the default.) | Leave the default. If you type another server, give its complete `https://` TAP address. |
 | "No local catalog file configured. Set it in Settings → Connections." | "Source:" is "Local FITS BINTABLE" but "Local catalog:" is empty. | Choose the file with "Browse…". |
 | "Local catalog error: …" or "No RA/Dec columns found in local catalog" | The local file is not a FITS table with RA/Dec columns. | Use a FITS BINTABLE export (for example from VizieR) that includes RA and Dec columns. |
 | "SkyBoT query failed: …" | The IMCCE SkyBoT service could not be reached. | Download MPCORB.DAT once with **Internet → Download MPCOrb Database**; AstroFind then uses it when SkyBoT is unreachable. |
@@ -581,7 +581,7 @@ guardada no chaveiro do sistema não é apagada por isso.
 🇬🇧 **English**
 Collect these before you open an issue at <https://github.com/petrinhu/astrofind/issues>:
 
-1. **Version:** **Help → About AstroFind…** shows "Version …" (for example 1.2.0). In a
+1. **Version:** **Help → About AstroFind…** shows "Version …" (for example 1.2.2). In a
    terminal, `AstroFind --version` prints the same number.
 2. **Distribution:** run
 
@@ -600,7 +600,7 @@ Collect these before you open an issue at <https://github.com/petrinhu/astrofind
 🇧🇷 **Português**
 Junte isto antes de abrir uma issue em <https://github.com/petrinhu/astrofind/issues>:
 
-1. **Versão:** **Ajuda → Sobre o AstroFind…** mostra "Versão …" (por exemplo 1.2.0). Num
+1. **Versão:** **Ajuda → Sobre o AstroFind…** mostra "Versão …" (por exemplo 1.2.2). Num
    terminal, `AstroFind --version` mostra o mesmo número.
 2. **Distribuição:** rode
 

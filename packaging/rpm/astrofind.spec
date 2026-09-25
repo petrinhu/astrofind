@@ -1,5 +1,5 @@
 Name:           astrofind
-Version:        1.2.1
+Version:        1.2.2
 Release:        1%{?dist}
 Summary:        Asteroid detection and astrometry for citizen science (IASC/MPC)
 License:        AGPL-3.0-or-later
@@ -112,6 +112,8 @@ _build/bin/astrofind_tests --reporter compact
 %{_datadir}/icons/hicolor/*/apps/astrofind.png
 
 %changelog
+* Fri Sep 25 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 1.2.2-1
+- No change for RPM distributions; the CachyOS package is built for the x86-64 baseline
 * Fri Sep 25 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 1.2.1-1
 - Release file names of the .deb packages use "." instead of "~"
 * Fri Sep 25 2026 Petrus Silva Costa <petrinhu@yahoo.com.br> - 1.2.0-1

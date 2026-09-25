@@ -7,7 +7,9 @@
 
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.2.1-orange)](https://github.com/petrinhu/astrofind/releases/latest)
+[![Release](https://img.shields.io/github/v/release/petrinhu/astrofind?color=orange&label=release)](https://github.com/petrinhu/astrofind/releases/latest)
+[![Installers](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/release.yml?event=push&label=installers&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/release.yml)
+[![Downloads](https://img.shields.io/github/downloads/petrinhu/astrofind/total?color=informational)](https://github.com/petrinhu/astrofind/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/build.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
 [![Audit](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=audit&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
@@ -22,6 +24,8 @@
 [![ASan/UBSan](https://img.shields.io/badge/ASan%2FUBSan-clean-success)](.github/workflows/audit.yml)
 [![cppcheck](https://img.shields.io/badge/cppcheck-clean-success)](.github/workflows/audit.yml)
 [![clang-tidy](https://img.shields.io/badge/clang--tidy-checked-success)](.github/workflows/audit.yml)
+[![Secret scan](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/secret-scan.yml?branch=main&label=gitleaks)](https://github.com/petrinhu/astrofind/actions/workflows/secret-scan.yml)
+[![SBOM](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/sbom.yml?branch=main&label=SBOM)](https://github.com/petrinhu/astrofind/actions/workflows/sbom.yml)
 
 <!-- QA matrix, validated distros: live CI status on main (green "passing" = build + tests OK); Fedora and CachyOS run in the audit matrix -->
 [![Ubuntu](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/qa-ubuntu-24.yml?branch=main&label=Ubuntu%2024.04&logo=ubuntu&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/qa-ubuntu-24.yml)
@@ -222,7 +226,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -264,7 +268,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -602,5 +606,5 @@ inspiração: nenhum código delas está incluído, e o `NOTICE` §9-§10 regist
 
 Repository: [github.com/petrinhu/astrofind](https://github.com/petrinhu/astrofind)
 
-*Last reviewed / última revisão: 2026-09-24. Owner: Petrus Silva Costa
+*Last reviewed / última revisão: 2026-09-25. Owner: Petrus Silva Costa
 ([@petrinhu](https://github.com/petrinhu))*
