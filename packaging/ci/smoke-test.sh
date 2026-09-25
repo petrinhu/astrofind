@@ -52,7 +52,7 @@ case "$pkg" in
       *" arch "*) pacman -Syu --noconfirm --needed mesa libglvnd fontconfig freetype2 \
             harfbuzz libxkbcommon dbus glib2 ;;
       *" opensuse"*|*" suse "*) zypper --non-interactive install Mesa-libGL1 Mesa-libEGL1 \
-            libOpenGL0 fontconfig libfreetype6 libharfbuzz0 libxkbcommon0 libdbus-1-3 \
+            libglvnd fontconfig libfreetype6 libharfbuzz0 libxkbcommon0 libdbus-1-3 \
             libglib-2_0-0 ;;
     esac
     chmod +x "$pkg"

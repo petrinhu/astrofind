@@ -10,9 +10,9 @@ Coordenadas e Métodos Numéricos**
 > All equations use SI or astronomical units as noted. / Todas as equações usam
 > unidades SI ou astronômicas, conforme indicado.
 >
-> **Last reviewed / Última revisão:** 2026-09-24
+> **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v1.1.0+
+> **Applies to / Aplica-se a:** AstroFind v1.2.0+
 
 ---
 
@@ -130,14 +130,17 @@ bytes. 16-bit frames are little-endian.
 **XISF:**
 
 XML-based format (PixInsight). The file begins with an 8-byte magic `XISF0100`,
-followed by a 4-byte little-endian XML header length, then the XML block. The
-`<Image>` element carries:
+followed by a 4-byte little-endian XML header length and 4 reserved bytes; the XML
+block starts at offset 16. The first `<Image>` element carries:
 
 ```xml
 <Image geometry="W:H:channels" sampleFormat="Float32" location="attachment:offset:size"/>
 ```
 
-Pixel data at `offset` bytes from file start. AstroFind reads Float32 and UInt16.
+Pixel data at `offset` bytes from file start (`location="embedded"` with a base64
+`<Data>` child is also accepted). AstroFind reads `sampleFormat` UInt8, UInt16 (the
+default when the attribute is missing), UInt32, Float32 and Float64, with 1 or 3
+channels; 3 channels are stored planar (all R, then G, then B).
 
 **DSLR RAW (LibRaw, optional):**
 
@@ -204,15 +207,18 @@ Os dados de frame começam no offset 178. Cada frame tem
 
 Formato baseado em XML (PixInsight). O arquivo começa com um "magic number" (marca
 de identificação do formato) de 8 bytes `XISF0100`, seguido por um comprimento de
-cabeçalho XML little-endian de 4 bytes, depois o bloco XML. O elemento `<Image>`
-carrega:
+cabeçalho XML little-endian de 4 bytes e 4 bytes reservados; o bloco XML começa no
+offset 16. O primeiro elemento `<Image>` carrega:
 
 ```xml
 <Image geometry="W:H:channels" sampleFormat="Float32" location="attachment:offset:size"/>
 ```
 
-Os dados de pixel ficam no offset `offset` a partir do início do arquivo. O
-AstroFind lê Float32 e UInt16.
+Os dados de pixel ficam no offset `offset` a partir do início do arquivo
+(`location="embedded"` com um filho `<Data>` em base64 também é aceito). O
+AstroFind lê `sampleFormat` UInt8, UInt16 (o padrão quando o atributo falta),
+UInt32, Float32 e Float64, com 1 ou 3 canais; 3 canais ficam em planos separados
+(todo o R, depois o G, depois o B).
 
 **RAW de DSLR (LibRaw, opcional):**
 
@@ -939,7 +945,7 @@ $$
 I(x, y) = A\,\exp\!\left(-\frac{1}{2}\left[
   \left(\frac{x'(x,y)}{\sigma_x}\right)^2 +
   \left(\frac{y'(x,y)}{\sigma_y}\right)^2
-\right]\right) + B
+\right]\right)
 $$
 
 where the rotated coordinates are:
@@ -951,23 +957,28 @@ $$
 y'(x,y) = -(x - x_0)\sin\theta + (y - y_0)\cos\theta
 $$
 
-Parameters: amplitude $A$, centroid $(x_0, y_0)$, widths $(\sigma_x, \sigma_y)$,
-rotation $\theta$, and sky background $B$.
+Parameters: amplitude $A$, centroid $(x_0, y_0)$, widths $(\sigma_x, \sigma_y)$ and
+rotation $\theta$. The sky background is **not** a fit parameter: the median of the
+pixels on the border of the fitting box is subtracted first, and negative values are
+clamped to 0. The fit is seeded by a symmetric Gaussian fit (`findCentroidPsf`).
 
 The **Levenberg-Marquardt** iteration (an optimization algorithm that blends two
 simpler methods to converge reliably and fast) minimises:
 
 $$
-\chi^2 = \sum_{i,j}\frac{\left(I_\text{obs}(x_i, y_j) - I_\text{model}(x_i, y_j)\right)^2}{\sigma_{ij}^2}
+\chi^2 = \sum_{i,j}\left(I_\text{obs}(x_i, y_j) - I_\text{model}(x_i, y_j)\right)^2
 $$
 
 The update step blends gradient descent and Gauss-Newton:
 
 $$
-\left(J^T W J + \lambda\,\text{diag}(J^T W J)\right)\Delta\mathbf{p} = J^T W \mathbf{r}
+\left(J^T J + \lambda\,\text{diag}(J^T J)\right)\Delta\mathbf{p} = J^T \mathbf{r}
 $$
 
-Convergence: $\|\Delta\mathbf{p}\| < 10^{-6}$ or 200 iterations. The FWHM values
+The sum is unweighted (all pixels count the same). $\lambda$ starts at $10^{-3}$; a step
+that lowers $\chi^2$ is accepted and $\lambda$ is divided by 5, otherwise $\lambda$ is
+multiplied by 5. The loop stops after 60 iterations, when the system is singular, or when
+$\lambda > 10^{8}$; $\sigma_{x,y} \ge 0.3$ px and $A \ge 0$ are enforced. The FWHM values
 ("FWHM" = Full Width at Half Maximum, the width of the star's light profile at
 half its peak brightness, the standard sharpness/focus metric) are:
 
@@ -985,7 +996,7 @@ $$
 I(x, y) = A\,\exp\!\left(-\frac{1}{2}\left[
   \left(\frac{x'(x,y)}{\sigma_x}\right)^2 +
   \left(\frac{y'(x,y)}{\sigma_y}\right)^2
-\right]\right) + B
+\right]\right)
 $$
 
 onde as coordenadas rotacionadas são:
@@ -998,22 +1009,28 @@ y'(x,y) = -(x - x_0)\sin\theta + (y - y_0)\cos\theta
 $$
 
 Parâmetros: amplitude $A$, centroide $(x_0, y_0)$, larguras $(\sigma_x,
-\sigma_y)$, rotação $\theta$, e fundo de céu $B$.
+\sigma_y)$ e rotação $\theta$. O fundo de céu **não** é parâmetro do ajuste: a
+mediana dos pixels da borda da caixa de ajuste é subtraída antes, e valores
+negativos viram 0. O ajuste parte de um ajuste gaussiano simétrico
+(`findCentroidPsf`).
 
 A iteração **Levenberg-Marquardt** (um algoritmo de otimização que combina dois
 métodos mais simples para convergir de forma confiável e rápida) minimiza:
 
 $$
-\chi^2 = \sum_{i,j}\frac{\left(I_\text{obs}(x_i, y_j) - I_\text{model}(x_i, y_j)\right)^2}{\sigma_{ij}^2}
+\chi^2 = \sum_{i,j}\left(I_\text{obs}(x_i, y_j) - I_\text{model}(x_i, y_j)\right)^2
 $$
 
 O passo de atualização combina gradiente descendente e Gauss-Newton:
 
 $$
-\left(J^T W J + \lambda\,\text{diag}(J^T W J)\right)\Delta\mathbf{p} = J^T W \mathbf{r}
+\left(J^T J + \lambda\,\text{diag}(J^T J)\right)\Delta\mathbf{p} = J^T \mathbf{r}
 $$
 
-Convergência: $\|\Delta\mathbf{p}\| < 10^{-6}$ ou 200 iterações. Os valores de
+A soma não tem pesos (todos os pixels contam igual). $\lambda$ começa em $10^{-3}$; um
+passo que reduz o $\chi^2$ é aceito e $\lambda$ é dividido por 5, senão $\lambda$ é
+multiplicado por 5. O laço para depois de 60 iterações, quando o sistema é singular, ou
+quando $\lambda > 10^{8}$; impõe-se $\sigma_{x,y} \ge 0,3$ px e $A \ge 0$. Os valores de
 FWHM ("FWHM" = Full Width at Half Maximum, largura a meia altura, a largura do
 perfil de luz da estrela na metade de seu brilho de pico, a métrica padrão de
 nitidez/foco) são:
@@ -1150,20 +1167,21 @@ onde $g$ = ganho (e⁻/ADU) e $\sigma_\text{rn}$ = ruído de leitura (e⁻).
 ### 🇬🇧 English
 
 "Airmass" measures how much atmosphere the light passed through (1.0 = straight
-overhead, higher near the horizon). For altitudes above 10°, the plane-parallel
-formula:
+overhead, higher near the horizon). AstroFind uses the Pickering (2002) formula at
+every altitude, with the altitude $a$ in degrees:
 
 $$
-X = \sec z = \frac{1}{\sin a}
+X = \frac{1}{\sin\!\left(a + \dfrac{244}{165 + 47\,a^{2.575}}\right)}
 $$
 
-For lower altitudes, the Young & Irvine (1967) formula:
+where $a$ is the geometric (unrefracted) altitude computed below; the angle inside the
+sine is in degrees. Near the zenith this reduces to the plane-parallel $X = \sec z =
+1/\sin a$; at the horizon it stays finite ($X \approx 38$). For $a \le 0$ the function
+returns 0 (below the horizon) and no extinction correction is applied.
 
-$$
-X = \sec z \left(1 - 0.0012\,(\sec^2 z - 1)\right)
-$$
-
-where $z$ is the true zenith angle and $a$ is the true altitude.
+> **Note:** the exponent in the code (`Astronomy.cpp`, `computeAirmass`) is 2.575; the
+> exponent published by Pickering (2002) is 1.1. The two agree within 1% above 20° altitude
+> and differ by about 3% at 10° and 9% at 5°.
 
 The altitude is computed from the hour angle $H$, declination $\delta$, and
 observer latitude $\varphi$:
@@ -1175,19 +1193,21 @@ $$
 ### 🇧🇷 Português
 
 "Massa de ar" mede quanta atmosfera a luz atravessou (1,0 = direto do zênite,
-maior perto do horizonte). Para altitudes acima de 10°, a fórmula plano-paralela:
+maior perto do horizonte). O AstroFind usa a fórmula de Pickering (2002) em qualquer
+altitude, com a altitude $a$ em graus:
 
 $$
-X = \sec z = \frac{1}{\sin a}
+X = \frac{1}{\sin\!\left(a + \dfrac{244}{165 + 47\,a^{2.575}}\right)}
 $$
 
-Para altitudes mais baixas, a fórmula de Young & Irvine (1967):
+onde $a$ é a altitude geométrica (sem refração) calculada abaixo; o ângulo dentro do
+seno está em graus. Perto do zênite isso se reduz à plano-paralela $X = \sec z =
+1/\sin a$; no horizonte continua finita ($X \approx 38$). Para $a \le 0$ a função
+retorna 0 (abaixo do horizonte) e nenhuma correção de extinção é aplicada.
 
-$$
-X = \sec z \left(1 - 0.0012\,(\sec^2 z - 1)\right)
-$$
-
-onde $z$ é o ângulo zenital verdadeiro e $a$ é a altitude verdadeira.
+> **Nota:** o expoente no código (`Astronomy.cpp`, `computeAirmass`) é 2,575; o expoente
+> publicado por Pickering (2002) é 1,1. Os dois concordam em até 1% acima de 20° de altitude
+> e diferem cerca de 3% a 10° e 9% a 5°.
 
 A altitude é calculada a partir do ângulo horário $H$, declinação $\delta$, e
 latitude do observador $\varphi$:
@@ -1351,18 +1371,20 @@ $$
 **Equatorial (J2000) → Galactic** ("galactic" = coordinates aligned with the
 plane of the Milky Way):
 
-The IAU 1958 galactic pole at $(\alpha_G, \delta_G) = (192.25°, 27.40°)$,
-ascending node $l_\Omega = 33°$:
+The IAU 1958 galactic north pole in J2000 coordinates,
+$(\alpha_G, \delta_G) = (192.859508°, 27.128336°)$, and the galactic longitude of the
+north celestial pole $l_\text{NCP} = 122.932°$:
 
 $$
 b = \arcsin\!\left(\cos\delta\,\cos\delta_G\,\cos(\alpha - \alpha_G) + \sin\delta\,\sin\delta_G\right)
 $$
 $$
-l = \arctan\!\left(\frac{\sin\delta - \sin b\,\sin\delta_G}{\cos\delta\,\sin(\alpha - \alpha_G)\,\cos\delta_G}\right) + l_\Omega
+l = l_\text{NCP} - \operatorname{atan2}\!\left(\cos\delta\,\sin(\alpha - \alpha_G),\;\sin\delta\,\cos\delta_G - \cos\delta\,\sin\delta_G\,\cos(\alpha - \alpha_G)\right)
 $$
 
-AstroFind warns when $|b| < 10°$ because dense stellar fields near the Galactic
-plane increase false-positive detection rates.
+With the ecliptic / galactic overlay on, AstroFind shows a warning badge when the
+field centre has $|b| < 15°$ (high interstellar extinction; dense star fields near the
+Galactic plane also raise false-positive detections).
 
 ### 🇧🇷 Português
 
@@ -1379,18 +1401,20 @@ $$
 **Equatorial (J2000) → Galáctica** ("galáctica" = coordenadas alinhadas com o
 plano da Via Láctea):
 
-O polo galáctico IAU 1958 em $(\alpha_G, \delta_G) = (192.25°, 27.40°)$, nó
-ascendente $l_\Omega = 33°$:
+O polo norte galáctico IAU 1958 em coordenadas J2000,
+$(\alpha_G, \delta_G) = (192,859508°, 27,128336°)$, e a longitude galáctica do polo
+norte celeste $l_\text{NCP} = 122,932°$:
 
 $$
 b = \arcsin\!\left(\cos\delta\,\cos\delta_G\,\cos(\alpha - \alpha_G) + \sin\delta\,\sin\delta_G\right)
 $$
 $$
-l = \arctan\!\left(\frac{\sin\delta - \sin b\,\sin\delta_G}{\cos\delta\,\sin(\alpha - \alpha_G)\,\cos\delta_G}\right) + l_\Omega
+l = l_\text{NCP} - \operatorname{atan2}\!\left(\cos\delta\,\sin(\alpha - \alpha_G),\;\sin\delta\,\cos\delta_G - \cos\delta\,\sin\delta_G\,\cos(\alpha - \alpha_G)\right)
 $$
 
-O AstroFind avisa quando $|b| < 10°$ porque campos estelares densos perto do
-plano galáctico aumentam as taxas de detecção de falsos positivos.
+Com a sobreposição eclíptica / galáctica ligada, o AstroFind mostra um aviso quando o
+centro do campo tem $|b| < 15°$ (alta extinção interestelar; campos estelares densos
+perto do plano galáctico também aumentam as detecções falsas).
 
 ---
 
@@ -1410,14 +1434,20 @@ The cross-power spectrum is normalised (i.e., only phase information is
 retained). The inverse FFT of $G$ gives a sharp delta-like peak at the shift
 vector $(\Delta x, \Delta y)$.
 
-Sub-pixel accuracy is achieved by fitting a 2-D Gaussian to the peak:
+Sub-pixel accuracy comes from a 3-point parabolic interpolation around the integer
+peak $(p_x, p_y)$, done separately along each axis, with $c_{k}$ the correlation value
+at offset $k$ from the peak along that axis:
 
 $$
-(\Delta x_\text{sub}, \Delta y_\text{sub}) = \arg\max \text{Gaussian fit to peak neighbourhood}
+\Delta x_\text{sub} = \frac{1}{2}\,\frac{c_{-1} - c_{+1}}{c_{-1} - 2c_0 + c_{+1}}
 $$
 
-AstroFind uses FFTW3's real-to-complex `r2c` plan for efficiency. Frames are
-zero-padded to the next power-of-two size to avoid circular aliasing.
+(and the same for $y$; the correction is 0 when the denominator is below $10^{-12}$).
+The shift is $p + \Delta_\text{sub}$, wrapped into $[-w/2, w/2)$ and $[-h/2, h/2)$.
+
+AstroFind uses FFTW3's real-to-complex `r2c` plan (and `c2r` for the inverse) at the
+native frame size $w \times h$. There is no zero-padding, so the correlation is
+circular.
 
 ### 🇧🇷 Português
 
@@ -1433,15 +1463,20 @@ O espectro de potência cruzada é normalizado (isto é, só a informação de f
 retida). A FFT inversa de $G$ dá um pico nítido, semelhante a um delta, no vetor
 de deslocamento $(\Delta x, \Delta y)$.
 
-A precisão sub-pixel é obtida ajustando uma gaussiana 2-D ao pico:
+A precisão sub-pixel vem de uma interpolação parabólica de 3 pontos em volta do pico
+inteiro $(p_x, p_y)$, feita separadamente em cada eixo, com $c_{k}$ o valor da
+correlação no deslocamento $k$ a partir do pico ao longo desse eixo:
 
 $$
-(\Delta x_\text{sub}, \Delta y_\text{sub}) = \arg\max \text{ajuste gaussiano à vizinhança do pico}
+\Delta x_\text{sub} = \frac{1}{2}\,\frac{c_{-1} - c_{+1}}{c_{-1} - 2c_0 + c_{+1}}
 $$
 
-O AstroFind usa o plano real-para-complexo `r2c` da FFTW3 por eficiência. Os
-frames recebem zero-padding (preenchimento com zeros) até o próximo tamanho
-potência de dois, para evitar aliasing circular.
+(e o mesmo para $y$; a correção é 0 quando o denominador é menor que $10^{-12}$).
+O deslocamento é $p + \Delta_\text{sub}$, levado para $[-w/2, w/2)$ e $[-h/2, h/2)$.
+
+O AstroFind usa o plano real-para-complexo `r2c` da FFTW3 (e `c2r` na inversa) no
+tamanho nativo do frame $w \times h$. Não há zero-padding (preenchimento com zeros),
+então a correlação é circular.
 
 ---
 
