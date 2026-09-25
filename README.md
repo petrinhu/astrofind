@@ -7,7 +7,7 @@
 
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.2.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.2.1-orange)](https://github.com/petrinhu/astrofind/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/build.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
 [![Audit](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=audit&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
@@ -222,7 +222,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -234,8 +234,8 @@ chmod +x install.sh
 | Fedora 44 | `.fc44.x86_64.rpm` |
 | Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (enable EPEL and CRB first) |
 | openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
-| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
-| Debian 13 | `~debian13_amd64.deb` |
+| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `.ubuntu24.04_amd64.deb` |
+| Debian 13 | `.debian13_amd64.deb` |
 | Debian 12 | `.AppImage` (no `.deb` for Debian 12) |
 | Arch Linux / Manjaro / EndeavourOS | `-x86_64.pkg.tar.zst` (or PKGBUILD, built locally with `makepkg`) |
 | CachyOS | `-cachyos-x86_64.pkg.tar.zst` (built on CachyOS) |
@@ -264,7 +264,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -276,8 +276,8 @@ chmod +x install.sh
 | Fedora 44 | `.fc44.x86_64.rpm` |
 | Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (ative EPEL e CRB antes) |
 | openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
-| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
-| Debian 13 | `~debian13_amd64.deb` |
+| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `.ubuntu24.04_amd64.deb` |
+| Debian 13 | `.debian13_amd64.deb` |
 | Debian 12 | `.AppImage` (não há `.deb` para o Debian 12) |
 | Arch Linux / Manjaro / EndeavourOS | `-x86_64.pkg.tar.zst` (ou PKGBUILD, compilado localmente com `makepkg`) |
 | CachyOS | `-cachyos-x86_64.pkg.tar.zst` (compilado no CachyOS) |

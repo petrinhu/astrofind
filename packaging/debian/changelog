@@ -1,3 +1,10 @@
+astrofind (1.2.1-1) unstable; urgency=medium
+
+  * Release file names use "." instead of "~" (GitHub renames "~" on upload),
+    so install.sh and the documented download links find the .deb files.
+
+ -- Petrus Silva Costa <petrinhu@yahoo.com.br>  Fri, 25 Sep 2026 12:00:00 -0300
+
 astrofind (1.2.0-1) unstable; urgency=medium
 
   * Audit waves E1-E4: hostile-input hardening, WCS/refraction/ephemeris/time

@@ -147,8 +147,8 @@ jobs:
           - { name: "Fedora 44 RPM",            image: "fedora:44",           pattern: "astrofind-*.fc44.x86_64.rpm" }
           - { name: "Rocky 9 RPM",              image: "rockylinux:9",        pattern: "astrofind-*.el9.x86_64.rpm" }
           - { name: "openSUSE Tumbleweed RPM",  image: "opensuse/tumbleweed", pattern: "astrofind-*.opensuse-tumbleweed.x86_64.rpm" }
-          - { name: "Ubuntu 24.04 DEB",         image: "ubuntu:24.04",        pattern: "astrofind_*~ubuntu24.04_amd64.deb" }
-          - { name: "Debian 13 DEB",            image: "debian:13",           pattern: "astrofind_*~debian13_amd64.deb" }
+          - { name: "Ubuntu 24.04 DEB",         image: "ubuntu:24.04",        pattern: "astrofind_*.ubuntu24.04_amd64.deb" }
+          - { name: "Debian 13 DEB",            image: "debian:13",           pattern: "astrofind_*.debian13_amd64.deb" }
           - { name: "Arch package",             image: "archlinux:latest",    pattern: "astrofind-*-1-x86_64.pkg.tar.zst" }
           - { name: "CachyOS package",          image: "cachyos/cachyos:latest", pattern: "astrofind-*-cachyos-x86_64.pkg.tar.zst" }
           - { name: "AppImage on Debian 12",    image: "debian:12",           pattern: "AstroFind-*-x86_64.AppImage" }
@@ -204,6 +204,8 @@ jobs:
           find artifacts -maxdepth 1 -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.pkg.tar.zst' \
                -o -name '*.AppImage' -o -name '*-source.tar.gz' \) -exec cp {} release/ \;
           python3 scripts/fetchcontent-sbom.py > "release/astrofind-${v}-fetchcontent.cdx.json"
+          # GitHub renames "~" to "." on upload; SHA256SUMS must use the published names.
+          if ls release | grep -q '~'; then echo "::error::file name with '~'"; exit 1; fi
           (cd release && sha256sum -- * > SHA256SUMS)
           cat release/SHA256SUMS
           test "$(ls release | wc -l)" -ge 11

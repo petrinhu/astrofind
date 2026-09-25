@@ -6,7 +6,9 @@
 # release source tarball, with packaging/debian as debian/. The Debian version
 # gets a "~<distro><release>" suffix (e.g. 1.2.0-1~ubuntu24.04, 1.2.0-1~debian13)
 # so each file says which distribution it was built for; dh_auto_test runs the
-# core unit tests.
+# core unit tests. GitHub turns "~" into "." in release file names, so the
+# file is named with "." (astrofind_1.2.1-1.debian13_amd64.deb) while the
+# package version inside keeps the "~".
 #
 #   packaging/ci/build-deb.sh <astrofind-X.Y.Z-source.tar.gz> <outdir>
 set -euo pipefail
@@ -40,6 +42,7 @@ apt-get build-dep -y -qq "$src" >/dev/null
 (cd "$src" && dpkg-buildpackage -b -us -uc)
 
 for deb in "$work"/astrofind_*_amd64.deb; do
-  cp "$deb" "$outdir/"
-  echo "$outdir/$(basename "$deb")"
+  name=$(basename "$deb"); name=${name//\~/.}
+  cp "$deb" "$outdir/$name"
+  echo "$outdir/$name"
 done

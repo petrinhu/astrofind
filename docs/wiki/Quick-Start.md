@@ -97,8 +97,8 @@ installer. Open a **terminal** (the text window where you type commands) and typ
 lines, pressing Enter after each one:
 
 ```bash
-# Download the installer script for version 1.2.0
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
+# Download the installer script for version 1.2.1
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
 # Allow the file to run as a program
 chmod +x install.sh
 # Run it: it detects your Linux and installs the right package
@@ -115,8 +115,8 @@ universal. Abra um **terminal** (a janela de texto onde você digita comandos) e
 linhas, apertando Enter depois de cada uma:
 
 ```bash
-# Baixa o script instalador da versão 1.2.0
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
+# Baixa o script instalador da versão 1.2.1
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
 # Permite que o arquivo rode como programa
 chmod +x install.sh
 # Executa: ele detecta seu Linux e instala o pacote certo
