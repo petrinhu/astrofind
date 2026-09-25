@@ -16,7 +16,7 @@
 > **Onda 1** (julho, mergeada): INPUT-1/2, CORR-1, MEM-2/3 fechados no re-teste 2026-09-01. MEM-4 RGB fechado; 1-D vive em INPUT-8. SEC-1 reopen residual (E3, ponte SEC-7).
 > **Onda 2** (julho, mergeada): INPUT-3/4/5, SEC-2/3, CORR-2/3/4/5 ✅. MEM-1 reopen (E2): patch na fonte, leak no `libsep_lib.a`.
 > **Onda 3** (julho, mergeada): PROV/DOC/TEST/SEC-4 ✅. CI-3 REGREDIU (E1, ponte CI-5): `audit.yml` `runs-on: docker`, 9 cancelled no GitHub.
-> **Onda 4** (julho, mergeada): cosméticos ✅. INPUT-gaps e MEM-gaps seguem 🟡 (E3).
+> **Onda 4** (julho, mergeada): cosméticos ✅. INPUT-gaps e MEM-gaps ficaram 🟡 até a E3; ambos ✅ desde 2026-09-24/25.
 
 > Nota: features de produto vivem na tabela do `CLAUDE.md`, não nesta (remediação de auditoria). RAW DSLR/PDS3/PDS4 (itens 21.1/21.2) implementados em 2026-09-24 (PR #7). REL-1 já cobriu Wiki no release v0.9.0.
 
