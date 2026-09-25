@@ -65,26 +65,6 @@ if(NOT CFITSIO_FOUND_SYSTEM)
     endif()
 endif()
 
-# ─── QuaZip (ZIP support for image sets) — Phase 1 ────────────────────────
-# Requires qt6-qt5compat-devel: dnf install qt6-qt5compat-devel
-# Enabled automatically when Core5Compat is found
-find_package(Qt6 OPTIONAL_COMPONENTS Core5Compat)
-if(Qt6Core5Compat_FOUND)
-    # AUD-SEC-2: pinned SHA (see spdlog comment above for rationale). Verified:
-    #   git ls-remote https://github.com/stachenov/quazip.git refs/tags/v1.4
-    FetchContent_Declare(
-        quazip
-        GIT_REPOSITORY https://github.com/stachenov/quazip.git
-        GIT_TAG        566fa496649b8cb09018b497575bb3bf2977965f # v1.4
-        GIT_SHALLOW    TRUE
-    )
-    set(QUAZIP_QT_MAJOR_VERSION 6 CACHE STRING "" FORCE)
-    FetchContent_MakeAvailable(quazip)
-    message(STATUS "QuaZip enabled (ZIP image set support)")
-else()
-    message(STATUS "QuaZip disabled — install qt6-qt5compat-devel to enable ZIP support")
-endif()
-
 # ─── SEP (Source Extractor C library) — Phase 2 ───────────────────────────
 # AUD-MEM-1: upstream v1.2.1 (and current upstream main) has a double-QMALLOC
 # leak in convert_to_catalog() (src/extract.c) — cat->cflux/cat->flux get

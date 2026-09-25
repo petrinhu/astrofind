@@ -1,8 +1,8 @@
 # AstroFind: QA Multi-Distro Documentation / Documentação de QA Multi-Distro
 
-> **Last reviewed / Última revisão:** 2026-09-24
+> **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v1.1.0+
+> **Applies to / Aplica-se a:** AstroFind v1.2.0+
 
 ---
 
@@ -10,15 +10,15 @@
 
 - [Strategy overview / Visão geral da estratégia](#strategy-overview--visão-geral-da-estratégia)
 - [Test scope / Escopo de testes](#test-scope-all-distros--escopo-de-testes-todas-as-distros)
-- [55.1, Ubuntu 24.04 LTS](#551-ubuntu-2404-lts)
-- [55.2, Debian 12 Bookworm](#552-debian-12-bookworm)
-- [55.3, Arch Linux](#553-arch-linux)
-- [55.4, Manjaro](#554-manjaro)
-- [55.5, Linux Mint 22](#555-linux-mint-22)
-- [55.6, openSUSE Tumbleweed](#556-opensuse-tumbleweed)
-- [55.7, Pop!_OS 22.04](#557-popos-2204)
-- [55.8, Rocky Linux 9](#558-rocky-linux-9)
-- [55.9, Zorin OS 17](#559-zorin-os-17)
+- [55.1, Ubuntu 24.04 LTS](#551---ubuntu-2404-lts)
+- [55.2, Debian 12 Bookworm](#552---debian-12-bookworm)
+- [55.3, Arch Linux](#553---arch-linux)
+- [55.4, Manjaro](#554---manjaro)
+- [55.5, Linux Mint 22](#555---linux-mint-22)
+- [55.6, openSUSE Tumbleweed](#556---opensuse-tumbleweed)
+- [55.7, Pop!_OS 22.04](#557---pop_os-2204)
+- [55.8, Rocky Linux 9](#558---rocky-linux-9)
+- [55.9, Zorin OS 17](#559---zorin-os-17)
 - [Appendix: Docker image provenance / Apêndice: proveniência das imagens Docker](#appendix-docker-image-provenance--apêndice-proveniência-das-imagens-docker)
 
 ---
@@ -48,9 +48,9 @@ Each job:
 3. Runs `cmake` configure with `--log-level=VERBOSE` so every `find_package()`
    search path is logged
 4. Builds with `--verbose` so every compile and link command is printed
-5. Runs `astrofind_tests` (179 core cases) with `--reporter console --verbosity
+5. Runs `astrofind_tests` (about 260 core cases) with `--reporter console --verbosity
    high`
-6. Runs `astrofind_ui_tests` (27 UI cases) with `QT_QPA_PLATFORM=offscreen` and
+6. Runs `astrofind_ui_tests` (about 30 UI cases) with `QT_QPA_PLATFORM=offscreen` and
    full output
 7. Prints a summary with distro name, compiler, Qt version, and CMake version
 
@@ -61,13 +61,18 @@ with extra flags.
 **Numerical audit matrix (`audit.yml`):**
 
 Separately from the QA jobs, the numerical audit (ASan/UBSan build + tests,
-cppcheck, clang-tidy, Valgrind, see `cmake/audit.cmake`) runs on every pull
-request into `main` and on release tags, as a matrix of five containers:
+cppcheck, clang-tidy, Valgrind, see `cmake/audit.cmake`) runs on every push and
+pull request to `main`, on release tags and on manual runs, on GitHub-hosted
+`ubuntu-24.04` runners, as a matrix of five containers:
 `fedora:44` (the development distro), `cachyos/cachyos:latest` (official CachyOS
 image, CachyOS repositories and toolchain), `archlinux:latest`, `ubuntu:24.04` and
 `debian:12`. Arch and CachyOS ship a stripped `ld.so`, so the job sets
 `DEBUGINFOD_URLS` for Valgrind; the per-distro reports are uploaded as build
 artifacts.
+
+**Note (1.2.0):** QuaZip, and with it Qt6Core5Compat, was removed from the build:
+ZIP image sets are extracted with the system `unzip` command. The per-distro
+sections below no longer list the Core5Compat packages.
 
 ### 🇧🇷 Português
 
@@ -94,9 +99,9 @@ Cada job:
    caminho de busca de `find_package()` seja registrado em log
 4. Compila com `--verbose` para que todo comando de compilação e linkagem seja
    impresso
-5. Roda `astrofind_tests` (179 casos core) com `--reporter console --verbosity
+5. Roda `astrofind_tests` (cerca de 260 casos core) com `--reporter console --verbosity
    high`
-6. Roda `astrofind_ui_tests` (27 casos de UI) com `QT_QPA_PLATFORM=offscreen` e
+6. Roda `astrofind_ui_tests` (cerca de 30 casos de UI) com `QT_QPA_PLATFORM=offscreen` e
    saída completa
 7. Imprime um resumo com nome da distro, compilador, versão do Qt e versão do
    CMake
@@ -108,13 +113,18 @@ rodar de novo com flags extras.
 **Matriz de auditoria numérica (`audit.yml`):**
 
 Separada dos jobs de QA, a auditoria numérica (build e testes com ASan/UBSan,
-cppcheck, clang-tidy, Valgrind, ver `cmake/audit.cmake`) roda em todo pull request
-para a `main` e nas tags de release, como uma matriz de cinco containers:
+cppcheck, clang-tidy, Valgrind, ver `cmake/audit.cmake`) roda em todo push e pull
+request para a `main`, nas tags de release e em execuções manuais, em runners
+`ubuntu-24.04` hospedados pelo GitHub, como uma matriz de cinco containers:
 `fedora:44` (a distro de desenvolvimento), `cachyos/cachyos:latest` (imagem oficial do
 CachyOS, com repositórios e toolchain do CachyOS), `archlinux:latest`, `ubuntu:24.04`
 e `debian:12`. Arch e CachyOS trazem o `ld.so` sem símbolos, então o job define
 `DEBUGINFOD_URLS` para o Valgrind; os relatórios de cada distro são publicados como
 artefatos.
+
+**Nota (1.2.0):** o QuaZip, e com ele o Qt6Core5Compat, foi removido do build: os
+conjuntos de imagens em ZIP são extraídos pelo comando `unzip` do sistema. As
+seções por distro abaixo não listam mais os pacotes do Core5Compat.
 
 ---
 
@@ -129,8 +139,8 @@ The following is validated on every distro:
 | All required packages exist in official repos | `apt/pacman/zypper/dnf install` succeeds |
 | CMake 3.22+ configuration succeeds | `cmake -B build` exits 0 |
 | C++23 compilation succeeds | All `.cpp` files compile without error |
-| All 179 core unit tests pass | `astrofind_tests --reporter console` |
-| All 27 UI integration tests pass | `astrofind_ui_tests` with `QT_QPA_PLATFORM=offscreen` |
+| All core unit tests pass | `astrofind_tests --reporter console` |
+| All UI integration tests pass | `astrofind_ui_tests` with `QT_QPA_PLATFORM=offscreen` |
 | FetchContent resolves (spdlog, nlohmann/json, SEP, Catch2) | Part of CMake configure |
 | CCfits extracted from `originals/CCfits.tar.gz` | Part of CMake configure |
 | Optional `libarchive` available | Installed and linked |
@@ -155,8 +165,8 @@ O seguinte é validado em toda distro:
 | Todos os pacotes obrigatórios existem nos repositórios oficiais | `apt/pacman/zypper/dnf install` funciona |
 | Configuração do CMake 3.22+ funciona | `cmake -B build` sai com código 0 |
 | Compilação C++23 funciona | Todos os arquivos `.cpp` compilam sem erro |
-| Todos os 179 testes unitários core passam | `astrofind_tests --reporter console` |
-| Todos os 27 testes de integração de UI passam | `astrofind_ui_tests` com `QT_QPA_PLATFORM=offscreen` |
+| Todos os testes unitários core passam | `astrofind_tests --reporter console` |
+| Todos os testes de integração de UI passam | `astrofind_ui_tests` com `QT_QPA_PLATFORM=offscreen` |
 | FetchContent resolve (spdlog, nlohmann/json, SEP, Catch2) | Parte da configuração do CMake |
 | CCfits extraído de `originals/CCfits.tar.gz` | Parte da configuração do CMake |
 | `libarchive` opcional disponível | Instalado e linkado |
@@ -184,10 +194,11 @@ desktop):
 
 **Package manager:** `apt`
 
-**Qt6 availability:** Qt 6.6 in the `noble` (24.04) repos. All required modules
+**Qt6 availability:** Qt 6.4.2 in the `noble` (24.04) repos. All required modules
 (`qt6-base-dev`, `libqt6charts6-dev`, `libqt6opengl6-dev`) are available.
 
-**GCC version:** GCC 14 (default in Ubuntu 24.04)
+**GCC version:** GCC 13.3 (default in Ubuntu 24.04); `build.yml` installs
+`gcc-14`/`g++-14` and builds with them.
 
 **Required packages:**
 
@@ -201,16 +212,14 @@ libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev
 
 **Optional packages available in repos:**
 
-- `libqt6core5compat6-dev`, ZIP support via QuaZip
 - `libsecret-1-dev`, Qt Keychain dependency
 - `qt6-l10n-tools`, lupdate/lrelease for translations
 
 **Known issues / observations:**
 
-- `qt6-qtsql-devel` and `qt6-qtxml-devel` are included in `qt6-base-dev` on
-  Ubuntu, unlike Fedora where they are separate packages.
-- `libqt6concurrent6-dev` may need to be installed separately if CMake cannot
-  find `Qt6Concurrent`. In Ubuntu 24.04 it is included in `qt6-base-dev`.
+- Qt Sql, Xml, Network and Concurrent are part of `qt6-base-dev` on Ubuntu (as
+  they are part of `qt6-qtbase-devel` on Fedora); there are no separate
+  packages to install.
 - The `libgl1-mesa-dev` package is required because the CI runner has no GPU;
   Mesa provides the software OpenGL implementation for the offscreen platform.
 
@@ -223,9 +232,9 @@ libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev
   automatically via the desktop stack. In a minimal server/container install
   it must be explicit.
 
-**Note:** Ubuntu 24.04 ships Qt 6.4.2+dfsg-21.1build5 in its repos (not Qt 6.6
-as initially estimated). GCC is 13.3.0 (not 14 as documented above). Both are
-sufficient.
+**Note:** an earlier version of this page estimated Qt 6.6 and GCC 14 as the
+Ubuntu 24.04 defaults; the verified run below shows Qt 6.4.2 and GCC 13.3.0.
+Both are sufficient.
 
 **Verified results (2026-03-22, dedicated qa-ubuntu-24.yml, run #23403368717):**
 
@@ -252,11 +261,12 @@ semanalmente.
 
 **Gerenciador de pacotes:** `apt`
 
-**Disponibilidade do Qt6:** Qt 6.6 nos repositórios `noble` (24.04). Todos os
+**Disponibilidade do Qt6:** Qt 6.4.2 nos repositórios `noble` (24.04). Todos os
 módulos obrigatórios (`qt6-base-dev`, `libqt6charts6-dev`,
 `libqt6opengl6-dev`) estão disponíveis.
 
-**Versão do GCC:** GCC 14 (padrão no Ubuntu 24.04)
+**Versão do GCC:** GCC 13.3 (padrão no Ubuntu 24.04); o `build.yml` instala
+`gcc-14`/`g++-14` e compila com eles.
 
 **Pacotes obrigatórios:**
 
@@ -270,17 +280,14 @@ libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev
 
 **Pacotes opcionais disponíveis nos repositórios:**
 
-- `libqt6core5compat6-dev`, suporte a ZIP via QuaZip
 - `libsecret-1-dev`, dependência do Qt Keychain
 - `qt6-l10n-tools`, lupdate/lrelease para traduções
 
 **Problemas / observações conhecidas:**
 
-- `qt6-qtsql-devel` e `qt6-qtxml-devel` estão incluídos em `qt6-base-dev` no
-  Ubuntu, diferente do Fedora, onde são pacotes separados.
-- `libqt6concurrent6-dev` pode precisar ser instalado separadamente se o CMake
-  não conseguir encontrar `Qt6Concurrent`. No Ubuntu 24.04 já vem incluído em
-  `qt6-base-dev`.
+- Qt Sql, Xml, Network e Concurrent fazem parte do `qt6-base-dev` no Ubuntu
+  (como fazem parte do `qt6-qtbase-devel` no Fedora); não há pacotes separados
+  para instalar.
 - O pacote `libgl1-mesa-dev` é obrigatório porque o runner de CI não tem GPU; o
   Mesa fornece a implementação OpenGL por software para a plataforma
   offscreen.
@@ -294,9 +301,9 @@ libgl1-mesa-dev libglu1-mesa-dev libxkbcommon-dev
   automaticamente via a stack de desktop. Numa instalação mínima de
   servidor/container ele precisa ser explícito.
 
-**Nota:** o Ubuntu 24.04 traz Qt 6.4.2+dfsg-21.1build5 em seus repositórios
-(não Qt 6.6 como estimado inicialmente). O GCC é 13.3.0 (não 14 como
-documentado acima). Ambos são suficientes.
+**Nota:** uma versão anterior desta página estimava Qt 6.6 e GCC 14 como
+padrões do Ubuntu 24.04; a execução verificada abaixo mostra Qt 6.4.2 e GCC
+13.3.0. Ambos são suficientes.
 
 **Resultados verificados (2026-03-22, qa-ubuntu-24.yml dedicado, run
 #23403368717):**
@@ -343,14 +350,14 @@ libgl1-mesa-dev libxkbcommon-dev
 
 **Optional packages available in repos:**
 
-- `libqt6core5compat6-dev`, available
+- `qtkeychain-qt6-dev`, available
 - `libsecret-1-dev`, available
 
 **Known issues / observations:**
 
-- `qt6-qtkeychain-dev` is **not available** in Debian 12 repos. The
-  application falls back to `QSettings` for API key storage (which is the
-  designed fallback).
+- Qt Keychain is packaged as `qtkeychain-qt6-dev` (there is no
+  `qt6-qtkeychain-dev`). The CI job does not install it, so the build uses the
+  designed fallback (`QSettings`) for API key storage.
 - Qt 6.4 is the oldest supported Qt version. Any regression that breaks Qt 6.4
   compatibility will be caught here first.
 - GCC 12 has slightly different C++23 support than GCC 13+. In particular,
@@ -409,14 +416,14 @@ libgl1-mesa-dev libxkbcommon-dev
 
 **Pacotes opcionais disponíveis nos repositórios:**
 
-- `libqt6core5compat6-dev`, disponível
+- `qtkeychain-qt6-dev`, disponível
 - `libsecret-1-dev`, disponível
 
 **Problemas / observações conhecidas:**
 
-- `qt6-qtkeychain-dev` **não está disponível** nos repositórios do Debian 12.
-  A aplicação cai para `QSettings` para armazenamento de chave de API
-  (fallback previsto no design).
+- O Qt Keychain está empacotado como `qtkeychain-qt6-dev` (não existe
+  `qt6-qtkeychain-dev`). O job de CI não o instala, então o build usa o
+  fallback previsto no design (`QSettings`) para a chave de API.
 - Qt 6.4 é a versão de Qt suportada mais antiga. Qualquer regressão que quebre
   a compatibilidade com Qt 6.4 será pega aqui primeiro.
 - O GCC 12 tem suporte a C++23 ligeiramente diferente do GCC 13+. Em
@@ -481,8 +488,7 @@ cfitsio fftw libarchive
 
 **Optional packages available in repos:**
 
-- `qt6-5compat`, QuaZip ZIP support
-- `qtkeychain`, secure API key storage
+- `qtkeychain-qt6`, secure API key storage
 - `clang`, for `audit-clang-tidy` target
 
 **Known issues / observations:**
@@ -548,8 +554,7 @@ cfitsio fftw libarchive
 
 **Pacotes opcionais disponíveis nos repositórios:**
 
-- `qt6-5compat`, suporte a ZIP do QuaZip
-- `qtkeychain`, armazenamento seguro de chave de API
+- `qtkeychain-qt6`, armazenamento seguro de chave de API
 - `clang`, para o target `audit-clang-tidy`
 
 **Problemas / observações conhecidas:**
@@ -617,8 +622,7 @@ cfitsio fftw libarchive
 
 **Optional packages available in repos:**
 
-- `qt6-5compat`, available
-- `qtkeychain`, may not be in Manjaro repos (check at test time)
+- `qtkeychain-qt6`, may not be in Manjaro repos (check at test time)
 
 **Known issues / observations:**
 
@@ -709,8 +713,7 @@ cfitsio fftw libarchive
 
 **Pacotes opcionais disponíveis nos repositórios:**
 
-- `qt6-5compat`, disponível
-- `qtkeychain`, pode não estar nos repositórios do Manjaro (checar no momento
+- `qtkeychain-qt6`, pode não estar nos repositórios do Manjaro (checar no momento
   do teste)
 
 **Problemas / observações conhecidas:**
@@ -794,10 +797,10 @@ for version 22.
 
 **Package manager:** `apt`
 
-**Qt6 availability:** Qt 6.6 from the Ubuntu 24.04 (Noble) base repos. Mint
+**Qt6 availability:** Qt 6.4.2 from the Ubuntu 24.04 (Noble) base repos. Mint
 does not maintain its own Qt packages; it inherits them from Ubuntu.
 
-**GCC version:** GCC 14 (same as Ubuntu 24.04)
+**GCC version:** GCC 13.3 (same as Ubuntu 24.04)
 
 **Required packages:** Same as Ubuntu 24.04 (see section 55.1).
 
@@ -846,10 +849,10 @@ a versão 22.
 
 **Gerenciador de pacotes:** `apt`
 
-**Disponibilidade do Qt6:** Qt 6.6 dos repositórios base do Ubuntu 24.04
+**Disponibilidade do Qt6:** Qt 6.4.2 dos repositórios base do Ubuntu 24.04
 (Noble). O Mint não mantém pacotes Qt próprios; herda-os do Ubuntu.
 
-**Versão do GCC:** GCC 14 (igual ao Ubuntu 24.04)
+**Versão do GCC:** GCC 13.3 (igual ao Ubuntu 24.04)
 
 **Pacotes obrigatórios:** Iguais aos do Ubuntu 24.04 (ver seção 55.1).
 
@@ -917,7 +920,6 @@ cfitsio-devel fftw3-devel libarchive-devel
 
 **Optional packages available in repos:**
 
-- `qt6-core5compat-devel`, available
 - `qtkeychain-qt6-devel libsecret-devel`, available
 
 **Known issues / observations:**
@@ -978,7 +980,6 @@ cfitsio-devel fftw3-devel libarchive-devel
 
 **Pacotes opcionais disponíveis nos repositórios:**
 
-- `qt6-core5compat-devel`, disponível
 - `qtkeychain-qt6-devel libsecret-devel`, disponível
 
 **Problemas / observações conhecidas:**
@@ -1203,11 +1204,9 @@ dnf config-manager --set-enabled crb
 # Build tools
 cmake ninja-build gcc-toolset-13 git pkg-config
 
-# Qt6 (from EPEL)
+# Qt6 (qtbase already contains Network, Sql, Xml, Concurrent and OpenGL;
+# there are no separate qt6-qtnetwork/qtsql/qtxml/qtconcurrent-devel packages)
 qt6-qtbase-devel qt6-qtcharts-devel
-qt6-qtopengl-devel qt6-qtnetwork-devel
-qt6-qtsql-devel qt6-qtxml-devel
-qt6-qtconcurrent-devel
 
 # Science libs
 cfitsio-devel fftw-devel libarchive-devel
@@ -1286,11 +1285,9 @@ dnf config-manager --set-enabled crb
 # Ferramentas de build
 cmake ninja-build gcc-toolset-13 git pkg-config
 
-# Qt6 (do EPEL)
+# Qt6 (o qtbase já contém Network, Sql, Xml, Concurrent e OpenGL;
+# não existem pacotes separados qt6-qtnetwork/qtsql/qtxml/qtconcurrent-devel)
 qt6-qtbase-devel qt6-qtcharts-devel
-qt6-qtopengl-devel qt6-qtnetwork-devel
-qt6-qtsql-devel qt6-qtxml-devel
-qt6-qtconcurrent-devel
 
 # Bibliotecas científicas
 cfitsio-devel fftw-devel libarchive-devel
@@ -1506,4 +1503,4 @@ Zorin OS 17.
 
 ---
 
-*AstroFind. Last updated / Última atualização: 2026-09-24, AstroFind v1.1.0.*
+*AstroFind. Last updated / Última atualização: 2026-09-25, AstroFind v1.2.0.*

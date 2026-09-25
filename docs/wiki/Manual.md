@@ -1,13 +1,13 @@
 # User Manual / Manual do Usuário
 
-🇬🇧 **Who this page is for.** This is the complete manual for AstroFind 1.1.0. It follows the
+🇬🇧 **Who this page is for.** This is the complete manual for AstroFind 1.2.0. It follows the
 real path an observer takes: **plan → load → calibrate → reduce → find → measure → report →
 submit**. It is written for first-time reporters as well as experienced Astrometrica/MPC
 observers: each section has a level badge (🟢 Beginner, 🟡 Intermediate, 🔴 Advanced), so you
 can skip what you already know. For the fastest path see [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start); for every button in
 detail see [Tutorial](https://github.com/petrinhu/astrofind/wiki/Tutorial) and [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference); for words you don't know see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary).
 
-🇧🇷 **Para quem é esta página.** Este é o manual completo do AstroFind 1.1.0. Ele segue o
+🇧🇷 **Para quem é esta página.** Este é o manual completo do AstroFind 1.2.0. Ele segue o
 caminho real de quem observa: **planejar → carregar → calibrar → reduzir → encontrar → medir →
 relatar → enviar**. Serve para quem vai relatar pela primeira vez e também para quem já usa o
 Astrometrica e envia ao MPC: cada seção tem um selo de nível (🟢 Iniciante, 🟡 Intermediário,
@@ -215,7 +215,7 @@ Uma boa astrometria de asteroides começa antes da primeira foto:
 3. Em **Conexões / Connections → Plate Solving → Backend:** escolha *astrometry.net (online)* ou
    *ASTAP (local, offline)* (veja a
    [Parte 5](#part-5--data-reduction-background-star-detection-and-plate-solving--parte-5--redução-de-dados-fundo-detecção-de-estrelas-e-plate-solving)).
-4. Clique em **OK**. Aparece o aviso "Settings saved." / configurações salvas.
+4. Clique em **OK**. Aparece o aviso "Configurações salvas.".
 
 > ⚠️ **Atenção** — Se o local ficar em 0°, 0°, a Redução de Dados avisa "Localização não
 > configurada": suas posições seriam relatadas como se vistas do centro da Terra. Corrija o
@@ -247,7 +247,7 @@ chips such as "✓ Escala …\"/px", "✓ WCS pré-resolvido", "✓ Data/hora UT
 carregadas" says whether the images are black-and-white or colour.
 
 - If the image looks black, that is only the display: use **Image Tools → Adjust Black Point and Contrast…**
-  / **Imagens → Ajustar Ponto Preto e Contraste...** (⟳ Auto, transfer function, false colour). This does not
+  / **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...** (⟳ Auto, transfer function, false colour). This does not
   change the data.
 - The session holds up to **20 images**. The limit message says to raise it in Settings, but
   there is no such field.
@@ -256,7 +256,7 @@ carregadas" says whether the images are black-and-white or colour.
 
 > 💡 **Version 1.1.0 / Versão 1.1.0** — in 1.1.0 and earlier `Ctrl+L` was assigned to both
 > **Import Images...** and **Utilities → Light Curve…**, so the key could do nothing; use the menu or
-> the toolbar there. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`.
+> the toolbar there. Version 1.2.0 moves Light Curve to `Ctrl+Shift+L`.
 
 > ⚠️ **DSLR RAW and files without a time zone** — the Log shows
 > "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a câmera grava hora
@@ -282,7 +282,7 @@ acima das imagens mostra etiquetas como "✓ Escala …\"/px", "✓ WCS pré-res
 Configurações. Um aviso "Imagens carregadas" informa se as imagens são preto e branco ou
 coloridas.
 
-- Se a imagem parecer preta, é só a exibição: use **Imagens → Ajustar Ponto Preto e Contraste...** /
+- Se a imagem parecer preta, é só a exibição: use **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...** /
   **Ferramentas de Imagem → Adjust Black Point and Contrast…** (⟳ Auto, função de transferência, cor falsa). Isso não
   altera os dados.
 - A sessão aceita até **20 imagens**. A mensagem de limite manda aumentar nas Configurações, mas
@@ -290,9 +290,9 @@ coloridas.
 - O AstroFind lê escala de pixel, saturação, localização e código MPC da primeira imagem quando
   suas configurações estão vazias.
 
-> 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Carregar
-> Imagens...** e também a **Ferramentas → Curva de Luz…**, então a tecla podia não fazer nada;
-> lá, use o menu ou a barra de ferramentas. A próxima versão (depois da 1.1.0) passa a Curva de
+> 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Importar
+> Imagens...** e também a **Utilitários → Curva de Luz…**, então a tecla podia não fazer nada;
+> lá, use o menu ou a barra de ferramentas. A versão 1.2.0 passa a Curva de
 > Luz para `Ctrl+Shift+L`.
 
 > ⚠️ **RAW de DSLR e arquivos sem fuso horário** — o Registro mostra
@@ -370,7 +370,7 @@ A calibração tira da imagem a "assinatura" da própria câmera (veja o [Gloss�
   o flat de bias ou dark para você. Se precisar de um flat totalmente calibrado, prepare-o em
   outro programa e carregue o resultado em FITS.
 - Dark e flat precisam ser **FITS** com o **mesmo tamanho** das suas imagens; senão o Registro
-  diz "Image %1: dark frame size mismatch — skipped".
+  diz "Imagem N: tamanho do dark frame incompatível — ignorado".
 
 **Passos:**
 
@@ -444,7 +444,7 @@ each image AstroFind:
 🇧🇷 **Português**
 
 Rode **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) / **Astrometry Tools → Run Data Reduction...**, ou
-**▶ Executar** na etapa 2 do fluxo. **Astrometria → Parar Redução de Dados** (`Ctrl+.`)
+**▶ Executar** na etapa 2 do fluxo. **Ferramentas de Astrometria → Parar Redução de Dados** (`Ctrl+.`)
 cancela. Para cada imagem o AstroFind:
 
 1. Aplica calibração, correção de pixels ruins e (se ligada) subtração de fundo
@@ -453,7 +453,7 @@ cancela. Para cada imagem o AstroFind:
    (**Detecção → Limiar de detecção:**, padrão 4σ), até as 500 mais brilhantes. Fontes
    alongadas são marcadas como **traços** (elipses laranja — talvez um asteroide rápido ou um
    satélite); pares grudados são separados (círculos duplos magenta). Registro:
-   "Image %1: %2 stars found".
+   "Imagem N: M estrelas encontradas".
 3. **Faz o plate solving** (descobre para onde a imagem aponta no céu, sua escala e rotação — o
    **WCS**, veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary)). Imagens que já têm WCS no cabeçalho são puladas
    ("WCS pré-existente — plate solving ignorado").
@@ -466,9 +466,9 @@ cancela. Para cada imagem o AstroFind:
 | Privacidade | Envia sua imagem (não pública) | Nada sai do seu PC |
 | Bom para | Iniciantes, campos desconhecidos | Muitas imagens, sem internet, campo mais ou menos conhecido |
 
-**O que você deve ver:** "  Solved! RA=… Dec=… scale=…\"/px" para cada imagem e depois
+**O que você deve ver:** "  Resolvido! AR=… Dec=… escala=…\"/px" para cada imagem e depois
 "Redução concluída: N resolvidas, N com WCS pré-existente, N falhou". A barra de status diz
-"Step 2 done - show Known Objects (Ctrl+K)".
+"Passo 2 concluído - mostre Objetos Conhecidos (Ctrl+K)".
 
 > 💡 **Dica** — **Conexões → Salvar WCS no arquivo FITS após solução de campo** grava a solução
 > no seu arquivo *original*. Deixe desligado, a menos que queira isso; use
@@ -526,7 +526,7 @@ their number or name. Log: "SkyBoT: N known object(s) in field".
 🇧🇷 **Português**
 
 Rode **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) / **Utilities → Show Known
-Overlay**, ou a etapa 3 do fluxo. Ela faz duas coisas:
+Objects**, ou a etapa 3 do fluxo. Ela faz duas coisas:
 
 **1. Estrelas de referência (catálogo).** Estrelas de um catálogo preciso são casadas com as
 estrelas detectadas. Isso dá o **RMS do WCS** por imagem ("Image %1: WCS RMS = %2\" (%3
@@ -552,11 +552,11 @@ ou laranja (cometas), com número ou nome. Registro: "SkyBoT: N known object(s) 
 
 - Baixe o MPCORB.DAT em **Internet → Baixar Banco MPCOrb** / **Internet → Download MPCOrb Database** (a janela
   diz ~200 MB; a dica da barra de status diz ~500 MB). Atualize com **Internet → Atualizar
-  MPCOrb**. **Arquivo → Recarregar MPCOrb** relê o arquivo do disco.
+  Banco MPCOrb**. **Arquivo → Recarregar MPCOrb** relê o arquivo do disco.
 - **Internet → Consultar Horizons…** pede ao JPL Horizons a posição de um objeto e permite
   **Adicionar à Sobreposição**. A efeméride é geocêntrica (do centro da Terra), então pode
   diferir alguns segundos de arco do que você vê, para objetos próximos.
-- **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`) desenha a eclíptica e o plano
+- **Utilitários → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`) desenha a eclíptica e o plano
   da Via Láctea.
 
 **O que você deve ver:** cruzes amarelas nas estrelas de catálogo, rótulos verdes nos
@@ -581,7 +581,7 @@ Guia" e "Asteroide Conhecido".
 4. Stop with **Utilities → End Blink Mode** (`Ctrl+F9`).
 
 **Automatic Moving Object Detection (MOD):** **Astrometry Tools → Detect Moving Objects...**
-(`Ctrl+M`) / **Astrometria → Detecção de Objetos em Movimento...**. It links detections that
+(`Ctrl+M`) / **Ferramentas de Astrometria → Detectar Objetos em Movimento...**. It links detections that
 move in a straight line at a steady rate across at least 3 frames, with SNR ≥ 5 (**Detection →
 MOD min. SNR:**). A box lists the candidates ("#1 dx=… dy=… px/frame …"), and each is marked
 "Cand #N" on the images. **Always confirm a candidate by eye in the blink.**
@@ -603,15 +603,15 @@ measure and report it: known objects need observations too.
    **Speed** ajusta de 50 a 2000 ms por quadro.
 3. Para objetos fracos clique em **Nitidez: Desativado** para alternar *USM* (máscara de
    nitidez) → *LoG* (Laplaciano).
-4. Pare com **Ferramentas → Encerrar Modo de Piscagem** (`Ctrl+F9`).
+4. Pare com **Utilitários → Encerrar Modo de Piscagem** (`Ctrl+F9`).
 
-**Detecção automática de objetos em movimento (MOD):** **Astrometria → Detecção de Objetos em
+**Detecção automática de objetos em movimento (MOD):** **Ferramentas de Astrometria → Detectar Objetos em
 Movimento...** (`Ctrl+M`) / **Astrometry Tools → Detect Moving Objects...**. Ela liga detecções que
 andam em linha reta, com velocidade constante, em pelo menos 3 quadros, com SNR ≥ 5 (**Detecção
 → MOD SNR mín.:**). Uma janela lista os candidatos ("#1 dx=… dy=… px/frame …"), e cada um é
 marcado "Cand #N" nas imagens. **Sempre confirme um candidato a olho no blink.**
 
-**Comparar Sessões** (**Ferramentas → Comparar Sessões…**, `Ctrl+Shift+C`) subtrai uma imagem de
+**Comparar Sessões** (**Utilitários → Comparar Sessões…**, `Ctrl+Shift+C`) subtrai uma imagem de
 referência do mesmo campo das suas imagens e mostra o que sobra numa janela "Residual" — útil
 para achar algo novo.
 
@@ -721,9 +721,9 @@ Clique duas vezes em **Object** ou **Band** para editar. **Editar → Desfazer**
 a última observação adicionada; o botão **Remover** do painel apaga as linhas selecionadas (não
 dá para desfazer).
 
-> ⚠️ **Atenção** — "Centroid failed — no source found at click position" quer dizer que você
+> ⚠️ **Atenção** — "Centroide falhou — nenhuma fonte encontrada na posição clicada" quer dizer que você
 > clicou longe demais do objeto. Aproxime (roda do mouse) e clique no centro dele. Dê a
-> designação em **Object:**; nome vazio vai para o relatório como `UNKN`.
+> designação em **Objeto:**; nome vazio vai para o relatório como `UNKN`.
 
 ---
 
@@ -764,9 +764,9 @@ no relatório ADES**).
   sem filtro). Lembre a banda do catálogo: UCAC4 é parecida com V, Gaia é G.
 - A **massa de ar** (quanto ar a luz atravessou) é sempre calculada; a correção de extinção só é
   aplicada se **Coef. de extinção k:** for maior que 0.
-- **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`) mostra quanta luz cada raio de
+- **Utilitários → Curva de Crescimento…** (`Ctrl+Shift+G`) mostra quanta luz cada raio de
   abertura captura e pode ajustar o raio ideal para você.
-- **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`) traça magnitude contra tempo. **Export
+- **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`) traça magnitude contra tempo. **Export
   PNG…** salva o gráfico. (Na 1.1.0 e anteriores o atalho era `Ctrl+L`, que conflitava com
   Carregar Imagens; lá, abra pelo menu.)
 
@@ -779,7 +779,9 @@ no relatório ADES**).
 🇬🇧 **English**
 
 The time in your report is the **middle of the exposure**. AstroFind uses the `JD` keyword if
-present, otherwise `DATE-OBS` + half of `EXPTIME`.
+present, otherwise `MJD-OBS` + half of `EXPTIME`, otherwise `DATE-OBS` + half of `EXPTIME`
+(when both `MJD-OBS` and `DATE-OBS` exist and differ by more than 1 s, the Log warns and
+`MJD-OBS` is used).
 
 **The "ambiguous time" warning.** A FITS `DATE-OBS` ending in `Z`, with a `±HH:MM` offset, or
 with `TIMESYS = 'UTC'` is clear. Without any of those, AstroFind *assumes* UTC and logs
@@ -812,7 +814,7 @@ What to do:
 > **again on every run**, so `obsTime` came out about 68 s late, and loading images filled Time
 > Offset with *longitude ÷ 15* (hours, applied as seconds). Workaround for 1.1.0: set **ΔT**
 > and **Time Offset** to `0` after loading and before Run Data Reduction, and reload the images
-> before running it a second time. The next version (after 1.1.0) needs none of this; on its
+> before running it a second time. Version 1.2.0 needs none of this; on its
 > first start it resets an old non-zero Time Offset to 0 once, with a warning in the Log.
 
 ✅ **Check before sending:** open the PSV tab of the report and compare `obsTime` with the
@@ -821,7 +823,9 @@ mid-exposure UTC time you expect for one image.
 🇧🇷 **Português**
 
 O horário do relatório é o **meio da exposição**. O AstroFind usa a palavra-chave `JD` se ela
-existir, senão `DATE-OBS` + metade do `EXPTIME`.
+existir, senão `MJD-OBS` + metade do `EXPTIME`, senão `DATE-OBS` + metade do `EXPTIME`
+(quando `MJD-OBS` e `DATE-OBS` existem e diferem em mais de 1 s, o Registro avisa e o
+`MJD-OBS` é usado).
 
 **O aviso de "horário ambíguo".** Um `DATE-OBS` terminando em `Z`, com deslocamento `±HH:MM`, ou
 com `TIMESYS = 'UTC'` é claro. Sem nada disso, o AstroFind *supõe* UTC e registra
@@ -835,7 +839,7 @@ O que fazer:
 1. Melhor: **acerte o relógio da câmera em UTC** antes de observar e sincronize-o.
 2. Se o relógio estava em hora local ou atrasado/adiantado, corrija o horário de cada imagem em
    **Ferramentas de Imagem → Editar Configurações da Imagem...** / **Image Tools → Edit Image Settings...** →
-   **Julian Date:** (meio da exposição) **antes** de rodar a Redução de Dados.
+   **Data Juliana:** (meio da exposição) **antes** de rodar a Redução de Dados.
 3. **Configurações → Observador → Fuso horário:** *não* é usado para corrigir as imagens. Não
    conte com ele.
 
@@ -857,7 +861,7 @@ O que fazer:
 > carregar imagens preenchia o Deslocamento de tempo com *longitude ÷ 15* (horas, aplicadas
 > como segundos). Contorno na 1.1.0: ponha **ΔT** e **Deslocamento de tempo** em `0` depois de
 > carregar e antes da Redução de Dados, e recarregue as imagens antes de rodar uma segunda vez.
-> A próxima versão (depois da 1.1.0) não precisa de nada disso; na primeira execução ela zera
+> A versão 1.2.0 não precisa de nada disso; na primeira execução ela zera
 > uma vez um Deslocamento de tempo antigo diferente de 0, com um aviso no Registro.
 
 ✅ **Confira antes de enviar:** abra a aba PSV do relatório e compare o `obsTime` com o horário
@@ -901,7 +905,7 @@ UTC de meio de exposição que você espera para uma imagem.
    Telescópio. Para incluir contato marque **Incluir informações de contato no relatório ADES**
    e preencha Contato 1/2 e E-mail.
 2. Abra **Arquivo → Ver Arquivo de Relatório ADES** / **File → View ADES Report File** (botão
-   "View ADES Report" da barra, ou a etapa 6 do fluxo). Se **Conexões → Pasta de saída de
+   "Ver Relatório ADES" da barra, ou a etapa 6 do fluxo). Se **Conexões → Pasta de saída de
    relatórios:** estiver preenchida, `ades_report.xml` e `ades_report.psv` são salvos lá
    automaticamente antes.
 3. A janela **Pré-visualização do relatório ADES 2022** mostra "N observation(s) — Station: …"
@@ -909,13 +913,13 @@ UTC de meio de exposição que você espera para uma imagem.
    AR/Dec (`sys=ICRF`), `rmsRA`/`rmsDec` (do RMS do WCS, padrão 0,5″), o catálogo (`astCat`) e,
    se houver, magnitude e banda.
 4. Revise e escolha:
-   - **Save…** (aba visível), **Save to Reports Folder** (os dois arquivos, por padrão na sua
-     pasta pessoal — não é a mesma pasta do passo 2), **Copy**, **Export PDF…** (um resumo para
+   - **Salvar…** (aba visível), **Salvar na Pasta de Relatórios** (os dois arquivos, por padrão na sua
+     pasta pessoal — não é a mesma pasta do passo 2), **Copiar**, **Exportar PDF…** (um resumo para
      imprimir, com miniaturas).
-   - **Submit to MPC (HTTP)**: após confirmação, envia o PSV para o endereço do MPC em
+   - **Enviar ao MPC (HTTP)**: após confirmação, envia o PSV para o endereço do MPC em
      **Conexões → Envio ao MPC → URL de envio:**. Se falhar, o AstroFind oferece o e-mail.
-   - **Submit to MPC (Email)**: abre seu programa de e-mail endereçado a
-     `obs@minorplanetcenter.net` com o PSV no corpo (avisa "Large Report" acima de 2000
+   - **Enviar ao MPC (E-mail)**: abre seu programa de e-mail endereçado a
+     `obs@minorplanetcenter.net` com o PSV no corpo (avisa "Relatório Grande" acima de 2000
      caracteres).
    - **Enviar para Professor**: só quando há e-mail de professor configurado (Parte 14).
 
@@ -951,7 +955,7 @@ UTC de meio de exposição que você espera para uma imagem.
 - **Arquivo → Abrir Projeto...** (`Ctrl+O`) recarrega as imagens do disco (e as extrai de novo do
   arquivo compactado). Se um arquivo mudou de lugar, escolha **Localizar…**, **Pular** ou
   **Cancelar tudo**. **Projetos Recentes** lista os 5 últimos projetos.
-- **Arquivo → Fechar Projeto** oferece salvar antes. **Arquivo → Resetar Arquivos** (`Ctrl+R`) e
+- **Arquivo → Fechar Projeto** oferece salvar antes. **Arquivo → Limpar Arquivos da Sessão** (`Ctrl+R`) e
   **Fechar Imagens** (`Ctrl+W`) limpam tudo **sem perguntar se quer salvar**.
 - **Arquivo → Abrir Recente...** reabre todas as imagens de uma das 8 últimas pastas.
 
@@ -980,8 +984,8 @@ UTC de meio de exposição que você espera para uma imagem.
 
 🇧🇷 **Português**
 
-- O painel **Fluxo de Trabalho** (à esquerda) lista as 6 etapas: Carregar Imagens, Redução de
-  Dados, Obj. Conhecidos, Piscar Imagens, Medir Objetos, Relatório ADES. ○ = ainda não,
+- O painel **Fluxo de Trabalho** (à esquerda) lista as 6 etapas: Importar Imagens, Executar Redução de
+  Dados, Mostrar Conhecidos, Ativar Modo de Piscagem, Medir Objetos, Relatório ADES. ○ = ainda não,
   ▶ = próxima, ✓ = feita. Clique em **▶ Executar** na próxima etapa.
 - **Fluxo automático** (caixa, desligada por padrão) roda as etapas 2, 3 e 4 sozinho depois de
   carregar.
@@ -992,7 +996,7 @@ UTC de meio de exposição que você espera para uma imagem.
   Professor** (abre um e-mail com o PSV).
 
 > ⚠️ **Atenção** — O `.ini` contém *todas* as configurações. Se a sua versão guarda a chave de
-> API do astrometry.net em texto puro (as Configurações mostram "⚠ Stored in plain text"), a
+> API do astrometry.net em texto puro (as Configurações mostram "⚠ Armazenado em texto simples"), a
 > chave vai junto no arquivo.
 
 ---

@@ -7,7 +7,7 @@ MPC-grade data out of it, and how to build, test and audit it from source. Most 
 user can follow. Unknown words are in the [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary). The full maths is in the repository file
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (we call it "TR" below). Where TR and the code disagree, this page says so and describes what
-the **code** does (AstroFind v1.1.0; where the next version (after 1.1.0) already behaves
+the **code** does (AstroFind v1.2.0; where 1.1.0 and earlier behaved
 differently, for example in timing, the page says so).
 
 🇧🇷 **Para quem é esta página.** Observadores experientes (usuários do Astrometrica / MPC) e
@@ -18,7 +18,7 @@ simples, para que um usuário intermediário acompanhe. Palavras desconhecidas e
 [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary). A matemática completa está no arquivo do repositório
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (chamado de "TR" abaixo). Onde o TR e o código divergem, esta página avisa e descreve o que o
-**código** faz (AstroFind v1.1.0; onde a próxima versão (depois da 1.1.0) já se comporta
+**código** faz (AstroFind v1.2.0; onde a 1.1.0 e anteriores se comportavam
 diferente, por exemplo no tempo, a página avisa).
 
 > ⚠️ **Watch out / Atenção** — 🇬🇧 AstroFind has **not yet been validated end to end with real
@@ -64,7 +64,7 @@ The strength of a spot compared to the noise decides if it counts.*
 conhecida (SEP). A força do ponto em relação ao ruído decide se ele conta.*
 
 - Biblioteca: **SEP** (a versão em biblioteca C do Source Extractor), rodando em paralelo em
-  todas as imagens durante **Astrometria → Redução de Dados...** (`Ctrl+A`).
+  todas as imagens durante **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`).
 - Parâmetros: limiar = **Configurações → Detecção → Limiar de detecção:** (`detection/sigmaLimit`,
   padrão 4σ; σ = ruído do céu), área mínima de 5 pixels conectados, deblending ligado, filtro
   casado (convolução) 3×3, no máximo **500** fontes mantidas (as mais brilhantes em fluxo).
@@ -321,7 +321,7 @@ precisão.*
 - **Massa de ar** é sempre calculada e registrada. O código usa a fórmula de **Pickering (2002)**;
   o TR §12 descreve sec z / Young & Irvine, que não é o que o código faz.
 - **Extinção**: −k·X só é somado quando **Coef. de extinção k:** > 0 (padrão 0 = desligado).
-- Para ajustar a abertura, use **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`).
+- Para ajustar a abertura, use **Utilitários → Curva de Crescimento…** (`Ctrl+Shift+G`).
 - TR: [§10](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#10-aperture-photometry-and-zero-point--fotometria-de-abertura-e-zero-point),
   [§11](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#11-differential-photometry--fotometria-diferencial),
   [§12](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#12-airmass--massa-de-ar).
@@ -347,14 +347,14 @@ trick (FFT). Then it averages, medians or adds them.*
 *Resumindo: para empilhar, o AstroFind primeiro alinha as imagens, pelas estrelas ou por um
 truque no domínio de frequência (FFT). Depois tira a média, a mediana ou soma.*
 
-- **Imagens → Re-empilhar Imagens**: alinha pela lista de estrelas quando toda imagem tem estrelas
+- **Ferramentas de Imagem → Reconstruir Empilhamento**: alinha pela lista de estrelas quando toda imagem tem estrelas
   detectadas; senão usa **correlação de fase por FFT** (fftw3). A saída é `stacked.fits`.
   - No código, o pico subpixel é achado por interpolação parabólica (o TR §15 diz ajuste gaussiano).
-- **Astrometria → Empilhar Imagens...** (`Ctrl+T`): *Track & Stack*. Você digita o movimento do
+- **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`): *Track & Stack*. Você digita o movimento do
   objeto como dX/dY por quadro (−500…500 px). A saída é `track_stacked.fits`. Use para objetos
   fracos demais em quadros isolados.
-- Modos: **Average** (média), **Median** (mediana; rejeita discrepantes como satélites), **Add**
-  (soma; preserva a contagem total).
+- Modos: **Média**, **Mediana** (rejeita discrepantes como satélites), **Somar** (preserva a
+  contagem total).
 - TR: [§15 Registro por FFT](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#15-fft-image-registration-phase-correlation--registro-de-imagem-por-fft-correlação-de-fase).
 
 ### 1.8 Streaks and ClumpFind / Traços e ClumpFind
@@ -454,7 +454,7 @@ frames.*
 *Resumindo: o AstroFind procura fontes que andam em linha reta, com velocidade constante, ao
 longo dos seus quadros.*
 
-- **Astrometria → Detecção de Objetos em Movimento...** (`Ctrl+M`) precisa de pelo menos 2 imagens
+- **Ferramentas de Astrometria → Detectar Objetos em Movimento...** (`Ctrl+M`) precisa de pelo menos 2 imagens
   com estrelas detectadas.
 - Pareia fontes entre quadros e agrupa vetores de movimento que concordam dentro de
   `detection/modTolerance` (2 px). Mantém trilhas vistas em ≥ `detection/modMinFrames` (3)
@@ -477,7 +477,7 @@ you when the field is crowded and dimmed by dust.*
 *Resumindo: o AstroFind pode desenhar a eclíptica e o plano da Via Láctea na imagem, e avisa
 quando o campo está lotado e apagado pela poeira.*
 
-- **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`).
+- **Utilitários → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`).
 - O selo de aviso aparece quando |b| < **15°** (valor do código; o TR §14 diz 10°).
 - TR: [§14](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#14-ecliptic-and-galactic-coordinates--coordenadas-eclípticas-e-galácticas).
 
@@ -539,8 +539,8 @@ barras. A tabela abaixo diz de onde vem cada campo, para você saber quais confe
 
 🇬🇧 **English**
 *In short: an asteroid moves, so a wrong clock means a wrong position. Read this section fully
-before you submit anything. Version 1.1.0 had time-handling traps that the next version (after
-1.1.0) fixes; a note below says what changed.*
+before you submit anything. Version 1.1.0 had time-handling traps that version
+1.2.0 fixes; a note below says what changed.*
 
 **How the image time is read** (FITS):
 
@@ -583,8 +583,8 @@ before you submit anything. Version 1.1.0 had time-handling traps that the next 
   wrong equinox. Fixed; error against JPL Horizons dropped from 348″ to 13″ for Ceres and from
   2952″ to 49″ for Eros. The propagator still does not model light-time or use a high-precision
   Sun, so always cross-check against Horizons before submitting (§3).
-- Time Offset is **never filled automatically**. On the first start of the next version
-  (after 1.1.0), a stored non-zero Time Offset is reset to 0 once, with a warning in the log,
+- Time Offset is **never filled automatically**. On the first start of version
+  1.2.0, a stored non-zero Time Offset is reset to 0 once, with a warning in the log,
   because older versions filled it with a wrong value.
 - **Time Zone:** (`observer/timeZone`) is saved, but nothing in the pipeline uses it. It does
   **not** convert a local-time DATE-OBS.
@@ -592,8 +592,9 @@ before you submit anything. Version 1.1.0 had time-handling traps that the next 
 > ⚠️ **Version 1.1.0 and earlier (AUD-CORR-15).** There, Run Data Reduction added ΔT (68 s) and
 > Time Offset to the JD **on every run**, and the report still labelled the result UTC, so
 > `obsTime` came out about 68 s late (more after each re-run). Time Offset was also auto-filled
-> with *longitude / 15* (hours, then read as seconds; longitude −35° gave −2.3 s). If you are
-> still on 1.1.0: set **ΔT** and **Time Offset** to `0` before the first Run Data Reduction, run it
+> with *longitude / 15* (hours, then read as seconds; longitude −35° gave −2.3 s). If you still
+> run a build of the 1.1.0 source (never published as a release) or an older version:
+> set **ΔT** and **Time Offset** to `0` before the first Run Data Reduction, run it
 > only once per loaded session, and reload the images if you already ran it.
 
 **Recommended procedure:**
@@ -628,7 +629,7 @@ you chose.
 🇧🇷 **Português**
 *Resumindo: um asteroide se move, então relógio errado = posição errada. Leia esta seção inteira
 antes de enviar qualquer coisa. A versão 1.1.0 tinha armadilhas no tratamento de tempo que a
-próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
+versão 1.2.0 corrige; uma nota abaixo diz o que mudou.*
 
 **Como o horário da imagem é lido** (FITS):
 
@@ -672,8 +673,8 @@ próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
   13″ para Ceres e de 2952″ para 49″ para Eros. O propagador ainda não modela tempo-luz nem usa
   uma posição de alta precisão do Sol, então sempre confira contra o Horizons antes de enviar
   (§3).
-- O Deslocamento de tempo **nunca é preenchido sozinho**. Na primeira vez que a próxima versão
-  (depois da 1.1.0) abre, um Deslocamento de tempo diferente de 0 é zerado uma vez, com um
+- O Deslocamento de tempo **nunca é preenchido sozinho**. Na primeira vez que a versão
+  1.2.0 abre, um Deslocamento de tempo diferente de 0 é zerado uma vez, com um
   aviso no log, porque as versões antigas o preenchiam com um valor errado.
 - **Fuso horário:** (`observer/timeZone`) é salvo, mas nada no pipeline o usa. Ele **não**
   converte um DATE-OBS em hora local.
@@ -682,7 +683,8 @@ próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
 > e o Deslocamento de tempo ao JD **a cada execução**, e o relatório ainda marcava o resultado
 > como UTC, então o `obsTime` saía cerca de 68 s atrasado (mais a cada nova execução). O
 > Deslocamento de tempo também era preenchido sozinho com *longitude / 15* (horas, lidas depois
-> como segundos; longitude −35° dava −2,3 s). Se ainda usa a 1.1.0: ponha **ΔT** e
+> como segundos; longitude −35° dava −2,3 s). Se ainda usa um build do código da 1.1.0 (nunca publicada
+> como release) ou uma versão mais antiga: ponha **ΔT** e
 > **Deslocamento de tempo** em `0` antes da primeira Redução de Dados, rode só uma vez por
 > sessão carregada e recarregue as imagens se já rodou.
 
@@ -696,7 +698,7 @@ próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
    segundos, se você souber. A faixa é −999…999 s.
 3. Rode a **Redução de Dados** (`Ctrl+A`). Rodar de novo não causa problema.
 4. Para uma imagem só, ou uma DSLR com erro de relógio conhecido, você pode digitar o JD correto
-   do meio da exposição em **Imagens → Editar Parâmetros da Imagem...** (campo "Julian Date:", 6
+   do meio da exposição em **Ferramentas de Imagem → Editar Configurações da Imagem...** (campo "Data Juliana:", 6
    decimais ≈ 0,09 s). Se o JD digitado já está corrigido, mantenha o Deslocamento de tempo em 0.
 5. Antes de enviar, compare o `obsTime` na pré-visualização ADES com o UTC do meio da exposição
    que você espera.
@@ -778,7 +780,7 @@ com verificações próprias do AstroFind.*
    - Ajuste **Magnitude do catálogo (brilhante):** para excluir estrelas saturadas, e confira
      **Nível de saturação:**.
 5. **Conferência de resíduos.**
-   - Leia `WCS RMS = …" (N matched stars)` no log depois de **Ferramentas → Sobreposição de Objetos
+   - Leia `WCS RMS = …" (N matched stars)` no log depois de **Utilitários → Mostrar Objetos
      Conhecidos** (`Ctrl+K`). Valores bem acima de ~1″, ou N abaixo de ~10, indicam solução ou
      pareamento ruim. Não envie.
    - Meça um ou dois asteroides **conhecidos** nos mesmos quadros e compare com uma efeméride.
@@ -828,6 +830,14 @@ Compiles the app on all CPU cores. Leave out `--target AstroFind` to also build 
 ```
 Starts the program. Debug messages (spdlog) go to this terminal; there is no log file.
 
+```bash
+AstroFind --version
+AstroFind --help
+```
+`--version` prints the version (for example `AstroFind 1.2.0`) and `--help` lists the options;
+both exit without opening a window. File names given on the command line are accepted but not
+opened automatically. (For a source build, run `./build/bin/AstroFind --version`.)
+
 Required: Qt ≥ 6.4 (a C++23 compiler), cfitsio, fftw3. CMake detects these optional
 dependencies:
 
@@ -836,7 +846,6 @@ dependencies:
 | LibRaw | `Found LibRaw … — DSLR RAW loading enabled` → `ASTROFIND_HAS_LIBRAW` | RAW files are refused with a clear message |
 | libarchive | → `ASTROFIND_HAS_LIBARCHIVE` | TAR.GZ/BZ2/XZ, 7Z, RAR cannot be opened |
 | Qt6Keychain (+ libsecret) | `Qt6Keychain found — secure API key storage enabled` → `ASTROFIND_HAS_KEYCHAIN` | API key stored in **plain text** in the settings file |
-| Qt6 Core5Compat | found → fetches QuaZip | (ZIP files are extracted by the system `unzip` command in either case) |
 | Qt6 LinguistTools | `Qt6 LinguistTools found — translations will be compiled` | `.qm` translations are not rebuilt |
 
 Build option: `-DASTROFIND_ASAN=ON` adds AddressSanitizer + UndefinedBehaviorSanitizer (use a
@@ -871,6 +880,14 @@ testes.
 ```
 Abre o programa. As mensagens de depuração (spdlog) saem neste terminal; não há arquivo de log.
 
+```bash
+AstroFind --version
+AstroFind --help
+```
+`--version` mostra a versão (por exemplo `AstroFind 1.2.0`) e `--help` lista as opções; os dois
+saem sem abrir janela. Nomes de arquivo passados na linha de comando são aceitos, mas não são
+abertos automaticamente. (Num build do código, rode `./build/bin/AstroFind --version`.)
+
 Obrigatórios: Qt ≥ 6.4 (compilador C++23), cfitsio, fftw3. O CMake detecta estas
 dependências opcionais:
 
@@ -879,7 +896,6 @@ dependências opcionais:
 | LibRaw | `Found LibRaw … — DSLR RAW loading enabled` → `ASTROFIND_HAS_LIBRAW` | Arquivos RAW são recusados com mensagem clara |
 | libarchive | → `ASTROFIND_HAS_LIBARCHIVE` | TAR.GZ/BZ2/XZ, 7Z, RAR não abrem |
 | Qt6Keychain (+ libsecret) | `Qt6Keychain found — secure API key storage enabled` → `ASTROFIND_HAS_KEYCHAIN` | Chave de API guardada em **texto puro** no arquivo de configurações |
-| Qt6 Core5Compat | encontrado → baixa o QuaZip | (arquivos ZIP são extraídos pelo comando `unzip` do sistema em qualquer caso) |
 | Qt6 LinguistTools | `Qt6 LinguistTools found — translations will be compiled` | As traduções `.qm` não são recompiladas |
 
 Opção de build: `-DASTROFIND_ASAN=ON` liga AddressSanitizer + UndefinedBehaviorSanitizer (use uma
@@ -904,12 +920,12 @@ Runs both suites and prints details only for failures.
 ```bash
 build/bin/astrofind_tests
 ```
-Runs the **179** core test cases (Catch2) directly.
+Runs the core test cases (Catch2, about 260) directly.
 
 ```bash
 QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests
 ```
-Runs the **27** UI test cases without a display.
+Runs the UI test cases (about 30) without a display.
 
 🇧🇷 **Português**
 *Resumindo: dois programas de teste conferem a matemática e as janelas automaticamente. Os
@@ -928,12 +944,12 @@ Roda as duas suítes e mostra detalhes só das falhas.
 ```bash
 build/bin/astrofind_tests
 ```
-Roda diretamente os **179** casos de teste do núcleo (Catch2).
+Roda diretamente os casos de teste do núcleo (Catch2, cerca de 260).
 
 ```bash
 QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests
 ```
-Roda os **27** casos de teste de interface sem monitor.
+Roda os casos de teste de interface (cerca de 30) sem monitor.
 
 ### 4.3 Audit target / Alvo de auditoria
 
@@ -948,13 +964,14 @@ Runs all four tools. The reports go to `build/audit/`:
 | Report | Tool | What it finds | Sub-target |
 |---|---|---|---|
 | `cppcheck.xml` | cppcheck `--enable=all` (XML v2) | Static issues in `src/core` and `src/ui` | `audit-cppcheck` |
-| `clang_tidy.txt` (+ `clang_tidy_fixes.yaml` with run-clang-tidy) | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Risky C++ patterns | `audit-clang-tidy` |
+| `clang_tidy.txt` | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Risky C++ patterns | `audit-clang-tidy` |
 | `valgrind.xml` | Valgrind memcheck on `astrofind_tests` | Leaks and invalid memory accesses | `audit-valgrind` |
 | `asan_tests.txt` | Configures `build_asan/` with `ASTROFIND_ASAN=ON`, builds and runs `astrofind_tests` | Memory errors and undefined behaviour at run time | `audit-asan` |
 
 - A missing tool is skipped, with a hint of the package to install.
-- In CI the same audit runs on Fedora 44, CachyOS, Arch, Ubuntu 24.04 and Debian 12, for pull
-  requests into `main` and on release tags.
+- In CI (`audit.yml`, on GitHub-hosted `ubuntu-24.04` runners, one container per distro) the
+  same audit runs on Fedora 44, CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every push and
+  pull request to `main`, on release tags (`v*`) and on manual runs.
 
 🇧🇷 **Português**
 *Resumindo: um comando roda quatro ferramentas caçadoras de bugs e grava os relatórios numa pasta.*
@@ -967,13 +984,14 @@ Roda as quatro ferramentas. Os relatórios vão para `build/audit/`:
 | Relatório | Ferramenta | O que encontra | Subalvo |
 |---|---|---|---|
 | `cppcheck.xml` | cppcheck `--enable=all` (XML v2) | Problemas estáticos em `src/core` e `src/ui` | `audit-cppcheck` |
-| `clang_tidy.txt` (+ `clang_tidy_fixes.yaml` com run-clang-tidy) | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Padrões arriscados de C++ | `audit-clang-tidy` |
+| `clang_tidy.txt` | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Padrões arriscados de C++ | `audit-clang-tidy` |
 | `valgrind.xml` | Valgrind memcheck sobre `astrofind_tests` | Vazamentos e acessos inválidos à memória | `audit-valgrind` |
 | `asan_tests.txt` | Configura `build_asan/` com `ASTROFIND_ASAN=ON`, compila e roda `astrofind_tests` | Erros de memória e comportamento indefinido em execução | `audit-asan` |
 
 - Uma ferramenta ausente é pulada, com a dica do pacote a instalar.
-- Na CI, a mesma auditoria roda em Fedora 44, CachyOS, Arch, Ubuntu 24.04 e Debian 12, em pull
-  requests para `main` e em tags de release.
+- Na CI (`audit.yml`, em runners `ubuntu-24.04` hospedados pelo GitHub, um container por
+  distro), a mesma auditoria roda em Fedora 44, CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo
+  push e pull request para `main`, em tags de release (`v*`) e em execuções manuais.
 
 ### 4.4 Where things live / Onde as coisas ficam
 
@@ -1073,8 +1091,8 @@ astrometry.net key is kept in the system keychain when possible.*
   - For PDS, `offset + lines·(prefix + samples·bytes + suffix)` must fit in the file.
 - **Archives**: symlinks, devices and FIFOs are rejected. Only image extensions are extracted,
   into a unique temporary folder, and directory trees are flattened.
-- **Network**: the astrometry.net server URL and the MPC submit URL accept only `https`, or
-  `http` to localhost.
+- **Network**: the astrometry.net server URL, the VizieR mirror URL and the MPC submit URL
+  accept only `https`, or `http` to localhost.
 - **API key**: kept in the system keychain (Qt6Keychain) when available. Otherwise it is kept in
   plain text, and Settings shows the badge "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for secure storage".
 - Hardened linker flags are used for the executable.
@@ -1098,10 +1116,10 @@ chave do astrometry.net fica no chaveiro do sistema quando possível.*
   - No PDS, `offset + lines·(prefix + samples·bytes + suffix)` precisa caber no arquivo.
 - **Arquivos compactados**: links simbólicos, dispositivos e FIFOs são rejeitados. Só extensões
   de imagem são extraídas, numa pasta temporária única, e as árvores de diretório são achatadas.
-- **Rede**: a URL do servidor astrometry.net e a URL de envio ao MPC só aceitam `https`, ou
-  `http` para localhost.
+- **Rede**: a URL do servidor astrometry.net, a URL do espelho do VizieR e a URL de envio ao MPC
+  só aceitam `https`, ou `http` para localhost.
 - **Chave de API**: guardada no chaveiro do sistema (Qt6Keychain) quando disponível. Senão fica
-  em texto puro, e as Configurações mostram o selo "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for secure storage".
+  em texto puro, e as Configurações mostram o selo "⚠ Armazenado em texto simples — instale qtkeychain-qt6-devel + libsecret-devel para armazenamento seguro".
 - O executável usa flags de link endurecidas.
 - Nem todo achado de auditoria está corrigido. Leia antes de depender de um ponto específico:
   - [SECURITY.md](https://github.com/petrinhu/astrofind/blob/main/SECURITY.md) — como relatar uma

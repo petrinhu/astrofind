@@ -42,7 +42,7 @@ astronomia nem de Linux. Qualquer palavra desconhecida está explicada no
 
 - A computer with **Linux** (AstroFind is Linux only). Tested on Ubuntu 24.04, Debian 12,
   Fedora, Arch, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9, Linux Mint 22, Pop!_OS and
-  Zorin.
+  Zorin (Pop!_OS 22.04, Zorin OS 17 and other Ubuntu 22.04-based systems are not supported).
 - An internet connection. It is used to identify the star field ("plate solving", see Step 6)
   and to find known asteroids (Step 7).
 - **At least 3 images of the same patch of sky, taken several minutes apart** (for example
@@ -64,7 +64,8 @@ astronomia nem de Linux. Qualquer palavra desconhecida está explicada no
 
 - Um computador com **Linux** (o AstroFind só roda em Linux). Testado em Ubuntu 24.04,
   Debian 12, Fedora, Arch, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9, Linux Mint 22,
-  Pop!_OS e Zorin.
+  Pop!_OS e Zorin (Pop!_OS 22.04, Zorin OS 17 e outros sistemas com base Ubuntu 22.04 não são
+  suportados).
 - Conexão com a internet. Ela é usada para identificar o campo de estrelas ("plate solving",
   veja o Passo 6) e para achar asteroides conhecidos (Passo 7).
 - **Pelo menos 3 imagens do mesmo pedaço do céu, tiradas com alguns minutos de intervalo**
@@ -96,16 +97,16 @@ installer. Open a **terminal** (the text window where you type commands) and typ
 lines, pressing Enter after each one:
 
 ```bash
-# Download the installer script for version 1.1.0
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+# Download the installer script for version 1.2.0
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 # Allow the file to run as a program
 chmod +x install.sh
 # Run it: it detects your Linux and installs the right package
 ./install.sh
 ```
 
-The installer may ask for your password (to install packages). For `.rpm`/`.deb`/Arch packages
-or building from source, see
+The installer may ask for your password (to install packages). For `.rpm`/`.deb`/Arch packages,
+the AppImage or building from source, see
 [INSTALL.md](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md) and [Installation](https://github.com/petrinhu/astrofind/wiki/Installation).
 
 🇧🇷 **Português**
@@ -114,16 +115,16 @@ universal. Abra um **terminal** (a janela de texto onde você digita comandos) e
 linhas, apertando Enter depois de cada uma:
 
 ```bash
-# Baixa o script instalador da versão 1.1.0
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+# Baixa o script instalador da versão 1.2.0
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 # Permite que o arquivo rode como programa
 chmod +x install.sh
 # Executa: ele detecta seu Linux e instala o pacote certo
 ./install.sh
 ```
 
-O instalador pode pedir sua senha (para instalar pacotes). Para pacotes `.rpm`/`.deb`/Arch ou para
-compilar do código-fonte, veja o
+O instalador pode pedir sua senha (para instalar pacotes). Para pacotes `.rpm`/`.deb`/Arch, o AppImage
+ou para compilar do código-fonte, veja o
 [INSTALL.md](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md) e [Installation](https://github.com/petrinhu/astrofind/wiki/Installation).
 
 ---
@@ -201,7 +202,7 @@ da atmosfera.
    - **Automático (do FITS)** se suas imagens já trazem o local (fica cinza se não trouxerem);
    - **Observatório predefinido** para escolher um observatório conhecido numa lista;
    - **Coordenadas manuais** para digitar latitude (+N), longitude (+E) e altitude.
-3. Clique em **OK**. Aparece a mensagem "Settings saved.".
+3. Clique em **OK**. Aparece a mensagem "Configurações salvas.".
 
 > 🇧🇷 ⚠️ **Atenção:** se você pular este passo e as imagens não tiverem localização, a Redução de
 > Dados avisa **"Localização não configurada"**: as posições seriam calculadas como se vistas do
@@ -252,7 +253,7 @@ images) or **Novo Projeto** (start over).
   branco ou coloridas. Clique em OK. (Desmarque "Mostrar sempre este aviso" para não ver mais.)
 - Uma barra acima das imagens com etiquetas ✓ verdes ou ⚠ laranja (escala de pixel, data/hora,
   localização…). Uma etiqueta laranja tem um botão que abre as Configurações.
-- Barra de status: "Step 1: Images loaded — Run Data Reduction".
+- Barra de status: "Etapa 1: Imagens carregadas — Executar redução de dados".
 
 Se você carregar de novo com imagens abertas, o AstroFind pergunta **Acréscimo** (somar às
 imagens atuais) ou **Novo Projeto** (começar do zero).
@@ -279,7 +280,7 @@ black or white. This step only changes **how the image looks**, never the measur
 Imagens astronômicas têm mais níveis de brilho do que a tela consegue mostrar, então podem
 parecer quase pretas ou brancas. Este passo só muda **a aparência**, nunca os dados medidos.
 
-1. Clique numa imagem e depois em **Ferramentas de Imagem → Fundo e Intervalo...**.
+1. Clique numa imagem e depois em **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...**.
 2. Clique em **⟳ Auto**. Se precisar, mexa nos controles **Fundo (mín)** e **Intervalo (máx)** ou
    teste outra "Função de transferência", como **Asinh** ou **Raiz Quadrada (Sqrt)**.
 3. Marque **Aplicar a todas as imagens da sessão** e clique em **OK**.
@@ -323,7 +324,7 @@ AR/Dec). Veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary
 - Imagens que já têm WCS não são resolvidas de novo.
 
 **O que você deve ver:** no painel **Registro**, linhas como "Image 1: 230 stars found" e
-"Solved! RA=… Dec=…", e no fim "Redução concluída: N resolvidas, …". Círculos ciano marcam as
+"Resolvido! AR=… Dec=…", e no fim "Redução concluída: N resolvidas, …". Círculos ciano marcam as
 estrelas detectadas. O painel **Catálogo de Imagem** abre à direita. Barra de status: "Step 2
 done - show Known Objects (Ctrl+K)".
 
@@ -435,8 +436,8 @@ measurement. Made a mistake? **Edit → Undo** (`Ctrl+Z`).
 1. Clique em **Arquivo → Ver Arquivo de Relatório ADES**, ou na etapa 6 do Fluxo de Trabalho.
 2. A janela "Pré-visualização do relatório ADES 2022" mostra o relatório nas abas **XML** e
    **PSV**.
-3. **Save…** salva a aba visível; **Export PDF…** gera um resumo para imprimir.
-4. Para enviar: **Submit to MPC (HTTP)** ou **Submit to MPC (Email)**. Em projeto escolar, se um
+3. **Salvar…** salva a aba visível; **Exportar PDF…** gera um resumo para imprimir.
+4. Para enviar: **Enviar ao MPC (HTTP)** ou **Enviar ao MPC (E-mail)**. Em projeto escolar, se um
    e-mail de professor estiver nas Configurações, **Enviar para Professor**.
 5. Salve seu trabalho: **Arquivo → Salvar Projeto** (`Ctrl+S`) cria um arquivo de projeto `.gus`.
 

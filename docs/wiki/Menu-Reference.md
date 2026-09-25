@@ -1,13 +1,13 @@
 # Menu Reference / Referência de Menus
 
 🇬🇧 **Who this page is for.** Anyone who wants to know what a menu item, button or key does in
-AstroFind 1.1.0. You do not need to read it from top to bottom: use it like a dictionary. Each
+AstroFind 1.2.0. You do not need to read it from top to bottom: use it like a dictionary. Each
 entry gives the English label, the Portuguese label, the keyboard shortcut, what it does in
 plain words, and a level badge: 🟢 Beginner, 🟡 Intermediate, 🔴 Advanced. New to the words?
 See [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary). For a guided first session, start with [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 🇧🇷 **Para quem é esta página.** Para quem quer saber o que faz um item de menu, botão ou tecla
-do AstroFind 1.1.0. Não precisa ler de cima a baixo: use como um dicionário. Cada item traz o
+do AstroFind 1.2.0. Não precisa ler de cima a baixo: use como um dicionário. Cada item traz o
 rótulo em inglês, o rótulo em português, o atalho de teclado, o que ele faz em palavras simples
 e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma palavra estranha? Veja o
 [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary). Para uma primeira sessão guiada, comece pelo [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
@@ -45,7 +45,7 @@ e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma
   groups them under their older section names (**Astrometry**, **Images**, **Tools**,
   **Windows**) so links from other pages keep working; the "EN label" column always shows the
   current on-screen text.
-- The main window title is `AstroFind 1.1.0` when the program starts. After you save or open a
+- The main window title is `AstroFind 1.2.0` when the program starts. After you save or open a
   project it shows `AstroFind — <name>.gus`, with a `*` when there are unsaved changes.
 - A shortcut such as `Ctrl+L` means: hold the **Ctrl** key and press **L**.
 - Some items are greyed out (disabled) until you do an earlier step. For example, most
@@ -63,7 +63,7 @@ e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma
   os itens sob os nomes de seção antigos (**Astrometria**, **Imagens**, **Ferramentas**,
   **Janelas**) para não quebrar os links de outras páginas; a coluna "PT label" sempre mostra o
   texto atual na tela.
-- O título da janela principal é `AstroFind 1.1.0` quando o programa abre. Depois de salvar ou
+- O título da janela principal é `AstroFind 1.2.0` quando o programa abre. Depois de salvar ou
   abrir um projeto ele mostra `AstroFind — <nome>.gus`, com `*` quando há alterações não salvas.
 - Um atalho como `Ctrl+L` quer dizer: segure a tecla **Ctrl** e aperte **L**.
 - Alguns itens ficam cinza (desabilitados) até você fazer um passo anterior. Por exemplo, a
@@ -119,12 +119,12 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 > (`Ctrl+S`) se quiser guardar o trabalho.
 
 > 💡 **Version 1.1.0 / Versão 1.1.0**
-> 🇬🇧 In 1.1.0 and earlier `Ctrl+L` was also given to **Tools → Light Curve…**, so the key
-> could do nothing; there, use the menu or the toolbar button. In the next version (after
-> 1.1.0) `Ctrl+L` is only Import Images. See [the shortcut table](#all-keyboard-shortcuts--todos-os-atalhos-de-teclado).
-> 🇧🇷 Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Ferramentas → Curva de Luz…**, então
-> a tecla podia não fazer nada; lá, use o menu ou o botão da barra. Na próxima versão (depois
-> da 1.1.0) o `Ctrl+L` é só Importar Imagens.
+> 🇬🇧 In 1.1.0 and earlier `Ctrl+L` was also given to **Utilities → Light Curve…**, so the key
+> could do nothing; there, use the menu or the toolbar button. In version
+> 1.2.0 `Ctrl+L` is only Import Images. See [the shortcut table](#all-keyboard-shortcuts--todos-os-atalhos-de-teclado).
+> 🇧🇷 Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Utilitários → Curva de Luz…**, então
+> a tecla podia não fazer nada; lá, use o menu ou o botão da barra. Na versão
+> 1.2.0 o `Ctrl+L` é só Importar Imagens.
 
 ---
 
@@ -229,7 +229,7 @@ análise.
 > 💡 **Version 1.1.0 / Versão 1.1.0**
 > 🇬🇧 In 1.1.0 and earlier Light Curve showed `Ctrl+L`, shared with Import Images, so the key
 > might not work; there, open it from the menu (**Utilities → Light Curve…**).
-> 🇧🇷 Na 1.1.0 e anteriores a Curva de Luz mostrava `Ctrl+L`, compartilhado com Carregar
+> 🇧🇷 Na 1.1.0 e anteriores a Curva de Luz mostrava `Ctrl+L`, compartilhado com Importar
 > Imagens, então a tecla podia não funcionar; lá, abra pelo menu (**Utilitários → Curva de
 > Luz…**).
 
@@ -428,10 +428,10 @@ tabela Observações, o Registro e o Catálogo de Imagem **não** têm menu de c
 ## Docks (side and bottom panels) / Painéis laterais e inferiores
 
 🇬🇧 **English** — *Docks* are panels around the image area. You can drag them to another side,
-or close them and reopen them from the **Windows** menu.
+or close them and reopen them from the **Window** menu.
 
 🇧🇷 **Português** — *Docks* são painéis em volta da área das imagens. Você pode arrastar para
-outro lado, ou fechar e reabrir pelo menu **Janelas**.
+outro lado, ou fechar e reabrir pelo menu **Janela**.
 
 | EN title | PT title | Where / when | What is inside | O que tem dentro | Level |
 |---|---|---|---|---|---|
@@ -485,17 +485,17 @@ Gaia DR3 selecionado.
 🇧🇷 **Português** — A faixa bem embaixo da janela.
 
 - **À esquerda: a mensagem de etapa.** Diz o que fazer em seguida, por exemplo "Pronto",
-  "Step 1: Images loaded — Run Data Reduction", "Step 2 done - show Known Objects
-  (Ctrl+K)". Mensagens de progresso também aparecem aqui ("Detecting stars... 2/4", velocidade
+  "Etapa 1: Imagens carregadas — Executar redução de dados", "Passo 2 concluído - mostre Objetos
+  Conhecidos (Ctrl+K)". Mensagens de progresso também aparecem aqui ("Detectando estrelas... 2/4", velocidade
   do download do MPCORB).
 - **À direita, da esquerda para a direita:**
   1. **Observatório**: "Obs: auto (…)", "Obs: <código> (<nome>)", "Obs: <lat>°, <lon>°" ou
      "Obs: (não configurado)".
   2. **Valor do pixel** sob o cursor: "Valor: --", depois "Val …".
-  3. **Coordenadas no céu** sob o cursor: "RA -- Dec --", depois "RA … Dec …" em graus
+  3. **Coordenadas no céu** sob o cursor: "AR -- Dec --", depois "AR … Dec …" em graus
      decimais (precisa de imagem resolvida).
   4. **Número de imagens**: "Sem imagens" ou "N imagem(ns)".
-- Pequenos avisos **toast** confirmam eventos como "Settings saved." ou "Exported: …".
+- Pequenos avisos **toast** confirmam eventos como "Configurações salvas." ou "Exportado: …".
 
 ---
 
@@ -575,7 +575,8 @@ empty window says "No image loaded / Use File → Import Images…".
 encostadas) · cruz amarela = estrela de catálogo · círculo verde = asteroide conhecido (azul
 claro = planeta, laranja = cometa) com número ou nome · "Cand #N" = candidato a objeto em
 movimento · vermelho = item selecionado · texto magenta = suas anotações. **Pixels magenta**
-são pixels sem valor válido (NaN).
+são pixels sem valor válido (NaN). Uma janela vazia mostra "Nenhuma imagem carregada / Use
+Arquivo → Importar Imagens…".
 
 ---
 
@@ -644,14 +645,16 @@ foco do teclado (clique nela antes).
 >
 > 🇬🇧 In 1.1.0 and earlier two keys were given to two actions at once, so pressing them could
 > do **nothing**: `Ctrl+L` (Import Images and Light Curve) and `Ctrl+Shift+T` (the Window menu
-> item and the toolbar theme button). The next version (after 1.1.0) fixes both: Light Curve
+> item and the toolbar theme button). Version 1.2.0 fixes both: Light Curve
 > moved to `Ctrl+Shift+L`, and `Ctrl+Shift+T` belongs only to the toolbar theme button. If you
-> are still on 1.1.0, use the menu entries or the toolbar buttons instead.
+> still run a build of the 1.1.0 source (never published as a release) or an older version,
+> use the menu entries or the toolbar buttons instead.
 >
 > 🇧🇷 Na 1.1.0 e anteriores duas teclas estavam em duas ações ao mesmo tempo, e apertá-las
-> podia não fazer **nada**: `Ctrl+L` (Carregar Imagens e Curva de Luz) e `Ctrl+Shift+T` (o item
-> do menu Janelas e o botão de tema da barra). A próxima versão (depois da 1.1.0) corrige as
+> podia não fazer **nada**: `Ctrl+L` (Importar Imagens e Curva de Luz) e `Ctrl+Shift+T` (o item
+> do menu Janela e o botão de tema da barra). A versão 1.2.0 corrige as
 > duas: a Curva de Luz passou para `Ctrl+Shift+L`, e o `Ctrl+Shift+T` é só do botão de tema da
-> barra. Se ainda usa a 1.1.0, use os itens de menu ou os botões da barra.
+> barra. Se ainda usa um build do código da 1.1.0 (nunca publicada como
+> release) ou uma versão mais antiga, use os itens de menu ou os botões da barra.
 
 See also / Veja também: [Settings](https://github.com/petrinhu/astrofind/wiki/Settings), [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), [Tutorial](https://github.com/petrinhu/astrofind/wiki/Tutorial), [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting), [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).

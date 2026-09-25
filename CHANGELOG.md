@@ -12,8 +12,34 @@ primeiro.
 
 ## [Unreleased]
 
+---
+
+## [1.2.0] - 2026-09-25
+
+> 🇬🇧 First published release since 0.9.0: the `v1.1.0` tag was never released on GitHub, and
+> 1.2.0 carries it plus audit waves E1–E4. Installers for Fedora 44, RHEL/Rocky/Alma 9, openSUSE
+> Tumbleweed, Ubuntu 24.04 (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 13, CachyOS, the Arch family,
+> and an AppImage for Debian 12 and other distributions. 🇧🇷 Primeira versão publicada desde a 0.9.0: a
+> tag `v1.1.0` nunca virou release no GitHub, e a 1.2.0 inclui o conteúdo dela e as ondas E1–E4 da
+> auditoria. Instaladores para Fedora 44, RHEL/Rocky/Alma 9, openSUSE Tumbleweed, Ubuntu 24.04
+> (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 13, CachyOS, a família Arch e uma AppImage para o Debian 12
+> e as demais distribuições.
+
 ### Fixed / Corrigido
 
+- **Airmass near the horizon / Massa de ar perto do horizonte.** 🇬🇧 The Pickering (2002)
+  formula used the exponent 2.575 instead of 1.1: airmass was right within 1% above 20° but
+  about 3% high at 10° and 9% at 5°, which skewed the extinction correction of low targets.
+  🇧🇷 A fórmula de Pickering (2002) usava o expoente 2,575 em vez de 1,1: a massa de ar ficava
+  certa em até 1% acima de 20°, mas cerca de 3% alta a 10° e 9% a 5°, o que distorcia a
+  correção de extinção de alvos baixos.
+- **Report time precision / Precisão do horário no relatório.** 🇬🇧 With "Time Precision: 1"
+  the ADES `obsTime` could carry three decimals (Qt 6's `z` format), and the fraction was cut
+  instead of rounded (59.96 s at 0 decimals gave `:59`). It now has exactly the chosen number
+  of decimals, rounded, with the carry into minutes/hours. 🇧🇷 Com "Precisão de tempo: 1" o
+  `obsTime` do ADES podia sair com três casas (formato `z` do Qt 6), e a fração era cortada em
+  vez de arredondada (59,96 s com 0 casas dava `:59`). Agora tem exatamente o número de casas
+  escolhido, arredondado, levando o "vai um" para minutos/horas.
 - **Refraction on plate-solved positions / Refração em posições com solução astrométrica
   (AUD-CORR-7).** 🇬🇧 Bennett refraction is no longer added to RA/Dec that come from a
   catalog plate solution (the fit already absorbs it; applying it again double-corrected,
@@ -68,11 +94,11 @@ primeiro.
   places of the seconds (was labelled hours). 🇧🇷 Escala de pixel em ″/px (era °/px e
   limitada a 1); FWHM mínima em ″ (era px); Precisão de tempo = 0–3 casas decimais dos
   segundos (o rótulo dizia horas).
-- **Shortcuts / Atalhos.** 🇬🇧 Light Curve moved to `Ctrl+Shift+L` (`Ctrl+L` is Load
+- **Shortcuts / Atalhos.** 🇬🇧 Light Curve moved to `Ctrl+Shift+L` (`Ctrl+L` is Import
   Images); `Ctrl+Shift+T` was declared twice and did nothing, now toggles the theme.
-  🇧🇷 Curva de Luz passou para `Ctrl+Shift+L` (`Ctrl+L` é Carregar Imagens);
+  🇧🇷 Curva de Luz passou para `Ctrl+Shift+L` (`Ctrl+L` é Importar Imagens);
   `Ctrl+Shift+T` estava declarado duas vezes e não fazia nada, agora alterna o tema.
-- **Help → Registration** 🇬🇧 no longer says "MIT" (the license is AGPL-3.0). 🇧🇷 não diz
+- **Help → Product Registration...** 🇬🇧 no longer says "MIT" (the license is AGPL-3.0). 🇧🇷 não diz
   mais "MIT" (a licença é AGPL-3.0).
 - **XISF size ceiling / Teto de tamanho no XISF (AUD-INPUT-9).** 🇬🇧 XISF geometry is checked
   against the same axis/pixel ceiling and file size as FITS before any allocation.
@@ -163,15 +189,21 @@ primeiro.
   código de centroide já fazia (era 2,355).
 - **Credits and license notices / Créditos e avisos de licença (AUD-PROV-9, AUD-PROV-11,
   AUD-PROV-12, AUD-PROV-13).** 🇬🇧 Eigen3 was credited (About, Help, CLAUDE.md, wiki) and
-  required by the RPM/DEB/Arch packages but is not used anywhere; removed. `NOTICE` gains the
-  verbatim zlib text of the MiniZip files inside QuaZip, the {fmt} copyright and optional
-  exception, and a section for the projects credited as inspiration only; the README no
+  required by the RPM/DEB/Arch packages but is not used anywhere; removed. QuaZip was the same
+  case: fetched and compiled whenever Qt6Core5Compat was installed, but never linked (ZIP image
+  sets are extracted with the system `unzip`), and its install rules put a stray library and
+  headers into the packages; it is removed from the build, the packages and the credits.
+  `NOTICE` gains the {fmt} copyright and optional exception, and a section for the projects
+  credited as inspiration only; the README no
   longer says `NOTICE` covers "every item above" without that section. The full LGPL-3.0,
   GPL-3.0, LGPL-2.1 and GPL-2.0 texts are now in `LICENSES/` and the packages ship them with
   `NOTICE`. 🇧🇷 O Eigen3 era creditado (Sobre, Ajuda, CLAUDE.md, wiki) e exigido pelos
-  pacotes RPM/DEB/Arch, mas não é usado em lugar nenhum; removido. O `NOTICE` ganha o texto
-  zlib literal dos arquivos MiniZip dentro do QuaZip, o copyright e a exceção opcional do
-  {fmt}, e uma seção para os projetos creditados só como inspiração; o README não diz mais
+  pacotes RPM/DEB/Arch, mas não é usado em lugar nenhum; removido. O QuaZip era o mesmo caso:
+  baixado e compilado sempre que o Qt6Core5Compat estava instalado, mas nunca linkado (os
+  conjuntos ZIP são extraídos pelo `unzip` do sistema), e as regras de instalação dele punham
+  uma biblioteca e headers soltos dentro dos pacotes; saiu do build, dos pacotes e dos
+  créditos. O `NOTICE` ganha o copyright e a exceção opcional do {fmt}, e uma seção para os
+  projetos creditados só como inspiração; o README não diz mais
   que o `NOTICE` cobre "cada item acima" sem essa seção. Os textos completos da LGPL-3.0,
   GPL-3.0, LGPL-2.1 e GPL-2.0 agora estão em `LICENSES/` e os pacotes os instalam junto com
   o `NOTICE`.
@@ -294,6 +326,27 @@ primeiro.
 
 ### Added / Adicionado
 
+- 🇬🇧 Installers built by a new `release.yml` workflow, each one natively inside its target
+  distribution from the release source tarball, then installed into a fresh container of that
+  distribution and started (`packaging/ci/*.sh`, runnable locally): RPM for Fedora 44, RHEL/Rocky/
+  Alma 9 and openSUSE Tumbleweed (one spec), DEB for Ubuntu 24.04 and Debian 13, Arch and
+  CachyOS packages (each built on its own distribution), and an AppImage (glibc ≥ 2.36, built on Debian 12; it is also the Debian 12 install).
+  Library dependencies are now generated from the binary
+  (rpm/dpkg-shlibdeps) instead of hand-written names that broke on renames such as Ubuntu's
+  `t64` libraries; only the run-time Qt plugins (SQLite driver, platform plugins) are declared by
+  hand. `install.sh` picks the right file for the distribution and checks it against `SHA256SUMS`
+  before installing. New `AstroFind --version` and `--help`. 🇧🇷 Instaladores gerados pelo novo
+  workflow `release.yml`, cada um compilado dentro da própria distribuição a partir do tarball de
+  fontes da versão, depois instalado num container limpo dessa distribuição e iniciado
+  (`packaging/ci/*.sh`, que também rodam localmente): RPM para Fedora 44, RHEL/Rocky/Alma 9 e
+  openSUSE Tumbleweed (um só spec), DEB para Ubuntu 24.04 e Debian 13, pacotes Arch e CachyOS (cada um compilado na sua distribuição) e uma
+  AppImage (glibc ≥ 2.36, compilada sobre o Debian 12; é também a instalação para o Debian 12).
+  As dependências de bibliotecas agora são geradas a partir do binário
+  (rpm/dpkg-shlibdeps), em vez de nomes escritos à mão que quebravam com renomeações como as
+  bibliotecas `t64` do Ubuntu; só os plugins do Qt carregados em tempo de execução (driver SQLite,
+  plugins de plataforma) são declarados à mão. O `install.sh` escolhe o arquivo certo para a
+  distribuição e o confere contra o `SHA256SUMS` antes de instalar. Novos `AstroFind --version` e
+  `--help`.
 - 🇬🇧 SBOM (AUD-SEC-9): a new `sbom.yml` workflow runs syft (pinned, checksum-verified) over
   the source tree and `scripts/fetchcontent-sbom.py` over the FetchContent pins and the
   bundled CCfits, and uploads SPDX + CycloneDX files. CI hardening (AUD-CI-8): every workflow
@@ -323,13 +376,13 @@ primeiro.
   100000², tamanhos mentirosos, XISF) e pixels não finitos nos centroides (AUD-TEST-4).
 - 🇬🇧 Tests with a normal and a hostile case for the SER, XISF, PNG/TIFF (QImage), 1-D
   spectrum, reduction-table, TAR (libarchive) and ZIP loaders/extractors (AUD-TEST-6,
-  `tests/test_loaders_extra.cpp`, `tests/test_archive_zip_ui.cpp`). The archive
+  `tests/test_loaders_extra.cpp`, `tests/test_archive_zip.cpp`). The archive
   extraction moved from `MainWindow` to `core/ArchiveExtractor` so it is covered by the
   ASan/valgrind runs; behaviour and messages are unchanged. Catch2 test names no longer
   contain commas, which split a name filter into two and ran nothing (AUD-TEST-5).
   🇧🇷 Testes com um caso normal e um hostil para os carregadores/extratores SER, XISF,
   PNG/TIFF (QImage), espectro 1-D, tabela de redução, TAR (libarchive) e ZIP
-  (AUD-TEST-6, `tests/test_loaders_extra.cpp`, `tests/test_archive_zip_ui.cpp`). A extração
+  (AUD-TEST-6, `tests/test_loaders_extra.cpp`, `tests/test_archive_zip.cpp`). A extração
   de arquivos saiu da `MainWindow` para `core/ArchiveExtractor`, para ser coberta pelas
   execuções ASan/valgrind; comportamento e mensagens iguais. Os nomes dos testes Catch2
   não têm mais vírgula, que partia o filtro por nome em dois e não rodava nada

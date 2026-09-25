@@ -36,13 +36,13 @@ completo veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual); par
 
 | Format / Formato | Extensions / Extensões | Colour? / Cor? | Metadata read / Metadados lidos | Notes / Observações |
 |---|---|---|---|---|
-| **FITS** (2-D) | `.fits` `.fit` `.fts` | No / Não | Time (`DATE-OBS`, `JD`, `TIMESYS`), `EXPTIME`, WCS, site, MPC code, filter, pixel scale, saturation, binning, object, telescope / Horário, exposição, WCS, local, código MPC, filtro, escala, saturação, binning, objeto, telescópio | Best format. Compressed FITS via cfitsio if the name ends in `.fits`. / Melhor formato. FITS comprimido via cfitsio se o nome terminar em `.fits`. |
+| **FITS** (2-D) | `.fits` `.fit` `.fts` | No / Não | Time (`DATE-OBS`, `MJD-OBS`, `JD`, `TIMESYS`), `EXPTIME`, WCS, site, MPC code, filter, pixel scale, saturation, binning, object, telescope / Horário, exposição, WCS, local, código MPC, filtro, escala, saturação, binning, objeto, telescópio | Best format. Compressed FITS via cfitsio if the name ends in `.fits`. / Melhor formato. FITS comprimido via cfitsio se o nome terminar em `.fits`. |
 | **FITS colour** / **FITS colorido** | same / idem | Yes (`NAXIS3 = 3`) / Sim | as FITS / como FITS | Detection uses a luminance mix. / A detecção usa uma mistura de luminância. |
 | **FITS multi-extension** / **multi-extensão** | same / idem | Yes if exactly 3 same-size image HDUs / Sim se houver exatamente 3 HDUs de imagem do mesmo tamanho | as FITS / como FITS | Otherwise an HDU navigation bar appears. / Senão aparece uma barra de navegação de HDU. |
 | **FITS cube** / **cubo FITS** | same / idem | No / Não | as FITS / como FITS | `NAXIS3 > 3`: first plane shown; right-click → **Animate Cube**. / Primeiro plano exibido; botão direito → **Animar Cubo**. |
 | **FITS 1-D spectrum** / **espectro 1-D** | same / idem | — | — | Opens a Spectrum plot, not an image. / Abre um gráfico de espectro, não uma imagem. |
 | **SER** video / vídeo | `.ser` | Mono, RGB or Bayer / Mono, RGB ou Bayer | Observer, telescope / Observador, telescópio | **Only frame 1** is loaded; **no time** is read. / **Só o quadro 1**; **sem horário**. |
-| **XISF** (PixInsight) | `.xisf` | 1 or 3 channels / 1 ou 3 canais | `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`, `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` | No WCS read → plate-solve. Uncompressed only. / WCS não lido → faça plate solving. Só sem compressão. |
+| **XISF** (PixInsight) | `.xisf` | 1 or 3 channels / 1 ou 3 canais | `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`, `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS`, `MJD-OBS` | No WCS read → plate-solve. Uncompressed only. / WCS não lido → faça plate solving. Só sem compressão. |
 | **TIFF / PNG / BMP / JPEG** | `.tif` `.tiff` `.png` `.bmp` `.jpg` `.jpeg` | Yes if the file is colour / Sim se o arquivo for colorido | **None** / **Nenhum** | 16-bit grayscale kept; colour is reduced to 8 bits per channel. Time must be typed in. / Cinza 16 bits preservado; cor vira 8 bits por canal. Horário precisa ser digitado. |
 | **DSLR RAW** (needs LibRaw / precisa da LibRaw) | `.cr2` `.cr3` `.crw` `.nef` `.nrw` `.arw` `.srf` `.sr2` `.orf` `.rw2` `.raf` `.pef` `.dng` `.srw` `.3fr` `.erf` `.kdc` `.mrw` `.x3f` `.iiq` `.mef` `.mos` `.rwl` | Yes (display) / Sim (exibição) | EXIF exposure, camera make/model, saturation, camera-clock time (**flagged ambiguous**) / Exposição EXIF, marca/modelo, saturação, horário do relógio da câmera (**marcado ambíguo**) | Linear data; no WCS, no site → set location and plate-solve. / Dados lineares; sem WCS nem local → configure o local e faça plate solving. |
 | **NASA PDS3** | `.img` (+ `.lbl`) | No / Não | `START_TIME`/`STOP_TIME`, `EXPOSURE_DURATION`, `TARGET_NAME`, instrument, filter, RA/Dec / instrumento, filtro, AR/Dec | First band only; missing values → NaN (magenta). Plate-solve first. / Só a primeira banda; valores ausentes → NaN (magenta). Faça plate solving antes. |
@@ -117,7 +117,7 @@ completo veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual); par
   Outros arquivos soltos na janela são ignorados: use o menu.
 - **Arquivo → Abrir Recente...** reabre uma pasta e carrega FITS, SER, XISF, TIFF, PNG, PDS3
   (`.img`/`.lbl`) e os tipos RAW comuns — não compactados, BMP, JPEG nem `.xml` PDS4.
-- **Imagens → Exibir Cabeçalho...** mostra o cabeçalho FITS; para arquivos que não são FITS não
+- **Ferramentas de Imagem → Ver Cabeçalho FITS...** mostra o cabeçalho FITS; para arquivos que não são FITS não
   faz nada.
 - Uma extensão desconhecida dá: "Unsupported image format '.xyz' — supported: fits, ser, xisf,
   tiff, tif, png, bmp, jpg, PDS3 (img/lbl), PDS4 (xml), DSLR RAW".
@@ -138,7 +138,7 @@ a text **header** of keywords followed by the pixel data. One file can hold seve
 
 | Purpose | Keywords |
 |---|---|
-| Time | `DATE-OBS`, `TIMESYS`, `JD` (if present it wins), `EXPTIME` |
+| Time | `DATE-OBS`, `TIMESYS`, `MJD-OBS` (preferred over `DATE-OBS`), `JD` (if present it wins over both), `EXPTIME` |
 | Plate solution (WCS) | `CTYPE1`, `CRVAL1/2`, `CRPIX1/2`, `CD1_1…CD2_2` or `CDELT1/2` + `CROTA1/2` |
 | Pointing | `RA`, `DEC`, `OBJCTRA`, `OBJCTDEC` |
 | Site | `SITELAT`/`SITELONG`/`SITEELEV`, `LAT-OBS`/`LONG-OBS`/`ALT-OBS`, `LATITUDE`/`LONGITUD`/`ALTITUDE`, `OBSGEO-B/L/H` |
@@ -178,7 +178,7 @@ várias **HDUs** (unidades cabeçalho/dados). O AstroFind lê o arquivo com a bi
 
 | Para quê | Palavras-chave |
 |---|---|
-| Horário | `DATE-OBS`, `TIMESYS`, `JD` (se existir, vale ele), `EXPTIME` |
+| Horário | `DATE-OBS`, `TIMESYS`, `MJD-OBS` (preferido ao `DATE-OBS`), `JD` (se existir, vale ele acima dos dois), `EXPTIME` |
 | Solução de placa (WCS) | `CTYPE1`, `CRVAL1/2`, `CRPIX1/2`, `CD1_1…CD2_2` ou `CDELT1/2` + `CROTA1/2` |
 | Apontamento | `RA`, `DEC`, `OBJCTRA`, `OBJCTDEC` |
 | Local | `SITELAT`/`SITELONG`/`SITEELEV`, `LAT-OBS`/`LONG-OBS`/`ALT-OBS`, `LATITUDE`/`LONGITUD`/`ALTITUDE`, `OBSGEO-B/L/H` |
@@ -225,7 +225,7 @@ and Bayer (RGGB, GRBG, GBRG, BGGR) SER files with 8 or 16 bits. Bayer frames are
 - ⚠️ **Only the first frame** is loaded (the log warns "SER file has N frames — only frame 1
   loaded").
 - ⚠️ **The time stamp is not read.** Enter the mid-exposure time in **Image Tools → Edit Image
-  Parameters...** → **Julian Date:**, and the exposure in **Exposure time:**.
+  Settings...** → **Julian Date:**, and the exposure in **Exposure time:**.
 - Observer and telescope names are read from the header.
 
 🇧🇷 **Português**
@@ -236,8 +236,8 @@ RGB/BGR e Bayer (RGGB, GRBG, GBRG, BGGR) de 8 ou 16 bits. Quadros Bayer são exi
 
 - ⚠️ **Só o primeiro quadro** é carregado (o registro avisa "SER file has N frames — only frame 1
   loaded").
-- ⚠️ **O horário não é lido.** Digite o horário de meio da exposição em **Imagens → Editar
-  Parâmetros da Imagem...** → **Julian Date:**, e a exposição em **Exposure time:**.
+- ⚠️ **O horário não é lido.** Digite o horário de meio da exposição em **Ferramentas de Imagem → Editar
+  Configurações da Imagem...** → **Data Juliana:**, e a exposição em **Tempo de exposição:**.
 - Os nomes de observador e telescópio são lidos do cabeçalho.
 
 ---
@@ -252,7 +252,8 @@ XISF is PixInsight's format. AstroFind reads the first image, with 1 channel (mo
 channels (colour), samples UInt8/16/32 or Float32/64, stored as attachment or embedded.
 
 - It reads these FITS keywords stored in the XISF: `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`,
-  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` (`DATE-OBS` is taken as UTC).
+  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS`, `MJD-OBS` (`DATE-OBS` is taken as UTC;
+  `MJD-OBS` is preferred when present).
 - The plate solution is **not** read: Run Data Reduction will plate-solve it.
 - Save the XISF **without compression** in PixInsight; compressed data is not decoded.
 
@@ -262,7 +263,8 @@ XISF é o formato do PixInsight. O AstroFind lê a primeira imagem, com 1 canal 
 (cor), amostras UInt8/16/32 ou Float32/64, gravadas como anexo ou embutidas.
 
 - Ele lê estas palavras-chave FITS guardadas no XISF: `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`,
-  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` (`DATE-OBS` é tomado como UTC).
+  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS`, `MJD-OBS` (`DATE-OBS` é tomado como UTC;
+  o `MJD-OBS` é preferido quando existe).
 - A solução de placa **não** é lida: a Redução de Dados fará o plate solving.
 - Salve o XISF **sem compressão** no PixInsight; dados comprimidos não são decodificados.
 
@@ -295,7 +297,7 @@ Arquivos de imagem comuns, lidos pelo Qt.
   perde precisão). Prefira cinza 16 bits se precisar usar TIFF/PNG.
 - **Nenhum metadado é lido**: sem horário, exposição, posição ou local. Digite horário e
   exposição em **Ferramentas de Imagem → Editar Configurações da Imagem...** / **Image Tools → Edit Image
-  Parameters...**, configure o local nas Configurações e deixe a Redução de Dados fazer o plate
+  Settings...**, configure o local nas Configurações e deixe a Redução de Dados fazer o plate
   solving.
 - Arquivos compactados não extraem BMP nem JPEG.
 
@@ -307,7 +309,8 @@ Arquivos de imagem comuns, lidos pelo Qt.
 
 🇬🇧 **English**
 
-New in 1.1.0. A **RAW** file is the untouched data from a digital camera sensor. AstroFind reads
+New since 1.1.0 (first published in 1.2.0).
+A **RAW** file is the untouched data from a digital camera sensor. AstroFind reads
 it with the **LibRaw** library.
 
 **Which cameras / extensions:**
@@ -375,7 +378,8 @@ it, RAW files are refused with: "DSLR RAW support is not available in this build
 
 🇧🇷 **Português**
 
-Novidade da 1.1.0. Um arquivo **RAW** são os dados intactos do sensor de uma câmera digital. O
+Novidade desde a 1.1.0 (publicada pela primeira vez na 1.2.0).
+Um arquivo **RAW** são os dados intactos do sensor de uma câmera digital. O
 AstroFind o lê com a biblioteca **LibRaw**.
 
 **Quais câmeras / extensões:** veja a tabela acima (Canon `.cr2` `.cr3` `.crw`, Nikon `.nef`
@@ -389,14 +393,14 @@ Epson `.erf`, Kodak `.kdc`, Minolta `.mrw`, Sigma `.x3f`, Phase One `.iiq`, Mami
 1. **Antes de observar, acerte o relógio da câmera em UTC** (Tempo Universal, não a hora local)
    e com precisão. O RAW guarda só o que o relógio mostrava, sem fuso horário.
 2. Fotografe em RAW (não só em JPEG). Faça vários quadros do mesmo campo.
-3. **Arquivo → Carregar Imagens...** → filtro *DSLR RAW* → selecione os arquivos.
+3. **Arquivo → Importar Imagens...** → filtro *DSLR RAW* → selecione os arquivos.
 4. O Registro mostra "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a
    câmera grava hora local." para cada arquivo. Isso é esperado em RAW: o AstroFind *supôs* que o
-   relógio estava em UTC. Se não estava, corrija o **Julian Date:** em **Imagens → Editar
-   Parâmetros da Imagem...** antes da Redução de Dados (veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), Parte 11).
+   relógio estava em UTC. Se não estava, corrija a **Data Juliana:** em **Ferramentas de Imagem → Editar
+   Configurações da Imagem...** antes da Redução de Dados (veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), Parte 11).
 5. Configure sua **localização** em **Arquivo → Configurações... → Observador** — arquivos RAW
    não a contêm.
-6. Rode **Astrometria → Redução de Dados...** (`Ctrl+A`) para fazer o plate solving; arquivos RAW
+6. Rode **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) para fazer o plate solving; arquivos RAW
    não têm solução de placa.
 
 **Por que "linear" e "sem demosaico" importam.** Um sensor colorido tem um mosaico de filtros
@@ -434,7 +438,8 @@ LibRaw e recompile — veja [Installation](https://github.com/petrinhu/astrofind
 
 🇬🇧 **English**
 
-New in 1.1.0. The **PDS** (Planetary Data System) is NASA's public archive of data from
+New since 1.1.0 (first published in 1.2.0).
+The **PDS** (Planetary Data System) is NASA's public archive of data from
 planetary missions and some telescopes. Its images are raw binary files described by a text
 **label**. There are two generations:
 
@@ -470,7 +475,8 @@ PDS4 `.xml` must be an observational product (`Product_Observational`) with a 2-
 
 🇧🇷 **Português**
 
-Novidade da 1.1.0. O **PDS** (Planetary Data System) é o arquivo público da NASA com dados de
+Novidade desde a 1.1.0 (publicada pela primeira vez na 1.2.0).
+O **PDS** (Planetary Data System) é o arquivo público da NASA com dados de
 missões planetárias e de alguns telescópios. Suas imagens são arquivos binários descritos por um
 **rótulo** (label) de texto. Há duas gerações:
 
@@ -482,12 +488,12 @@ missões planetárias e de alguns telescópios. Suas imagens são arquivos biná
 
 1. Deixe o rótulo e o arquivo de dados na **mesma pasta**, com os nomes originais (maiúsculas ou
    minúsculas não importam).
-2. **Arquivo → Carregar Imagens...** → filtro *NASA PDS3 / PDS4* e selecione:
+2. **Arquivo → Importar Imagens...** → filtro *NASA PDS3 / PDS4* e selecione:
    - PDS3 com rótulo anexado: o `.img`.
    - PDS3 com rótulo separado: o `.img` **ou** o `.lbl` (se selecionar os dois, o `.lbl` extra é
      descartado).
    - PDS4: o rótulo `.xml`. Se o rótulo apontar para um arquivo FITS, esse FITS é aberto.
-3. Rode **Astrometria → Redução de Dados...** antes de medir: imagens de missão **raramente têm
+3. Rode **Ferramentas de Astrometria → Executar Redução de Dados...** antes de medir: imagens de missão **raramente têm
    solução de placa**.
 
 **O que é lido:** a primeira banda da imagem (as outras são puladas com aviso no registro);
@@ -564,9 +570,9 @@ de estrelas:
 
 - **Catálogo local de estrelas** (estrelas de referência sem internet: exportações USNO-B, UCAC,
   Gaia): **Configurações → Conexões → Fonte: Local FITS BINTABLE** → **Catálogo local:**.
-- **Astrometria → Importar Estrelas Detectadas (DAOPHOT/SExtractor)…** (`.fits .fit .fts .cat`)
+- **Ferramentas de Astrometria → Importar Estrelas Detectadas (DAOPHOT/SExtractor)…** (`.fits .fit .fts .cat`)
   substitui as estrelas detectadas da imagem ativa.
-- **Astrometria → Importar Tabela de Redução (IRAF/Astropy)…** faz o mesmo com tabelas de redução
+- **Ferramentas de Astrometria → Importar Tabela de Redução (IRAF/Astropy)…** faz o mesmo com tabelas de redução
   externas; linhas com AR/Dec são marcadas como casadas.
 
 ---
@@ -618,15 +624,15 @@ compactado) onde estavam. Salve com **Arquivo → Salvar Projeto** (`Ctrl+S`), a
 
 | O quê | Formato | Onde |
 |---|---|---|
-| Imagem como você a vê | JPEG, PNG, BMP | **Arquivo → Exportar Imagem como...** / botão direito → **Exportar como JPEG/PNG…** |
-| Imagem + solução de placa | cópia FITS `<nome>_wcs.fits` | **Arquivo → Salvar como FITS...**, **Arquivo → Salvar todos como FITS** |
+| Imagem como você a vê | JPEG, PNG, BMP | **Arquivo → Exportar Imagem Como...** / botão direito → **Exportar como JPEG/PNG…** |
+| Imagem + solução de placa | cópia FITS `<nome>_wcs.fits` | **Arquivo → Salvar Cópia em FITS...**, **Arquivo → Salvar todos como FITS** |
 | Relatório MPC | ADES 2022 XML e PSV | Janela do relatório: **Save…**, **Save to Reports Folder** |
 | Relatório para imprimir | PDF | Janela do relatório: **Export PDF…** |
-| Curva de luz | PNG | **Ferramentas → Curva de Luz…** → **Export PNG…** |
+| Curva de luz | PNG | **Utilitários → Curva de Luz…** → **Export PNG…** |
 | Configurações da escola | `.ini` | **Arquivo → Exportar Configuração da Escola...** |
 | Sessão | `.gus` | **Arquivo → Salvar Projeto** |
 
-> ⚠️ **Atenção** — **Salvar como FITS** copia o *arquivo original* e grava o WCS na cópia. A
+> ⚠️ **Atenção** — **Salvar Cópia em FITS** copia o *arquivo original* e grava o WCS na cópia. A
 > cópia mantém os pixels originais (a calibração não é salva) e só funciona para imagens que
 > vieram de um arquivo FITS: ela não converte RAW, TIFF ou outros formatos para FITS. Nenhum
 > relatório MPC de 80 colunas é gerado.

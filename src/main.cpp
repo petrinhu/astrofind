@@ -4,6 +4,7 @@
 #include "ui/MainWindow.h"
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QIcon>
 #include <QLocale>
 #include <QTranslator>
@@ -24,6 +25,19 @@ int main(int argc, char* argv[])
     // Wayland: links this process to the installed .desktop file so the
     // compositor can resolve the icon from the hicolor theme.
     app.setDesktopFileName(QStringLiteral("astrofind"));
+
+    // --help / --version (standard Qt options; both print and exit before any
+    // window is created). The file arguments the desktop entry passes (%F)
+    // are accepted but, as before, not opened automatically.
+    QCommandLineParser cli;
+    cli.setApplicationDescription(QStringLiteral(
+        "Asteroid detection and astrometry for citizen science (IASC / MPC)."));
+    cli.addHelpOption();
+    cli.addVersionOption();
+    cli.addPositionalArgument(QStringLiteral("files"),
+                              QStringLiteral("Image files (accepted, not opened automatically)."),
+                              QStringLiteral("[files...]"));
+    cli.process(app);
 
     // Application icon — multi-resolution QIcon from embedded PNGs
     QIcon appIcon;

@@ -7,7 +7,7 @@
 
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.1.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.2.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/build.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
 [![Audit](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=audit&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
@@ -18,7 +18,7 @@
 [![Platform](https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&logoColor=black)](INSTALL.md)
 
 <!-- Quality -->
-[![Tests](https://img.shields.io/badge/tests-206%20cases%20passing-brightgreen)](#testing--testes)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](#testing--testes)
 [![ASan/UBSan](https://img.shields.io/badge/ASan%2FUBSan-clean-success)](.github/workflows/audit.yml)
 [![cppcheck](https://img.shields.io/badge/cppcheck-clean-success)](.github/workflows/audit.yml)
 [![clang-tidy](https://img.shields.io/badge/clang--tidy-checked-success)](.github/workflows/audit.yml)
@@ -44,8 +44,8 @@
 <!-- Topics -->
 [![astrometry](https://img.shields.io/badge/topic-astrometry-lightgrey)](docs/technical-reference.md)
 [![asteroid detection](https://img.shields.io/badge/topic-asteroid--detection-lightgrey)](docs/technical-reference.md)
-[![FITS](https://img.shields.io/badge/topic-FITS-lightgrey)](docs/technical-reference.md#1-fits-file-structure)
-[![WCS](https://img.shields.io/badge/topic-WCS-lightgrey)](docs/technical-reference.md#3-wcs-pipeline--pixel-to-sky)
+[![FITS](https://img.shields.io/badge/topic-FITS-lightgrey)](docs/technical-reference.md#1-fits-file-structure--estrutura-de-arquivo-fits)
+[![WCS](https://img.shields.io/badge/topic-WCS-lightgrey)](docs/technical-reference.md#3-wcs-pipeline-pixel-to-sky--pipeline-wcs-pixel-para-céu)
 [![MPC/ADES](https://img.shields.io/badge/topic-MPC%2FADES-lightgrey)](https://minorplanetcenter.net/ades)
 [![photometry](https://img.shields.io/badge/topic-photometry-lightgrey)](docs/technical-reference.md)
 
@@ -222,7 +222,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -231,9 +231,19 @@ chmod +x install.sh
 
 | Distro family | Package |
 |---|---|
-| Fedora / RHEL / Rocky Linux | `.rpm` |
-| Ubuntu / Debian / Mint / Pop!\_OS / Zorin | `.deb` |
-| Arch Linux / Manjaro / CachyOS | PKGBUILD (built locally with `makepkg`) |
+| Fedora 44 | `.fc44.x86_64.rpm` |
+| Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (enable EPEL and CRB first) |
+| openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
+| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
+| Debian 13 | `~debian13_amd64.deb` |
+| Debian 12 | `.AppImage` (no `.deb` for Debian 12) |
+| Arch Linux / Manjaro / EndeavourOS | `-x86_64.pkg.tar.zst` (or PKGBUILD, built locally with `makepkg`) |
+| CachyOS | `-cachyos-x86_64.pkg.tar.zst` (built on CachyOS) |
+| Any other x86-64 distro (glibc ≥ 2.36) | `.AppImage` (no install needed) |
+
+Distros on an Ubuntu 22.04 base (Pop!\_OS 22.04, Zorin OS 17, Mint 21) are not supported:
+their Qt 6.2 is older than the Qt 6.4 AstroFind needs, and their glibc 2.35 is too old for the
+AppImage.
 
 Every exact command, per-distro dependency list, and build-from-source instructions are in
 **[INSTALL.md](INSTALL.md)**: keep that file as the single source of truth for install
@@ -254,7 +264,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -263,9 +273,19 @@ chmod +x install.sh
 
 | Família de distro | Pacote |
 |---|---|
-| Fedora / RHEL / Rocky Linux | `.rpm` |
-| Ubuntu / Debian / Mint / Pop!\_OS / Zorin | `.deb` |
-| Arch Linux / Manjaro / CachyOS | PKGBUILD (compilado localmente com `makepkg`) |
+| Fedora 44 | `.fc44.x86_64.rpm` |
+| Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (ative EPEL e CRB antes) |
+| openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
+| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
+| Debian 13 | `~debian13_amd64.deb` |
+| Debian 12 | `.AppImage` (não há `.deb` para o Debian 12) |
+| Arch Linux / Manjaro / EndeavourOS | `-x86_64.pkg.tar.zst` (ou PKGBUILD, compilado localmente com `makepkg`) |
+| CachyOS | `-cachyos-x86_64.pkg.tar.zst` (compilado no CachyOS) |
+| Qualquer outra distro x86-64 (glibc ≥ 2.36) | `.AppImage` (não precisa instalar) |
+
+Distros com base Ubuntu 22.04 (Pop!\_OS 22.04, Zorin OS 17, Mint 21) não são suportadas: o
+Qt 6.2 delas é mais antigo que o Qt 6.4 exigido pelo AstroFind, e a glibc 2.35 é antiga demais
+para o AppImage.
 
 Todos os comandos exatos, dependências por distribuição e instruções de compilação a
 partir do código-fonte estão em **[INSTALL.md](INSTALL.md)**: mantenha esse arquivo como
@@ -306,7 +326,7 @@ beginners, with a menu and settings reference.
 
 ### 🇧🇷 Português
 
-O painel **Fluxo** à esquerda conduz pelos mesmos seis passos:
+O painel **Fluxo de Trabalho** à esquerda conduz pelos mesmos seis passos:
 
 1. **Arquivo → Importar Imagens…**: abra 3 ou mais quadros do mesmo campo (FITS, ou qualquer
    formato em [Recursos](#features--recursos); **FITS** = Flexible Image Transport System, o
@@ -333,13 +353,13 @@ absolutos, com referência de menus e de configurações.
 
 C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
 cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; optional: LibRaw,
-libarchive, QuaZip, Qt6Keychain.
+libarchive, Qt6Keychain.
 
 ### 🇧🇷 Português
 
 C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
 cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; opcionais: LibRaw,
-libarchive, QuaZip, Qt6Keychain.
+libarchive, Qt6Keychain.
 
 ---
 
@@ -356,8 +376,7 @@ libarchive, QuaZip, Qt6Keychain.
 | FFTW3 | any | GPL-2.0-or-later | FFT for image stacking and power spectrum |
 | SEP | >= 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Source Extractor C library (FetchContent) |
 | spdlog | >= 1.11 | MIT | Logging (FetchContent) |
-| nlohmann/json | >= 3.11 | MIT | Project file serialisation (bundled) |
-| Qt6Keychain | any | LGPL-2.1 | Secure API key storage (dynamically linked, required at runtime) |
+| nlohmann/json | >= 3.11 | MIT | Project file serialisation (FetchContent) |
 | CMake | >= 3.22 | n/a | Build system, not distributed |
 | C++ | 23 | n/a | Compiler: GCC 12+ (Debian 12 is the oldest tested) or Clang 16+, not distributed |
 
@@ -365,8 +384,9 @@ libarchive, QuaZip, Qt6Keychain.
 
 | Dependency | License | Notes |
 |------------|---------|-------|
-| QuaZip + Qt6Core5Compat | LGPL-2.1 + static-linking exception | ZIP archive extraction |
+| Qt6Keychain | LGPL-2.1 | Secure API key storage (dynamically linked); without it the API key is kept in the plain-text settings file |
 | libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction |
+| unzip (command) | Info-ZIP | ZIP image sets (run as an external program) |
 | LibRaw | LGPL-2.1 / CDDL-1.0 | DSLR RAW loading (optional) |
 | Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations |
 | ASTAP | proprietary freeware | Offline plate solver ([hnsky.org](https://www.hnsky.org/astap.htm)) |
@@ -387,8 +407,7 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 | FFTW3 | qualquer | GPL-2.0-or-later | FFT para empilhamento de imagens e espectro de potência |
 | SEP | >= 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Biblioteca C do Source Extractor (FetchContent) |
 | spdlog | >= 1.11 | MIT | Log (FetchContent) |
-| nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (bundled) |
-| Qt6Keychain | qualquer | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente, obrigatório em runtime) |
+| nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (FetchContent) |
 | CMake | >= 3.22 | n/a | Sistema de build, não distribuído |
 | C++ | 23 | n/a | Compilador: GCC 12+ (o Debian 12 é o mais antigo testado) ou Clang 16+, não distribuído |
 
@@ -396,8 +415,9 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 
 | Dependência | Licença | Notas |
 |-------------|---------|-------|
-| QuaZip + Qt6Core5Compat | LGPL-2.1 + exceção de linkagem estática | Extração de arquivos ZIP |
+| Qt6Keychain | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente); sem ela a chave API fica no arquivo de configurações em texto puro |
 | libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR |
+| unzip (comando) | Info-ZIP | Conjuntos de imagens em ZIP (executado como programa externo) |
 | LibRaw | LGPL-2.1 / CDDL-1.0 | Leitura de RAW de DSLR (opcional) |
 | Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts` |
 | ASTAP | freeware proprietário | Plate solver offline ([hnsky.org](https://www.hnsky.org/astap.htm)) |
@@ -422,11 +442,11 @@ ver [`NOTICE`](NOTICE). Nomes exatos de pacotes por distribuição: ver
 ./build/bin/astrofind_ui_tests
 ```
 
-The suites have **179 core test cases (38 515 assertions) and 27 UI test cases**, all
-passing on the 10 QA distributions. `audit.yml` rebuilds everything with ASan + UBSan
+The suites have **about 260 core test cases and 30 UI test cases**, all passing in CI on
+the 11 distributions in the badges above. `audit.yml` rebuilds everything with ASan + UBSan
 (LeakSanitizer on) and also runs cppcheck, clang-tidy and Valgrind, on Fedora 44,
-CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every pull request into `main` and every
-release tag. Locally: `cmake --build build --target audit` (reports in `build/audit/`).
+CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every push and pull request to `main` and
+every release tag. Locally: `cmake --build build --target audit` (reports in `build/audit/`).
 See [`AUDIT_FIND.md`](AUDIT_FIND.md) for the audit trail and [`TODO.md`](TODO.md) for the
 open items.
 
@@ -440,11 +460,11 @@ open items.
 ./build/bin/astrofind_ui_tests
 ```
 
-As suítes têm **179 casos de teste do núcleo (38 515 asserções) e 27 casos de UI**, todos
-passando nas 10 distribuições de QA. O `audit.yml` recompila tudo com ASan + UBSan
+As suítes têm **cerca de 260 casos de teste do núcleo e 30 casos de UI**, todos passando
+no CI nas 11 distribuições dos badges acima. O `audit.yml` recompila tudo com ASan + UBSan
 (LeakSanitizer ligado) e roda também cppcheck, clang-tidy e Valgrind, em Fedora 44,
-CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo pull request para a `main` e em toda tag
-de release. Localmente: `cmake --build build --target audit` (relatórios em
+CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo push e pull request para a `main` e em
+toda tag de release. Localmente: `cmake --build build --target audit` (relatórios em
 `build/audit/`). Veja [`AUDIT_FIND.md`](AUDIT_FIND.md) para o histórico da auditoria e o
 [`TODO.md`](TODO.md) para os itens abertos.
 
@@ -537,7 +557,6 @@ Libraries used: [Qt6](https://github.com/qt/qtbase),
 [spdlog](https://github.com/gabime/spdlog),
 [nlohmann/json](https://github.com/nlohmann/json),
 [Catch2](https://github.com/catchorg/Catch2),
-[QuaZip](https://github.com/stachenov/quazip),
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain),
 [libarchive](https://www.libarchive.org/),
 [LibRaw](https://www.libraw.org/).
@@ -571,7 +590,6 @@ Bibliotecas utilizadas: [Qt6](https://github.com/qt/qtbase),
 [spdlog](https://github.com/gabime/spdlog),
 [nlohmann/json](https://github.com/nlohmann/json),
 [Catch2](https://github.com/catchorg/Catch2),
-[QuaZip](https://github.com/stachenov/quazip),
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain),
 [libarchive](https://www.libarchive.org/),
 [LibRaw](https://www.libraw.org/).

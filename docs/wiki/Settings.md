@@ -62,7 +62,7 @@ are an advanced user." Believe it: leave those fields alone unless you know why.
 3. Embaixo: **Restaurar padrões**, **OK** e **Cancelar**.
 4. Nada é gravado até você apertar **OK**. **Cancelar** descarta as mudanças.
 
-**O que você deve ver:** depois do **OK**, aparece a mensagem "Settings saved.". Se você
+**O que você deve ver:** depois do **OK**, aparece a mensagem "Configurações salvas.". Se você
 mudou o idioma, o AstroFind pede para reiniciar.
 
 Algumas abas e grupos mostram uma faixa amarela: "Os melhores valores já estão definidos —
@@ -144,17 +144,17 @@ Manual coordinates / Coordenadas manuais:
 
 > ⚠️ **Watch out: Time Zone / Atenção: Fuso horário**
 > 🇬🇧 The tooltip says this is "Used only if FITS headers do not contain UTC timestamps". In
-> version 1.1.0 no part of the processing actually reads this value. Image times without a
+> version 1.2.0 no part of the processing actually reads this value. Image times without a
 > time zone are simply **assumed to be UTC**, and the Log warns "DATE-OBS sem fuso horário e
 > sem TIMESYS — assumido UTC; verifique se a câmera grava hora local." If your camera records
 > local time, fix the times at the source (camera/capture program) or per image in
 > **Image Tools → Edit Image Settings...** (Julian Date).
 > 🇧🇷 A dica diz que o valor é "usado apenas se os cabeçalhos FITS não tiverem horário UTC". Na
-> versão 1.1.0 nenhuma parte do processamento lê esse valor. Horários sem fuso são
+> versão 1.2.0 nenhuma parte do processamento lê esse valor. Horários sem fuso são
 > simplesmente **considerados UTC**, e o Registro avisa "DATE-OBS sem fuso horário e sem
 > TIMESYS — assumido UTC; verifique se a câmera grava hora local." Se sua câmera grava hora
-> local, corrija na origem (câmera/programa de captura) ou por imagem em **Imagens → Editar
-> Parâmetros da Imagem...** (Data Juliana).
+> local, corrija na origem (câmera/programa de captura) ou por imagem em **Ferramentas de Imagem → Editar
+> Configurações da Imagem...** (Data Juliana).
 
 > 💡 **Time Offset / Deslocamento de tempo**
 > 🇬🇧 This is a **camera-clock correction in seconds**. Run Data Reduction applies it **exactly
@@ -163,8 +163,8 @@ Manual coordinates / Coordenadas manuais:
 > this field by itself. **What to enter:** `0` unless you know your camera clock error (for
 > example from a time-sync program); then type that error in seconds.
 > **Upgrading:** versions 1.1.0 and earlier filled this field automatically with
-> *longitude ÷ 15* (a number of hours, used as seconds). So the first time you start the next
-> version (after 1.1.0), a stored non-zero Time Offset is reset to 0 once, and the Log shows a
+> *longitude ÷ 15* (a number of hours, used as seconds). So the first time you start version
+> 1.2.0, a stored non-zero Time Offset is reset to 0 once, and the Log shows a
 > warning ("Time Offset reset from … to 0 s …"). If you had typed a real clock error, type it
 > again in seconds.
 > 🇧🇷 É uma **correção do relógio da câmera, em segundos**. A Redução de Dados a aplica **uma
@@ -175,7 +175,7 @@ Manual coordinates / Coordenadas manuais:
 > segundos.
 > **Ao atualizar:** as versões 1.1.0 e anteriores preenchiam este campo sozinhas com
 > *longitude ÷ 15* (um número de horas, usado como segundos). Por isso, na primeira vez que
-> você abre a próxima versão (depois da 1.1.0), um Deslocamento de tempo diferente de 0 é
+> você abre a versão 1.2.0, um Deslocamento de tempo diferente de 0 é
 > zerado uma vez, e o Registro mostra um aviso ("Time Offset redefinido de … para 0 s …"). Se você
 > tinha digitado um erro real de relógio, digite de novo em segundos.
 
@@ -228,9 +228,10 @@ placa.
 > computes known asteroids from the **offline** MPCORB file, whose orbits use TT. The online
 > SkyBoT service takes UTC directly. **Leave ΔT at its default** (68 s).
 > **Version 1.1.0 and earlier** added ΔT (and Time Offset) to every image time on each Data
-> Reduction, so `obsTime` came out about 68 s late (bug **AUD-CORR-15**). If you are still on
-> 1.1.0: set **ΔT (TT − UTC):** and **Time Offset:** to **0** *before* the first Data
-> Reduction, and reload the images if you already ran it. The next version (after 1.1.0)
+> Reduction, so `obsTime` came out about 68 s late (bug **AUD-CORR-15**). If you still run a
+> build of the 1.1.0 source (never published as a release) or an older version:
+> set **ΔT (TT − UTC):** and **Time Offset:** to **0** *before* the first Data
+> Reduction, and reload the images if you already ran it. Version 1.2.0
 > does not need this. See [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) for details.
 >
 > 🇧🇷 O ΔT **não** muda o horário das imagens. O horário gravado como `obsTime` no relatório
@@ -240,9 +241,10 @@ placa.
 > padrão** (68 s).
 > **Na versão 1.1.0 e anteriores** a Redução de Dados somava o ΔT (e o Deslocamento de tempo)
 > ao horário de cada imagem a cada execução, e o `obsTime` saía cerca de 68 s atrasado (bug
-> **AUD-CORR-15**). Se ainda usa a 1.1.0: ponha **ΔT (TT − UTC):** e **Deslocamento de
+> **AUD-CORR-15**). Se ainda usa um build do código da 1.1.0 (nunca publicada como
+> release) ou uma versão mais antiga: ponha **ΔT (TT − UTC):** e **Deslocamento de
 > tempo:** em **0** *antes* da primeira Redução de Dados, e recarregue as imagens se já rodou.
-> A próxima versão (depois da 1.1.0) não precisa disso. Detalhes em
+> A versão 1.2.0 não precisa disso. Detalhes em
 > [Avançado](https://github.com/petrinhu/astrofind/wiki/Advanced).
 
 > 💡 **Pixel Scale / Escala de pixel**
@@ -261,7 +263,7 @@ placa.
 > focal em mm (ex.: 3,76 µm e 530 mm → 1,46″/px). A caixa aceita de 0 a 100 com 3 decimais.
 > Na 1.1.0 e anteriores a caixa tinha o rótulo errado **°/px** e não passava de 1, embora o
 > valor já fosse lido em ″/px; lá, escalas acima de 1″/px precisavam ser dadas por imagem em
-> **Imagens → Editar Parâmetros da Imagem...**.
+> **Ferramentas de Imagem → Editar Configurações da Imagem...**.
 
 ---
 
@@ -280,7 +282,7 @@ ela aponta.
 |---|---|---|---|---|---|---|---|
 | Backend: | Backend: | Which solver to use: "astrometry.net (online)" (needs internet and a free API key) or "ASTAP (local, offline)" (a program you install yourself). | Qual solver usar: "astrometry.net (online)" (precisa de internet e chave gratuita) ou "ASTAP (local, offline)" (programa que você instala). | astrometry.net | — | `astrometry/backend` (`astrometry_net` / `astap`) | 🟢 |
 | Executável ASTAP: (PT in both languages) | Executável ASTAP: | Full path of the ASTAP program, e.g. `/usr/bin/astap`. The **…** button opens "Localizar ASTAP". | Caminho completo do programa ASTAP, ex.: `/usr/bin/astap`. O botão **…** abre "Localizar ASTAP". | empty | path | `astrometry/astapPath` | 🟡 |
-| API Key: | Chave de API: | Your personal key from nova.astrometry.net (link "Get a free key at nova.astrometry.net"). **Show**/**Hide** reveals it. A badge says where it is kept: "🔒 Stored in system keychain (KWallet / SecretService)" or "⚠ Stored in plain text". | Sua chave pessoal do nova.astrometry.net (link "Obtenha uma chave gratuita em nova.astrometry.net"). **Mostrar**/**Ocultar** revela. Um selo diz onde fica guardada: no chaveiro do sistema ou em texto puro. | empty | text | system keychain (service "AstroFind"), or `astrometry/apiKey` | 🟢 |
+| API Key: | Chave de API: | Your personal key from nova.astrometry.net (link "Get a free key at nova.astrometry.net"). **Show**/**Hide** reveals it. A badge says where it is kept: "🔒 Stored in system keychain (KWallet / SecretService)" or "⚠ Stored in plain text". | Sua chave pessoal do nova.astrometry.net (link "Obtenha uma chave gratuita em nova.astrometry.net"). **Mostrar**/**Ocultar** revela. Um selo diz onde fica guardada: "🔒 Armazenado no chaveiro do sistema (KWallet / SecretService)" ou "⚠ Armazenado em texto simples". | empty | text | system keychain (service "AstroFind"), or `astrometry/apiKey` | 🟢 |
 | Server URL: | URL do servidor: | The astrometry.net server. Only `https://…` (or `http://localhost…`) is accepted. | O servidor astrometry.net. Só `https://…` (ou `http://localhost…`) é aceito. | `https://nova.astrometry.net` | URL | `astrometry/baseUrl` | 🔴 |
 | Timeout: | Tempo limite: | How long to wait for an online solution before giving up. | Quanto esperar pela solução online antes de desistir. | 300 s | 60 … 600 s | `astrometry/timeoutSec` | 🟡 |
 
@@ -312,7 +314,7 @@ ela aponta.
 > Folder** da janela do relatório. Esse botão usa outra configuração escondida
 > (`paths/reportDir`, padrão: sua pasta pessoal) que não dá para mudar nesta janela. Com os
 > padrões você recebe `ades_report.*` em Documentos (salvamento automático) e
-> `ADES_<estação>_<data>.*` na pasta pessoal (botão). Se quiser um lugar só, use **Save…** na
+> `ADES_<estação>_<data>.*` na pasta pessoal (botão). Se quiser um lugar só, use **Salvar…** na
 > janela do relatório e escolha a pasta; ela é lembrada.
 
 > ⚠️ **Watch out / Atenção**
@@ -339,7 +341,7 @@ ela aponta.
 > server is unreachable from where you are. Another server must start with `https://`
 > (`http://` is accepted only for `localhost`); a bare host name does not work.
 > In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was silently rejected.
-> The next version (after 1.1.0) shows and saves an old `vizier.cfa.harvard.edu` (or empty)
+> Version 1.2.0 shows and saves an old `vizier.cfa.harvard.edu` (or empty)
 > value as the default address above; **Reset to Defaults** also puts that address back.
 > 🇧🇷 O campo guarda o **endereço completo de um serviço TAP do VizieR**, terminando em
 > `…/TAPVizieR/tap/sync`. O padrão é o servidor real do CDS,
@@ -347,7 +349,7 @@ ela aponta.
 > esse servidor não seja acessível de onde você está. Outro servidor precisa começar com
 > `https://` (`http://` só é aceito para `localhost`); só o nome do host não funciona.
 > Na 1.1.0 e anteriores o campo mostrava `vizier.cfa.harvard.edu`, que era recusado em
-> silêncio. A próxima versão (depois da 1.1.0) mostra e salva um valor antigo
+> silêncio. A versão 1.2.0 mostra e salva um valor antigo
 > `vizier.cfa.harvard.edu` (ou vazio) como o endereço padrão acima; **Restaurar padrões**
 > também volta esse endereço.
 
@@ -632,7 +634,7 @@ da Escola...** lê no outro computador.
 | Connections → Report output folder | one folder | only auto-save; "Save to Reports Folder" uses your home folder | use **Save…** to choose |
 | (no field) session limit | "increase the limit in Settings" | no such field; 20 images | load ≤ 20 images |
 
-> 💡 **Fixed in the next version (after 1.1.0) / Corrigido na próxima versão (depois da 1.1.0)**
+> 💡 **Fixed in version 1.2.0 / Corrigido na versão 1.2.0**
 > 🇬🇧 These rows were in this table for 1.1.0 and are now labelled correctly: Camera → Pixel
 > Scale X/Y (was "°/px", max 1; now ″/px, 0–100), Detection → Minimum FWHM (was "px"; now ″),
 > Observer → Time Precision (was "h"; now 0–3 decimal places), Observer → Time Offset (was

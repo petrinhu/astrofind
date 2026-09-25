@@ -80,61 +80,14 @@ for star/source detection (`StarDetector`).
   standard MIT text this reduces to.
 
 --------------------------------------------------------------------
-3. QuaZip — ZIP archive extraction (optional, bundled when
-   Qt6Core5Compat is available)
+3. (removed in 1.2.0) QuaZip
 --------------------------------------------------------------------
-Component:   QuaZip v1.4 (github.com/stachenov/quazip)
-Copyright:   Copyright (C) 2005-2014 Sergey A. Tachenov and QuaZip
-             contributors; embedded MiniZip portions
-             Copyright (C) 1998-2010 Gilles Vollant (minizip),
-             Copyright (C) 2007-2008 Even Rouault,
-             Copyright (C) 2009-2010 Mathias Svensson (Zip64 support)
-License:     LGPL-2.1 WITH a static-linking exception (see below) for
-             QuaZip; zlib license for the embedded MiniZip files
-             (`quazip/unzip.*`, `quazip/zip.*`, `quazip/ioapi.h`),
-             verbatim text below (AUD-PROV-12)
-
-  STATIC LINKING EXCEPTION (verbatim, from QuaZip's `COPYING`):
-
-  The copyright holders give you permission to link this library with
-  independent modules to produce an executable, regardless of the
-  license terms of these independent modules, and to copy and
-  distribute the resulting executable under terms of your choice,
-  provided that you also meet, for each linked independent module, the
-  terms and conditions of the license of that module. An independent
-  module is a module which is not derived from or based on this
-  library. If you modify this library, you must extend this exception
-  to your version of the library.
-
-  Full LGPL-2.1 text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
-
-This exception is what allows AstroFind to statically link QuaZip
-under AGPL-3.0 without QuaZip's own LGPL-2.1 requiring the AstroFind
-binary itself to additionally satisfy LGPL's "user can relink a
-modified library" clause.
-
-  MiniZip — zlib license (verbatim, from the header of QuaZip's
-  `quazip/unzip.h` / `quazip/zip.h`; "Condition of use and
-  distribution are the same than zlib"):
-
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
-
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
-
-  (QuaZip marks its MiniZip copies as modified by Sergey A. Tachenov,
-  as clause 2 requires; AstroFind does not modify them further.)
+Earlier versions fetched and compiled QuaZip v1.4 whenever Qt6Core5Compat
+was installed, but no AstroFind target ever linked it: ZIP image sets
+are extracted with the system `unzip` command (src/core/ArchiveExtractor.cpp).
+It was dropped from the build in 1.2.0, so no QuaZip or MiniZip code is
+distributed and no notice is owed. The section number is kept so the
+references to §4-§10 below stay valid.
 
 --------------------------------------------------------------------
 4. cfitsio and CCfits — FITS I/O (bundled or system package)
@@ -262,7 +215,7 @@ text: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 7. Qt6, Qt6Keychain, libarchive, LibRaw
 --------------------------------------------------------------------
 Component:   Qt6 (qt.io) — Widgets, OpenGL, Charts, Concurrent, Network,
-             Sql, Xml, Core5Compat modules
+             Sql, Xml modules
 Copyright:   The Qt Company Ltd. and contributors
 License:     LGPL-3.0 (open-source edition)
              Full text: https://www.gnu.org/licenses/lgpl-3.0.html
@@ -371,7 +324,7 @@ with the work are versioned in `LICENSES/` (AUD-PROV-13):
 
   - `LICENSES/LGPL-3.0.txt`  — WCSLIB-adapted code (§1), SEP (§2), Qt6 (§7)
   - `LICENSES/GPL-3.0.txt`   — which LGPL-3.0 incorporates by reference
-  - `LICENSES/LGPL-2.1.txt`  — QuaZip (§3), Qt6Keychain and LibRaw (§7)
+  - `LICENSES/LGPL-2.1.txt`  — Qt6Keychain and LibRaw (§7)
   - `LICENSES/GPL-2.0.txt`   — FFTW3 (§6)
 
 The distro packages ship them next to this file: `%license` in

@@ -376,7 +376,7 @@ the "blink comparator" instrument, used for example to discover Pluto in 1930. I
 Mostrar várias imagens do mesmo campo uma depois da outra, no mesmo lugar da tela, para que
 qualquer coisa que se mova (um asteroide) pule enquanto as estrelas ficam paradas. O nome vem do
 instrumento "comparador de piscar" (blink comparator), usado por exemplo na descoberta de Plutão
-em 1930. No AstroFind: **Ferramentas → Piscar Imagens** (`Ctrl+B`).
+em 1930. No AstroFind: **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`).
 
 ---
 
@@ -635,7 +635,7 @@ them again with the **Window → View …** items.
 🇧🇷 **Português**
 Um painel preso na lateral ou embaixo da janela principal, que você pode mover, esconder ou
 mostrar. Os painéis do AstroFind são Fluxo de Trabalho, Calibração, Imagens, Registro (Log),
-Observações e Catálogo de Imagem. Mostre de novo pelos itens **Janelas → Exibir …**.
+Observações e Catálogo de Imagem. Mostre de novo pelos itens **Janela → Exibir …**.
 
 ---
 
@@ -651,7 +651,7 @@ with **Utilities → Ecliptic / Galactic Overlay** (`Ctrl+E`).
 🇧🇷 **Português**
 O caminho que o Sol parece fazer no céu ao longo do ano. Os planetas e a maioria dos asteroides
 orbitam perto desse plano, então campos perto da eclíptica têm mais asteroides. O AstroFind pode
-desenhá-la com **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`).
+desenhá-la com **Utilitários → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`).
 
 ---
 
@@ -799,7 +799,7 @@ badge "⚠  Plano galáctico — alta extinção interestelar" when the field is
 
 🇧🇷 **Português**
 A faixa da Via Láctea no céu. Ela tem muitas estrelas e poeira, que enfraquece os objetos atrás
-dela (alta extinção). Com **Ferramentas → Sobreposição Eclíptica / Galáctica** ligada, o AstroFind
+dela (alta extinção). Com **Utilitários → Sobreposição Eclíptica / Galáctica** ligada, o AstroFind
 mostra o aviso "⚠  Plano galáctico — alta extinção interestelar" quando o campo está a menos de
 15° dele.
 
@@ -833,7 +833,7 @@ the best aperture size. In AstroFind: **Utilities → Growth Curve…** (`Ctrl+S
 
 🇧🇷 **Português**
 Um gráfico de quanta luz de uma estrela cai dentro de aberturas com raio crescente. Ajuda a
-escolher o melhor tamanho de abertura. No AstroFind: **Ferramentas → Curva de Crescimento…**
+escolher o melhor tamanho de abertura. No AstroFind: **Utilitários → Curva de Crescimento…**
 (`Ctrl+Shift+G`).
 
 ---
@@ -865,8 +865,8 @@ AstroFind reads many settings from it automatically. View it with **Image Tools 
 
 🇧🇷 **Português**
 A parte de texto de um arquivo FITS, com palavras-chave como `DATE-OBS`, `EXPTIME`, `FILTER`,
-`TELESCOP`. O AstroFind lê muitas configurações dele automaticamente. Veja com **Imagens → Exibir
-Cabeçalho…**.
+`TELESCOP`. O AstroFind lê muitas configurações dele automaticamente. Veja com **Ferramentas de Imagem → Ver
+Cabeçalho FITS…**.
 
 ---
 
@@ -956,13 +956,13 @@ catálogo correspondida — usando magnitude instrumental").
 A continuous count of days used by astronomers, without months or leap years. JD counts days from
 noon of 1 January 4713 BC; MJD = JD − 2400000.5. J2000.0, a common reference epoch, is JD
 2451545.0. AstroFind uses the JD of mid-exposure; you can edit it in **Image Tools → Edit Image
-Parameters…** ("Julian Date:").
+Settings…** ("Julian Date:").
 
 🇧🇷 **Português**
 Uma contagem contínua de dias usada por astrônomos, sem meses nem anos bissextos. O JD conta dias
 a partir do meio-dia de 1º de janeiro de 4713 a.C.; MJD = JD − 2400000,5. J2000.0, uma época de
 referência comum, é o JD 2451545,0. O AstroFind usa o JD do meio da exposição; você pode editá-lo
-em **Imagens → Editar Parâmetros da Imagem…** ("Data Juliana:").
+em **Ferramentas de Imagem → Editar Configurações da Imagem…** ("Data Juliana:").
 
 ---
 
@@ -978,7 +978,7 @@ orange.
 
 🇧🇷 **Português**
 O recurso do AstroFind que marca asteroides, cometas e planetas já catalogados que deveriam estar
-na sua imagem: **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`). Ele consulta o
+na sua imagem: **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`). Ele consulta o
 serviço SkyBoT do IMCCE, ou usa o MPCORB.DAT quando o SkyBoT não responde. Asteroides são
 círculos verdes, planetas azul-claro, cometas laranja.
 
@@ -1029,8 +1029,8 @@ Images, so use the menu there).
 
 🇧🇷 **Português**
 Um gráfico do brilho de um objeto ao longo do tempo. Pode mostrar a rotação de um asteroide. No
-AstroFind: **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`; na 1.1.0 e anteriores o atalho
-`Ctrl+L` conflitava com Carregar Imagens, então lá use o menu).
+AstroFind: **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`; na 1.1.0 e anteriores o atalho
+`Ctrl+L` conflitava com Importar Imagens, então lá use o menu).
 
 ---
 
@@ -1046,7 +1046,7 @@ AstroFind: "Cor falsa (LUT):" in **Image Tools → Adjust Black Point and Contra
 🇧🇷 **Português**
 Uma receita que transforma cada valor de brilho numa cor, usada para mostrar dados cinza em "cor
 falsa" (Quente, Frio, Viridis) e facilitar ver detalhes fracos. Muda só a visualização. No
-AstroFind: "Cor falsa (LUT):" em **Imagens → Ajustar Ponto Preto e Contraste…**.
+AstroFind: "Cor falsa (LUT):" em **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste…**.
 
 ---
 
@@ -1093,7 +1093,7 @@ an object must appear in at least 3 images.
 
 🇧🇷 **Português**
 A busca automática do AstroFind por objetos que andam de forma regular pelas imagens:
-**Astrometria → Detecção de Objetos em Movimento…** (`Ctrl+M`). Os candidatos são marcados
+**Ferramentas de Astrometria → Detectar Objetos em Movimento…** (`Ctrl+M`). Os candidatos são marcados
 "Cand #N". Por padrão, um objeto precisa aparecer em pelo menos 3 imagens.
 
 ---
@@ -1125,8 +1125,8 @@ AstroFind uses it to find known objects offline when SkyBoT cannot be reached.
 
 🇧🇷 **Português**
 O arquivo do MPC com as órbitas de todos os asteroides conhecidos. Ele é grande (o AstroFind diz
-cerca de 200 MB). Baixe com **Internet → Baixar MPCOrb** e atualize com **Internet → Atualizar
-MPCOrb**. O AstroFind o usa para achar objetos conhecidos offline quando o SkyBoT não responde.
+cerca de 200 MB). Baixe com **Internet → Baixar Banco MPCOrb** e atualize com **Internet → Atualizar
+Banco MPCOrb**. O AstroFind o usa para achar objetos conhecidos offline quando o SkyBoT não responde.
 
 ---
 
@@ -1230,8 +1230,8 @@ Reduction…** (`Ctrl+A`), online with astrometry.net or offline with ASTAP.
 
 🇧🇷 **Português**
 Descobrir, só pelo padrão das estrelas, exatamente qual parte do céu uma imagem mostra: centro,
-rotação e escala. O resultado é o **WCS**. O AstroFind faz isso dentro de **Astrometria → Redução
-de Dados…** (`Ctrl+A`), online com o astrometry.net ou offline com o ASTAP.
+rotação e escala. O resultado é o **WCS**. O AstroFind faz isso dentro de **Ferramentas de Astrometria → Executar
+Redução de Dados…** (`Ctrl+A`), online com o astrometry.net ou offline com o ASTAP.
 
 ---
 
@@ -1405,14 +1405,14 @@ foi obtida.*
 🇬🇧 **English**
 What is left after a comparison. (1) In astrometry: the difference between a star's measured
 position and its catalog position; AstroFind summarises these as the "WCS RMS" in the log, and
-uses that value as the position uncertainty in the report. (2) In **Tools → Compare Sessions…**:
+uses that value as the position uncertainty in the report. (2) In **Utilities → Compare Sessions…**:
 the "Residual" image, what remains after subtracting a reference image, where new or moving
 objects stand out.
 
 🇧🇷 **Português**
 O que sobra depois de uma comparação. (1) Em astrometria: a diferença entre a posição medida de
 uma estrela e a posição dela no catálogo; o AstroFind resume isso como o "WCS RMS" no log e usa
-esse valor como incerteza da posição no relatório. (2) Em **Ferramentas → Comparar Sessões…**: a
+esse valor como incerteza da posição no relatório. (2) Em **Utilitários → Comparar Sessões…**: a
 imagem "Residual", o que sobra depois de subtrair uma imagem de referência, onde objetos novos ou
 em movimento se destacam.
 
@@ -1520,7 +1520,7 @@ stack*.
 
 🇧🇷 **Português**
 Combinar várias exposições alinhadas numa só para aumentar a razão sinal-ruído e mostrar objetos
-mais fracos. No AstroFind: **Imagens → Re-empilhar Imagens** (alinhado pelas estrelas, ou por FFT quando faltam estrelas). Veja
+mais fracos. No AstroFind: **Ferramentas de Imagem → Reconstruir Empilhamento** (alinhado pelas estrelas, ou por FFT quando faltam estrelas). Veja
 também *Track and stack*.
 
 ---
@@ -1553,7 +1553,7 @@ only the display.
 
 🇧🇷 **Português**
 A regra que transforma os valores dos pixels em brilho na tela. Um bom esticamento torna visíveis
-as estrelas fracas. Em **Imagens → Ajustar Ponto Preto e Contraste…** o AstroFind oferece "Linear",
+as estrelas fracas. Em **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste…** o AstroFind oferece "Linear",
 "Logarítmica", "Raiz Quadrada (Sqrt)", "Asinh" e "Equalização de Histograma", mais o botão
 "⟳ Auto". Muda só a visualização.
 
@@ -1587,7 +1587,7 @@ times; correct a wrong time in **Image Tools → Edit Image Settings…**. See t
 🇧🇷 **Português**
 A diferença entre a hora local do relógio e o UTC (por exemplo UTC−3 em Brasília). Os horários de
 observação precisam estar em UTC. A configuração "Fuso horário:" do AstroFind é guardada, mas
-**não** muda o horário das imagens; corrija um horário errado em **Imagens → Editar Parâmetros da
+**não** muda o horário das imagens; corrija um horário errado em **Ferramentas de Imagem → Editar Configurações da
 Imagem…**. Veja o [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).
 
 ---
@@ -1605,7 +1605,7 @@ in pixels.
 🇧🇷 **Português**
 Empilhar imagens deslocando cada uma pelo movimento esperado de um objeto, para que o objeto se
 some num ponto nítido enquanto as estrelas se espalham. Revela objetos fracos demais para uma
-imagem só. No AstroFind: **Astrometria → Empilhar Imagens…** (`Ctrl+T`), onde você digita o
+imagem só. No AstroFind: **Ferramentas de Astrometria → Empilhar Imagens…** (`Ctrl+T`), onde você digita o
 deslocamento por quadro (dX, dY) em pixels.
 
 ---

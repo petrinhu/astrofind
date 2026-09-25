@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # AstroFind Installer — install.sh
-# Version 1.1.0
+# Version 1.2.0
 # =============================================================================
 # Usage:
 #   ./install.sh           # interactive (auto-detect locale)
@@ -13,17 +13,18 @@
 set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
-readonly VERSION="1.1.0"
+readonly VERSION="1.2.0"
 readonly REPO="petrinhu/astrofind"
 readonly BASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}"
-# Asset names exactly as published on the GitHub release page.
-readonly RPM_FILE="astrofind-${VERSION}-1.x86_64.rpm"
-readonly DEB_FILE="astrofind_${VERSION}_amd64.deb"
-# Arch builds from the PKGBUILD kept in the repository at the release tag
-# (no Arch tarball is published as a release asset).
-readonly ARCH_PKGBUILD_URL="https://raw.githubusercontent.com/${REPO}/v${VERSION}/packaging/arch/PKGBUILD"
+# Release file for this machine, chosen by detect_distro() among the assets
+# that .github/workflows/release.yml publishes (see INSTALL.md for the list).
+ASSET=""
+# Every download is checked against this file from the same release.
+readonly SUMS_FILE="SHA256SUMS"
+# Minimum glibc for the AppImage (built on Debian 12).
+readonly APPIMAGE_MIN_GLIBC="2.36"
 
-readonly BINARY="/usr/bin/AstroFind"
+BINARY="/usr/bin/AstroFind"
 readonly DESKTOP_SRC="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/../astrofind.desktop"
 readonly ICON_NAME="astrofind"
 
@@ -113,10 +114,22 @@ EN[step_install_fail]="Package installation failed. Try manually:"
 PT[step_install_fail]="Falha na instalação do pacote. Tente manualmente:"
 EN[step_verify]="Verifying installation"
 PT[step_verify]="Verificando instalação"
-EN[step_verify_ok]="AstroFind binary found at ${BINARY}."
-PT[step_verify_ok]="Binário AstroFind encontrado em ${BINARY}."
-EN[step_verify_fail]="Binary not found at ${BINARY} after installation."
-PT[step_verify_fail]="Binário não encontrado em ${BINARY} após a instalação."
+EN[step_verify_ok]="AstroFind is installed:"
+PT[step_verify_ok]="AstroFind instalado:"
+EN[step_verify_fail]="AstroFind was not found after installation."
+PT[step_verify_fail]="AstroFind não foi encontrado após a instalação."
+EN[checksum_ok]="SHA-256 checksum verified."
+PT[checksum_ok]="Checksum SHA-256 conferido."
+EN[checksum_fail]="SHA-256 checksum does NOT match SHA256SUMS: the download is corrupt or was altered. Nothing was installed."
+PT[checksum_fail]="O checksum SHA-256 NÃO confere com o SHA256SUMS: o download está corrompido ou foi alterado. Nada foi instalado."
+EN[epel_info]="Enabling EPEL and CRB (they provide cfitsio, LibRaw and qtkeychain on RHEL 9 and rebuilds)..."
+PT[epel_info]="Ativando EPEL e CRB (fornecem cfitsio, LibRaw e qtkeychain no RHEL 9 e derivados)..."
+EN[other_release_warn]="This package was built for a different release of your distribution; if the package manager reports missing libraries, use the AppImage instead."
+PT[other_release_warn]="Este pacote foi compilado para outra versão da sua distribuição; se o gerenciador de pacotes reclamar de bibliotecas faltando, use a AppImage."
+EN[appimage_info]="Installing the AppImage (runs on any x86-64 distribution with glibc >= ${APPIMAGE_MIN_GLIBC})..."
+PT[appimage_info]="Instalando a AppImage (roda em qualquer distribuição x86-64 com glibc >= ${APPIMAGE_MIN_GLIBC})..."
+EN[unsupported_msg]="This distribution release is too old for AstroFind ${VERSION}: it needs Qt >= 6.4 to build and glibc >= ${APPIMAGE_MIN_GLIBC} for the AppImage (e.g. Ubuntu 22.04, Pop!_OS 22.04, Zorin OS 17 and Linux Mint 21 are not supported). Please upgrade the distribution."
+PT[unsupported_msg]="Esta versão da distribuição é antiga demais para o AstroFind ${VERSION}: ele precisa de Qt >= 6.4 para compilar e de glibc >= ${APPIMAGE_MIN_GLIBC} para a AppImage (Ubuntu 22.04, Pop!_OS 22.04, Zorin OS 17 e Linux Mint 21, por exemplo, não são suportados). Atualize a distribuição."
 EN[opt_header]="Optional Dependencies"
 PT[opt_header]="Dependências Opcionais"
 EN[opt_installed]="Status: already installed"
@@ -197,8 +210,6 @@ EN[cleanup_msg]="Cleaning up temporary files..."
 PT[cleanup_msg]="Removendo arquivos temporários..."
 EN[no_downloader]="Neither curl nor wget found. Install one and retry."
 PT[no_downloader]="Nem curl nem wget encontrado. Instale um deles e tente novamente."
-EN[arch_build_info]="Building from PKGBUILD (Arch/Manjaro)..."
-PT[arch_build_info]="Compilando via PKGBUILD (Arch/Manjaro)..."
 EN[source_build_info]="Building from source (unknown distro)..."
 PT[source_build_info]="Compilando a partir do fonte (distro desconhecida)..."
 EN[source_deps_warn]="Ensure Qt6, CMake, cfitsio, fftw3 are installed before building."
@@ -430,37 +441,83 @@ select_language() {
 # ─── Distro detection ─────────────────────────────────────────────────────────
 DISTRO_ID=""
 DISTRO_LIKE=""
-PKG_TYPE=""       # rpm | deb | arch | source
-PKG_MANAGER=""    # dnf | zypper | apt | makepkg | cmake
+DISTRO_VERSION=""
+PKG_TYPE=""       # rpm | deb | arch | appimage | source | unsupported
+PKG_MANAGER=""    # dnf | zypper | apt | pacman | - | cmake
+PKG_OTHER_RELEASE=false   # package built for a different release than this one
 
+# glibc version of this machine as MAJOR.MINOR (empty when unknown).
+glibc_version() {
+    getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}'
+}
+
+# True when version $1 >= $2 (dotted numbers).
+version_ge() {
+    [[ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -1)" == "$2" ]]
+}
+
+# Picks the release file for this machine. Packages are built natively for:
+# Fedora 44, RHEL/Rocky/Alma 9, openSUSE Tumbleweed, Ubuntu 24.04 (and Mint
+# 22 / Pop!_OS 24.04 / Zorin OS 18, which share its base), Debian 13,
+# CachyOS and the Arch family. Anything else with glibc >= 2.36 (Debian 12 included) gets the
+# AppImage.
 detect_distro() {
+    local ubuntu_codename=""
     if [[ -f /etc/os-release ]]; then
         # shellcheck disable=SC1091
         source /etc/os-release
         DISTRO_ID="${ID:-unknown}"
         DISTRO_LIKE="${ID_LIKE:-}"
+        DISTRO_VERSION="${VERSION_ID:-}"
+        ubuntu_codename="${UBUNTU_CODENAME:-}"
     else
         DISTRO_ID="unknown"
-        DISTRO_LIKE=""
     fi
 
-    local combined="${DISTRO_ID} ${DISTRO_LIKE}"
+    local combined=" ${DISTRO_ID} ${DISTRO_LIKE} "
+    local major="${DISTRO_VERSION%%.*}"
 
-    if echo "$combined" | grep -qiE '\bfedora\b|\brhel\b|\brocky\b|\balma\b|\bcentos\b'; then
-        PKG_TYPE="rpm"
-        PKG_MANAGER="dnf"
-    elif echo "$combined" | grep -qiE '\bopensuse\b|\bsuse\b'; then
-        PKG_TYPE="rpm"
-        PKG_MANAGER="zypper"
-    elif echo "$combined" | grep -qiE '\bdebian\b|\bubuntu\b|\bmint\b|\bzorin\b|\bpop\b|\belementary\b|\bkali\b|\bparrot\b'; then
-        PKG_TYPE="deb"
-        PKG_MANAGER="apt"
-    elif echo "$combined" | grep -qiE '\barch\b|\bmanjaro\b|\bendeavour\b|\bgaruda\b'; then
-        PKG_TYPE="arch"
-        PKG_MANAGER="makepkg"
+    if [[ "$DISTRO_ID" == "fedora" ]]; then
+        PKG_TYPE="rpm"; PKG_MANAGER="dnf"
+        ASSET="astrofind-${VERSION}-1.fc44.x86_64.rpm"
+        [[ "$DISTRO_VERSION" != "44" ]] && PKG_OTHER_RELEASE=true
+    elif [[ "$combined" =~ \ (rhel|rocky|almalinux|centos)\  ]] && [[ "$major" == "9" ]]; then
+        PKG_TYPE="rpm"; PKG_MANAGER="dnf"
+        ASSET="astrofind-${VERSION}-1.el9.x86_64.rpm"
+    elif [[ "$DISTRO_ID" == "opensuse-tumbleweed" || "$DISTRO_ID" == "opensuse-slowroll" ]]; then
+        PKG_TYPE="rpm"; PKG_MANAGER="zypper"
+        ASSET="astrofind-${VERSION}-1.opensuse-tumbleweed.x86_64.rpm"
+    elif [[ "$ubuntu_codename" == "noble" ]]; then
+        # Ubuntu 24.04 and the distributions built on it (Mint 22, Pop!_OS
+        # 24.04, Zorin OS 18, elementary OS 8...) all set UBUNTU_CODENAME=noble.
+        PKG_TYPE="deb"; PKG_MANAGER="apt"
+        ASSET="astrofind_${VERSION}-1~ubuntu24.04_amd64.deb"
+    elif [[ "$DISTRO_ID" == "debian" && "$major" == "13" ]]; then
+        # Debian 12 has no .deb: it gets the AppImage (built on a Debian 12
+        # base) from the fallback below.
+        PKG_TYPE="deb"; PKG_MANAGER="apt"
+        ASSET="astrofind_${VERSION}-1~debian13_amd64.deb"
+    elif [[ "$DISTRO_ID" == "cachyos" ]]; then
+        # CachyOS: its own repositories and rebuilds, so its own package.
+        PKG_TYPE="arch"; PKG_MANAGER="pacman"
+        ASSET="astrofind-${VERSION}-1-cachyos-x86_64.pkg.tar.zst"
+    elif [[ "$combined" =~ \ (arch|archlinux|manjaro|endeavouros|garuda)\  ]]; then
+        PKG_TYPE="arch"; PKG_MANAGER="pacman"
+        ASSET="astrofind-${VERSION}-1-x86_64.pkg.tar.zst"
     else
-        PKG_TYPE="source"
-        PKG_MANAGER="cmake"
+        local glibc; glibc=$(glibc_version)
+        if [[ -n "$glibc" ]] && version_ge "$glibc" "$APPIMAGE_MIN_GLIBC"; then
+            PKG_TYPE="appimage"; PKG_MANAGER="-"
+            ASSET="AstroFind-${VERSION}-x86_64.AppImage"
+        elif [[ -n "$glibc" ]]; then
+            PKG_TYPE="unsupported"; PKG_MANAGER="-"
+        else
+            PKG_TYPE="source"; PKG_MANAGER="cmake"
+        fi
+    fi
+    if [[ "$(uname -m)" != "x86_64" && "$PKG_TYPE" != "source" ]]; then
+        # Release files are x86-64 only; other CPUs build from source.
+        PKG_TYPE="source"; PKG_MANAGER="cmake"; ASSET=""
     fi
 }
 
@@ -533,6 +590,36 @@ download_file() {
     fi
 }
 
+# Downloads SHA256SUMS from the release and checks $1 (a file named exactly
+# like its release asset). Returns non-zero when the sum is missing or wrong.
+verify_checksum() {
+    local file="$1"
+    local sums="${TMPDIR_WORK}/${SUMS_FILE}"
+    if [[ ! -f "$sums" ]] && ! download_file "${BASE_URL}/${SUMS_FILE}" "$sums"; then
+        print_err "$(msg step_download_fail) (${SUMS_FILE})"
+        return 1
+    fi
+    if (cd "$(dirname "$file")" && grep " $(basename "$file")\$" "$sums" | sha256sum -c --quiet -); then
+        print_ok "$(msg checksum_ok)"
+        return 0
+    fi
+    print_err "$(msg checksum_fail)"
+    return 1
+}
+
+# Downloads the chosen release file into TMPDIR_WORK and verifies it.
+fetch_asset() {
+    local dest="${TMPDIR_WORK}/${ASSET}"
+    print_step "$(msg step_download): ${ASSET}"
+    if ! download_file "${BASE_URL}/${ASSET}" "$dest"; then
+        print_err "$(msg step_download_fail)"
+        print_info "$(msg step_download_manual) ${BASE_URL}/${ASSET}"
+        return 1
+    fi
+    print_ok "$(msg step_download_ok)"
+    verify_checksum "$dest"
+}
+
 # ─── Prompt helpers ───────────────────────────────────────────────────────────
 prompt_yn() {
     # prompt_yn "question" default_yes -> returns 0 for yes, 1 for no
@@ -593,7 +680,7 @@ install_optional() {
         dnf)     pkg_to_install="$pkg_fedora" ;;
         zypper)  pkg_to_install="$pkg_fedora" ;;
         apt)     pkg_to_install="$pkg_deb" ;;
-        makepkg) pkg_to_install="$pkg_arch" ;;
+        pacman)  pkg_to_install="$pkg_arch" ;;
         *)       pkg_to_install="" ;;
     esac
 
@@ -635,7 +722,7 @@ install_optional() {
             dnf)    install_cmd="dnf install -y ${pkg_to_install}" ;;
             zypper) install_cmd="zypper install -y ${pkg_to_install}" ;;
             apt)    install_cmd="apt install -y ${pkg_to_install}" ;;
-            makepkg)
+            pacman)
                 if [[ "$pkg_arch" == *"AUR"* ]]; then
                     echo -e "  ${C_DIM}(AUR package — install manually with: yay -S ${pkg_to_install})${C_RESET}"
                     return 1
@@ -727,93 +814,86 @@ install_desktop_shortcut() {
 
 # ─── Main package install: RPM ────────────────────────────────────────────────
 install_rpm() {
-    local pkg_file="${TMPDIR_WORK}/${RPM_FILE}"
-    local url="${BASE_URL}/${RPM_FILE}"
+    fetch_asset || return 1
+    local pkg_file="${TMPDIR_WORK}/${ASSET}"
+    [[ "$PKG_OTHER_RELEASE" == true ]] && print_warn "$(msg other_release_warn)"
 
-    print_step "$(msg step_download): ${RPM_FILE}"
-    if ! download_file "$url" "$pkg_file"; then
-        print_err "$(msg step_download_fail)"
-        print_info "$(msg step_download_manual) ${url}"
-        return 1
+    local install_cmd
+    if [[ "$PKG_MANAGER" == "zypper" ]]; then
+        # Release RPMs are not GPG-signed; the SHA-256 check above covers integrity.
+        install_cmd="zypper --non-interactive --no-gpg-checks install '${pkg_file}'"
+    else
+        if [[ "$ASSET" == *.el9.* ]]; then
+            print_step "$(msg epel_info)"
+            run_priv bash -c "dnf install -y epel-release dnf-plugins-core && dnf config-manager --set-enabled crb" || true
+        fi
+        install_cmd="dnf install -y '${pkg_file}'"
     fi
-    print_ok "$(msg step_download_ok)"
 
     print_step "$(msg step_install)"
-    local install_cmd
-    [[ "$PKG_MANAGER" == "zypper" ]] && \
-        install_cmd="zypper install -y ${pkg_file}" || \
-        install_cmd="dnf install -y ${pkg_file}"
-
     if run_priv bash -c "$install_cmd"; then
         print_ok "$(msg step_install_ok)"
         return 0
-    else
-        print_err "$(msg step_install_fail)"
-        print_info "  ${install_cmd}"
-        return 1
     fi
+    print_err "$(msg step_install_fail)"
+    print_info "  ${install_cmd}"
+    return 1
 }
 
 # ─── Main package install: DEB ────────────────────────────────────────────────
 install_deb() {
-    local pkg_file="${TMPDIR_WORK}/${DEB_FILE}"
-    local url="${BASE_URL}/${DEB_FILE}"
-
-    print_step "$(msg step_download): ${DEB_FILE}"
-    if ! download_file "$url" "$pkg_file"; then
-        print_err "$(msg step_download_fail)"
-        print_info "$(msg step_download_manual) ${url}"
-        return 1
-    fi
-    print_ok "$(msg step_download_ok)"
+    fetch_asset || return 1
+    local pkg_file="${TMPDIR_WORK}/${ASSET}"
+    # apt (not dpkg -i) installs the package's dependencies in the same step.
+    local install_cmd="apt-get update && apt-get install -y '${pkg_file}'"
 
     print_step "$(msg step_install)"
-    if run_priv bash -c "dpkg -i '${pkg_file}' && apt install -f -y"; then
+    if run_priv bash -c "$install_cmd"; then
         print_ok "$(msg step_install_ok)"
         return 0
-    else
-        print_err "$(msg step_install_fail)"
-        print_info "  dpkg -i '${pkg_file}'"
-        return 1
     fi
+    print_err "$(msg step_install_fail)"
+    print_info "  sudo apt install '${pkg_file}'"
+    return 1
 }
 
-# ─── Main package install: Arch PKGBUILD ──────────────────────────────────────
+# ─── Main package install: Arch package ───────────────────────────────────────
 install_arch() {
-    print_step "$(msg arch_build_info)"
-    local pkgbuild_dir="${TMPDIR_WORK}/arch_build"
-    mkdir -p "$pkgbuild_dir"
+    fetch_asset || return 1
+    local pkg_file="${TMPDIR_WORK}/${ASSET}"
+    local install_cmd="pacman -U --noconfirm --needed '${pkg_file}'"
 
-    print_step "$(msg step_download): PKGBUILD"
-    if ! download_file "$ARCH_PKGBUILD_URL" "${pkgbuild_dir}/PKGBUILD"; then
-        print_err "$(msg step_download_fail)"
-        print_info "$(msg step_download_manual) ${ARCH_PKGBUILD_URL}"
-        return 1
-    fi
-    print_ok "$(msg step_download_ok)"
-
-    # makepkg must NOT run as root
-    if [[ "$IS_ROOT" == true ]]; then
-        print_warn "makepkg cannot run as root. Creating build user or running via fakeroot..."
-        if command -v fakeroot &>/dev/null; then
-            (cd "$pkgbuild_dir" && fakeroot makepkg -si --noconfirm)
-        else
-            print_err "Please run the installer as a non-root user for Arch builds."
-            return 1
-        fi
-    else
-        (cd "$pkgbuild_dir" && makepkg -si --noconfirm)
-    fi
-
-    local exit_code=$?
-    if [[ $exit_code -eq 0 ]]; then
+    print_step "$(msg step_install)"
+    if run_priv bash -c "$install_cmd"; then
         print_ok "$(msg step_install_ok)"
         return 0
-    else
-        print_err "$(msg step_install_fail)"
-        print_info "  cd '${pkgbuild_dir}' && makepkg -si"
-        return 1
     fi
+    print_err "$(msg step_install_fail)"
+    print_info "  sudo ${install_cmd}"
+    return 1
+}
+
+# ─── Main package install: AppImage ───────────────────────────────────────────
+# Root: /opt/astrofind/ + /usr/local/bin/AstroFind. User: ~/.local/bin/AstroFind.
+install_appimage() {
+    print_step "$(msg appimage_info)"
+    fetch_asset || return 1
+    local pkg_file="${TMPDIR_WORK}/${ASSET}"
+    chmod +x "$pkg_file"
+
+    if [[ "$IS_ROOT" == true ]]; then
+        install -Dm755 "$pkg_file" "/opt/astrofind/${ASSET}" \
+            && ln -sf "/opt/astrofind/${ASSET}" /usr/local/bin/AstroFind \
+            && BINARY="/usr/local/bin/AstroFind" || return 1
+    else
+        install -Dm755 "$pkg_file" "${HOME}/.local/bin/AstroFind" || return 1
+        BINARY="${HOME}/.local/bin/AstroFind"
+        case ":${PATH}:" in
+            *":${HOME}/.local/bin:"*) ;;
+            *) print_warn "${HOME}/.local/bin is not in PATH; start AstroFind with: ${BINARY}" ;;
+        esac
+    fi
+    print_ok "$(msg step_install_ok)"
 }
 
 # ─── Main package install: Source ─────────────────────────────────────────────
@@ -941,6 +1021,13 @@ main() {
     echo -e "  ${C_DIM}$(msg pkg_type):${C_RESET}          ${C_WHITE}${C_BOLD}${PKG_TYPE}${C_RESET}"
     echo -e "  ${C_DIM}$(msg pkg_manager):${C_RESET}       ${C_WHITE}${C_BOLD}${PKG_MANAGER}${C_RESET}"
 
+    [[ -n "$ASSET" ]] && echo -e "  ${C_DIM}File:${C_RESET}             ${C_WHITE}${C_BOLD}${ASSET}${C_RESET}"
+
+    if [[ "$PKG_TYPE" == "unsupported" ]]; then
+        echo
+        print_err "$(msg unsupported_msg)"
+        exit 1
+    fi
     if [[ "$PKG_TYPE" == "source" ]]; then
         echo
         print_warn "$(msg unknown_distro)"
@@ -981,6 +1068,7 @@ main() {
         rpm)    install_rpm    && install_ok=true ;;
         deb)    install_deb    && install_ok=true ;;
         arch)   install_arch   && install_ok=true ;;
+        appimage) install_appimage && install_ok=true ;;
         source) install_source && install_ok=true ;;
     esac
 
@@ -990,10 +1078,10 @@ main() {
     echo
 
     if [[ "$install_ok" == true ]] && command -v AstroFind &>/dev/null; then
-        print_ok "$(msg step_verify_ok)"
+        print_ok "$(msg step_verify_ok) $(command -v AstroFind)"
         add_summary "AstroFind ${VERSION}" "installed"
-    elif [[ -x "$BINARY" ]]; then
-        print_ok "$(msg step_verify_ok)"
+    elif [[ "$install_ok" == true && -x "$BINARY" ]]; then
+        print_ok "$(msg step_verify_ok) ${BINARY}"
         add_summary "AstroFind ${VERSION}" "installed"
     else
         print_err "$(msg step_verify_fail)"

@@ -100,6 +100,25 @@ TEST_CASE("Airmass ≈ 2.0 at altitude 30 degrees", "[astronomy][airmass]")
     REQUIRE_THAT(x, WithinAbs(2.0, 0.01));
 }
 
+// Pickering (2002), DIO 12: X = 1 / sin(h + 244 / (165 + 47 h^1.1)), h in degrees.
+// Reference values computed independently with that formula. The exponent is
+// 1.1: a 2.575 typo only changed X by < 1% above 20 degrees, so the tests
+// above could not see it; at 10 and 5 degrees it is off by 3% and 9%.
+TEST_CASE("Airmass follows Pickering (2002) near the horizon", "[astronomy][airmass]")
+{
+    // Observer on the equator, object at dec 0: altitude = 90 - |HA|.
+    const double lat = 0.0, lon = 0.0;
+    const double jd  = 2451545.0;
+    const double lst = core::localSiderealTime(jd, lon);
+    auto atAltitude = [&](double alt) {
+        const double ra = std::fmod(lst - (90.0 - alt) + 360.0, 360.0);
+        return core::computeAirmass(ra, 0.0, jd, lat, lon);
+    };
+    CHECK_THAT(atAltitude(10.0), WithinAbs(5.5807, 0.002));
+    CHECK_THAT(atAltitude(5.0),  WithinAbs(10.3337, 0.005));
+    CHECK_THAT(atAltitude(30.0), WithinAbs(1.9932, 0.001));
+}
+
 TEST_CASE("Airmass = 0 for object below horizon", "[astronomy][airmass]")
 {
     // Object at dec = −89° observed from lat = +45°N → always below horizon at transit alt ≈ −44°

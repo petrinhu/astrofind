@@ -1,13 +1,13 @@
 # Installation / Instalação
 
-🇬🇧 **Who this page is for:** anyone who wants to put AstroFind 1.1.0 on a Linux computer,
+🇬🇧 **Who this page is for:** anyone who wants to put AstroFind 1.2.0 on a Linux computer,
 including people who have never opened a terminal. Every command is explained line by line.
 If you already know your way around Linux, jump to [your distribution](#4-install-for-your-distribution--instalar-na-sua-distribuição).
 The complete per-distribution dependency lists live in
 [`INSTALL.md` on GitHub](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md), the single
 source of truth for the commands on this page.
 
-🇧🇷 **Para quem é esta página:** qualquer pessoa que queira colocar o AstroFind 1.1.0 num
+🇧🇷 **Para quem é esta página:** qualquer pessoa que queira colocar o AstroFind 1.2.0 num
 computador com Linux, inclusive quem nunca abriu um terminal. Cada comando é explicado linha a
 linha. Se você já conhece Linux, pule para [a sua distribuição](#4-install-for-your-distribution--instalar-na-sua-distribuição).
 As listas completas de dependências por distribuição estão no
@@ -21,10 +21,13 @@ oficial dos comandos desta página.
 3. [Which Linux do I have? / Qual Linux eu tenho?](#3-which-linux-do-i-have--qual-linux-eu-tenho)
 4. [Install for your distribution / Instalar na sua distribuição](#4-install-for-your-distribution--instalar-na-sua-distribuição)
    - [4.1 Universal installer / Instalador universal](#41-universal-installer-easiest--instalador-universal-mais-fácil)
-   - [4.2 Fedora / Rocky Linux (RPM)](#42-fedora--rocky-linux-rpm)
+   - [4.2 Fedora / Rocky Linux / AlmaLinux / RHEL 9 (RPM)](#42-fedora--rocky-linux--almalinux--rhel-9-rpm)
    - [4.3 Ubuntu / Debian / Linux Mint / Pop!_OS / Zorin OS (DEB)](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)
-   - [4.4 Arch Linux / Manjaro / CachyOS (PKGBUILD)](#44-arch-linux--manjaro--cachyos-pkgbuild)
-   - [4.5 openSUSE Tumbleweed (build from source)](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte)
+   - [4.4 Arch Linux / Manjaro / CachyOS / EndeavourOS (pacman)](#44-arch-linux--manjaro--cachyos--endeavouros-pacman)
+   - [4.5 openSUSE Tumbleweed (RPM)](#45-opensuse-tumbleweed-rpm)
+   - [4.6 Any other distro: AppImage / Qualquer outra distro: AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)
+   - [4.7 Build from source / Compilar do código-fonte](#47-build-from-source--compilar-do-código-fonte)
+   - [4.8 Checking the download / Conferir o download](#48-checking-the-download--conferir-o-download)
 5. [First launch and the Setup Wizard / Primeira execução e o Assistente](#5-first-launch-and-the-setup-wizard--primeira-execução-e-o-assistente-de-configuração)
 6. [Where AstroFind keeps its files / Onde o AstroFind guarda seus arquivos](#6-where-astrofind-keeps-its-files--onde-o-astrofind-guarda-seus-arquivos)
 7. [Optional features / Recursos opcionais](#7-optional-features--recursos-opcionais)
@@ -51,9 +54,11 @@ You need:
   do": run one command with administrator rights). On a personal computer the first user
   created is normally allowed.
 
-AstroFind 1.1.0 has been built and tested on Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
+AstroFind 1.2.0 has been built and tested on Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
 CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 and Linux Mint 22. Pop!_OS and Zorin OS are
-covered through Ubuntu 24.04 test containers.
+covered through Ubuntu 24.04 test containers. Distros on an Ubuntu 22.04 base (Pop!_OS 22.04,
+Zorin OS 17, Linux Mint 21) are **not supported**: their Qt 6.2 is too old (AstroFind needs
+Qt 6.4) and so is their glibc 2.35 (the AppImage needs 2.36).
 
 🇧🇷 **Português**
 
@@ -68,9 +73,11 @@ Você precisa de:
   do": executar um comando com direitos de administrador). Num computador pessoal, o primeiro
   usuário criado normalmente pode.
 
-O AstroFind 1.1.0 foi compilado e testado em Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
+O AstroFind 1.2.0 foi compilado e testado em Ubuntu 24.04, Debian 12, Fedora 44, Arch Linux,
 CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 e Linux Mint 22. Pop!_OS e Zorin OS são
-cobertos por containers de teste do Ubuntu 24.04.
+cobertos por containers de teste do Ubuntu 24.04. Distros com base Ubuntu 22.04 (Pop!_OS 22.04,
+Zorin OS 17, Linux Mint 21) **não são suportadas**: o Qt 6.2 delas é antigo demais (o AstroFind
+precisa do Qt 6.4), e a glibc 2.35 também (o AppImage precisa da 2.36).
 
 ---
 
@@ -168,16 +175,18 @@ ID_LIKE="ubuntu debian"
 ...
 ```
 
-Look at `NAME`, `VERSION`, and `ID_LIKE` ("which family this distro belongs to"). Then use this
-table:
+Look at `NAME`, `VERSION`, `ID` and `ID_LIKE` ("which family this distro belongs to"; the head of
+a family, such as Fedora, Debian or Arch, has only `ID`). Then use this table:
 
 | If you see… | Your family | Go to |
 |---|---|---|
-| Fedora, Rocky Linux (`ID_LIKE` contains `rhel` or `fedora`) | RPM with `dnf` | [4.2](#42-fedora--rocky-linux-rpm) |
-| Ubuntu, Debian, Linux Mint, Pop!_OS, Zorin OS (`ID_LIKE` contains `ubuntu` or `debian`) | DEB with `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
-| Arch Linux, Manjaro, CachyOS (`ID_LIKE` contains `arch`) | PKGBUILD with `pacman` | [4.4](#44-arch-linux--manjaro--cachyos-pkgbuild) |
-| openSUSE Tumbleweed (`ID_LIKE` contains `suse`) | build from source with `zypper` | [4.5](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte) |
-| Not sure / something else | let the installer decide | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
+| Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID` is `fedora`, or `ID_LIKE` contains `rhel`) | RPM with `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
+| Ubuntu 24.04, Debian 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID` or `ID_LIKE` contains `ubuntu` or `debian`) | DEB with `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
+| CachyOS (`ID=cachyos`) | CachyOS package for `pacman` (`-cachyos-x86_64.pkg.tar.zst`) | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| Arch Linux, Manjaro, EndeavourOS (`ID` or `ID_LIKE` contains `arch`) | package for `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| openSUSE Tumbleweed (`ID_LIKE` contains `suse`) | RPM with `zypper` | [4.5](#45-opensuse-tumbleweed-rpm) |
+| Debian 12, or any other 64-bit (x86-64) distro | AppImage (no installation) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
+| Not sure | let the installer decide | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
 
 🇧🇷 **Português**
 
@@ -206,15 +215,18 @@ ID_LIKE="ubuntu debian"
 ...
 ```
 
-Olhe `NAME`, `VERSION` e `ID_LIKE` ("a que família esta distro pertence"). Depois use a tabela:
+Olhe `NAME`, `VERSION`, `ID` e `ID_LIKE` ("a que família esta distro pertence"; a distro que
+encabeça uma família, como Fedora, Debian ou Arch, só tem `ID`). Depois use a tabela:
 
 | Se aparecer… | Sua família | Vá para |
 |---|---|---|
-| Fedora, Rocky Linux (`ID_LIKE` contém `rhel` ou `fedora`) | RPM com `dnf` | [4.2](#42-fedora--rocky-linux-rpm) |
-| Ubuntu, Debian, Linux Mint, Pop!_OS, Zorin OS (`ID_LIKE` contém `ubuntu` ou `debian`) | DEB com `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
-| Arch Linux, Manjaro, CachyOS (`ID_LIKE` contém `arch`) | PKGBUILD com `pacman` | [4.4](#44-arch-linux--manjaro--cachyos-pkgbuild) |
-| openSUSE Tumbleweed (`ID_LIKE` contém `suse`) | compilar do código-fonte com `zypper` | [4.5](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte) |
-| Não sei / outra | deixe o instalador decidir | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
+| Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID` é `fedora`, ou `ID_LIKE` contém `rhel`) | RPM com `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
+| Ubuntu 24.04, Debian 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID` ou `ID_LIKE` contém `ubuntu` ou `debian`) | DEB com `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
+| CachyOS (`ID=cachyos`) | pacote do CachyOS para o `pacman` (`-cachyos-x86_64.pkg.tar.zst`) | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| Arch Linux, Manjaro, EndeavourOS (`ID` ou `ID_LIKE` contém `arch`) | pacote para o `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| openSUSE Tumbleweed (`ID_LIKE` contém `suse`) | RPM com `zypper` | [4.5](#45-opensuse-tumbleweed-rpm) |
+| Debian 12, ou qualquer outra distro de 64 bits (x86-64) | AppImage (sem instalação) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
+| Não sei | deixe o instalador decidir | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
 
 ---
 
@@ -231,7 +243,7 @@ downloads the right package, installs it, and offers a menu entry and a desktop 
 to you in English or Portuguese.
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -246,8 +258,12 @@ Line by line:
 **What happens next** (the installer shows 7 numbered stages):
 
 1. It asks for the language (1 = English, 2 = Português (Brasil)).
-2. **1/7** shows the detected distribution, package type (`rpm`, `deb`, `arch` or `source`) and
-   package manager.
+2. **1/7** shows the detected distribution, the package type it will use and the package
+   manager. On Fedora, Rocky/AlmaLinux/RHEL 9, openSUSE Tumbleweed, Ubuntu 24.04 and its
+   derivatives, Debian 13 and the Arch family it picks the matching package. On any other x86-64
+   distro (Debian 12 included) it uses the AppImage if the system glibc is 2.36 or newer, and
+   stops with an "unsupported" message if it is older. On other CPUs (not x86-64) it builds
+   AstroFind from source.
 3. **2/7** checks that you can use `sudo` (it may ask your password; remember, nothing appears
    while you type).
 4. **3/7** asks you to confirm. Answer `y` (English) or `s` (Portuguese) and press Enter.
@@ -259,14 +275,9 @@ Line by line:
 8. A summary table lists what was installed, skipped or failed.
 
 > ⚠️ **Watch out:** run it as your normal user, **not** as `root` and not with `sudo ./install.sh`.
-> The script calls `sudo` itself when needed. On Arch-family systems the build step refuses to
-> run as root.
+> The script calls `sudo` itself when needed.
 
-> ⚠️ **Watch out (openSUSE):** openSUSE has no official AstroFind package. The installer
-> detects it and tries the Fedora-built RPM with `zypper`; this combination is not part of the
-> test matrix. If it fails, use the [openSUSE section](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte).
-
-Other releases: replace `v1.1.0` in the address with the tag you want; the
+Other releases: replace `v1.2.0` in the address with the tag you want; the
 [releases page](https://github.com/petrinhu/astrofind/releases) lists them all.
 
 🇧🇷 **Português**
@@ -276,7 +287,7 @@ distro, baixa o pacote certo, instala e oferece uma entrada no menu e um ícone 
 trabalho. Ele conversa com você em inglês ou português.
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -291,8 +302,12 @@ Linha por linha:
 **O que acontece em seguida** (o instalador mostra 7 etapas numeradas):
 
 1. Ele pergunta o idioma (1 = English, 2 = Português (Brasil)).
-2. **1/7** mostra a distribuição detectada, o tipo de pacote (`rpm`, `deb`, `arch` ou `source`)
-   e o gerenciador de pacotes.
+2. **1/7** mostra a distribuição detectada, o tipo de pacote que vai usar e o gerenciador de
+   pacotes. No Fedora, Rocky/AlmaLinux/RHEL 9, openSUSE Tumbleweed, Ubuntu 24.04 e derivadas,
+   Debian 13 e família Arch ele escolhe o pacote certo. Em qualquer outra distro x86-64 (inclusive
+   o Debian 12) usa o AppImage se a glibc do sistema for 2.36 ou mais nova, e para com uma
+   mensagem de "não suportada" se for mais antiga. Em outros processadores (não x86-64) ele
+   compila o AstroFind a partir do código-fonte.
 3. **2/7** confere se você pode usar o `sudo` (pode pedir sua senha; lembre: nada aparece
    enquanto você digita).
 4. **3/7** pede confirmação. Responda `s` (português) ou `y` (inglês) e aperte Enter.
@@ -305,56 +320,48 @@ Linha por linha:
 8. Uma tabela de resumo lista o que foi instalado, pulado ou falhou.
 
 > ⚠️ **Atenção:** rode como seu usuário normal, **não** como `root` e nem com
-> `sudo ./install.sh`. O script chama o `sudo` sozinho quando precisa. Nos sistemas da família
-> Arch a etapa de compilação se recusa a rodar como root.
+> `sudo ./install.sh`. O script chama o `sudo` sozinho quando precisa.
 
-> ⚠️ **Atenção (openSUSE):** o openSUSE não tem pacote oficial do AstroFind. O instalador o
-> detecta e tenta o RPM feito para o Fedora com o `zypper`; essa combinação não faz parte dos
-> testes. Se falhar, use a [seção do openSUSE](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte).
-
-Outras versões: troque `v1.1.0` no endereço pela tag desejada; a
+Outras versões: troque `v1.2.0` no endereço pela tag desejada; a
 [página de releases](https://github.com/petrinhu/astrofind/releases) lista todas.
 
 ---
 
-### 4.2 Fedora / Rocky Linux (RPM)
+### 4.2 Fedora / Rocky Linux / AlmaLinux / RHEL 9 (RPM)
 
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
 
 An **RPM** is the package format of the Fedora/Red Hat family; `dnf` is their package manager.
+There is one file per system: `.fc44` for Fedora 44 and `.el9` for Rocky Linux, AlmaLinux and
+RHEL 9.
+
+**Fedora 44:**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind-1.1.0-1.x86_64.rpm
-sudo dnf install ./astrofind-1.1.0-1.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1.fc44.x86_64.rpm
+sudo dnf install ./astrofind-1.2.0-1.fc44.x86_64.rpm
 ```
 
-1. Downloads the AstroFind 1.1.0 package into the current folder.
+1. Downloads the AstroFind 1.2.0 package into the current folder.
 2. Installs it. `./` tells `dnf` to use the file you just downloaded; `dnf` also fetches the
    libraries it needs. Answer `y` when asked "Is this ok".
 
-If `dnf` complains that something is missing, install the runtime libraries listed in
-`INSTALL.md` and repeat step 2:
+**Rocky Linux / AlmaLinux / RHEL 9.** These systems ship Qt 5 by default. Qt 6 comes from
+**EPEL** (Extra Packages for Enterprise Linux, a community repository) and needs **CRB**
+(CodeReady Builder) enabled. Run the first line **before** installing the package:
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive LibRaw mesa-libGL libxkbcommon
+sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1.el9.x86_64.rpm
+sudo dnf install ./astrofind-1.2.0-1.el9.x86_64.rpm
 ```
 
-(Installs Qt 6, the FITS and FFT libraries, archive and RAW support, and the graphics
-libraries.)
-
-**Rocky Linux 9 only.** Rocky ships Qt 5 by default. Qt 6 comes from **EPEL** (Extra Packages
-for Enterprise Linux, a community repository) and needs **CRB** (CodeReady Builder) enabled.
-Run these two lines **before** the `dnf install` above:
-
-```bash
-sudo dnf install -y epel-release
-sudo dnf config-manager --set-enabled crb
-```
-
-1. Adds the EPEL repository.
-2. Turns on the CRB repository.
+1. Adds the EPEL repository, then turns on the CRB repository (`&&` runs the second command
+   only if the first one worked).
+2. Downloads the AstroFind 1.2.0 package for version 9 of these systems.
+3. Installs it, with the libraries it needs.
 
 **What you should see:** `Complete!` at the end. Then look for **AstroFind** in your
 applications menu.
@@ -362,38 +369,34 @@ applications menu.
 🇧🇷 **Português**
 
 **RPM** é o formato de pacote da família Fedora/Red Hat; o `dnf` é o gerenciador de pacotes
-dela.
+dela. Há um arquivo para cada sistema: `.fc44` para o Fedora 44 e `.el9` para Rocky Linux,
+AlmaLinux e RHEL 9.
+
+**Fedora 44:**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind-1.1.0-1.x86_64.rpm
-sudo dnf install ./astrofind-1.1.0-1.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1.fc44.x86_64.rpm
+sudo dnf install ./astrofind-1.2.0-1.fc44.x86_64.rpm
 ```
 
-1. Baixa o pacote do AstroFind 1.1.0 para a pasta atual.
+1. Baixa o pacote do AstroFind 1.2.0 para a pasta atual.
 2. Instala. O `./` diz ao `dnf` para usar o arquivo que você acabou de baixar; o `dnf` também
    busca as bibliotecas necessárias. Responda `s` (ou `y`) quando ele perguntar se está ok.
 
-Se o `dnf` reclamar que falta algo, instale as bibliotecas listadas no `INSTALL.md` e repita o
-passo 2:
+**Rocky Linux / AlmaLinux / RHEL 9.** Esses sistemas vêm com Qt 5. O Qt 6 vem do **EPEL**
+(Extra Packages for Enterprise Linux, um repositório comunitário) e precisa do **CRB**
+(CodeReady Builder) ligado. Rode a primeira linha **antes** de instalar o pacote:
 
 ```bash
-sudo dnf install qt6-qtbase qt6-qtcharts qt6-qt5compat qtkeychain-qt6 cfitsio fftw libarchive LibRaw mesa-libGL libxkbcommon
+sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1.el9.x86_64.rpm
+sudo dnf install ./astrofind-1.2.0-1.el9.x86_64.rpm
 ```
 
-(Instala o Qt 6, as bibliotecas de FITS e FFT, o suporte a arquivos compactados e RAW, e as
-bibliotecas gráficas.)
-
-**Só no Rocky Linux 9.** O Rocky vem com Qt 5. O Qt 6 vem do **EPEL** (Extra Packages for
-Enterprise Linux, um repositório comunitário) e precisa do **CRB** (CodeReady Builder) ligado.
-Rode estas duas linhas **antes** do `dnf install` acima:
-
-```bash
-sudo dnf install -y epel-release
-sudo dnf config-manager --set-enabled crb
-```
-
-1. Adiciona o repositório EPEL.
-2. Liga o repositório CRB.
+1. Adiciona o repositório EPEL e depois liga o repositório CRB (o `&&` só roda o segundo
+   comando se o primeiro deu certo).
+2. Baixa o pacote do AstroFind 1.2.0 para a versão 9 desses sistemas.
+3. Instala, junto com as bibliotecas necessárias.
 
 **O que você deve ver:** `Complete!` (ou `Concluído!`) no final. Depois procure **AstroFind**
 no menu de aplicativos.
@@ -407,73 +410,118 @@ no menu de aplicativos.
 🇬🇧 **English**
 
 A **DEB** is the package format of the Debian/Ubuntu family; `apt` is their package manager.
+Pick the file for your system:
+
+| Your system | File |
+|---|---|
+| Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.0-1~ubuntu24.04_amd64.deb` |
+| Debian 13 Trixie | `astrofind_1.2.0-1~debian13_amd64.deb` |
+| Debian 12 Bookworm | no `.deb`: use the [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
+
+Example for Ubuntu 24.04 and its derivatives (for Debian 13, replace `ubuntu24.04` with
+`debian13` in both lines):
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind_1.1.0_amd64.deb
-sudo apt-get install ./astrofind_1.1.0_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind_1.2.0-1~ubuntu24.04_amd64.deb
+sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb
 ```
 
-1. Downloads the AstroFind 1.1.0 package.
+1. Downloads the AstroFind 1.2.0 package.
 2. Installs it and, because of the `./`, also downloads every library it depends on. Answer
    `Y` when asked "Do you want to continue?".
 
 > 💡 **Tip:** if `curl` is not installed, first run `sudo apt-get install curl`.
 
-> ⚠️ **Watch out (older bases):** AstroFind needs **Qt 6.4 or newer**. The tests run on Ubuntu
-> 24.04, Debian 12 and Linux Mint 22 (Pop!_OS and Zorin OS are tested through Ubuntu 24.04
-> containers). If your Pop!_OS or Zorin OS is based on an older Ubuntu and `apt` says a Qt 6
-> dependency "is not installable", your system's Qt is too old for this package. See
+> ⚠️ **Watch out (older bases):** AstroFind needs **Qt 6.4 or newer**. Pop!_OS 22.04, Zorin OS 17
+> and Linux Mint 21 sit on Ubuntu 22.04, whose Qt is 6.2, so they are **not supported** (and
+> their glibc is too old for the [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)
+> too). Upgrade to Pop!_OS 24.04, Zorin OS 18 or Linux Mint 22. See
 > [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
-**What you should see:** the last lines mention `Setting up astrofind (1.1.0)`.
+**What you should see:** the last lines mention `Setting up astrofind (1.2.0-1~ubuntu24.04)`
+(or `~debian13`).
 
 🇧🇷 **Português**
 
 **DEB** é o formato de pacote da família Debian/Ubuntu; o `apt` é o gerenciador de pacotes dela.
+Escolha o arquivo do seu sistema:
+
+| Seu sistema | Arquivo |
+|---|---|
+| Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.0-1~ubuntu24.04_amd64.deb` |
+| Debian 13 Trixie | `astrofind_1.2.0-1~debian13_amd64.deb` |
+| Debian 12 Bookworm | sem `.deb`: use o [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
+
+Exemplo para o Ubuntu 24.04 e derivadas (no Debian 13, troque `ubuntu24.04` por `debian13` nas
+duas linhas):
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.1.0/astrofind_1.1.0_amd64.deb
-sudo apt-get install ./astrofind_1.1.0_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind_1.2.0-1~ubuntu24.04_amd64.deb
+sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb
 ```
 
-1. Baixa o pacote do AstroFind 1.1.0.
+1. Baixa o pacote do AstroFind 1.2.0.
 2. Instala e, por causa do `./`, também baixa todas as bibliotecas de que ele depende.
    Responda `S` (ou `Y`) quando perguntar se deseja continuar.
 
 > 💡 **Dica:** se o `curl` não estiver instalado, rode antes `sudo apt-get install curl`.
 
-> ⚠️ **Atenção (bases antigas):** o AstroFind precisa do **Qt 6.4 ou mais novo**. Os testes rodam
-> no Ubuntu 24.04, Debian 12 e Linux Mint 22 (Pop!_OS e Zorin OS são testados por containers do
-> Ubuntu 24.04). Se o seu Pop!_OS ou Zorin OS é baseado num Ubuntu mais antigo e o `apt` diz que
-> uma dependência do Qt 6 "não é instalável", o Qt do seu sistema é velho demais para este
-> pacote. Veja [Solução de Problemas](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
+> ⚠️ **Atenção (bases antigas):** o AstroFind precisa do **Qt 6.4 ou mais novo**. Pop!_OS 22.04,
+> Zorin OS 17 e Linux Mint 21 ficam sobre o Ubuntu 22.04, cujo Qt é o 6.2, então **não são
+> suportados** (e a glibc deles também é velha demais para o
+> [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)). Atualize para
+> Pop!_OS 24.04, Zorin OS 18 ou Linux Mint 22. Veja
+> [Solução de Problemas](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
-**O que você deve ver:** as últimas linhas falam em `Setting up astrofind (1.1.0)` (ou
-`Configurando astrofind (1.1.0)`).
+**O que você deve ver:** as últimas linhas falam em `Setting up astrofind (1.2.0-1~ubuntu24.04)`
+(ou `Configurando astrofind (1.2.0-1~ubuntu24.04)`; no Debian 13, `~debian13`).
 
 ---
 
-### 4.4 Arch Linux / Manjaro / CachyOS (PKGBUILD)
+### 4.4 Arch Linux / Manjaro / CachyOS / EndeavourOS (pacman)
 
-🟡 Intermediate / Intermediário
+🟢 Beginner / Iniciante
 
 🇬🇧 **English**
 
-Arch-family systems build packages on your own computer from a **PKGBUILD** (a recipe script
-that says where to download the source code and how to compile it). `makepkg` follows the
-recipe; `pacman` is the package manager.
+`pacman` is the package manager of the Arch family. The ready-made package is a
+`.pkg.tar.zst` file:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst
+```
+
+1. Downloads the AstroFind 1.2.0 package.
+2. Installs it (`-U` = install from a file) with the libraries it needs. Answer `Y` when asked
+   "Proceed with installation?".
+
+**What you should see:** the last lines show `pacman` installing `astrofind`. Manjaro and
+EndeavourOS use exactly the same commands.
+
+**CachyOS** is a separate distribution with its own repositories and rebuilt packages, so it
+has its own package, built on CachyOS:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+```
+
+**Building it yourself (optional, 🟡 Intermediate).** Arch users can also build the package on
+their own computer from a **PKGBUILD** (a recipe script that says where to download the source
+code and how to compile it). `makepkg` follows the recipe:
 
 ```bash
 mkdir astrofind-arch && cd astrofind-arch
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/arch/PKGBUILD
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
 1. Creates a folder `astrofind-arch` and enters it (`mkdir` = make directory, `cd` = change
    directory).
-2. Downloads the PKGBUILD recipe of version 1.1.0.
+2. Downloads the PKGBUILD recipe of version 1.2.0.
 3. `makepkg -si` installs the build tools and libraries the recipe declares (`-s`, through
-   `pacman`), downloads the AstroFind 1.1.0 source code, compiles it, and installs the result
+   `pacman`), downloads the AstroFind 1.2.0 source code, compiles it, and installs the result
    (`-i`). It asks for your password and a few `Y/n` confirmations.
 
 This takes several minutes: it is compiling the whole program. Run it as your **normal user**
@@ -482,26 +530,46 @@ This takes several minutes: it is compiling the whole program. Run it as your **
 > 💡 **Tip:** if `makepkg` says a tool like `fakeroot` or `strip` is missing, install the basic
 > build tools with `sudo pacman -S --needed base-devel` and run `makepkg -si` again.
 
-**What you should see:** the last lines show `pacman` installing `astrofind`. CachyOS and
-Manjaro use exactly the same commands.
-
 🇧🇷 **Português**
 
-Os sistemas da família Arch montam os pacotes no seu próprio computador a partir de um
-**PKGBUILD** (um script-receita que diz de onde baixar o código-fonte e como compilá-lo). O
-`makepkg` segue a receita; o `pacman` é o gerenciador de pacotes.
+O `pacman` é o gerenciador de pacotes da família Arch. O pacote pronto é um arquivo
+`.pkg.tar.zst`:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst
+```
+
+1. Baixa o pacote do AstroFind 1.2.0.
+2. Instala (`-U` = instalar a partir de um arquivo) junto com as bibliotecas necessárias.
+   Responda `S` (ou `Y`) quando perguntar se deseja continuar a instalação.
+
+**O que você deve ver:** as últimas linhas mostram o `pacman` instalando o `astrofind`. Manjaro e
+EndeavourOS usam exatamente os mesmos comandos.
+
+O **CachyOS** é uma distribuição separada, com repositórios e pacotes recompilados próprios, então
+tem o seu próprio pacote, compilado no CachyOS:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+```
+
+**Compilar você mesmo (opcional, 🟡 Intermediário).** No Arch também dá para montar o pacote no
+seu próprio computador a partir de um **PKGBUILD** (um script-receita que diz de onde baixar o
+código-fonte e como compilá-lo). O `makepkg` segue a receita:
 
 ```bash
 mkdir astrofind-arch && cd astrofind-arch
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/arch/PKGBUILD
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
 1. Cria a pasta `astrofind-arch` e entra nela (`mkdir` = criar diretório, `cd` = mudar de
    diretório).
-2. Baixa a receita PKGBUILD da versão 1.1.0.
+2. Baixa a receita PKGBUILD da versão 1.2.0.
 3. `makepkg -si` instala as ferramentas e bibliotecas declaradas na receita (`-s`, via
-   `pacman`), baixa o código-fonte do AstroFind 1.1.0, compila e instala o resultado (`-i`).
+   `pacman`), baixa o código-fonte do AstroFind 1.2.0, compila e instala o resultado (`-i`).
    Ele pede sua senha e algumas confirmações `S/n`.
 
 Isso leva vários minutos: ele está compilando o programa inteiro. Rode como seu **usuário
@@ -511,32 +579,125 @@ normal** (o `makepkg` se recusa a rodar como root).
 > instale as ferramentas básicas de compilação com `sudo pacman -S --needed base-devel` e rode
 > `makepkg -si` de novo.
 
-**O que você deve ver:** as últimas linhas mostram o `pacman` instalando o `astrofind`. CachyOS
-e Manjaro usam exatamente os mesmos comandos.
+---
+
+### 4.5 openSUSE Tumbleweed (RPM)
+
+🟢 Beginner / Iniciante
+
+🇬🇧 **English**
+
+openSUSE also uses **RPM** packages, but its package manager is `zypper`, and it has its own
+AstroFind file:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1.opensuse-tumbleweed.x86_64.rpm
+sudo zypper install ./astrofind-1.2.0-1.opensuse-tumbleweed.x86_64.rpm
+```
+
+1. Downloads the AstroFind 1.2.0 package for openSUSE Tumbleweed.
+2. Installs it with the libraries it needs. Answer `y` when asked "Continue?".
+
+**What you should see:** the installation ends without an error. Then look for **AstroFind** in
+your applications menu.
+
+🇧🇷 **Português**
+
+O openSUSE também usa pacotes **RPM**, mas o gerenciador de pacotes dele é o `zypper`, e ele tem
+um arquivo próprio do AstroFind:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1.opensuse-tumbleweed.x86_64.rpm
+sudo zypper install ./astrofind-1.2.0-1.opensuse-tumbleweed.x86_64.rpm
+```
+
+1. Baixa o pacote do AstroFind 1.2.0 para o openSUSE Tumbleweed.
+2. Instala junto com as bibliotecas necessárias. Responda `s` (ou `y`) quando perguntar se
+   deseja continuar.
+
+**O que você deve ver:** a instalação termina sem erro. Depois procure **AstroFind** no menu de
+aplicativos.
 
 ---
 
-### 4.5 openSUSE Tumbleweed (build from source) / (compilar do código-fonte)
+### 4.6 Any other distro: AppImage / Qualquer outra distro: AppImage
+
+🟢 Beginner / Iniciante
+
+🇬🇧 **English**
+
+An **AppImage** is a single file that contains the program and the libraries it needs. You do
+not install it: you just make it executable and run it. This is also the file for **Debian 12
+Bookworm** (there is no Debian 12 `.deb`). It works on 64-bit (x86-64) distros with
+**glibc 2.36 or newer** (glibc is the basic system library; for example Ubuntu 23.04+,
+Debian 12+, Fedora 37+).
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/AstroFind-1.2.0-x86_64.AppImage
+chmod +x AstroFind-1.2.0-x86_64.AppImage
+./AstroFind-1.2.0-x86_64.AppImage
+```
+
+1. Downloads the AppImage.
+2. Marks it as executable.
+3. Starts AstroFind.
+
+No `sudo` and no password are needed. The AppImage does not add a menu entry by itself; keep the
+file somewhere safe (for example `~/Applications`) and start it from there. **ASTAP** (offline
+plate solver, [7.3](#73-astap--offline-plate-solver--solucionador-de-campo-offline)) and
+`unzip` (for ZIP files, [7.2](#72-libarchive--tar-7z-rar-archives--arquivos-tar-7z-rar)) are
+still separate, optional programs.
+
+🇧🇷 **Português**
+
+Um **AppImage** é um único arquivo que contém o programa e as bibliotecas de que ele precisa.
+Você não instala: só marca como executável e roda. É também o arquivo para o **Debian 12
+Bookworm** (não há `.deb` para o Debian 12). Funciona em distros de 64 bits (x86-64) com **glibc
+2.36 ou mais nova** (a glibc é a biblioteca básica do sistema; por exemplo Ubuntu 23.04+,
+Debian 12+, Fedora 37+).
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/AstroFind-1.2.0-x86_64.AppImage
+chmod +x AstroFind-1.2.0-x86_64.AppImage
+./AstroFind-1.2.0-x86_64.AppImage
+```
+
+1. Baixa o AppImage.
+2. Marca como executável.
+3. Abre o AstroFind.
+
+Não precisa de `sudo` nem de senha. O AppImage não cria sozinho uma entrada no menu; guarde o
+arquivo num lugar seguro (por exemplo `~/Applications`) e abra-o de lá. O **ASTAP** (solucionador
+de campo offline, [7.3](#73-astap--offline-plate-solver--solucionador-de-campo-offline)) e o
+`unzip` (para arquivos ZIP, [7.2](#72-libarchive--tar-7z-rar-archives--arquivos-tar-7z-rar))
+continuam sendo programas separados e opcionais.
+
+---
+
+### 4.7 Build from source / Compilar do código-fonte
 
 🟡 Intermediate / Intermediário
 
 🇬🇧 **English**
 
-There is no ready-made openSUSE package, so you **compile** AstroFind yourself: you download the
+If no package fits your system, you can **compile** AstroFind yourself: you download the
 **source code** (the human-readable program text) and turn it into a program with the compiler.
-It is safe and it is what the openSUSE test does.
+The example below uses openSUSE's `zypper`; the commands for every other distro are in
+[`INSTALL.md`](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md). The release page also
+has the code as `astrofind-1.2.0-source.tar.gz`.
 
 **Step 1 — install the tools and libraries** (from `INSTALL.md`):
 
 ```bash
 sudo zypper install -y \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf \
     qt6-base-devel qt6-charts-devel \
     qt6-opengl-devel \
     cfitsio-devel fftw3-devel
 ```
 
-(Installs CMake, the build organiser; `gcc-c++`, the C++ compiler; and the Qt 6, FITS and FFT
+(Installs CMake, the build organiser; `gcc-c++`, the C++ compiler; `git` and `pkgconf`, which the
+build uses to fetch helper libraries and to find FFTW; and the Qt 6, FITS and FFT
 libraries in their `-devel` form, the version used for compiling. The `\` at the end of a line
 just means "the command continues on the next line": paste the whole block at once.)
 
@@ -545,7 +706,6 @@ translation tools):
 
 ```bash
 sudo zypper install -y \
-    qt6-core5compat-devel \
     libarchive-devel \
     libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -556,17 +716,17 @@ sudo zypper install -y \
 (The last line, `valgrind cppcheck clang-tools`, is only for developers who want to run the code
 audits; you may delete it from the block.)
 
-**Step 3 — get the source code of version 1.1.0:**
+**Step 3 — get the source code of version 1.2.0:**
 
 ```bash
 sudo zypper install -y git
-git clone --branch v1.1.0 https://github.com/petrinhu/astrofind.git
+git clone --branch v1.2.0 https://github.com/petrinhu/astrofind.git
 cd astrofind
 ```
 
 1. Installs `git`, the tool that downloads source code. The build also uses it to fetch a few
    helper libraries, so keep your internet on.
-2. Downloads the AstroFind code at the `v1.1.0` tag into a folder `astrofind`.
+2. Downloads the AstroFind code at the `v1.2.0` tag into a folder `astrofind`.
 3. Enters that folder.
 
 **Step 4 — compile and run:**
@@ -590,21 +750,24 @@ entry and its icons into the system (under `/usr/local`), so you can start it li
 
 🇧🇷 **Português**
 
-Não há pacote pronto para openSUSE, então você **compila** o AstroFind: baixa o **código-fonte**
-(o texto do programa, legível por pessoas) e o transforma em programa com o compilador. É seguro
-e é o que o teste do openSUSE faz.
+Se nenhum pacote serve para o seu sistema, você pode **compilar** o AstroFind: baixa o
+**código-fonte** (o texto do programa, legível por pessoas) e o transforma em programa com o
+compilador. O exemplo abaixo usa o `zypper` do openSUSE; os comandos das outras distros estão no
+[`INSTALL.md`](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md). A página da release
+também traz o código como `astrofind-1.2.0-source.tar.gz`.
 
 **Passo 1 — instalar as ferramentas e bibliotecas** (do `INSTALL.md`):
 
 ```bash
 sudo zypper install -y \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf \
     qt6-base-devel qt6-charts-devel \
     qt6-opengl-devel \
     cfitsio-devel fftw3-devel
 ```
 
-(Instala o CMake, o organizador da compilação; o `gcc-c++`, o compilador C++; e as bibliotecas
+(Instala o CMake, o organizador da compilação; o `gcc-c++`, o compilador C++; o `git` e o
+`pkgconf`, que a compilação usa para buscar bibliotecas auxiliares e achar a FFTW; e as bibliotecas
 Qt 6, FITS e FFT na forma `-devel`, a versão usada para compilar. A `\` no fim da linha só quer
 dizer "o comando continua na próxima linha": cole o bloco inteiro de uma vez.)
 
@@ -613,7 +776,6 @@ chave, ferramentas de tradução):
 
 ```bash
 sudo zypper install -y \
-    qt6-core5compat-devel \
     libarchive-devel \
     libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -624,17 +786,17 @@ sudo zypper install -y \
 (A última linha, `valgrind cppcheck clang-tools`, é só para desenvolvedores que querem rodar as
 auditorias de código; pode apagá-la do bloco.)
 
-**Passo 3 — obter o código-fonte da versão 1.1.0:**
+**Passo 3 — obter o código-fonte da versão 1.2.0:**
 
 ```bash
 sudo zypper install -y git
-git clone --branch v1.1.0 https://github.com/petrinhu/astrofind.git
+git clone --branch v1.2.0 https://github.com/petrinhu/astrofind.git
 cd astrofind
 ```
 
 1. Instala o `git`, a ferramenta que baixa código-fonte. A compilação também o usa para buscar
    algumas bibliotecas auxiliares, então mantenha a internet ligada.
-2. Baixa o código do AstroFind na tag `v1.1.0` para uma pasta `astrofind`.
+2. Baixa o código do AstroFind na tag `v1.2.0` para uma pasta `astrofind`.
 3. Entra nessa pasta.
 
 **Passo 4 — compilar e executar:**
@@ -655,6 +817,44 @@ e os ícones para o sistema (em `/usr/local`), para você abri-lo como qualquer 
 > ⚠️ **Atenção:** instale os opcionais `libarchive-devel` e `libraw-devel` **antes** do passo 4.
 > Se instalar depois, rode o passo 4 de novo: os recursos só são ligados quando as bibliotecas
 > estão presentes na hora da compilação.
+
+### 4.8 Checking the download / Conferir o download
+
+🟡 Intermediate / Intermediário
+
+🇬🇧 **English**
+
+Optional. The release also has a file `SHA256SUMS` with a "fingerprint" (checksum) of every
+file. Download it into the folder where your AstroFind file is and run:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/SHA256SUMS
+sha256sum -c SHA256SUMS --ignore-missing
+```
+
+1. Downloads the list of checksums.
+2. Recomputes the checksum of each file you have and compares it with the list
+   (`--ignore-missing` skips the files you did not download).
+
+**What you should see:** your file name followed by `OK`. `FAILED` means the download is damaged:
+delete the file and download it again.
+
+🇧🇷 **Português**
+
+Opcional. A release também traz um arquivo `SHA256SUMS` com uma "impressão digital" (checksum) de
+cada arquivo. Baixe-o para a pasta onde está o seu arquivo do AstroFind e rode:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/SHA256SUMS
+sha256sum -c SHA256SUMS --ignore-missing
+```
+
+1. Baixa a lista de checksums.
+2. Recalcula o checksum de cada arquivo que você tem e compara com a lista (`--ignore-missing`
+   pula os arquivos que você não baixou).
+
+**O que você deve ver:** o nome do seu arquivo seguido de `OK`. `FAILED` quer dizer que o
+download está corrompido: apague o arquivo e baixe de novo.
 
 ---
 
@@ -697,7 +897,7 @@ To open the wizard again: **Help → Setup Wizard…**. To turn its automatic st
 **File → Settings... → Display →** "Show setup wizard when the application starts".
 
 **What you should see:** a dark window (the "Night" theme is the default) titled
-`AstroFind 1.1.0`, with the **Workflow** panel on the left and the text "No image loaded / Use
+`AstroFind 1.2.0`, with the **Workflow** panel on the left and the text "No image loaded / Use
 File → Import Images…" in the middle. Next step: [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 🇧🇷 **Português**
@@ -725,7 +925,7 @@ do AstroFind**. Ele tem três páginas. Toda página tem o botão **"Pular esta 
 3. **"Etapa 3 de 3 — Catálogo de asteroides (opcional)"**: **"Baixar agora (~200 MB)"** baixa o
    **MPCORB.DAT**, a lista do MPC com as órbitas de todos os asteroides conhecidos. O AstroFind
    só o usa quando o serviço online SkyBoT não responde. Dá para fazer depois em
-   **Internet → Baixar MPCOrb**.
+   **Internet → Baixar Banco MPCOrb**.
 
 O assistente **não** pergunta a sua localização. Configure depois em
 **Arquivo → Configurações...** (`Ctrl+,`) → **Observador** → grupo "Localização (correção
@@ -737,8 +937,8 @@ desligar a abertura automática: **Arquivo → Configurações... → Exibição
 de configuração ao iniciar o aplicativo".
 
 **O que você deve ver:** uma janela escura (o tema "Noite" é o padrão) com o título
-`AstroFind 1.1.0`, o painel **Fluxo de Trabalho** à esquerda e o texto "Nenhuma imagem
-carregada / Use Arquivo → Carregar Imagens…" no meio. Próximo passo: [Início Rápido](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
+`AstroFind 1.2.0`, o painel **Fluxo de Trabalho** à esquerda e o texto "Nenhuma imagem
+carregada / Use Arquivo → Importar Imagens…" no meio. Próximo passo: [Início Rápido](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 ---
 
@@ -793,7 +993,7 @@ Pastas que começam com `.` são ocultas; no gerenciador de arquivos aperte `Ctr
 
 Needed to open digital-camera RAW files (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF and others).
 
-- **Official packages** (RPM, DEB, PKGBUILD): already included, nothing to do.
+- **Official packages** (RPM, DEB, Arch package, PKGBUILD): already included, nothing to do.
 - **Built from source:** install `LibRaw-devel` (Fedora/Rocky), `libraw-dev`
   (Ubuntu/Debian/Mint), `libraw` (Arch family) or `libraw-devel` (openSUSE) **before** compiling.
 - Without it, opening a RAW file shows: "DSLR RAW support is not available in this build of
@@ -804,7 +1004,7 @@ Needed to open digital-camera RAW files (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2,
 Necessária para abrir arquivos RAW de câmeras digitais (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2,
 PEF e outros).
 
-- **Pacotes oficiais** (RPM, DEB, PKGBUILD): já incluída, nada a fazer.
+- **Pacotes oficiais** (RPM, DEB, pacote do Arch, PKGBUILD): já incluída, nada a fazer.
 - **Compilando do fonte:** instale `LibRaw-devel` (Fedora/Rocky), `libraw-dev`
   (Ubuntu/Debian/Mint), `libraw` (família Arch) ou `libraw-devel` (openSUSE) **antes** de
   compilar.
@@ -908,14 +1108,14 @@ serviço).
 3. Cole em um destes lugares:
    - no Assistente, página **"Etapa 2 de 3 — Chave de API para solução de campo"**, ou
    - em **Arquivo → Configurações... → Conexões → Chave de API:** (EN **File → Settings... →
-     Connections → API Key:**). O link "Get a free key at nova.astrometry.net" ao lado abre a
+     Connections → API Key:**). O link "Obtenha uma chave gratuita em nova.astrometry.net" ao lado abre a
      mesma página.
 4. Se esquecer, o AstroFind pede a chave na primeira vez que precisar resolver ("Enter your free
    API key from nova.astrometry.net:").
 
-Ao lado do campo, um selo diz como a chave está guardada: "🔒 Stored in system keychain (KWallet
-/ SecretService)" ou "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for
-secure storage".
+Ao lado do campo, um selo diz como a chave está guardada: "🔒 Armazenado no chaveiro do sistema (KWallet
+/ SecretService)" ou "⚠ Armazenado em texto simples — instale qtkeychain-qt6-devel +
+libsecret-devel para armazenamento seguro".
 
 ---
 
@@ -926,14 +1126,16 @@ secure storage".
 🇬🇧 **English**
 
 Repeat the installation with the new version number. For example, for a future release, replace
-`v1.1.0` and `1.1.0` in the commands above with the new tag listed on the
+`v1.2.0` and `1.2.0` in the commands above with the new tag listed on the
 [releases page](https://github.com/petrinhu/astrofind/releases).
 
-- **RPM / DEB:** `sudo dnf install ./<new>.rpm` or `sudo apt-get install ./<new>.deb` replaces
-  the old version.
-- **Arch family:** download the new PKGBUILD into a fresh folder and run `makepkg -si` again.
+- **RPM / DEB:** `sudo dnf install ./<new>.rpm` (openSUSE: `sudo zypper install ./<new>.rpm`) or
+  `sudo apt-get install ./<new>.deb` replaces the old version.
+- **Arch family:** `sudo pacman -U ./<new>.pkg.tar.zst`; or, if you built it yourself, download
+  the new PKGBUILD into a fresh folder and run `makepkg -si` again.
+- **AppImage:** download the new AppImage, make it executable, and delete the old file.
 - **Source build:** `cd astrofind`, then `git fetch --tags`, `git checkout <new-tag>`, and repeat
-  step 4 of [4.5](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte).
+  step 4 of [4.7](#47-build-from-source--compilar-do-código-fonte).
 
 Your settings, API key, MPCORB.DAT and projects are kept. To refresh the asteroid list, use
 **Internet → Update MPCOrb Database**.
@@ -941,17 +1143,19 @@ Your settings, API key, MPCORB.DAT and projects are kept. To refresh the asteroi
 🇧🇷 **Português**
 
 Repita a instalação com o novo número de versão. Por exemplo, para uma versão futura, troque
-`v1.1.0` e `1.1.0` nos comandos acima pela nova tag listada na
+`v1.2.0` e `1.2.0` nos comandos acima pela nova tag listada na
 [página de releases](https://github.com/petrinhu/astrofind/releases).
 
-- **RPM / DEB:** `sudo dnf install ./<novo>.rpm` ou `sudo apt-get install ./<novo>.deb`
-  substitui a versão antiga.
-- **Família Arch:** baixe o novo PKGBUILD numa pasta nova e rode `makepkg -si` de novo.
+- **RPM / DEB:** `sudo dnf install ./<novo>.rpm` (openSUSE: `sudo zypper install ./<novo>.rpm`)
+  ou `sudo apt-get install ./<novo>.deb` substitui a versão antiga.
+- **Família Arch:** `sudo pacman -U ./<novo>.pkg.tar.zst`; ou, se você compilou, baixe o novo
+  PKGBUILD numa pasta nova e rode `makepkg -si` de novo.
+- **AppImage:** baixe o novo AppImage, marque como executável e apague o arquivo antigo.
 - **Compilado do fonte:** `cd astrofind`, depois `git fetch --tags`, `git checkout <nova-tag>`,
-  e repita o passo 4 de [4.5](#45-opensuse-tumbleweed-build-from-source--compilar-do-código-fonte).
+  e repita o passo 4 de [4.7](#47-build-from-source--compilar-do-código-fonte).
 
 Suas configurações, chave de API, MPCORB.DAT e projetos são mantidos. Para atualizar a lista de
-asteroides, use **Internet → Atualizar MPCOrb**.
+asteroides, use **Internet → Atualizar Banco MPCOrb**.
 
 ---
 
@@ -963,9 +1167,11 @@ asteroides, use **Internet → Atualizar MPCOrb**.
 
 | You installed with… | Remove with |
 |---|---|
-| RPM (Fedora, Rocky) | `sudo dnf remove astrofind` |
+| RPM (Fedora, Rocky, AlmaLinux, RHEL) | `sudo dnf remove astrofind` |
+| RPM (openSUSE) | `sudo zypper remove astrofind` |
 | DEB (Ubuntu, Debian, Mint, Pop!_OS, Zorin) | `sudo apt-get remove astrofind` |
-| PKGBUILD (Arch, Manjaro, CachyOS) | `sudo pacman -R astrofind` |
+| Arch package or PKGBUILD (Arch, Manjaro, CachyOS, EndeavourOS) | `sudo pacman -R astrofind` |
+| AppImage | just delete the `AstroFind-…-x86_64.AppImage` file |
 | Source build without `cmake --install` | just delete the `astrofind` folder |
 | Source build with `sudo cmake --install build` | from inside the `astrofind` folder: `sudo xargs rm < build/install_manifest.txt` (deletes every file the install copied), then delete the folder |
 
@@ -984,9 +1190,11 @@ with your desktop's password manager (look for the entry "AstroFind").
 
 | Você instalou com… | Remova com |
 |---|---|
-| RPM (Fedora, Rocky) | `sudo dnf remove astrofind` |
+| RPM (Fedora, Rocky, AlmaLinux, RHEL) | `sudo dnf remove astrofind` |
+| RPM (openSUSE) | `sudo zypper remove astrofind` |
 | DEB (Ubuntu, Debian, Mint, Pop!_OS, Zorin) | `sudo apt-get remove astrofind` |
-| PKGBUILD (Arch, Manjaro, CachyOS) | `sudo pacman -R astrofind` |
+| Pacote do Arch ou PKGBUILD (Arch, Manjaro, CachyOS, EndeavourOS) | `sudo pacman -R astrofind` |
+| AppImage | basta apagar o arquivo `AstroFind-…-x86_64.AppImage` |
 | Compilação do fonte sem `cmake --install` | basta apagar a pasta `astrofind` |
 | Compilação do fonte com `sudo cmake --install build` | de dentro da pasta `astrofind`: `sudo xargs rm < build/install_manifest.txt` (apaga cada arquivo que a instalação copiou), depois apague a pasta |
 
@@ -1015,8 +1223,9 @@ gerenciador de senhas da sua área de trabalho (procure a entrada "AstroFind").
 | `Permission denied` when running `./install.sh` | You skipped `chmod +x install.sh`. Run it, then try again. |
 | `… is not in the sudoers file` | Your user can't use `sudo`. Ask whoever administers the computer. |
 | `404` / `Not Found` while downloading | Check the address letter by letter (copy and paste it). The version must exist on the [releases page](https://github.com/petrinhu/astrofind/releases). |
-| `dnf`: "nothing provides qt6-…" on Rocky Linux | Enable EPEL and CRB first ([4.2](#42-fedora--rocky-linux-rpm)). |
-| `apt`: a Qt 6 dependency "is not installable" | Your system's Qt is older than 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)). |
+| `dnf`: "nothing provides qt6-…" on Rocky Linux | Enable EPEL and CRB first ([4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm)). |
+| `apt`: a Qt 6 dependency "is not installable" | Your system's Qt is older than 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)), or you picked the `.deb` of another system (for example `~debian13` on Ubuntu). |
+| The AppImage does not start and mentions `GLIBC_2.36` | Your system is too old for the AppImage (glibc older than 2.36). Use a package for your distro, or a newer release of your distro ([4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)). |
 | AstroFind is installed but not in the menu | Log out and back in, or start it by typing `AstroFind` in a terminal. |
 | RAW, TAR/7Z/RAR or ZIP files don't open | See [7.1](#71-libraw--dslr-raw-images--imagens-raw-de-dslr) and [7.2](#72-libarchive--tar-7z-rar-archives--arquivos-tar-7z-rar). |
 
@@ -1031,8 +1240,9 @@ More problems and their fixes: [Troubleshooting](https://github.com/petrinhu/ast
 | `Permission denied` (permissão negada) ao rodar `./install.sh` | Você pulou o `chmod +x install.sh`. Rode-o e tente de novo. |
 | `… is not in the sudoers file` | Seu usuário não pode usar `sudo`. Peça a quem administra o computador. |
 | `404` / `Not Found` durante o download | Confira o endereço letra por letra (copie e cole). A versão precisa existir na [página de releases](https://github.com/petrinhu/astrofind/releases). |
-| `dnf`: "nothing provides qt6-…" no Rocky Linux | Ligue antes o EPEL e o CRB ([4.2](#42-fedora--rocky-linux-rpm)). |
-| `apt`: uma dependência do Qt 6 "não é instalável" | O Qt do seu sistema é anterior ao 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)). |
+| `dnf`: "nothing provides qt6-…" no Rocky Linux | Ligue antes o EPEL e o CRB ([4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm)). |
+| `apt`: uma dependência do Qt 6 "não é instalável" | O Qt do seu sistema é anterior ao 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)), ou você escolheu o `.deb` de outro sistema (por exemplo `~debian13` no Ubuntu). |
+| O AppImage não abre e fala em `GLIBC_2.36` | Seu sistema é antigo demais para o AppImage (glibc anterior à 2.36). Use um pacote da sua distro, ou uma versão mais nova da sua distro ([4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)). |
 | O AstroFind está instalado mas não aparece no menu | Saia da sessão e entre de novo, ou abra digitando `AstroFind` num terminal. |
 | Arquivos RAW, TAR/7Z/RAR ou ZIP não abrem | Veja [7.1](#71-libraw--dslr-raw-images--imagens-raw-de-dslr) e [7.2](#72-libarchive--tar-7z-rar-archives--arquivos-tar-7z-rar). |
 
