@@ -101,7 +101,13 @@ find_program(VALGRIND valgrind)
 if(VALGRIND)
     add_custom_target(audit-valgrind
         COMMAND ${CMAKE_COMMAND} -E make_directory ${AUDIT_REPORT_DIR}
-        COMMAND ${VALGRIND}
+        # AUD-MEM-gaps: valgrind cannot follow machine code generated at run
+        # time, so PCRE2's JIT (behind QRegularExpression, reached by the ZIP
+        # extraction tests) shows up as bogus "uninitialised value" errors in
+        # unsymbolised frames. QT_ENABLE_REGEXP_JIT=0 is Qt's own switch to use
+        # the interpreter instead; nothing else changes.
+        COMMAND ${CMAKE_COMMAND} -E env QT_ENABLE_REGEXP_JIT=0
+            ${VALGRIND}
             --tool=memcheck
             --leak-check=full
             --show-leak-kinds=definite,indirect

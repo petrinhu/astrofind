@@ -20,6 +20,7 @@ add_executable(astrofind_tests
     test_robustness.cpp
     test_url_scheme_guard.cpp
     test_network_safety.cpp
+    test_archive_zip.cpp
 )
 
 target_link_libraries(astrofind_tests PRIVATE
@@ -41,7 +42,6 @@ add_executable(astrofind_ui_tests
     test_calibration_panel.cpp
     test_session_signals.cpp
     test_url_scheme_guard_ui.cpp
-    test_archive_zip_ui.cpp
 )
 
 target_link_libraries(astrofind_ui_tests PRIVATE
