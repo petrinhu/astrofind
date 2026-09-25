@@ -72,8 +72,8 @@ build do projeto.
 | `src/ui/` | Qt widgets, dialogs, panels, built entirely in code (no `.ui` files) |
 | `i18n/` | Qt Linguist files (`.ts` source, `.qm` compiled, "i18n" = internationalization) |
 | `resources/` | Icons (programmatic), help HTML, QRC manifest |
-| `tests/` | 116 core unit tests + 23 UI integration tests |
-| `cmake/` | Find modules and optional dependency detection |
+| `tests/` | Core unit tests (`astrofind_tests`) + UI integration tests (`astrofind_ui_tests`), Catch2 |
+| `cmake/` | Dependency setup (`dependencies.cmake`: FetchContent + optional-library detection), `audit.cmake` (audit targets), `valgrind.supp`, `patches/` for fetched sources |
 | `originals/` | Bundled library archives (CCfits) |
 
 ### 🇧🇷 Português
@@ -84,8 +84,8 @@ build do projeto.
 | `src/ui/` | Widgets Qt, diálogos, painéis, construídos totalmente em código (sem arquivos `.ui`) |
 | `i18n/` | Arquivos Qt Linguist (`.ts` fonte, `.qm` compilado; "i18n" = internacionalização) |
 | `resources/` | Ícones (programáticos), HTML de ajuda, manifesto QRC |
-| `tests/` | 116 testes unitários de core + 23 testes de integração de UI |
-| `cmake/` | Módulos Find e detecção de dependências opcionais |
+| `tests/` | Testes unitários de core (`astrofind_tests`) + testes de integração de UI (`astrofind_ui_tests`), Catch2 |
+| `cmake/` | Configuração de dependências (`dependencies.cmake`: FetchContent + detecção das bibliotecas opcionais), `audit.cmake` (alvos de auditoria), `valgrind.supp`, `patches/` para os fontes baixados |
 | `originals/` | Arquivos de bibliotecas empacotadas (CCfits) |
 
 ---
@@ -191,14 +191,14 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j$(nproc)
 cd build && ctest --output-on-failure
 # or directly:
-build/bin/astrofind_tests      # 179 core test cases
-build/bin/astrofind_ui_tests   # 27 UI integration test cases (needs a display, or QT_QPA_PLATFORM=offscreen)
+build/bin/astrofind_tests      # core test cases (about 260)
+build/bin/astrofind_ui_tests   # UI integration test cases (about 30; needs a display, or QT_QPA_PLATFORM=offscreen)
 ```
 
 Every test passes in CI ("CI" = Continuous Integration, the automated build/test pipeline
-that runs on every push) on 10 distributions, and the numerical audit (ASan/UBSan,
+that runs on every push) on 11 distributions, and the numerical audit (ASan/UBSan,
 cppcheck, clang-tidy, Valgrind) runs on Fedora, CachyOS, Arch, Ubuntu and Debian for every
-pull request into `main`. Run `cmake --build build --target audit` to get the same reports
+push and pull request to `main`. Run `cmake --build build --target audit` to get the same reports
 locally in `build/audit/`.
 
 ### 🇧🇷 Português
@@ -208,14 +208,14 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j$(nproc)
 cd build && ctest --output-on-failure
 # ou diretamente:
-build/bin/astrofind_tests      # 179 casos de teste do core
-build/bin/astrofind_ui_tests   # 27 casos de integração de UI (precisa de display, ou QT_QPA_PLATFORM=offscreen)
+build/bin/astrofind_tests      # casos de teste do core (cerca de 260)
+build/bin/astrofind_ui_tests   # casos de integração de UI (cerca de 30; precisa de display, ou QT_QPA_PLATFORM=offscreen)
 ```
 
 Todos os testes passam no CI ("CI" = Integração Contínua, o pipeline automatizado de
-build/teste que roda a cada push) em 10 distribuições, e a auditoria numérica (ASan/UBSan,
-cppcheck, clang-tidy, Valgrind) roda em Fedora, CachyOS, Arch, Ubuntu e Debian em todo pull
-request para a `main`. Rode `cmake --build build --target audit` para gerar os mesmos
+build/teste que roda a cada push) em 11 distribuições, e a auditoria numérica (ASan/UBSan,
+cppcheck, clang-tidy, Valgrind) roda em Fedora, CachyOS, Arch, Ubuntu e Debian em todo push
+e pull request para a `main`. Rode `cmake --build build --target audit` para gerar os mesmos
 relatórios localmente em `build/audit/`.
 
 ---
@@ -240,9 +240,9 @@ it is not a substitute for `--no-verify`, it just skips the local double-check).
 
 The heavier numerical audit (ASan/UBSan, cppcheck, clang-tidy, valgrind; items
 38.1-38.5, tools that catch memory bugs and static-analysis issues) does not run
-in this hook. It runs in CI on `pull_request -> main` and on release tags only
-(`.github/workflows/audit.yml`, self-hosted runner), because it takes minutes,
-not seconds.
+in this hook. It runs in CI on pushes and pull requests to `main`, on release tags
+(`v*`) and on manual runs (`.github/workflows/audit.yml`, GitHub-hosted `ubuntu-24.04`
+runners), because it takes minutes, not seconds.
 
 ### 🇧🇷 Português
 
@@ -262,9 +262,9 @@ parcimônia: não substitui `--no-verify`, só pula a checagem local).
 
 A auditoria numérica mais pesada (ASan/UBSan, cppcheck, clang-tidy, valgrind; itens
 38.1-38.5, ferramentas que pegam bugs de memória e problemas de análise estática)
-não roda neste hook. Ela roda em CI só em `pull_request -> main` e em tags de
-release (`.github/workflows/audit.yml`, runner self-hosted), porque leva minutos,
-não segundos.
+não roda neste hook. Ela roda em CI em push e pull request para a `main`, em tags de
+release (`v*`) e em execuções manuais (`.github/workflows/audit.yml`, runners
+`ubuntu-24.04` hospedados pelo GitHub), porque leva minutos, não segundos.
 
 ---
 
@@ -282,7 +282,7 @@ não segundos.
 - Abra um pull request com uma descrição clara da alteração e por que ela é necessária.
 - Inclua capturas de tela para alterações de UI.
 - Todo código novo deve ter testes correspondentes em `tests/`.
-- Atualize `CHANGELOG.md` com uma entrada de resumo em `[Não lançado]`.
+- Atualize `CHANGELOG.md` com uma entrada de resumo em `[Unreleased]`.
 
 ---
 

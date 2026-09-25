@@ -175,16 +175,16 @@ ID_LIKE="ubuntu debian"
 ...
 ```
 
-Look at `NAME`, `VERSION`, and `ID_LIKE` ("which family this distro belongs to"). Then use this
-table:
+Look at `NAME`, `VERSION`, `ID` and `ID_LIKE` ("which family this distro belongs to"; the head of
+a family, such as Fedora, Debian or Arch, has only `ID`). Then use this table:
 
 | If you see… | Your family | Go to |
 |---|---|---|
-| Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID_LIKE` contains `rhel` or `fedora`) | RPM with `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
-| Ubuntu 24.04, Debian 12 or 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID_LIKE` contains `ubuntu` or `debian`) | DEB with `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
-| Arch Linux, Manjaro, CachyOS, EndeavourOS (`ID_LIKE` contains `arch`) | package for `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID` is `fedora`, or `ID_LIKE` contains `rhel`) | RPM with `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
+| Ubuntu 24.04, Debian 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID` or `ID_LIKE` contains `ubuntu` or `debian`) | DEB with `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
+| Arch Linux, Manjaro, CachyOS, EndeavourOS (`ID` or `ID_LIKE` contains `arch`) | package for `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
 | openSUSE Tumbleweed (`ID_LIKE` contains `suse`) | RPM with `zypper` | [4.5](#45-opensuse-tumbleweed-rpm) |
-| Any other 64-bit distro | AppImage (no installation) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
+| Debian 12, or any other 64-bit (x86-64) distro | AppImage (no installation) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 | Not sure | let the installer decide | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
 
 🇧🇷 **Português**
@@ -214,15 +214,16 @@ ID_LIKE="ubuntu debian"
 ...
 ```
 
-Olhe `NAME`, `VERSION` e `ID_LIKE` ("a que família esta distro pertence"). Depois use a tabela:
+Olhe `NAME`, `VERSION`, `ID` e `ID_LIKE` ("a que família esta distro pertence"; a distro que
+encabeça uma família, como Fedora, Debian ou Arch, só tem `ID`). Depois use a tabela:
 
 | Se aparecer… | Sua família | Vá para |
 |---|---|---|
-| Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID_LIKE` contém `rhel` ou `fedora`) | RPM com `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
-| Ubuntu 24.04, Debian 12 ou 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID_LIKE` contém `ubuntu` ou `debian`) | DEB com `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
-| Arch Linux, Manjaro, CachyOS, EndeavourOS (`ID_LIKE` contém `arch`) | pacote para o `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID` é `fedora`, ou `ID_LIKE` contém `rhel`) | RPM com `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
+| Ubuntu 24.04, Debian 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID` ou `ID_LIKE` contém `ubuntu` ou `debian`) | DEB com `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
+| Arch Linux, Manjaro, CachyOS, EndeavourOS (`ID` ou `ID_LIKE` contém `arch`) | pacote para o `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
 | openSUSE Tumbleweed (`ID_LIKE` contém `suse`) | RPM com `zypper` | [4.5](#45-opensuse-tumbleweed-rpm) |
-| Qualquer outra distro de 64 bits | AppImage (sem instalação) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
+| Debian 12, ou qualquer outra distro de 64 bits (x86-64) | AppImage (sem instalação) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 | Não sei | deixe o instalador decidir | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
 
 ---
@@ -257,8 +258,10 @@ Line by line:
 1. It asks for the language (1 = English, 2 = Português (Brasil)).
 2. **1/7** shows the detected distribution, the package type it will use and the package
    manager. On Fedora, Rocky/AlmaLinux/RHEL 9, openSUSE Tumbleweed, Ubuntu 24.04 and its
-   derivatives, Debian 12/13 and the Arch family it picks the matching package; on any other
-   distro it uses the AppImage.
+   derivatives, Debian 13 and the Arch family it picks the matching package. On any other x86-64
+   distro (Debian 12 included) it uses the AppImage if the system glibc is 2.36 or newer, and
+   stops with an "unsupported" message if it is older. On other CPUs (not x86-64) it builds
+   AstroFind from source.
 3. **2/7** checks that you can use `sudo` (it may ask your password; remember, nothing appears
    while you type).
 4. **3/7** asks you to confirm. Answer `y` (English) or `s` (Portuguese) and press Enter.
@@ -299,8 +302,10 @@ Linha por linha:
 1. Ele pergunta o idioma (1 = English, 2 = Português (Brasil)).
 2. **1/7** mostra a distribuição detectada, o tipo de pacote que vai usar e o gerenciador de
    pacotes. No Fedora, Rocky/AlmaLinux/RHEL 9, openSUSE Tumbleweed, Ubuntu 24.04 e derivadas,
-   Debian 12/13 e família Arch ele escolhe o pacote certo; em qualquer outra distro usa o
-   AppImage.
+   Debian 13 e família Arch ele escolhe o pacote certo. Em qualquer outra distro x86-64 (inclusive
+   o Debian 12) usa o AppImage se a glibc do sistema for 2.36 ou mais nova, e para com uma
+   mensagem de "não suportada" se for mais antiga. Em outros processadores (não x86-64) ele
+   compila o AstroFind a partir do código-fonte.
 3. **2/7** confere se você pode usar o `sudo` (pode pedir sua senha; lembre: nada aparece
    enquanto você digita).
 4. **3/7** pede confirmação. Responda `s` (português) ou `y` (inglês) e aperte Enter.
@@ -408,11 +413,11 @@ Pick the file for your system:
 | Your system | File |
 |---|---|
 | Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.0-1~ubuntu24.04_amd64.deb` |
-| Debian 12 Bookworm | `astrofind_1.2.0-1~debian12_amd64.deb` |
 | Debian 13 Trixie | `astrofind_1.2.0-1~debian13_amd64.deb` |
+| Debian 12 Bookworm | no `.deb`: use the [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 
-Example for Ubuntu 24.04 and its derivatives (for Debian, replace `ubuntu24.04` with
-`debian12` or `debian13` in both lines):
+Example for Ubuntu 24.04 and its derivatives (for Debian 13, replace `ubuntu24.04` with
+`debian13` in both lines):
 
 ```bash
 curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind_1.2.0-1~ubuntu24.04_amd64.deb
@@ -432,7 +437,7 @@ sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb
 > [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
 **What you should see:** the last lines mention `Setting up astrofind (1.2.0-1~ubuntu24.04)`
-(or `~debian12` / `~debian13`).
+(or `~debian13`).
 
 🇧🇷 **Português**
 
@@ -442,11 +447,11 @@ Escolha o arquivo do seu sistema:
 | Seu sistema | Arquivo |
 |---|---|
 | Ubuntu 24.04, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 | `astrofind_1.2.0-1~ubuntu24.04_amd64.deb` |
-| Debian 12 Bookworm | `astrofind_1.2.0-1~debian12_amd64.deb` |
 | Debian 13 Trixie | `astrofind_1.2.0-1~debian13_amd64.deb` |
+| Debian 12 Bookworm | sem `.deb`: use o [AppImage](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 
-Exemplo para o Ubuntu 24.04 e derivadas (no Debian, troque `ubuntu24.04` por `debian12` ou
-`debian13` nas duas linhas):
+Exemplo para o Ubuntu 24.04 e derivadas (no Debian 13, troque `ubuntu24.04` por `debian13` nas
+duas linhas):
 
 ```bash
 curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind_1.2.0-1~ubuntu24.04_amd64.deb
@@ -467,7 +472,7 @@ sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb
 > [Solução de Problemas](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
 **O que você deve ver:** as últimas linhas falam em `Setting up astrofind (1.2.0-1~ubuntu24.04)`
-(ou `Configurando astrofind (1.2.0-1~ubuntu24.04)`; no Debian, `~debian12` / `~debian13`).
+(ou `Configurando astrofind (1.2.0-1~ubuntu24.04)`; no Debian 13, `~debian13`).
 
 ---
 
@@ -604,7 +609,8 @@ aplicativos.
 🇬🇧 **English**
 
 An **AppImage** is a single file that contains the program and the libraries it needs. You do
-not install it: you just make it executable and run it. It works on 64-bit distros with
+not install it: you just make it executable and run it. This is also the file for **Debian 12
+Bookworm** (there is no Debian 12 `.deb`). It works on 64-bit (x86-64) distros with
 **glibc 2.36 or newer** (glibc is the basic system library; for example Ubuntu 23.04+,
 Debian 12+, Fedora 37+).
 
@@ -627,7 +633,8 @@ still separate, optional programs.
 🇧🇷 **Português**
 
 Um **AppImage** é um único arquivo que contém o programa e as bibliotecas de que ele precisa.
-Você não instala: só marca como executável e roda. Funciona em distros de 64 bits com **glibc
+Você não instala: só marca como executável e roda. É também o arquivo para o **Debian 12
+Bookworm** (não há `.deb` para o Debian 12). Funciona em distros de 64 bits (x86-64) com **glibc
 2.36 ou mais nova** (a glibc é a biblioteca básica do sistema; por exemplo Ubuntu 23.04+,
 Debian 12+, Fedora 37+).
 
@@ -1197,7 +1204,7 @@ gerenciador de senhas da sua área de trabalho (procure a entrada "AstroFind").
 | `… is not in the sudoers file` | Your user can't use `sudo`. Ask whoever administers the computer. |
 | `404` / `Not Found` while downloading | Check the address letter by letter (copy and paste it). The version must exist on the [releases page](https://github.com/petrinhu/astrofind/releases). |
 | `dnf`: "nothing provides qt6-…" on Rocky Linux | Enable EPEL and CRB first ([4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm)). |
-| `apt`: a Qt 6 dependency "is not installable" | Your system's Qt is older than 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)), or you picked the `.deb` of another system (for example `~debian12` on Ubuntu). |
+| `apt`: a Qt 6 dependency "is not installable" | Your system's Qt is older than 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)), or you picked the `.deb` of another system (for example `~debian13` on Ubuntu). |
 | The AppImage does not start and mentions `GLIBC_2.36` | Your system is too old for the AppImage (glibc older than 2.36). Use a package for your distro, or a newer release of your distro ([4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)). |
 | AstroFind is installed but not in the menu | Log out and back in, or start it by typing `AstroFind` in a terminal. |
 | RAW, TAR/7Z/RAR or ZIP files don't open | See [7.1](#71-libraw--dslr-raw-images--imagens-raw-de-dslr) and [7.2](#72-libarchive--tar-7z-rar-archives--arquivos-tar-7z-rar). |
@@ -1214,7 +1221,7 @@ More problems and their fixes: [Troubleshooting](https://github.com/petrinhu/ast
 | `… is not in the sudoers file` | Seu usuário não pode usar `sudo`. Peça a quem administra o computador. |
 | `404` / `Not Found` durante o download | Confira o endereço letra por letra (copie e cole). A versão precisa existir na [página de releases](https://github.com/petrinhu/astrofind/releases). |
 | `dnf`: "nothing provides qt6-…" no Rocky Linux | Ligue antes o EPEL e o CRB ([4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm)). |
-| `apt`: uma dependência do Qt 6 "não é instalável" | O Qt do seu sistema é anterior ao 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)), ou você escolheu o `.deb` de outro sistema (por exemplo `~debian12` no Ubuntu). |
+| `apt`: uma dependência do Qt 6 "não é instalável" | O Qt do seu sistema é anterior ao 6.4 ([4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb)), ou você escolheu o `.deb` de outro sistema (por exemplo `~debian13` no Ubuntu). |
 | O AppImage não abre e fala em `GLIBC_2.36` | Seu sistema é antigo demais para o AppImage (glibc anterior à 2.36). Use um pacote da sua distro, ou uma versão mais nova da sua distro ([4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage)). |
 | O AstroFind está instalado mas não aparece no menu | Saia da sessão e entre de novo, ou abra digitando `AstroFind` num terminal. |
 | Arquivos RAW, TAR/7Z/RAR ou ZIP não abrem | Veja [7.1](#71-libraw--dslr-raw-images--imagens-raw-de-dslr) e [7.2](#72-libarchive--tar-7z-rar-archives--arquivos-tar-7z-rar). |

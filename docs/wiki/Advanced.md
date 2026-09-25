@@ -828,6 +828,14 @@ Compiles the app on all CPU cores. Leave out `--target AstroFind` to also build 
 ```
 Starts the program. Debug messages (spdlog) go to this terminal; there is no log file.
 
+```bash
+AstroFind --version
+AstroFind --help
+```
+`--version` prints the version (for example `AstroFind 1.2.0`) and `--help` lists the options;
+both exit without opening a window. File names given on the command line are accepted but not
+opened automatically. (For a source build, run `./build/bin/AstroFind --version`.)
+
 Required: Qt ≥ 6.4 (a C++23 compiler), cfitsio, fftw3. CMake detects these optional
 dependencies:
 
@@ -870,6 +878,14 @@ testes.
 ```
 Abre o programa. As mensagens de depuração (spdlog) saem neste terminal; não há arquivo de log.
 
+```bash
+AstroFind --version
+AstroFind --help
+```
+`--version` mostra a versão (por exemplo `AstroFind 1.2.0`) e `--help` lista as opções; os dois
+saem sem abrir janela. Nomes de arquivo passados na linha de comando são aceitos, mas não são
+abertos automaticamente. (Num build do código, rode `./build/bin/AstroFind --version`.)
+
 Obrigatórios: Qt ≥ 6.4 (compilador C++23), cfitsio, fftw3. O CMake detecta estas
 dependências opcionais:
 
@@ -902,12 +918,12 @@ Runs both suites and prints details only for failures.
 ```bash
 build/bin/astrofind_tests
 ```
-Runs the **179** core test cases (Catch2) directly.
+Runs the core test cases (Catch2, about 260) directly.
 
 ```bash
 QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests
 ```
-Runs the **27** UI test cases without a display.
+Runs the UI test cases (about 30) without a display.
 
 🇧🇷 **Português**
 *Resumindo: dois programas de teste conferem a matemática e as janelas automaticamente. Os
@@ -926,12 +942,12 @@ Roda as duas suítes e mostra detalhes só das falhas.
 ```bash
 build/bin/astrofind_tests
 ```
-Roda diretamente os **179** casos de teste do núcleo (Catch2).
+Roda diretamente os casos de teste do núcleo (Catch2, cerca de 260).
 
 ```bash
 QT_QPA_PLATFORM=offscreen build/bin/astrofind_ui_tests
 ```
-Roda os **27** casos de teste de interface sem monitor.
+Roda os casos de teste de interface (cerca de 30) sem monitor.
 
 ### 4.3 Audit target / Alvo de auditoria
 
@@ -946,13 +962,14 @@ Runs all four tools. The reports go to `build/audit/`:
 | Report | Tool | What it finds | Sub-target |
 |---|---|---|---|
 | `cppcheck.xml` | cppcheck `--enable=all` (XML v2) | Static issues in `src/core` and `src/ui` | `audit-cppcheck` |
-| `clang_tidy.txt` (+ `clang_tidy_fixes.yaml` with run-clang-tidy) | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Risky C++ patterns | `audit-clang-tidy` |
+| `clang_tidy.txt` | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Risky C++ patterns | `audit-clang-tidy` |
 | `valgrind.xml` | Valgrind memcheck on `astrofind_tests` | Leaks and invalid memory accesses | `audit-valgrind` |
 | `asan_tests.txt` | Configures `build_asan/` with `ASTROFIND_ASAN=ON`, builds and runs `astrofind_tests` | Memory errors and undefined behaviour at run time | `audit-asan` |
 
 - A missing tool is skipped, with a hint of the package to install.
-- In CI the same audit runs on Fedora 44, CachyOS, Arch, Ubuntu 24.04 and Debian 12, for pull
-  requests into `main` and on release tags.
+- In CI (`audit.yml`, on GitHub-hosted `ubuntu-24.04` runners, one container per distro) the
+  same audit runs on Fedora 44, CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every push and
+  pull request to `main`, on release tags (`v*`) and on manual runs.
 
 🇧🇷 **Português**
 *Resumindo: um comando roda quatro ferramentas caçadoras de bugs e grava os relatórios numa pasta.*
@@ -965,13 +982,14 @@ Roda as quatro ferramentas. Os relatórios vão para `build/audit/`:
 | Relatório | Ferramenta | O que encontra | Subalvo |
 |---|---|---|---|
 | `cppcheck.xml` | cppcheck `--enable=all` (XML v2) | Problemas estáticos em `src/core` e `src/ui` | `audit-cppcheck` |
-| `clang_tidy.txt` (+ `clang_tidy_fixes.yaml` com run-clang-tidy) | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Padrões arriscados de C++ | `audit-clang-tidy` |
+| `clang_tidy.txt` | clang-tidy: bugprone, cert, cppcoreguidelines, misc, performance, narrowing | Padrões arriscados de C++ | `audit-clang-tidy` |
 | `valgrind.xml` | Valgrind memcheck sobre `astrofind_tests` | Vazamentos e acessos inválidos à memória | `audit-valgrind` |
 | `asan_tests.txt` | Configura `build_asan/` com `ASTROFIND_ASAN=ON`, compila e roda `astrofind_tests` | Erros de memória e comportamento indefinido em execução | `audit-asan` |
 
 - Uma ferramenta ausente é pulada, com a dica do pacote a instalar.
-- Na CI, a mesma auditoria roda em Fedora 44, CachyOS, Arch, Ubuntu 24.04 e Debian 12, em pull
-  requests para `main` e em tags de release.
+- Na CI (`audit.yml`, em runners `ubuntu-24.04` hospedados pelo GitHub, um container por
+  distro), a mesma auditoria roda em Fedora 44, CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo
+  push e pull request para `main`, em tags de release (`v*`) e em execuções manuais.
 
 ### 4.4 Where things live / Onde as coisas ficam
 
@@ -1071,8 +1089,8 @@ astrometry.net key is kept in the system keychain when possible.*
   - For PDS, `offset + lines·(prefix + samples·bytes + suffix)` must fit in the file.
 - **Archives**: symlinks, devices and FIFOs are rejected. Only image extensions are extracted,
   into a unique temporary folder, and directory trees are flattened.
-- **Network**: the astrometry.net server URL and the MPC submit URL accept only `https`, or
-  `http` to localhost.
+- **Network**: the astrometry.net server URL, the VizieR mirror URL and the MPC submit URL
+  accept only `https`, or `http` to localhost.
 - **API key**: kept in the system keychain (Qt6Keychain) when available. Otherwise it is kept in
   plain text, and Settings shows the badge "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for secure storage".
 - Hardened linker flags are used for the executable.
@@ -1096,8 +1114,8 @@ chave do astrometry.net fica no chaveiro do sistema quando possível.*
   - No PDS, `offset + lines·(prefix + samples·bytes + suffix)` precisa caber no arquivo.
 - **Arquivos compactados**: links simbólicos, dispositivos e FIFOs são rejeitados. Só extensões
   de imagem são extraídas, numa pasta temporária única, e as árvores de diretório são achatadas.
-- **Rede**: a URL do servidor astrometry.net e a URL de envio ao MPC só aceitam `https`, ou
-  `http` para localhost.
+- **Rede**: a URL do servidor astrometry.net, a URL do espelho do VizieR e a URL de envio ao MPC
+  só aceitam `https`, ou `http` para localhost.
 - **Chave de API**: guardada no chaveiro do sistema (Qt6Keychain) quando disponível. Senão fica
   em texto puro, e as Configurações mostram o selo "⚠ Armazenado em texto simples — instale qtkeychain-qt6-devel + libsecret-devel para armazenamento seguro".
 - O executável usa flags de link endurecidas.

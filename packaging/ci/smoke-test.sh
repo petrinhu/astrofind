@@ -39,14 +39,21 @@ case "$pkg" in
     bin=/usr/bin/AstroFind ;;
   *.AppImage)
     # A desktop system has these; minimal container images do not. They are
-    # the libraries AppImages deliberately leave to the host (GL, fonts, X).
+    # the libraries the AppImage excludelist deliberately leaves to the host
+    # (OpenGL/EGL via glvnd, fontconfig, freetype, harfbuzz, xkbcommon, D-Bus,
+    # GLib), because they must match the host's drivers and configuration.
     case " ${ID} ${ID_LIKE:-} " in
       *" debian "*|*" ubuntu "*)
         export DEBIAN_FRONTEND=noninteractive; apt-get update -qq
-        apt-get install -y -qq libgl1 libegl1 libfontconfig1 libxkbcommon0 libdbus-1-3 >/dev/null ;;
-      *" fedora "*) dnf -y -q install mesa-libGL mesa-libEGL fontconfig libxkbcommon dbus-libs ;;
-      *" arch "*) pacman -Syu --noconfirm --needed mesa fontconfig libxkbcommon dbus ;;
-      *" opensuse"*|*" suse "*) zypper --non-interactive install Mesa-libGL1 Mesa-libEGL1 fontconfig libxkbcommon0 libdbus-1-3 ;;
+        apt-get install -y -qq libgl1 libegl1 libopengl0 libfontconfig1 libfreetype6 \
+            libharfbuzz0b libxkbcommon0 libdbus-1-3 libglib2.0-0 >/dev/null ;;
+      *" fedora "*) dnf -y -q install mesa-libGL mesa-libEGL libglvnd-opengl fontconfig \
+            freetype harfbuzz libxkbcommon dbus-libs glib2 ;;
+      *" arch "*) pacman -Syu --noconfirm --needed mesa libglvnd fontconfig freetype2 \
+            harfbuzz libxkbcommon dbus glib2 ;;
+      *" opensuse"*|*" suse "*) zypper --non-interactive install Mesa-libGL1 Mesa-libEGL1 \
+            libOpenGL0 fontconfig libfreetype6 libharfbuzz0 libxkbcommon0 libdbus-1-3 \
+            libglib-2_0-0 ;;
     esac
     chmod +x "$pkg"
     export APPIMAGE_EXTRACT_AND_RUN=1
