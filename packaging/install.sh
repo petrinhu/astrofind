@@ -201,8 +201,8 @@ EN[arch_build_info]="Building from PKGBUILD (Arch/Manjaro)..."
 PT[arch_build_info]="Compilando via PKGBUILD (Arch/Manjaro)..."
 EN[source_build_info]="Building from source (unknown distro)..."
 PT[source_build_info]="Compilando a partir do fonte (distro desconhecida)..."
-EN[source_deps_warn]="Ensure Qt6, CMake, cfitsio, Eigen3, fftw3 are installed before building."
-PT[source_deps_warn]="Certifique-se de que Qt6, CMake, cfitsio, Eigen3, fftw3 estão instalados antes de compilar."
+EN[source_deps_warn]="Ensure Qt6, CMake, cfitsio, fftw3 are installed before building."
+PT[source_deps_warn]="Certifique-se de que Qt6, CMake, cfitsio, fftw3 estão instalados antes de compilar."
 EN[help_text]="Usage: install.sh [OPTIONS]
 Options:
   --lang pt    Force Portuguese (Brazil)

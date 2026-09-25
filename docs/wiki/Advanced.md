@@ -828,7 +828,7 @@ Compiles the app on all CPU cores. Leave out `--target AstroFind` to also build 
 ```
 Starts the program. Debug messages (spdlog) go to this terminal; there is no log file.
 
-Required: Qt ≥ 6.4 (a C++23 compiler), cfitsio, Eigen3, fftw3. CMake detects these optional
+Required: Qt ≥ 6.4 (a C++23 compiler), cfitsio, fftw3. CMake detects these optional
 dependencies:
 
 | Optional dependency | CMake message / flag | Without it |
@@ -871,7 +871,7 @@ testes.
 ```
 Abre o programa. As mensagens de depuração (spdlog) saem neste terminal; não há arquivo de log.
 
-Obrigatórios: Qt ≥ 6.4 (compilador C++23), cfitsio, Eigen3, fftw3. O CMake detecta estas
+Obrigatórios: Qt ≥ 6.4 (compilador C++23), cfitsio, fftw3. O CMake detecta estas
 dependências opcionais:
 
 | Dependência opcional | Mensagem / flag do CMake | Sem ela |

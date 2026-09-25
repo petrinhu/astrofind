@@ -128,7 +128,7 @@ AboutDialog::AboutDialog(QWidget* parent)
     // "AGPL-3.0" is a clickable link that opens the bilingual license dialog.
     auto* credLabel = new QLabel(
         tr("Inspired by <a href=\"http://www.astrometrica.at/\">Astrometrica</a> by Herbert Raab.<br>"
-           "Built with Qt6, cfitsio, Eigen3, SEP.<br>"
+           "Built with Qt6, cfitsio, FFTW3, SEP.<br>"
            "Licensed under the "
            "<a href=\"license\">AGPL-3.0</a>."), this);
     credLabel->setTextFormat(Qt::RichText);

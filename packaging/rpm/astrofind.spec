@@ -24,7 +24,6 @@ BuildRequires:  qtkeychain-qt6-devel
 BuildRequires:  qt6-linguist
 BuildRequires:  cfitsio-devel
 BuildRequires:  fftw-devel
-BuildRequires:  eigen3-devel
 BuildRequires:  libarchive-devel
 BuildRequires:  LibRaw-devel
 BuildRequires:  mesa-libGL-devel
@@ -75,7 +74,7 @@ correctness audit (29 issues found and fixed — see AUDIT_FIND.md upstream).
 QT_QPA_PLATFORM=offscreen %{__cmake_builddir}/bin/astrofind_ui_tests --reporter console || true
 
 %files
-%license LICENSE
+%license LICENSE NOTICE LICENSES
 %doc README.md CHANGELOG.md
 %{_bindir}/AstroFind
 %{_datadir}/applications/astrofind.desktop

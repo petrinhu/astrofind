@@ -84,9 +84,15 @@ for star/source detection (`StarDetector`).
    Qt6Core5Compat is available)
 --------------------------------------------------------------------
 Component:   QuaZip v1.4 (github.com/stachenov/quazip)
-Copyright:   QuaZip contributors; embedded MiniZip portions
-             Copyright Gilles Vollant and contributors (zlib license)
-License:     LGPL-2.1 WITH a static-linking exception (see below)
+Copyright:   Copyright (C) 2005-2014 Sergey A. Tachenov and QuaZip
+             contributors; embedded MiniZip portions
+             Copyright (C) 1998-2010 Gilles Vollant (minizip),
+             Copyright (C) 2007-2008 Even Rouault,
+             Copyright (C) 2009-2010 Mathias Svensson (Zip64 support)
+License:     LGPL-2.1 WITH a static-linking exception (see below) for
+             QuaZip; zlib license for the embedded MiniZip files
+             (`quazip/unzip.*`, `quazip/zip.*`, `quazip/ioapi.h`),
+             verbatim text below (AUD-PROV-12)
 
   STATIC LINKING EXCEPTION (verbatim, from QuaZip's `COPYING`):
 
@@ -106,6 +112,29 @@ This exception is what allows AstroFind to statically link QuaZip
 under AGPL-3.0 without QuaZip's own LGPL-2.1 requiring the AstroFind
 binary itself to additionally satisfy LGPL's "user can relink a
 modified library" clause.
+
+  MiniZip — zlib license (verbatim, from the header of QuaZip's
+  `quazip/unzip.h` / `quazip/zip.h`; "Condition of use and
+  distribution are the same than zlib"):
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+  (QuaZip marks its MiniZip copies as modified by Sergey A. Tachenov,
+  as clause 2 requires; AstroFind does not modify them further.)
 
 --------------------------------------------------------------------
 4. cfitsio and CCfits — FITS I/O (bundled or system package)
@@ -171,8 +200,23 @@ License:     MIT
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
-  Note: spdlog itself depends on the bundled fmt library (MIT);
-  see https://github.com/fmtlib/fmt/blob/master/LICENSE
+Component:   {fmt} 10.2.1 (github.com/fmtlib/fmt) — bundled inside
+             spdlog (`include/spdlog/fmt/bundled/`), compiled into the
+             binary through spdlog
+Copyright:   Copyright (c) 2012 - present, Victor Zverovich and {fmt}
+             contributors
+License:     MIT (same text as spdlog above), with fmt's optional
+             exception (verbatim):
+
+  --- Optional exception to the license ---
+
+  As an exception, if, as a result of your compiling your source code, portions
+  of this Software are embedded into a machine-executable object form of such
+  source code, you may redistribute such embedded portions in such object form
+  without including the above copyright and permission notices.
+
+  AstroFind does not rely on that exception: the notice is kept here
+  anyway (AUD-PROV-12).
 
 Component:   nlohmann/json v3.11.3 (github.com/nlohmann/json)
 Copyright:   Copyright (c) 2013-2022 Niels Lohmann
@@ -294,6 +338,45 @@ against the corresponding GDL/NEMO/Siril source (all three are GPL —
 compatible with AGPL-3.0 distribution regardless of the outcome, so
 this is an attribution/reputational question, not a licensing
 blocker).
+
+--------------------------------------------------------------------
+10. Credited for inspiration only — no code included (AUD-PROV-11)
+--------------------------------------------------------------------
+The README's "Acknowledgments" table also credits these projects. No
+source code from any of them is copied, adapted or linked into
+AstroFind, so no license text is owed; they are listed here only so
+that every row of that table has an entry in this file:
+
+  - Astrometrica (astrometrica.at), Herbert Raab — closed-source
+    Windows program; UX inspiration only (menu wording kept distinct,
+    AUD-PROV-10).
+  - find_orb (github.com/Bill-Gray/find_orb), Bill Gray / Project
+    Pluto — ADES/MPC format conventions (the formats themselves are
+    public MPC/IAU specifications).
+  - umbrella2 (github.com/mostanes/umbrella2) — moving-object
+    detection and tracklet-linking ideas.
+  - astrometry.net (github.com/dstndstn/astrometry.net), Dustin Lang
+    et al. — used as a remote web service through its public REST
+    API; nothing from it is bundled.
+  - IRAF (github.com/iraf-community/iraf), NOAO / community —
+    aperture photometry concepts and table column conventions.
+  - Boost.Astronomy (github.com/BoostGSoC19/astronomy), GSoC 2019 —
+    refraction, CIRS and coordinate-overlay ideas.
+
+--------------------------------------------------------------------
+Full license texts
+--------------------------------------------------------------------
+The full texts of the licenses that require one to be distributed
+with the work are versioned in `LICENSES/` (AUD-PROV-13):
+
+  - `LICENSES/LGPL-3.0.txt`  — WCSLIB-adapted code (§1), SEP (§2), Qt6 (§7)
+  - `LICENSES/GPL-3.0.txt`   — which LGPL-3.0 incorporates by reference
+  - `LICENSES/LGPL-2.1.txt`  — QuaZip (§3), Qt6Keychain and LibRaw (§7)
+  - `LICENSES/GPL-2.0.txt`   — FFTW3 (§6)
+
+The distro packages ship them next to this file: `%license` in
+`packaging/rpm/astrofind.spec`, `packaging/debian/docs`, and the
+`package()` step of `packaging/arch/PKGBUILD`.
 
 --------------------------------------------------------------------
 See also

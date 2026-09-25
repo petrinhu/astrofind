@@ -18,7 +18,6 @@ Build-Depends:
  qt6-l10n-tools,
  libcfitsio-dev,
  libfftw3-dev,
- libeigen3-dev,
  libarchive-dev,
  libraw-dev,
  libgl-dev,

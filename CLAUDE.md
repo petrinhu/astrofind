@@ -13,7 +13,7 @@ For debugging, use the `debugging` skill. For new features, use the `tdd` or `br
 ## Project
 
 AstroFind is a Qt6/C++ astrometry application for asteroid detection and measurement.
-Stack: Qt6, CMake, cfitsio, Eigen3, fftw3.
+Stack: Qt6, CMake, cfitsio, fftw3.
 Language: C++ (src/) with Qt translations (i18n/astrofind_pt_BR.ts → .qm).
 
 ## Paths
