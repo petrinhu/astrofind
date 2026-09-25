@@ -33,7 +33,8 @@ struct DetectedStar {
     double dec      = 0.0;   ///< Dec (degrees J2000)
     bool   matched  = false; ///< Matched to a catalog star?
 
-    double fwhm()       const noexcept { return 2.355 * (a + b) * 0.5; }
+    // AUD-CORR-9: FWHM = 2·sqrt(2·ln2)·σ, same exact constant as Centroid.cpp.
+    double fwhm()       const noexcept { return 2.354820045 * (a + b) * 0.5; }
     double elongation() const noexcept { return (b > 0.1) ? a / b : 1.0; }
 };
 

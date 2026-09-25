@@ -37,4 +37,13 @@ struct StarDetectorConfig {
 std::expected<QVector<DetectedStar>, QString>
 detectStars(const FitsImage& img, const StarDetectorConfig& cfg = {});
 
+/// ClumpFind pass used by detectStars (step 7), exposed for testing.
+/// For each star, looks for ≥2 distinct local maxima above peakThresh within
+/// 3·a of the centroid in the w×h row-major buffer `data`; sets blended=true
+/// when found (or when SEP flag bit 0x1 says it was already deblended).
+/// AUD-MEM-7: stars with a non-finite x/y/a are skipped (never cast to int),
+/// and the search box is clamped to the image, so a huge `a` cannot overflow.
+void markBlendedSources(const float* data, int w, int h, float peakThresh,
+                        double blendPeakSepFraction, QVector<DetectedStar>& stars);
+
 } // namespace core

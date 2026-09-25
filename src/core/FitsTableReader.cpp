@@ -18,6 +18,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <QFileInfo>
+
 #include <cmath>
 
 namespace core {
@@ -44,6 +46,11 @@ QMap<QString, QVariant> FitsTableResult::row(int i) const
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 namespace {
+
+/// AUD-INPUT-12: sanity ceiling for NAXIS2 (rows). Every row becomes one
+/// QVariant per column in memory, so 20 million rows is already several GB;
+/// it also keeps the later static_cast<int>(nRows) exact.
+constexpr long kMaxTableRows = 20'000'000L;
 
 /// Read one CCfits column into a FitsTableColumn.
 /// Numeric types are read as double; string types as std::string → QString.
@@ -139,6 +146,24 @@ readFitsTable(const QString& filePath, const QString& hduName)
         tbl->makeThisCurrent();
         const long nRows = tbl->rows();
         CCfits::ColMap& colMap = tbl->column();
+
+        // AUD-INPUT-12: NAXIS2 is attacker-controlled and was used unchecked
+        // for reserve()/static_cast<int>. Bound it (fits in int, far above any
+        // table this app reads into memory) and cross-check the declared data
+        // size (NAXIS1 bytes/row x NAXIS2) against the file on disk, the same
+        // lying-header guard the image loaders apply (L-17), BEFORE any
+        // allocation sized by it.
+        const long rowBytes = tbl->axis(0);   // NAXIS1
+        const qint64 fileSize = QFileInfo(filePath).size();
+        if (nRows < 0 || nRows > kMaxTableRows)
+            return std::unexpected(
+                QStringLiteral("BINTABLE in '%1' declares %2 rows (ceiling %3)")
+                    .arg(filePath).arg(nRows).arg(kMaxTableRows));
+        if (rowBytes > 0 && fileSize > 0 && nRows > fileSize / rowBytes)
+            return std::unexpected(
+                QStringLiteral("BINTABLE in '%1' declares %2 rows of %3 bytes, more than "
+                               "the %4-byte file can hold (lying/corrupt header)")
+                    .arg(filePath).arg(nRows).arg(rowBytes).arg(fileSize));
 
         FitsTableResult result;
         result.hduName = QString::fromStdString(tbl->name());
