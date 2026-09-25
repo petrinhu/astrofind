@@ -44,6 +44,8 @@ BuildRequires:  ninja-build
 %if 0%{?rhel} && 0%{?rhel} < 10
 # C++23 (std::expected) needs GCC >= 12; EL9's system compiler is GCC 11.
 BuildRequires:  gcc-toolset-13-gcc-c++
+# The distribution flags load the annobin plugin, packaged separately for the toolset.
+BuildRequires:  gcc-toolset-13-annobin-plugin-gcc
 %else
 BuildRequires:  gcc-c++
 %endif
