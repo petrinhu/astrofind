@@ -215,7 +215,7 @@ Uma boa astrometria de asteroides começa antes da primeira foto:
 3. Em **Conexões / Connections → Plate Solving → Backend:** escolha *astrometry.net (online)* ou
    *ASTAP (local, offline)* (veja a
    [Parte 5](#part-5--data-reduction-background-star-detection-and-plate-solving--parte-5--redução-de-dados-fundo-detecção-de-estrelas-e-plate-solving)).
-4. Clique em **OK**. Aparece o aviso "Settings saved." / configurações salvas.
+4. Clique em **OK**. Aparece o aviso "Configurações salvas.".
 
 > ⚠️ **Atenção** — Se o local ficar em 0°, 0°, a Redução de Dados avisa "Localização não
 > configurada": suas posições seriam relatadas como se vistas do centro da Terra. Corrija o
@@ -370,7 +370,7 @@ A calibração tira da imagem a "assinatura" da própria câmera (veja o [Gloss�
   o flat de bias ou dark para você. Se precisar de um flat totalmente calibrado, prepare-o em
   outro programa e carregue o resultado em FITS.
 - Dark e flat precisam ser **FITS** com o **mesmo tamanho** das suas imagens; senão o Registro
-  diz "Image %1: dark frame size mismatch — skipped".
+  diz "Imagem N: tamanho do dark frame incompatível — ignorado".
 
 **Passos:**
 
@@ -453,7 +453,7 @@ cancela. Para cada imagem o AstroFind:
    (**Detecção → Limiar de detecção:**, padrão 4σ), até as 500 mais brilhantes. Fontes
    alongadas são marcadas como **traços** (elipses laranja — talvez um asteroide rápido ou um
    satélite); pares grudados são separados (círculos duplos magenta). Registro:
-   "Image %1: %2 stars found".
+   "Imagem N: M estrelas encontradas".
 3. **Faz o plate solving** (descobre para onde a imagem aponta no céu, sua escala e rotação — o
    **WCS**, veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary)). Imagens que já têm WCS no cabeçalho são puladas
    ("WCS pré-existente — plate solving ignorado").
@@ -466,9 +466,9 @@ cancela. Para cada imagem o AstroFind:
 | Privacidade | Envia sua imagem (não pública) | Nada sai do seu PC |
 | Bom para | Iniciantes, campos desconhecidos | Muitas imagens, sem internet, campo mais ou menos conhecido |
 
-**O que você deve ver:** "  Solved! RA=… Dec=… scale=…\"/px" para cada imagem e depois
+**O que você deve ver:** "  Resolvido! AR=… Dec=… escala=…\"/px" para cada imagem e depois
 "Redução concluída: N resolvidas, N com WCS pré-existente, N falhou". A barra de status diz
-"Step 2 done - show Known Objects (Ctrl+K)".
+"Passo 2 concluído - mostre Objetos Conhecidos (Ctrl+K)".
 
 > 💡 **Dica** — **Conexões → Salvar WCS no arquivo FITS após solução de campo** grava a solução
 > no seu arquivo *original*. Deixe desligado, a menos que queira isso; use
@@ -721,9 +721,9 @@ Clique duas vezes em **Object** ou **Band** para editar. **Editar → Desfazer**
 a última observação adicionada; o botão **Remover** do painel apaga as linhas selecionadas (não
 dá para desfazer).
 
-> ⚠️ **Atenção** — "Centroid failed — no source found at click position" quer dizer que você
+> ⚠️ **Atenção** — "Centroide falhou — nenhuma fonte encontrada na posição clicada" quer dizer que você
 > clicou longe demais do objeto. Aproxime (roda do mouse) e clique no centro dele. Dê a
-> designação em **Object:**; nome vazio vai para o relatório como `UNKN`.
+> designação em **Objeto:**; nome vazio vai para o relatório como `UNKN`.
 
 ---
 
@@ -835,7 +835,7 @@ O que fazer:
 1. Melhor: **acerte o relógio da câmera em UTC** antes de observar e sincronize-o.
 2. Se o relógio estava em hora local ou atrasado/adiantado, corrija o horário de cada imagem em
    **Ferramentas de Imagem → Editar Configurações da Imagem...** / **Image Tools → Edit Image Settings...** →
-   **Julian Date:** (meio da exposição) **antes** de rodar a Redução de Dados.
+   **Data Juliana:** (meio da exposição) **antes** de rodar a Redução de Dados.
 3. **Configurações → Observador → Fuso horário:** *não* é usado para corrigir as imagens. Não
    conte com ele.
 
@@ -901,7 +901,7 @@ UTC de meio de exposição que você espera para uma imagem.
    Telescópio. Para incluir contato marque **Incluir informações de contato no relatório ADES**
    e preencha Contato 1/2 e E-mail.
 2. Abra **Arquivo → Ver Arquivo de Relatório ADES** / **File → View ADES Report File** (botão
-   "View ADES Report" da barra, ou a etapa 6 do fluxo). Se **Conexões → Pasta de saída de
+   "Ver Relatório ADES" da barra, ou a etapa 6 do fluxo). Se **Conexões → Pasta de saída de
    relatórios:** estiver preenchida, `ades_report.xml` e `ades_report.psv` são salvos lá
    automaticamente antes.
 3. A janela **Pré-visualização do relatório ADES 2022** mostra "N observation(s) — Station: …"
@@ -909,13 +909,13 @@ UTC de meio de exposição que você espera para uma imagem.
    AR/Dec (`sys=ICRF`), `rmsRA`/`rmsDec` (do RMS do WCS, padrão 0,5″), o catálogo (`astCat`) e,
    se houver, magnitude e banda.
 4. Revise e escolha:
-   - **Save…** (aba visível), **Save to Reports Folder** (os dois arquivos, por padrão na sua
-     pasta pessoal — não é a mesma pasta do passo 2), **Copy**, **Export PDF…** (um resumo para
+   - **Salvar…** (aba visível), **Salvar na Pasta de Relatórios** (os dois arquivos, por padrão na sua
+     pasta pessoal — não é a mesma pasta do passo 2), **Copiar**, **Exportar PDF…** (um resumo para
      imprimir, com miniaturas).
-   - **Submit to MPC (HTTP)**: após confirmação, envia o PSV para o endereço do MPC em
+   - **Enviar ao MPC (HTTP)**: após confirmação, envia o PSV para o endereço do MPC em
      **Conexões → Envio ao MPC → URL de envio:**. Se falhar, o AstroFind oferece o e-mail.
-   - **Submit to MPC (Email)**: abre seu programa de e-mail endereçado a
-     `obs@minorplanetcenter.net` com o PSV no corpo (avisa "Large Report" acima de 2000
+   - **Enviar ao MPC (E-mail)**: abre seu programa de e-mail endereçado a
+     `obs@minorplanetcenter.net` com o PSV no corpo (avisa "Relatório Grande" acima de 2000
      caracteres).
    - **Enviar para Professor**: só quando há e-mail de professor configurado (Parte 14).
 
@@ -992,7 +992,7 @@ UTC de meio de exposição que você espera para uma imagem.
   Professor** (abre um e-mail com o PSV).
 
 > ⚠️ **Atenção** — O `.ini` contém *todas* as configurações. Se a sua versão guarda a chave de
-> API do astrometry.net em texto puro (as Configurações mostram "⚠ Stored in plain text"), a
+> API do astrometry.net em texto puro (as Configurações mostram "⚠ Armazenado em texto simples"), a
 > chave vai junto no arquivo.
 
 ---

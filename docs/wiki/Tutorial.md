@@ -777,9 +777,9 @@ sources and the method ("WCS warp" or "direct subtraction").
 **resíduo**) é o que mudou.
 **Para que serve:** achar objetos novos ou em movimento comparando com uma imagem mais antiga.
 **Como fazer:** **Utilitários → Comparar Sessões…** (`Ctrl+Shift+C`): escolha um FITS ou pasta de
-referência (**Browse…**), ajuste o limiar de detecção e clique em **Compare**. Abre uma janela
-"Residual" e a linha de resultado dá o número de fontes residuais e o método ("WCS warp" ou
-"direct subtraction").
+referência (**Procurar…**), ajuste o limiar de detecção e clique em **Comparar**. Abre uma janela
+"Residual" e a linha de resultado dá o número de fontes residuais e o método ("distorção WCS" ou
+"subtração direta").
 
 ---
 
@@ -925,9 +925,9 @@ tempo.
 (rotação) ou achar uma medição ruim.
 **Como fazer:**
 - **Utilitários → Curva de Crescimento…** (`Ctrl+Shift+G`) (precisa de estrelas detectadas):
-  escolha uma estrela e os raios, **Compute**, depois **Use optimal aperture (N px)**, que passa a
+  escolha uma estrela e os raios, **Calcular**, depois **Usar abertura ótima (N px)**, que passa a
   abertura para o modo manual nas Configurações.
-- **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`): escolha "All objects" ou um objeto; **Export PNG…**. Atualiza
+- **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`): escolha "Todos os objetos" ou um objeto; **Exportar PNG…**. Atualiza
   quando você adiciona medições; clique num ponto para abrir a imagem dele.
 
 ---
@@ -973,9 +973,9 @@ separadas por `|`). Ele **não** gera o antigo formato MPC de 80 colunas.
    relatório ADES").
 2. **Arquivo → Ver Arquivo de Relatório ADES** (ou a barra de ferramentas, ou a etapa 6 do Fluxo
    de Trabalho). A janela "Pré-visualização do relatório ADES 2022" tem as abas **XML** e **PSV**.
-3. Botões: **Save…** (aba visível), **Save to Reports Folder** (os dois arquivos), **Copy**,
-   **Export PDF…** (resumo com miniaturas e tabela), **Enviar para Professor** (só se o "E-mail do
-   Professor" estiver preenchido), **Submit to MPC (HTTP)**, **Submit to MPC (Email)**, **Close**.
+3. Botões: **Salvar…** (aba visível), **Salvar na Pasta de Relatórios** (os dois arquivos), **Copiar**,
+   **Exportar PDF…** (resumo com miniaturas e tabela), **Enviar para Professor** (só se o "E-mail do
+   Professor" estiver preenchido), **Enviar ao MPC (HTTP)**, **Enviar ao MPC (E-mail)**, **Fechar**.
 4. A banda da magnitude vem do FILTER da imagem ou da "Banda padrão" em Configurações → Detecção;
    mude linha a linha no painel Observações. "Incluir magnitude no relatório ADES" desliga as
    magnitudes.

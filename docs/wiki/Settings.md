@@ -62,7 +62,7 @@ are an advanced user." Believe it: leave those fields alone unless you know why.
 3. Embaixo: **Restaurar padrões**, **OK** e **Cancelar**.
 4. Nada é gravado até você apertar **OK**. **Cancelar** descarta as mudanças.
 
-**O que você deve ver:** depois do **OK**, aparece a mensagem "Settings saved.". Se você
+**O que você deve ver:** depois do **OK**, aparece a mensagem "Configurações salvas.". Se você
 mudou o idioma, o AstroFind pede para reiniciar.
 
 Algumas abas e grupos mostram uma faixa amarela: "Os melhores valores já estão definidos —
@@ -280,7 +280,7 @@ ela aponta.
 |---|---|---|---|---|---|---|---|
 | Backend: | Backend: | Which solver to use: "astrometry.net (online)" (needs internet and a free API key) or "ASTAP (local, offline)" (a program you install yourself). | Qual solver usar: "astrometry.net (online)" (precisa de internet e chave gratuita) ou "ASTAP (local, offline)" (programa que você instala). | astrometry.net | — | `astrometry/backend` (`astrometry_net` / `astap`) | 🟢 |
 | Executável ASTAP: (PT in both languages) | Executável ASTAP: | Full path of the ASTAP program, e.g. `/usr/bin/astap`. The **…** button opens "Localizar ASTAP". | Caminho completo do programa ASTAP, ex.: `/usr/bin/astap`. O botão **…** abre "Localizar ASTAP". | empty | path | `astrometry/astapPath` | 🟡 |
-| API Key: | Chave de API: | Your personal key from nova.astrometry.net (link "Get a free key at nova.astrometry.net"). **Show**/**Hide** reveals it. A badge says where it is kept: "🔒 Stored in system keychain (KWallet / SecretService)" or "⚠ Stored in plain text". | Sua chave pessoal do nova.astrometry.net (link "Obtenha uma chave gratuita em nova.astrometry.net"). **Mostrar**/**Ocultar** revela. Um selo diz onde fica guardada: no chaveiro do sistema ou em texto puro. | empty | text | system keychain (service "AstroFind"), or `astrometry/apiKey` | 🟢 |
+| API Key: | Chave de API: | Your personal key from nova.astrometry.net (link "Get a free key at nova.astrometry.net"). **Show**/**Hide** reveals it. A badge says where it is kept: "🔒 Stored in system keychain (KWallet / SecretService)" or "⚠ Stored in plain text". | Sua chave pessoal do nova.astrometry.net (link "Obtenha uma chave gratuita em nova.astrometry.net"). **Mostrar**/**Ocultar** revela. Um selo diz onde fica guardada: "🔒 Armazenado no chaveiro do sistema (KWallet / SecretService)" ou "⚠ Armazenado em texto simples". | empty | text | system keychain (service "AstroFind"), or `astrometry/apiKey` | 🟢 |
 | Server URL: | URL do servidor: | The astrometry.net server. Only `https://…` (or `http://localhost…`) is accepted. | O servidor astrometry.net. Só `https://…` (ou `http://localhost…`) é aceito. | `https://nova.astrometry.net` | URL | `astrometry/baseUrl` | 🔴 |
 | Timeout: | Tempo limite: | How long to wait for an online solution before giving up. | Quanto esperar pela solução online antes de desistir. | 300 s | 60 … 600 s | `astrometry/timeoutSec` | 🟡 |
 
@@ -312,7 +312,7 @@ ela aponta.
 > Folder** da janela do relatório. Esse botão usa outra configuração escondida
 > (`paths/reportDir`, padrão: sua pasta pessoal) que não dá para mudar nesta janela. Com os
 > padrões você recebe `ades_report.*` em Documentos (salvamento automático) e
-> `ADES_<estação>_<data>.*` na pasta pessoal (botão). Se quiser um lugar só, use **Save…** na
+> `ADES_<estação>_<data>.*` na pasta pessoal (botão). Se quiser um lugar só, use **Salvar…** na
 > janela do relatório e escolha a pasta; ela é lembrada.
 
 > ⚠️ **Watch out / Atenção**

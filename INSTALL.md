@@ -42,8 +42,10 @@ operating system flavor, e.g. Fedora, Ubuntu, Arch), downloads the correct binar
 package (RPM, DEB or Arch package, the three main Linux package formats), installs
 dependencies, and sets up desktop integration (menu entry, icon). It picks the right file for
 Fedora, Rocky Linux / AlmaLinux / RHEL 9, openSUSE Tumbleweed, Ubuntu 24.04 and its
-derivatives, Debian 12/13 and the Arch family; on any other distro it falls back to the
-AppImage. Bilingual (EN/PT-BR) interactive interface.
+derivatives, Debian 13 and the Arch family. On any other x86-64 distro (Debian 12 included) it
+installs the AppImage if the system glibc is 2.36 or newer, and stops with an "unsupported"
+message if it is older. On other CPUs (not x86-64) it builds from source. Bilingual (EN/PT-BR)
+interactive interface.
 
 > Distros on an Ubuntu 22.04 base (Pop!_OS 22.04, Zorin OS 17, Linux Mint 21) are **not
 > supported**: their Qt 6.2 is older than the Qt 6.4 AstroFind needs, and their glibc 2.35 is
@@ -87,13 +89,6 @@ curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofin
 sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb
 ```
 
-**Debian 12 Bookworm (DEB package):**
-
-```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind_1.2.0-1~debian12_amd64.deb
-sudo apt-get install ./astrofind_1.2.0-1~debian12_amd64.deb
-```
-
 **Debian 13 Trixie (DEB package):**
 
 ```bash
@@ -101,7 +96,8 @@ curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofin
 sudo apt-get install ./astrofind_1.2.0-1~debian13_amd64.deb
 ```
 
-`apt-get install ./file.deb` resolves dependencies automatically.
+`apt-get install ./file.deb` resolves dependencies automatically. There is no `.deb` for
+Debian 12 Bookworm: use the AppImage below.
 
 **Arch Linux / Manjaro / CachyOS / EndeavourOS (Arch package):**
 
@@ -122,8 +118,8 @@ makepkg -si
 `makepkg -si` installs declared dependencies via `pacman` and builds + installs the
 package.
 
-**Any other x86-64 distro (AppImage, glibc 2.36 or newer, e.g. Ubuntu 23.04+, Debian 12+,
-Fedora 37+):**
+**Debian 12 and any other x86-64 distro (AppImage, glibc 2.36 or newer, e.g. Ubuntu 23.04+,
+Debian 12+, Fedora 37+):**
 
 ```bash
 curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/AstroFind-1.2.0-x86_64.AppImage
@@ -162,8 +158,10 @@ específica do sistema operacional, ex.: Fedora, Ubuntu, Arch), baixa o pacote b
 correto (RPM, DEB ou pacote do Arch, os três principais formatos de pacote do Linux), instala
 as dependências e configura a integração com o desktop (entrada de menu, ícone). Ele escolhe
 o arquivo certo para Fedora, Rocky Linux / AlmaLinux / RHEL 9, openSUSE Tumbleweed, Ubuntu
-24.04 e derivadas, Debian 12/13 e a família Arch; em qualquer outra distro ele usa o
-AppImage. Interface interativa bilíngue (EN/PT-BR).
+24.04 e derivadas, Debian 13 e a família Arch. Em qualquer outra distro x86-64 (inclusive o
+Debian 12) ele instala o AppImage se a glibc do sistema for 2.36 ou mais nova, e para com uma
+mensagem de "não suportada" se for mais antiga. Em outros processadores (não x86-64) ele compila
+a partir do código-fonte. Interface interativa bilíngue (EN/PT-BR).
 
 > Distros com base Ubuntu 22.04 (Pop!_OS 22.04, Zorin OS 17, Linux Mint 21) **não são
 > suportadas**: o Qt 6.2 delas é mais antigo que o Qt 6.4 exigido pelo AstroFind, e a glibc
@@ -207,13 +205,6 @@ curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofin
 sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb
 ```
 
-**Debian 12 Bookworm (pacote DEB):**
-
-```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind_1.2.0-1~debian12_amd64.deb
-sudo apt-get install ./astrofind_1.2.0-1~debian12_amd64.deb
-```
-
 **Debian 13 Trixie (pacote DEB):**
 
 ```bash
@@ -221,7 +212,8 @@ curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofin
 sudo apt-get install ./astrofind_1.2.0-1~debian13_amd64.deb
 ```
 
-`apt-get install ./arquivo.deb` resolve dependências automaticamente.
+`apt-get install ./arquivo.deb` resolve dependências automaticamente. Não há `.deb` para o
+Debian 12 Bookworm: use o AppImage abaixo.
 
 **Arch Linux / Manjaro / CachyOS / EndeavourOS (pacote do Arch):**
 
@@ -242,8 +234,8 @@ makepkg -si
 `makepkg -si` instala as dependências declaradas via `pacman` e compila + instala o
 pacote.
 
-**Qualquer outra distro x86-64 (AppImage, glibc 2.36 ou mais nova, ex.: Ubuntu 23.04+,
-Debian 12+, Fedora 37+):**
+**Debian 12 e qualquer outra distro x86-64 (AppImage, glibc 2.36 ou mais nova, ex.: Ubuntu
+23.04+, Debian 12+, Fedora 37+):**
 
 ```bash
 curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/AstroFind-1.2.0-x86_64.AppImage
@@ -316,7 +308,7 @@ cmake --build build -j$(nproc)
 
 ## Fedora / RHEL / Rocky Linux
 
-> Tested distribution / Distribuição testada: Fedora 39+ (primary development platform
+> Tested distribution / Distribuição testada: Fedora 44 (primary development platform
 > / plataforma de desenvolvimento primária, item 55.10 ✅)
 
 ### 🇬🇧 English
@@ -325,7 +317,7 @@ cmake --build build -j$(nproc)
 
 ```bash
 sudo dnf install \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf-pkg-config \
     qt6-qtbase-devel qt6-qtcharts-devel \
     cfitsio-devel fftw-devel
 ```
@@ -350,7 +342,7 @@ sudo dnf install \
 
 ```bash
 sudo dnf install \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf-pkg-config \
     qt6-qtbase-devel qt6-qtcharts-devel \
     cfitsio-devel fftw-devel
 ```
@@ -385,15 +377,14 @@ sudo dnf install \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
-> **Note:** Qt6 Network and Concurrent are typically included with `qt6-base-dev` on
-> Ubuntu 24.04. If CMake cannot find them, also install `qt6-base-dev-tools`.
+> **Note:** Qt6 Network, Sql, Xml and Concurrent come inside `qt6-base-dev`; there are no
+> separate `libqt6sql6-dev`/`libqt6xml6-dev` packages.
 
 **Optional:**
 
@@ -401,7 +392,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
 ```
@@ -413,16 +404,14 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
-> **Nota:** Qt6 Network e Concurrent normalmente já vêm com `qt6-base-dev` no
-> Ubuntu 24.04. Se o CMake não conseguir encontrá-los, instale também
-> `qt6-base-dev-tools`.
+> **Nota:** Qt6 Network, Sql, Xml e Concurrent vêm dentro do `qt6-base-dev`; não existem
+> pacotes separados `libqt6sql6-dev`/`libqt6xml6-dev`.
 
 **Opcionais:**
 
@@ -430,7 +419,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
 ```
@@ -448,10 +437,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -461,14 +449,10 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
 ```
-
-> **Note:** `qt6-qtkeychain-dev` may not be available in Debian 12 repos. Secure API
-> key storage will fall back to `QSettings`; the application builds and runs normally
-> without it.
 
 ### 🇧🇷 Português
 
@@ -477,10 +461,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -490,14 +473,10 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools \
     valgrind cppcheck clang-tidy
 ```
-
-> **Nota:** `qt6-qtkeychain-dev` pode não estar disponível nos repositórios do
-> Debian 12. O armazenamento seguro de chave de API cai para `QSettings`
-> (fallback); a aplicação compila e roda normalmente sem ele.
 
 ---
 
@@ -513,10 +492,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -526,7 +504,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools
 ```
 
@@ -537,10 +515,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -550,7 +527,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools
 ```
 
@@ -573,10 +550,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -586,7 +562,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools
 ```
 
@@ -595,10 +571,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -608,7 +583,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools
 ```
 
@@ -628,10 +603,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -641,7 +615,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools
 ```
 
@@ -650,10 +624,9 @@ sudo apt-get install -y \
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-    cmake g++ \
-    qt6-base-dev libqt6charts6-dev \
+    cmake g++ git pkg-config \
+    qt6-base-dev qt6-charts-dev \
     libqt6opengl6-dev \
-    libqt6sql6-dev libqt6xml6-dev \
     libcfitsio-dev libfftw3-dev
 ```
 
@@ -663,7 +636,7 @@ sudo apt-get install -y \
 sudo apt-get install -y \
     libarchive-dev \
     libraw-dev \
-    libsecret-1-dev \
+    qtkeychain-qt6-dev libsecret-1-dev \
     qt6-l10n-tools
 ```
 
@@ -679,7 +652,7 @@ sudo apt-get install -y \
 
 ```bash
 sudo pacman -S --needed \
-    cmake gcc \
+    cmake gcc git pkgconf \
     qt6-base qt6-charts \
     cfitsio fftw
 ```
@@ -690,7 +663,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     libarchive \
     libraw \
-    qtkeychain \
+    qtkeychain-qt6 \
     qt6-tools \
     valgrind cppcheck clang
 ```
@@ -701,7 +674,7 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    cmake gcc \
+    cmake gcc git pkgconf \
     qt6-base qt6-charts \
     cfitsio fftw
 ```
@@ -712,7 +685,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     libarchive \
     libraw \
-    qtkeychain \
+    qtkeychain-qt6 \
     qt6-tools \
     valgrind cppcheck clang
 ```
@@ -729,7 +702,7 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    cmake gcc \
+    cmake gcc git pkgconf \
     qt6-base qt6-charts \
     cfitsio fftw
 ```
@@ -740,7 +713,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     libarchive \
     libraw \
-    qtkeychain \
+    qtkeychain-qt6 \
     qt6-tools \
     valgrind cppcheck clang
 ```
@@ -749,7 +722,7 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    cmake gcc \
+    cmake gcc git pkgconf \
     qt6-base qt6-charts \
     cfitsio fftw
 ```
@@ -760,7 +733,7 @@ sudo pacman -S --needed \
 sudo pacman -S --needed \
     libarchive \
     libraw \
-    qtkeychain \
+    qtkeychain-qt6 \
     qt6-tools \
     valgrind cppcheck clang
 ```
@@ -777,7 +750,7 @@ sudo pacman -S --needed \
 
 ```bash
 sudo zypper install -y \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf \
     qt6-base-devel qt6-charts-devel \
     qt6-opengl-devel \
     cfitsio-devel fftw3-devel
@@ -800,7 +773,7 @@ sudo zypper install -y \
 
 ```bash
 sudo zypper install -y \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf \
     qt6-base-devel qt6-charts-devel \
     qt6-opengl-devel \
     cfitsio-devel fftw3-devel
@@ -844,13 +817,20 @@ sudo dnf config-manager --set-enabled crb
 
 ```bash
 sudo dnf install -y \
-    cmake gcc-c++ \
+    cmake gcc-toolset-13-gcc-c++ git pkgconf-pkg-config \
     qt6-qtbase-devel qt6-qtcharts-devel \
     cfitsio-devel fftw-devel
 ```
 
+The system GCC 11 of EL9 is too old for C++23: enable GCC 13 in the shell before running
+`cmake` (use the same shell to configure and build):
+
+```bash
+. /opt/rh/gcc-toolset-13/enable
+```
+
 > **Note:** If Qt 6.4+ is not available in EPEL for Rocky 9, build Qt 6 from source
-> or use a Fedora 39+ container as the build environment.
+> or use a Fedora 44 container as the build environment.
 
 **Optional:**
 
@@ -858,7 +838,7 @@ sudo dnf install -y \
 sudo dnf install -y \
     libarchive-devel \
     LibRaw-devel \
-    libsecret-devel \
+    qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist
 ```
 
@@ -876,13 +856,20 @@ sudo dnf config-manager --set-enabled crb
 
 ```bash
 sudo dnf install -y \
-    cmake gcc-c++ \
+    cmake gcc-toolset-13-gcc-c++ git pkgconf-pkg-config \
     qt6-qtbase-devel qt6-qtcharts-devel \
     cfitsio-devel fftw-devel
 ```
 
+O GCC 11 do sistema no EL9 é antigo demais para C++23: ative o GCC 13 no shell antes de rodar
+o `cmake` (use o mesmo shell para configurar e compilar):
+
+```bash
+. /opt/rh/gcc-toolset-13/enable
+```
+
 > **Nota:** Se Qt 6.4+ não estiver disponível no EPEL para Rocky 9, compile o Qt 6 do
-> fonte ou use um container Fedora 39+ como ambiente de build.
+> fonte ou use um container Fedora 44 como ambiente de build.
 
 **Opcionais:**
 
@@ -890,7 +877,7 @@ sudo dnf install -y \
 sudo dnf install -y \
     libarchive-devel \
     LibRaw-devel \
-    libsecret-devel \
+    qtkeychain-qt6-devel libsecret-devel \
     qt6-linguist
 ```
 

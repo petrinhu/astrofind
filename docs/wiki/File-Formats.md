@@ -237,7 +237,7 @@ RGB/BGR e Bayer (RGGB, GRBG, GBRG, BGGR) de 8 ou 16 bits. Quadros Bayer são exi
 - ⚠️ **Só o primeiro quadro** é carregado (o registro avisa "SER file has N frames — only frame 1
   loaded").
 - ⚠️ **O horário não é lido.** Digite o horário de meio da exposição em **Ferramentas de Imagem → Editar
-  Configurações da Imagem...** → **Julian Date:**, e a exposição em **Exposure time:**.
+  Configurações da Imagem...** → **Data Juliana:**, e a exposição em **Tempo de exposição:**.
 - Os nomes de observador e telescópio são lidos do cabeçalho.
 
 ---
@@ -392,7 +392,7 @@ Epson `.erf`, Kodak `.kdc`, Minolta `.mrw`, Sigma `.x3f`, Phase One `.iiq`, Mami
 3. **Arquivo → Importar Imagens...** → filtro *DSLR RAW* → selecione os arquivos.
 4. O Registro mostra "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a
    câmera grava hora local." para cada arquivo. Isso é esperado em RAW: o AstroFind *supôs* que o
-   relógio estava em UTC. Se não estava, corrija o **Julian Date:** em **Ferramentas de Imagem → Editar
+   relógio estava em UTC. Se não estava, corrija a **Data Juliana:** em **Ferramentas de Imagem → Editar
    Configurações da Imagem...** antes da Redução de Dados (veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), Parte 11).
 5. Configure sua **localização** em **Arquivo → Configurações... → Observador** — arquivos RAW
    não a contêm.

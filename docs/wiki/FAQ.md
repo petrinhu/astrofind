@@ -567,7 +567,7 @@ a summary line starting with "Redução concluída:".
    0°, 0°, o AstroFind avisa "Localização não configurada".
 3. Rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`).
 
-**O que você deve ver:** no painel de Log, `Solved! RA=… Dec=… scale=…"/px` para cada imagem, e
+**O que você deve ver:** no painel de Log, `Resolvido! AR=… Dec=… escala=…"/px` para cada imagem, e
 depois uma linha de resumo que começa com "Redução concluída:".
 
 ---
@@ -775,7 +775,8 @@ Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/pet
 Open an issue on GitHub: <https://github.com/petrinhu/astrofind/issues> (you need a free GitHub
 account). Please include:
 
-1. The AstroFind version from **Help → About AstroFind…** ("Version 1.2.0", for example).
+1. The AstroFind version from **Help → About AstroFind…** ("Version 1.2.0", for example), or
+   from `AstroFind --version` in a terminal.
 2. Your Linux distribution and its version.
 3. What you did, step by step, what you expected, and what happened.
 4. The Log panel text: in the Log panel click **"Copy all"** and paste it.
@@ -787,7 +788,8 @@ account). Please include:
 Abra uma issue no GitHub: <https://github.com/petrinhu/astrofind/issues> (é preciso uma conta
 gratuita no GitHub). Inclua, por favor:
 
-1. A versão do AstroFind em **Ajuda → Sobre o AstroFind…** (por exemplo "Version 1.2.0").
+1. A versão do AstroFind em **Ajuda → Sobre o AstroFind…** (por exemplo "Versão 1.2.0"), ou
+   com `AstroFind --version` num terminal.
 2. Sua distribuição Linux e a versão dela.
 3. O que você fez, passo a passo, o que esperava e o que aconteceu.
 4. O texto do painel de Log: no painel de Log clique em **"Copiar tudo"** e cole.

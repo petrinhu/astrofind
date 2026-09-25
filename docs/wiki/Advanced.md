@@ -353,8 +353,8 @@ truque no domínio de frequência (FFT). Depois tira a média, a mediana ou soma
 - **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`): *Track & Stack*. Você digita o movimento do
   objeto como dX/dY por quadro (−500…500 px). A saída é `track_stacked.fits`. Use para objetos
   fracos demais em quadros isolados.
-- Modos: **Average** (média), **Median** (mediana; rejeita discrepantes como satélites), **Add**
-  (soma; preserva a contagem total).
+- Modos: **Média**, **Mediana** (rejeita discrepantes como satélites), **Somar** (preserva a
+  contagem total).
 - TR: [§15 Registro por FFT](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#15-fft-image-registration-phase-correlation--registro-de-imagem-por-fft-correlação-de-fase).
 
 ### 1.8 Streaks and ClumpFind / Traços e ClumpFind
@@ -696,7 +696,7 @@ versão 1.2.0 corrige; uma nota abaixo diz o que mudou.*
    segundos, se você souber. A faixa é −999…999 s.
 3. Rode a **Redução de Dados** (`Ctrl+A`). Rodar de novo não causa problema.
 4. Para uma imagem só, ou uma DSLR com erro de relógio conhecido, você pode digitar o JD correto
-   do meio da exposição em **Ferramentas de Imagem → Editar Configurações da Imagem...** (campo "Julian Date:", 6
+   do meio da exposição em **Ferramentas de Imagem → Editar Configurações da Imagem...** (campo "Data Juliana:", 6
    decimais ≈ 0,09 s). Se o JD digitado já está corrigido, mantenha o Deslocamento de tempo em 0.
 5. Antes de enviar, compare o `obsTime` na pré-visualização ADES com o UTC do meio da exposição
    que você espera.
@@ -1099,7 +1099,7 @@ chave do astrometry.net fica no chaveiro do sistema quando possível.*
 - **Rede**: a URL do servidor astrometry.net e a URL de envio ao MPC só aceitam `https`, ou
   `http` para localhost.
 - **Chave de API**: guardada no chaveiro do sistema (Qt6Keychain) quando disponível. Senão fica
-  em texto puro, e as Configurações mostram o selo "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for secure storage".
+  em texto puro, e as Configurações mostram o selo "⚠ Armazenado em texto simples — instale qtkeychain-qt6-devel + libsecret-devel para armazenamento seguro".
 - O executável usa flags de link endurecidas.
 - Nem todo achado de auditoria está corrigido. Leia antes de depender de um ponto específico:
   - [SECURITY.md](https://github.com/petrinhu/astrofind/blob/main/SECURITY.md) — como relatar uma

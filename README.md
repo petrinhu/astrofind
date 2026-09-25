@@ -18,7 +18,7 @@
 [![Platform](https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&logoColor=black)](INSTALL.md)
 
 <!-- Quality -->
-[![Tests](https://img.shields.io/badge/tests-206%20cases%20passing-brightgreen)](#testing--testes)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](#testing--testes)
 [![ASan/UBSan](https://img.shields.io/badge/ASan%2FUBSan-clean-success)](.github/workflows/audit.yml)
 [![cppcheck](https://img.shields.io/badge/cppcheck-clean-success)](.github/workflows/audit.yml)
 [![clang-tidy](https://img.shields.io/badge/clang--tidy-checked-success)](.github/workflows/audit.yml)
@@ -235,7 +235,8 @@ chmod +x install.sh
 | Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (enable EPEL and CRB first) |
 | openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
 | Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
-| Debian 12 / Debian 13 | `~debian12_amd64.deb` / `~debian13_amd64.deb` |
+| Debian 13 | `~debian13_amd64.deb` |
+| Debian 12 | `.AppImage` (no `.deb` for Debian 12) |
 | Arch Linux / Manjaro / CachyOS / EndeavourOS | `.pkg.tar.zst` (or PKGBUILD, built locally with `makepkg`) |
 | Any other x86-64 distro (glibc ≥ 2.36) | `.AppImage` (no install needed) |
 
@@ -275,7 +276,8 @@ chmod +x install.sh
 | Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (ative EPEL e CRB antes) |
 | openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
 | Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
-| Debian 12 / Debian 13 | `~debian12_amd64.deb` / `~debian13_amd64.deb` |
+| Debian 13 | `~debian13_amd64.deb` |
+| Debian 12 | `.AppImage` (não há `.deb` para o Debian 12) |
 | Arch Linux / Manjaro / CachyOS / EndeavourOS | `.pkg.tar.zst` (ou PKGBUILD, compilado localmente com `makepkg`) |
 | Qualquer outra distro x86-64 (glibc ≥ 2.36) | `.AppImage` (não precisa instalar) |
 
@@ -372,8 +374,7 @@ libarchive, Qt6Keychain.
 | FFTW3 | any | GPL-2.0-or-later | FFT for image stacking and power spectrum |
 | SEP | >= 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Source Extractor C library (FetchContent) |
 | spdlog | >= 1.11 | MIT | Logging (FetchContent) |
-| nlohmann/json | >= 3.11 | MIT | Project file serialisation (bundled) |
-| Qt6Keychain | any | LGPL-2.1 | Secure API key storage (dynamically linked, required at runtime) |
+| nlohmann/json | >= 3.11 | MIT | Project file serialisation (FetchContent) |
 | CMake | >= 3.22 | n/a | Build system, not distributed |
 | C++ | 23 | n/a | Compiler: GCC 12+ (Debian 12 is the oldest tested) or Clang 16+, not distributed |
 
@@ -381,7 +382,9 @@ libarchive, Qt6Keychain.
 
 | Dependency | License | Notes |
 |------------|---------|-------|
+| Qt6Keychain | LGPL-2.1 | Secure API key storage (dynamically linked); without it the API key is kept in the plain-text settings file |
 | libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction |
+| unzip (command) | Info-ZIP | ZIP image sets (run as an external program) |
 | LibRaw | LGPL-2.1 / CDDL-1.0 | DSLR RAW loading (optional) |
 | Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations |
 | ASTAP | proprietary freeware | Offline plate solver ([hnsky.org](https://www.hnsky.org/astap.htm)) |
@@ -402,8 +405,7 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 | FFTW3 | qualquer | GPL-2.0-or-later | FFT para empilhamento de imagens e espectro de potência |
 | SEP | >= 1.2 | LGPL-3.0 + BSD-3-Clause + MIT | Biblioteca C do Source Extractor (FetchContent) |
 | spdlog | >= 1.11 | MIT | Log (FetchContent) |
-| nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (bundled) |
-| Qt6Keychain | qualquer | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente, obrigatório em runtime) |
+| nlohmann/json | >= 3.11 | MIT | Serialização de arquivo de projeto (FetchContent) |
 | CMake | >= 3.22 | n/a | Sistema de build, não distribuído |
 | C++ | 23 | n/a | Compilador: GCC 12+ (o Debian 12 é o mais antigo testado) ou Clang 16+, não distribuído |
 
@@ -411,7 +413,9 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 
 | Dependência | Licença | Notas |
 |-------------|---------|-------|
+| Qt6Keychain | LGPL-2.1 | Armazenamento seguro de chave API (linkado dinamicamente); sem ela a chave API fica no arquivo de configurações em texto puro |
 | libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR |
+| unzip (comando) | Info-ZIP | Conjuntos de imagens em ZIP (executado como programa externo) |
 | LibRaw | LGPL-2.1 / CDDL-1.0 | Leitura de RAW de DSLR (opcional) |
 | Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts` |
 | ASTAP | freeware proprietário | Plate solver offline ([hnsky.org](https://www.hnsky.org/astap.htm)) |
@@ -436,11 +440,11 @@ ver [`NOTICE`](NOTICE). Nomes exatos de pacotes por distribuição: ver
 ./build/bin/astrofind_ui_tests
 ```
 
-The suites have **179 core test cases (38 515 assertions) and 27 UI test cases**, all
-passing on the 10 QA distributions. `audit.yml` rebuilds everything with ASan + UBSan
+The suites have **about 260 core test cases and 30 UI test cases**, all passing in CI on
+the 11 distributions in the badges above. `audit.yml` rebuilds everything with ASan + UBSan
 (LeakSanitizer on) and also runs cppcheck, clang-tidy and Valgrind, on Fedora 44,
-CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every pull request into `main` and every
-release tag. Locally: `cmake --build build --target audit` (reports in `build/audit/`).
+CachyOS, Arch, Ubuntu 24.04 and Debian 12, for every push and pull request to `main` and
+every release tag. Locally: `cmake --build build --target audit` (reports in `build/audit/`).
 See [`AUDIT_FIND.md`](AUDIT_FIND.md) for the audit trail and [`TODO.md`](TODO.md) for the
 open items.
 
@@ -454,11 +458,11 @@ open items.
 ./build/bin/astrofind_ui_tests
 ```
 
-As suítes têm **179 casos de teste do núcleo (38 515 asserções) e 27 casos de UI**, todos
-passando nas 10 distribuições de QA. O `audit.yml` recompila tudo com ASan + UBSan
+As suítes têm **cerca de 260 casos de teste do núcleo e 30 casos de UI**, todos passando
+no CI nas 11 distribuições dos badges acima. O `audit.yml` recompila tudo com ASan + UBSan
 (LeakSanitizer ligado) e roda também cppcheck, clang-tidy e Valgrind, em Fedora 44,
-CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo pull request para a `main` e em toda tag
-de release. Localmente: `cmake --build build --target audit` (relatórios em
+CachyOS, Arch, Ubuntu 24.04 e Debian 12, em todo push e pull request para a `main` e em
+toda tag de release. Localmente: `cmake --build build --target audit` (relatórios em
 `build/audit/`). Veja [`AUDIT_FIND.md`](AUDIT_FIND.md) para o histórico da auditoria e o
 [`TODO.md`](TODO.md) para os itens abertos.
 

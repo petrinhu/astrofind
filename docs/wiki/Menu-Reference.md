@@ -485,17 +485,17 @@ Gaia DR3 selecionado.
 🇧🇷 **Português** — A faixa bem embaixo da janela.
 
 - **À esquerda: a mensagem de etapa.** Diz o que fazer em seguida, por exemplo "Pronto",
-  "Step 1: Images loaded — Run Data Reduction", "Step 2 done - show Known Objects
-  (Ctrl+K)". Mensagens de progresso também aparecem aqui ("Detecting stars... 2/4", velocidade
+  "Etapa 1: Imagens carregadas — Executar redução de dados", "Passo 2 concluído - mostre Objetos
+  Conhecidos (Ctrl+K)". Mensagens de progresso também aparecem aqui ("Detectando estrelas... 2/4", velocidade
   do download do MPCORB).
 - **À direita, da esquerda para a direita:**
   1. **Observatório**: "Obs: auto (…)", "Obs: <código> (<nome>)", "Obs: <lat>°, <lon>°" ou
      "Obs: (não configurado)".
   2. **Valor do pixel** sob o cursor: "Valor: --", depois "Val …".
-  3. **Coordenadas no céu** sob o cursor: "RA -- Dec --", depois "RA … Dec …" em graus
+  3. **Coordenadas no céu** sob o cursor: "AR -- Dec --", depois "AR … Dec …" em graus
      decimais (precisa de imagem resolvida).
   4. **Número de imagens**: "Sem imagens" ou "N imagem(ns)".
-- Pequenos avisos **toast** confirmam eventos como "Settings saved." ou "Exported: …".
+- Pequenos avisos **toast** confirmam eventos como "Configurações salvas." ou "Exportado: …".
 
 ---
 

@@ -1081,14 +1081,14 @@ serviço).
 3. Cole em um destes lugares:
    - no Assistente, página **"Etapa 2 de 3 — Chave de API para solução de campo"**, ou
    - em **Arquivo → Configurações... → Conexões → Chave de API:** (EN **File → Settings... →
-     Connections → API Key:**). O link "Get a free key at nova.astrometry.net" ao lado abre a
+     Connections → API Key:**). O link "Obtenha uma chave gratuita em nova.astrometry.net" ao lado abre a
      mesma página.
 4. Se esquecer, o AstroFind pede a chave na primeira vez que precisar resolver ("Enter your free
    API key from nova.astrometry.net:").
 
-Ao lado do campo, um selo diz como a chave está guardada: "🔒 Stored in system keychain (KWallet
-/ SecretService)" ou "⚠ Stored in plain text — install qtkeychain-qt6-devel + libsecret-devel for
-secure storage".
+Ao lado do campo, um selo diz como a chave está guardada: "🔒 Armazenado no chaveiro do sistema (KWallet
+/ SecretService)" ou "⚠ Armazenado em texto simples — instale qtkeychain-qt6-devel +
+libsecret-devel para armazenamento seguro".
 
 ---
 
