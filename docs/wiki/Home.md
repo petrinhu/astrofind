@@ -47,7 +47,7 @@ Think of it as: **camera → AstroFind → report for the MPC**.
 AstroFind is inspired by [Astrometrica](http://www.astrometrica.at/), the classic Windows tool
 used by amateur astronomers worldwide for this exact task (its author, Herbert Raab, is
 credited in **Help → About AstroFind...**). AstroFind is a separate program written from scratch in
-modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.0**
+modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.1**
 (released 2026-09-25). License: **AGPL-3.0** (free software: you can read, change and share
 the source code).
 
@@ -76,7 +76,7 @@ O AstroFind é inspirado no [Astrometrica](http://www.astrometrica.at/), a ferra
 para Windows usada por astrônomos amadores do mundo todo para essa mesma tarefa (o autor,
 Herbert Raab, aparece nos créditos em **Ajuda → Sobre o AstroFind...**). O AstroFind é um programa
 separado, escrito do zero em C++ moderno com o kit Qt 6, e roda só em Linux. Versão atual:
-**1.2.0** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
+**1.2.1** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
 alterar e compartilhar o código-fonte).
 
 ---

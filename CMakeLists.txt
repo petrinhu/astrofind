@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(AstroFind
-    VERSION 1.2.0
+    VERSION 1.2.1
     DESCRIPTION "Modern asteroid detection software for citizen science"
     LANGUAGES CXX C
 )

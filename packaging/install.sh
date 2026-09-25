@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # AstroFind Installer — install.sh
-# Version 1.2.0
+# Version 1.2.1
 # =============================================================================
 # Usage:
 #   ./install.sh           # interactive (auto-detect locale)
@@ -13,7 +13,7 @@
 set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
-readonly VERSION="1.2.0"
+readonly VERSION="1.2.1"
 readonly REPO="petrinhu/astrofind"
 readonly BASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}"
 # Release file for this machine, chosen by detect_distro() among the assets
@@ -491,12 +491,12 @@ detect_distro() {
         # Ubuntu 24.04 and the distributions built on it (Mint 22, Pop!_OS
         # 24.04, Zorin OS 18, elementary OS 8...) all set UBUNTU_CODENAME=noble.
         PKG_TYPE="deb"; PKG_MANAGER="apt"
-        ASSET="astrofind_${VERSION}-1~ubuntu24.04_amd64.deb"
+        ASSET="astrofind_${VERSION}-1.ubuntu24.04_amd64.deb"
     elif [[ "$DISTRO_ID" == "debian" && "$major" == "13" ]]; then
         # Debian 12 has no .deb: it gets the AppImage (built on a Debian 12
         # base) from the fallback below.
         PKG_TYPE="deb"; PKG_MANAGER="apt"
-        ASSET="astrofind_${VERSION}-1~debian13_amd64.deb"
+        ASSET="astrofind_${VERSION}-1.debian13_amd64.deb"
     elif [[ "$DISTRO_ID" == "cachyos" ]]; then
         # CachyOS: its own repositories and rebuilds, so its own package.
         PKG_TYPE="arch"; PKG_MANAGER="pacman"
@@ -599,7 +599,9 @@ verify_checksum() {
         print_err "$(msg step_download_fail) (${SUMS_FILE})"
         return 1
     fi
-    if (cd "$(dirname "$file")" && grep " $(basename "$file")\$" "$sums" | sha256sum -c --quiet -); then
+    # The v1.2.0 SHA256SUMS lists the .deb files with "~" (1.2.0-1~debian13),
+    # which GitHub renamed to "." on upload; accept either spelling.
+    if (cd "$(dirname "$file")" && sed 's/~/./g' "$sums" | grep " $(basename "$file")\$" | sha256sum -c --quiet -); then
         print_ok "$(msg checksum_ok)"
         return 0
     fi

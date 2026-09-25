@@ -1,7 +1,7 @@
 # Maintainer: Petrus Silva Costa <petrinhu@yahoo.com.br>
 pkgname=astrofind
 # Arch pkgver cannot contain '-'; use concatenation for pre-release suffix (e.g. 1.0.0beta).
-pkgver=1.2.0
+pkgver=1.2.1
 pkgrel=1
 epoch=0
 pkgdesc="Asteroid detection and astrometry for citizen science (IASC/MPC workflow)"

@@ -14,6 +14,25 @@ primeiro.
 
 ---
 
+## [1.2.1] - 2026-09-25
+
+### Fixed / Corrigido
+
+- **Ubuntu 24.04 and Debian 13 installers / Instaladores do Ubuntu 24.04 e do Debian 13.**
+  🇬🇧 GitHub renames `~` to `.` in release file names, so the 1.2.0 `.deb` files were published
+  as `astrofind_1.2.0-1.ubuntu24.04_amd64.deb` and `…-1.debian13…`, while `install.sh`, the
+  documentation and `SHA256SUMS` used `~`: the universal installer stopped with a download
+  error on Ubuntu 24.04 (and Mint, Pop!_OS, Zorin) and Debian 13. The files are now named with
+  `.` from the start, and `install.sh` accepts either spelling in `SHA256SUMS`. The program
+  itself is unchanged from 1.2.0. 🇧🇷 O GitHub troca `~` por `.` nos nomes dos arquivos da
+  release, então os `.deb` da 1.2.0 foram publicados como `astrofind_1.2.0-1.ubuntu24.04_amd64.deb`
+  e `…-1.debian13…`, enquanto o `install.sh`, a documentação e o `SHA256SUMS` usavam `~`: o
+  instalador universal parava com erro de download no Ubuntu 24.04 (e Mint, Pop!_OS, Zorin) e no
+  Debian 13. Agora os arquivos já saem com `.`, e o `install.sh` aceita as duas grafias no
+  `SHA256SUMS`. O programa em si é o mesmo da 1.2.0.
+
+---
+
 ## [1.2.0] - 2026-09-25
 
 > 🇬🇧 First published release since 0.9.0: the `v1.1.0` tag was never released on GitHub, and
