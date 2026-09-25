@@ -7,7 +7,7 @@ MPC-grade data out of it, and how to build, test and audit it from source. Most 
 user can follow. Unknown words are in the [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary). The full maths is in the repository file
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (we call it "TR" below). Where TR and the code disagree, this page says so and describes what
-the **code** does (AstroFind v1.2.1; where 1.1.0 and earlier behaved
+the **code** does (AstroFind v1.2.2; where 1.1.0 and earlier behaved
 differently, for example in timing, the page says so).
 
 🇧🇷 **Para quem é esta página.** Observadores experientes (usuários do Astrometrica / MPC) e
@@ -18,7 +18,7 @@ simples, para que um usuário intermediário acompanhe. Palavras desconhecidas e
 [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary). A matemática completa está no arquivo do repositório
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (chamado de "TR" abaixo). Onde o TR e o código divergem, esta página avisa e descreve o que o
-**código** faz (AstroFind v1.2.1; onde a 1.1.0 e anteriores se comportavam
+**código** faz (AstroFind v1.2.2; onde a 1.1.0 e anteriores se comportavam
 diferente, por exemplo no tempo, a página avisa).
 
 > ⚠️ **Watch out / Atenção** — 🇬🇧 AstroFind has **not yet been validated end to end with real
@@ -834,7 +834,7 @@ Starts the program. Debug messages (spdlog) go to this terminal; there is no log
 AstroFind --version
 AstroFind --help
 ```
-`--version` prints the version (for example `AstroFind 1.2.1`) and `--help` lists the options;
+`--version` prints the version (for example `AstroFind 1.2.2`) and `--help` lists the options;
 both exit without opening a window. File names given on the command line are accepted but not
 opened automatically. (For a source build, run `./build/bin/AstroFind --version`.)
 
@@ -884,7 +884,7 @@ Abre o programa. As mensagens de depuração (spdlog) saem neste terminal; não 
 AstroFind --version
 AstroFind --help
 ```
-`--version` mostra a versão (por exemplo `AstroFind 1.2.1`) e `--help` lista as opções; os dois
+`--version` mostra a versão (por exemplo `AstroFind 1.2.2`) e `--help` lista as opções; os dois
 saem sem abrir janela. Nomes de arquivo passados na linha de comando são aceitos, mas não são
 abertos automaticamente. (Num build do código, rode `./build/bin/AstroFind --version`.)
 

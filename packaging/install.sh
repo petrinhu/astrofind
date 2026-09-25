@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # AstroFind Installer — install.sh
-# Version 1.2.1
+# Version 1.2.2
 # =============================================================================
 # Usage:
 #   ./install.sh           # interactive (auto-detect locale)
@@ -13,7 +13,7 @@
 set -euo pipefail
 
 # ─── Constants ────────────────────────────────────────────────────────────────
-readonly VERSION="1.2.1"
+readonly VERSION="1.2.2"
 readonly REPO="petrinhu/astrofind"
 readonly BASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}"
 # Release file for this machine, chosen by detect_distro() among the assets

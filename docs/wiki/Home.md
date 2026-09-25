@@ -14,6 +14,7 @@ observadores experientes e desenvolvedores. Nenhum conhecimento prévio é assum
 [Where do I start?](#where-do-i-start--por-onde-começo) ·
 [Coming from Astrometrica](#coming-from-astrometrica--vindo-do-astrometrica) ·
 [Map of the wiki](#map-of-the-wiki--mapa-da-wiki) ·
+[What's new in 1.2.2](#whats-new-in-122--novidades-da-122) ·
 [What's new in 1.2.1](#whats-new-in-121--novidades-da-121) ·
 [What's new in 1.2.0](#whats-new-in-120--novidades-da-120) ·
 [What's new in 1.1.0](#whats-new-in-110--novidades-da-110) ·
@@ -48,7 +49,7 @@ Think of it as: **camera → AstroFind → report for the MPC**.
 AstroFind is inspired by [Astrometrica](http://www.astrometrica.at/), the classic Windows tool
 used by amateur astronomers worldwide for this exact task (its author, Herbert Raab, is
 credited in **Help → About AstroFind...**). AstroFind is a separate program written from scratch in
-modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.1**
+modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.2**
 (released 2026-09-25). License: **AGPL-3.0** (free software: you can read, change and share
 the source code).
 
@@ -77,7 +78,7 @@ O AstroFind é inspirado no [Astrometrica](http://www.astrometrica.at/), a ferra
 para Windows usada por astrônomos amadores do mundo todo para essa mesma tarefa (o autor,
 Herbert Raab, aparece nos créditos em **Ajuda → Sobre o AstroFind...**). O AstroFind é um programa
 separado, escrito do zero em C++ moderno com o kit Qt 6, e roda só em Linux. Versão atual:
-**1.2.1** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
+**1.2.2** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
 alterar e compartilhar o código-fonte).
 
 ---
@@ -238,6 +239,22 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 | [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ) | 🟢 | Respostas curtas para dúvidas comuns. |
 | [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary) | 🟢 | Dicionário das palavras de astronomia e computação usadas na wiki. |
 | [Avançado](https://github.com/petrinhu/astrofind/wiki/Advanced) | 🔴 | Como os cálculos funcionam, limitações conhecidas e links para desenvolvedores. |
+
+---
+
+## What's new in 1.2.2 / Novidades da 1.2.2
+
+🇬🇧 Version 1.2.2 (2026-09-25) only fixes the **CachyOS** package. It was compiled for the
+processor of the machine that built it, so on a computer with an older or different processor
+AstroFind could close at start with "Illegal instruction". It is now compiled for every x86-64
+processor, like the Arch package. The program is otherwise the same as 1.2.0 and 1.2.1: on other
+distributions you do not need to update.
+
+🇧🇷 A versão 1.2.2 (2026-09-25) só corrige o pacote do **CachyOS**. Ele era compilado para o
+processador da máquina que o gerou, então num computador com processador mais antigo ou
+diferente o AstroFind podia fechar ao abrir com "Illegal instruction" (instrução ilegal). Agora
+ele é compilado para qualquer processador x86-64, como o pacote do Arch. De resto o programa é o
+mesmo da 1.2.0 e da 1.2.1: nas outras distribuições não precisa atualizar.
 
 ---
 

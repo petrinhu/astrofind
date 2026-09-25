@@ -20,9 +20,9 @@ Example (Debian 13 package):
 ```bash
 packaging/ci/source-tarball.sh dist
 docker run --rm -v "$PWD":/src:ro -v "$PWD/dist":/dist debian:13 \
-    /src/packaging/ci/build-deb.sh /dist/astrofind-1.2.1-source.tar.gz /dist/out
+    /src/packaging/ci/build-deb.sh /dist/astrofind-1.2.2-source.tar.gz /dist/out
 docker run --rm -v "$PWD":/src:ro -v "$PWD/dist":/dist debian:13 \
-    /src/packaging/ci/smoke-test.sh /dist/out/astrofind_1.2.1-1.debian13_amd64.deb
+    /src/packaging/ci/smoke-test.sh /dist/out/astrofind_1.2.2-1.debian13_amd64.deb
 ```
 
 ## Making a release

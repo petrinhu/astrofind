@@ -226,7 +226,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -268,7 +268,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```

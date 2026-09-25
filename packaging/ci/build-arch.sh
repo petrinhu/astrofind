@@ -22,6 +22,21 @@ source "$here/../arch/PKGBUILD"
 pacman -S --noconfirm --needed "${depends[@]}" "${makedepends[@]}"
 
 id builder >/dev/null 2>&1 || useradd -m builder
+# CachyOS's makepkg.conf compiles with -march=native, i.e. for the CPU of the
+# CI machine that happens to build the package: on a CPU without the same
+# instruction sets (AVX-512, for example) AstroFind dies with "Illegal
+# instruction". Build for the x86-64 baseline, like Arch, so the package runs
+# on every CPU CachyOS supports. makepkg reads ~/.makepkg.conf after
+# /etc/makepkg.conf.
+cat > ~builder/.makepkg.conf <<'CONF'
+CFLAGS="${CFLAGS//-march=native/-march=x86-64}"; CFLAGS="${CFLAGS//-mtune=native/-mtune=generic}"
+CXXFLAGS="${CXXFLAGS//-march=native/-march=x86-64}"; CXXFLAGS="${CXXFLAGS//-mtune=native/-mtune=generic}"
+CONF
+chown builder: ~builder/.makepkg.conf
+# shellcheck disable=SC2016
+flags=$(su builder -s /bin/bash -c 'source /etc/makepkg.conf; for f in /etc/makepkg.conf.d/*.conf; do [ -f "$f" ] && source "$f"; done; source ~/.makepkg.conf; echo "$CFLAGS $CXXFLAGS"')
+echo "makepkg flags: $flags"
+case "$flags" in *native*) echo "build-arch.sh: -march/-mtune=native still set" >&2; exit 1 ;; esac
 work=$(mktemp -d)
 cp "$here/../arch/PKGBUILD" "$work/"
 cp "$tarball" "$work/${pkgname}-${pkgver}.tar.gz"

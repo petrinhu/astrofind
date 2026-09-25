@@ -1,13 +1,13 @@
 # User Manual / Manual do Usuário
 
-🇬🇧 **Who this page is for.** This is the complete manual for AstroFind 1.2.1. It follows the
+🇬🇧 **Who this page is for.** This is the complete manual for AstroFind 1.2.2. It follows the
 real path an observer takes: **plan → load → calibrate → reduce → find → measure → report →
 submit**. It is written for first-time reporters as well as experienced Astrometrica/MPC
 observers: each section has a level badge (🟢 Beginner, 🟡 Intermediate, 🔴 Advanced), so you
 can skip what you already know. For the fastest path see [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start); for every button in
 detail see [Tutorial](https://github.com/petrinhu/astrofind/wiki/Tutorial) and [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference); for words you don't know see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary).
 
-🇧🇷 **Para quem é esta página.** Este é o manual completo do AstroFind 1.2.1. Ele segue o
+🇧🇷 **Para quem é esta página.** Este é o manual completo do AstroFind 1.2.2. Ele segue o
 caminho real de quem observa: **planejar → carregar → calibrar → reduzir → encontrar → medir →
 relatar → enviar**. Serve para quem vai relatar pela primeira vez e também para quem já usa o
 Astrometrica e envia ao MPC: cada seção tem um selo de nível (🟢 Iniciante, 🟡 Intermediário,

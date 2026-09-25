@@ -7,7 +7,7 @@
 # gets a "~<distro><release>" suffix (e.g. 1.2.0-1~ubuntu24.04, 1.2.0-1~debian13)
 # so each file says which distribution it was built for; dh_auto_test runs the
 # core unit tests. GitHub turns "~" into "." in release file names, so the
-# file is named with "." (astrofind_1.2.1-1.debian13_amd64.deb) while the
+# file is named with "." (astrofind_1.2.2-1.debian13_amd64.deb) while the
 # package version inside keeps the "~".
 #
 #   packaging/ci/build-deb.sh <astrofind-X.Y.Z-source.tar.gz> <outdir>

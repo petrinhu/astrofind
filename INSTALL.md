@@ -2,7 +2,7 @@
 
 > **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v1.2.1+
+> **Applies to / Aplica-se a:** AstroFind v1.2.2+
 
 ---
 
@@ -28,11 +28,11 @@
 
 ### 🇬🇧 English (binary packages, recommended)
 
-Download the universal installer for the release you want (here v1.2.1; the
+Download the universal installer for the release you want (here v1.2.2; the
 [releases page](https://github.com/petrinhu/astrofind/releases) lists every tag):
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -53,14 +53,14 @@ interactive interface.
 
 #### Direct package download
 
-Every file below is on the [v1.2.1 release page](https://github.com/petrinhu/astrofind/releases/tag/v1.2.1).
-For another release, replace `v1.2.1`/`1.2.1` with the version you want.
+Every file below is on the [v1.2.2 release page](https://github.com/petrinhu/astrofind/releases/tag/v1.2.2).
+For another release, replace `v1.2.2`/`1.2.2` with the version you want.
 
 **Fedora 44 (RPM package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.fc44.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.fc44.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.fc44.x86_64.rpm
 ```
 
 **Rocky Linux / AlmaLinux / RHEL 9 (RPM package).** Enable EPEL and CRB first (they provide
@@ -68,15 +68,15 @@ Qt 6 and the other libraries; see [Rocky Linux 9](#rocky-linux-9)):
 
 ```bash
 sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.el9.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.el9.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.el9.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.el9.x86_64.rpm
 ```
 
 **openSUSE Tumbleweed (RPM package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
-sudo zypper install ./astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
+sudo zypper install ./astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
 ```
 
 `dnf install ./file.rpm` and `zypper install ./file.rpm` install the dependencies the package
@@ -85,15 +85,15 @@ declares automatically.
 **Ubuntu 24.04 / Linux Mint 22 / Pop!_OS 24.04 / Zorin OS 18 (DEB package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind_1.2.1-1.ubuntu24.04_amd64.deb
-sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind_1.2.2-1.ubuntu24.04_amd64.deb
+sudo apt-get install ./astrofind_1.2.2-1.ubuntu24.04_amd64.deb
 ```
 
 **Debian 13 Trixie (DEB package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind_1.2.1-1.debian13_amd64.deb
-sudo apt-get install ./astrofind_1.2.1-1.debian13_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind_1.2.2-1.debian13_amd64.deb
+sudo apt-get install ./astrofind_1.2.2-1.debian13_amd64.deb
 ```
 
 `apt-get install ./file.deb` resolves dependencies automatically. There is no `.deb` for
@@ -102,15 +102,15 @@ Debian 12 Bookworm: use the AppImage below.
 **Arch Linux / Manjaro / EndeavourOS (Arch package):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-x86_64.pkg.tar.zst
 ```
 
 **CachyOS (package built on CachyOS, against its own repositories):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
 ```
 
 To build it yourself instead, use the PKGBUILD (a build recipe script used by Arch's package
@@ -118,7 +118,7 @@ manager):
 
 ```bash
 mkdir astrofind-arch && cd astrofind-arch
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/arch/PKGBUILD
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
@@ -129,21 +129,21 @@ package.
 Debian 12+, Fedora 37+):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/AstroFind-1.2.1-x86_64.AppImage
-chmod +x AstroFind-1.2.1-x86_64.AppImage
-./AstroFind-1.2.1-x86_64.AppImage
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/AstroFind-1.2.2-x86_64.AppImage
+chmod +x AstroFind-1.2.2-x86_64.AppImage
+./AstroFind-1.2.2-x86_64.AppImage
 ```
 
 No installation is needed. ASTAP (offline plate solver) and `unzip` remain optional external
 tools.
 
-**Source code:** `astrofind-1.2.1-source.tar.gz` (see
+**Source code:** `astrofind-1.2.2-source.tar.gz` (see
 [Build from source](#build-from-source--compilação-do-código-fonte)).
 
 **Checking the downloads:** download `SHA256SUMS` into the same folder and run:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/SHA256SUMS
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
@@ -151,11 +151,11 @@ Each file you downloaded must show `OK`.
 
 ### 🇧🇷 Português (pacotes binários, recomendado)
 
-Baixe o instalador universal da versão desejada (aqui v1.2.1; a
+Baixe o instalador universal da versão desejada (aqui v1.2.2; a
 [página de releases](https://github.com/petrinhu/astrofind/releases) lista todas as tags):
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -176,14 +176,14 @@ a partir do código-fonte. Interface interativa bilíngue (EN/PT-BR).
 
 #### Download direto do pacote
 
-Todos os arquivos abaixo estão na [página da release v1.2.1](https://github.com/petrinhu/astrofind/releases/tag/v1.2.1).
-Para outra versão, substitua `v1.2.1`/`1.2.1` pela versão desejada.
+Todos os arquivos abaixo estão na [página da release v1.2.2](https://github.com/petrinhu/astrofind/releases/tag/v1.2.2).
+Para outra versão, substitua `v1.2.2`/`1.2.2` pela versão desejada.
 
 **Fedora 44 (pacote RPM):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.fc44.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.fc44.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.fc44.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.fc44.x86_64.rpm
 ```
 
 **Rocky Linux / AlmaLinux / RHEL 9 (pacote RPM).** Habilite antes o EPEL e o CRB (eles
@@ -191,15 +191,15 @@ fornecem o Qt 6 e as outras bibliotecas; veja [Rocky Linux 9](#rocky-linux-9)):
 
 ```bash
 sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.el9.x86_64.rpm
-sudo dnf install ./astrofind-1.2.1-1.el9.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.el9.x86_64.rpm
+sudo dnf install ./astrofind-1.2.2-1.el9.x86_64.rpm
 ```
 
 **openSUSE Tumbleweed (pacote RPM):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
-sudo zypper install ./astrofind-1.2.1-1.opensuse-tumbleweed.x86_64.rpm
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
+sudo zypper install ./astrofind-1.2.2-1.opensuse-tumbleweed.x86_64.rpm
 ```
 
 `dnf install ./arquivo.rpm` e `zypper install ./arquivo.rpm` instalam automaticamente as
@@ -208,15 +208,15 @@ dependências declaradas no pacote.
 **Ubuntu 24.04 / Linux Mint 22 / Pop!_OS 24.04 / Zorin OS 18 (pacote DEB):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind_1.2.1-1.ubuntu24.04_amd64.deb
-sudo apt-get install ./astrofind_1.2.1-1.ubuntu24.04_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind_1.2.2-1.ubuntu24.04_amd64.deb
+sudo apt-get install ./astrofind_1.2.2-1.ubuntu24.04_amd64.deb
 ```
 
 **Debian 13 Trixie (pacote DEB):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind_1.2.1-1.debian13_amd64.deb
-sudo apt-get install ./astrofind_1.2.1-1.debian13_amd64.deb
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind_1.2.2-1.debian13_amd64.deb
+sudo apt-get install ./astrofind_1.2.2-1.debian13_amd64.deb
 ```
 
 `apt-get install ./arquivo.deb` resolve dependências automaticamente. Não há `.deb` para o
@@ -225,15 +225,15 @@ Debian 12 Bookworm: use o AppImage abaixo.
 **Arch Linux / Manjaro / EndeavourOS (pacote do Arch):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-x86_64.pkg.tar.zst
 ```
 
 **CachyOS (pacote compilado no CachyOS, com os repositórios dele):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
-sudo pacman -U ./astrofind-1.2.1-1-cachyos-x86_64.pkg.tar.zst
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.2-1-cachyos-x86_64.pkg.tar.zst
 ```
 
 Para compilar você mesmo, use o PKGBUILD (um script-receita de build usado pelo gerenciador
@@ -241,7 +241,7 @@ de pacotes do Arch):
 
 ```bash
 mkdir astrofind-arch && cd astrofind-arch
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.1/packaging/arch/PKGBUILD
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.2/packaging/arch/PKGBUILD
 makepkg -si
 ```
 
@@ -252,21 +252,21 @@ pacote.
 23.04+, Debian 12+, Fedora 37+):**
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/AstroFind-1.2.1-x86_64.AppImage
-chmod +x AstroFind-1.2.1-x86_64.AppImage
-./AstroFind-1.2.1-x86_64.AppImage
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/AstroFind-1.2.2-x86_64.AppImage
+chmod +x AstroFind-1.2.2-x86_64.AppImage
+./AstroFind-1.2.2-x86_64.AppImage
 ```
 
 Não precisa instalar. O ASTAP (plate solver offline) e o `unzip` continuam sendo ferramentas
 externas opcionais.
 
-**Código-fonte:** `astrofind-1.2.1-source.tar.gz` (veja
+**Código-fonte:** `astrofind-1.2.2-source.tar.gz` (veja
 [Compilação do código-fonte](#build-from-source--compilação-do-código-fonte)).
 
 **Conferindo os downloads:** baixe o `SHA256SUMS` para a mesma pasta e rode:
 
 ```bash
-curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.1/SHA256SUMS
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.2/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
