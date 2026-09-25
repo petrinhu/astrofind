@@ -23,7 +23,8 @@ Build-Depends:
  libarchive-dev,
  libraw-dev,
  libgl-dev,
- libxkbcommon-dev
+ libxkbcommon-dev,
+ zlib1g-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/petrinhu/astrofind
 Rules-Requires-Root: no

@@ -51,6 +51,8 @@ BuildRequires:  pkgconf-pkg-config
 BuildRequires:  qt6-qtbase-devel >= 6.4
 BuildRequires:  qt6-qtcharts-devel
 BuildRequires:  qt6-qt5compat-devel
+# QuaZip (enabled when Qt6Core5Compat is present) needs zlib.
+BuildRequires:  zlib-devel
 BuildRequires:  qt6-qttools-devel
 BuildRequires:  qtkeychain-qt6-devel
 BuildRequires:  cfitsio-devel

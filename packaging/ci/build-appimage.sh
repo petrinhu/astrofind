@@ -28,7 +28,7 @@ apt-get install -y -qq --no-install-recommends \
     qt6-base-dev qt6-base-dev-tools qt6-charts-dev libqt6opengl6-dev \
     qt6-5compat-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
     qtkeychain-qt6-dev libcfitsio-dev libfftw3-dev libarchive-dev libraw-dev \
-    libgl-dev libxkbcommon-dev \
+    libgl-dev libxkbcommon-dev zlib1g-dev \
     libqt6sql6-sqlite qt6-qpa-plugins qt6-image-formats-plugins qt6-wayland \
     >/dev/null
 
