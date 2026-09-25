@@ -4,7 +4,7 @@
 #
 # Builds the .deb inside a Debian or Ubuntu container (run as root) from the
 # release source tarball, with packaging/debian as debian/. The Debian version
-# gets a "~<distro><release>" suffix (e.g. 1.2.0-1~ubuntu24.04, 1.2.0-1~debian12)
+# gets a "~<distro><release>" suffix (e.g. 1.2.0-1~ubuntu24.04, 1.2.0-1~debian13)
 # so each file says which distribution it was built for; dh_auto_test runs the
 # core unit tests.
 #
@@ -32,7 +32,7 @@ tar -xzf "$tarball" -C "$work"
 src=$(find "$work" -mindepth 1 -maxdepth 1 -type d -name 'astrofind-*' | head -1)
 cp -r "$here/../debian" "$src/debian"
 chmod +x "$src/debian/rules"
-# First changelog line: "astrofind (1.2.0-1) unstable; ..." -> "(1.2.0-1~debian12)".
+# First changelog line: "astrofind (1.2.0-1) unstable; ..." -> "(1.2.0-1~debian13)".
 sed -i "1s/^astrofind (\([^)]*\))/astrofind (\1~${suffix})/" "$src/debian/changelog"
 head -1 "$src/debian/changelog"
 

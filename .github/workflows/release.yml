@@ -86,7 +86,6 @@ jobs:
           - { name: "RPM · RHEL/Rocky/Alma 9",   image: "rockylinux:9",                        script: build-rpm.sh }
           - { name: "RPM · openSUSE Tumbleweed", image: "opensuse/tumbleweed",                 script: build-rpm.sh }
           - { name: "DEB · Ubuntu 24.04",        image: "ubuntu:24.04",                        script: build-deb.sh }
-          - { name: "DEB · Debian 12",           image: "debian:12",                           script: build-deb.sh }
           - { name: "DEB · Debian 13",           image: "debian:13",                           script: build-deb.sh }
           - { name: "Arch Linux",                image: "archlinux:latest",                    script: build-arch.sh }
           - { name: "AppImage (Debian 12 base)", image: "debian:12",                           script: build-appimage.sh }
@@ -142,7 +141,6 @@ jobs:
           - { name: "Rocky 9 RPM",              image: "rockylinux:9",        pattern: "astrofind-*.el9.x86_64.rpm" }
           - { name: "openSUSE Tumbleweed RPM",  image: "opensuse/tumbleweed", pattern: "astrofind-*.opensuse-tumbleweed.x86_64.rpm" }
           - { name: "Ubuntu 24.04 DEB",         image: "ubuntu:24.04",        pattern: "astrofind_*~ubuntu24.04_amd64.deb" }
-          - { name: "Debian 12 DEB",            image: "debian:12",           pattern: "astrofind_*~debian12_amd64.deb" }
           - { name: "Debian 13 DEB",            image: "debian:13",           pattern: "astrofind_*~debian13_amd64.deb" }
           - { name: "Arch package",             image: "archlinux:latest",    pattern: "astrofind-*-x86_64.pkg.tar.zst" }
           - { name: "AppImage on Debian 12",    image: "debian:12",           pattern: "AstroFind-*-x86_64.AppImage" }
@@ -199,7 +197,7 @@ jobs:
           python3 scripts/fetchcontent-sbom.py > "release/astrofind-${v}-fetchcontent.cdx.json"
           (cd release && sha256sum -- * > SHA256SUMS)
           cat release/SHA256SUMS
-          test "$(ls release | wc -l)" -ge 11
+          test "$(ls release | wc -l)" -ge 10
           # Release notes = this version's section of CHANGELOG.md.
           awk -v v="$v" '
             $0 ~ "^## \\[" v "\\]" { on = 1; next }

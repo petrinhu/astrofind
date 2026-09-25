@@ -458,8 +458,9 @@ version_ge() {
 
 # Picks the release file for this machine. Packages are built natively for:
 # Fedora 44, RHEL/Rocky/Alma 9, openSUSE Tumbleweed, Ubuntu 24.04 (and Mint
-# 22 / Pop!_OS 24.04 / Zorin OS 18, which share its base), Debian 12 and 13,
-# and the Arch family. Anything else with glibc >= 2.36 gets the AppImage.
+# 22 / Pop!_OS 24.04 / Zorin OS 18, which share its base), Debian 13 and the
+# Arch family. Anything else with glibc >= 2.36 (Debian 12 included) gets the
+# AppImage.
 detect_distro() {
     local ubuntu_codename=""
     if [[ -f /etc/os-release ]]; then
@@ -491,9 +492,11 @@ detect_distro() {
         # 24.04, Zorin OS 18, elementary OS 8...) all set UBUNTU_CODENAME=noble.
         PKG_TYPE="deb"; PKG_MANAGER="apt"
         ASSET="astrofind_${VERSION}-1~ubuntu24.04_amd64.deb"
-    elif [[ "$DISTRO_ID" == "debian" && ( "$major" == "12" || "$major" == "13" ) ]]; then
+    elif [[ "$DISTRO_ID" == "debian" && "$major" == "13" ]]; then
+        # Debian 12 has no .deb: it gets the AppImage (built on a Debian 12
+        # base) from the fallback below.
         PKG_TYPE="deb"; PKG_MANAGER="apt"
-        ASSET="astrofind_${VERSION}-1~debian${major}_amd64.deb"
+        ASSET="astrofind_${VERSION}-1~debian13_amd64.deb"
     elif [[ "$combined" =~ \ (arch|archlinux|manjaro|endeavouros|garuda|cachyos)\  ]]; then
         PKG_TYPE="arch"; PKG_MANAGER="pacman"
         ASSET="astrofind-${VERSION}-1-x86_64.pkg.tar.zst"
