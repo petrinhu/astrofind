@@ -18,11 +18,11 @@ primeiro.
 
 > 🇬🇧 First published release since 0.9.0: the `v1.1.0` tag was never released on GitHub, and
 > 1.2.0 carries it plus audit waves E1–E4. Installers for Fedora 44, RHEL/Rocky/Alma 9, openSUSE
-> Tumbleweed, Ubuntu 24.04 (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 13, the Arch family,
+> Tumbleweed, Ubuntu 24.04 (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 13, CachyOS, the Arch family,
 > and an AppImage for Debian 12 and other distributions. 🇧🇷 Primeira versão publicada desde a 0.9.0: a
 > tag `v1.1.0` nunca virou release no GitHub, e a 1.2.0 inclui o conteúdo dela e as ondas E1–E4 da
 > auditoria. Instaladores para Fedora 44, RHEL/Rocky/Alma 9, openSUSE Tumbleweed, Ubuntu 24.04
-> (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 13, a família Arch e uma AppImage para o Debian 12
+> (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 13, CachyOS, a família Arch e uma AppImage para o Debian 12
 > e as demais distribuições.
 
 ### Fixed / Corrigido
@@ -329,8 +329,8 @@ primeiro.
 - 🇬🇧 Installers built by a new `release.yml` workflow, each one natively inside its target
   distribution from the release source tarball, then installed into a fresh container of that
   distribution and started (`packaging/ci/*.sh`, runnable locally): RPM for Fedora 44, RHEL/Rocky/
-  Alma 9 and openSUSE Tumbleweed (one spec), DEB for Ubuntu 24.04 and Debian 13, an Arch
-  package, and an AppImage (glibc ≥ 2.36, built on Debian 12; it is also the Debian 12 install).
+  Alma 9 and openSUSE Tumbleweed (one spec), DEB for Ubuntu 24.04 and Debian 13, Arch and
+  CachyOS packages (each built on its own distribution), and an AppImage (glibc ≥ 2.36, built on Debian 12; it is also the Debian 12 install).
   Library dependencies are now generated from the binary
   (rpm/dpkg-shlibdeps) instead of hand-written names that broke on renames such as Ubuntu's
   `t64` libraries; only the run-time Qt plugins (SQLite driver, platform plugins) are declared by
@@ -339,7 +339,7 @@ primeiro.
   workflow `release.yml`, cada um compilado dentro da própria distribuição a partir do tarball de
   fontes da versão, depois instalado num container limpo dessa distribuição e iniciado
   (`packaging/ci/*.sh`, que também rodam localmente): RPM para Fedora 44, RHEL/Rocky/Alma 9 e
-  openSUSE Tumbleweed (um só spec), DEB para Ubuntu 24.04 e Debian 13, pacote Arch e uma
+  openSUSE Tumbleweed (um só spec), DEB para Ubuntu 24.04 e Debian 13, pacotes Arch e CachyOS (cada um compilado na sua distribuição) e uma
   AppImage (glibc ≥ 2.36, compilada sobre o Debian 12; é também a instalação para o Debian 12).
   As dependências de bibliotecas agora são geradas a partir do binário
   (rpm/dpkg-shlibdeps), em vez de nomes escritos à mão que quebravam com renomeações como as

@@ -182,7 +182,8 @@ a family, such as Fedora, Debian or Arch, has only `ID`). Then use this table:
 |---|---|---|
 | Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID` is `fedora`, or `ID_LIKE` contains `rhel`) | RPM with `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
 | Ubuntu 24.04, Debian 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID` or `ID_LIKE` contains `ubuntu` or `debian`) | DEB with `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
-| Arch Linux, Manjaro, CachyOS, EndeavourOS (`ID` or `ID_LIKE` contains `arch`) | package for `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| CachyOS (`ID=cachyos`) | CachyOS package for `pacman` (`-cachyos-x86_64.pkg.tar.zst`) | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| Arch Linux, Manjaro, EndeavourOS (`ID` or `ID_LIKE` contains `arch`) | package for `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
 | openSUSE Tumbleweed (`ID_LIKE` contains `suse`) | RPM with `zypper` | [4.5](#45-opensuse-tumbleweed-rpm) |
 | Debian 12, or any other 64-bit (x86-64) distro | AppImage (no installation) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 | Not sure | let the installer decide | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
@@ -221,7 +222,8 @@ encabeça uma família, como Fedora, Debian ou Arch, só tem `ID`). Depois use a
 |---|---|---|
 | Fedora 44, Rocky Linux / AlmaLinux / RHEL 9 (`ID` é `fedora`, ou `ID_LIKE` contém `rhel`) | RPM com `dnf` | [4.2](#42-fedora--rocky-linux--almalinux--rhel-9-rpm) |
 | Ubuntu 24.04, Debian 13, Linux Mint 22, Pop!_OS 24.04, Zorin OS 18 (`ID` ou `ID_LIKE` contém `ubuntu` ou `debian`) | DEB com `apt` | [4.3](#43-ubuntu--debian--linux-mint--pop_os--zorin-os-deb) |
-| Arch Linux, Manjaro, CachyOS, EndeavourOS (`ID` ou `ID_LIKE` contém `arch`) | pacote para o `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| CachyOS (`ID=cachyos`) | pacote do CachyOS para o `pacman` (`-cachyos-x86_64.pkg.tar.zst`) | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
+| Arch Linux, Manjaro, EndeavourOS (`ID` ou `ID_LIKE` contém `arch`) | pacote para o `pacman` | [4.4](#44-arch-linux--manjaro--cachyos--endeavouros-pacman) |
 | openSUSE Tumbleweed (`ID_LIKE` contém `suse`) | RPM com `zypper` | [4.5](#45-opensuse-tumbleweed-rpm) |
 | Debian 12, ou qualquer outra distro de 64 bits (x86-64) | AppImage (sem instalação) | [4.6](#46-any-other-distro-appimage--qualquer-outra-distro-appimage) |
 | Não sei | deixe o instalador decidir | [4.1](#41-universal-installer-easiest--instalador-universal-mais-fácil) |
@@ -494,8 +496,16 @@ sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst
 2. Installs it (`-U` = install from a file) with the libraries it needs. Answer `Y` when asked
    "Proceed with installation?".
 
-**What you should see:** the last lines show `pacman` installing `astrofind`. Manjaro, CachyOS
-and EndeavourOS use exactly the same commands.
+**What you should see:** the last lines show `pacman` installing `astrofind`. Manjaro and
+EndeavourOS use exactly the same commands.
+
+**CachyOS** is a separate distribution with its own repositories and rebuilt packages, so it
+has its own package, built on CachyOS:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+```
 
 **Building it yourself (optional, 🟡 Intermediate).** Arch users can also build the package on
 their own computer from a **PKGBUILD** (a recipe script that says where to download the source
@@ -534,8 +544,16 @@ sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst
 2. Instala (`-U` = instalar a partir de um arquivo) junto com as bibliotecas necessárias.
    Responda `S` (ou `Y`) quando perguntar se deseja continuar a instalação.
 
-**O que você deve ver:** as últimas linhas mostram o `pacman` instalando o `astrofind`. Manjaro,
-CachyOS e EndeavourOS usam exatamente os mesmos comandos.
+**O que você deve ver:** as últimas linhas mostram o `pacman` instalando o `astrofind`. Manjaro e
+EndeavourOS usam exatamente os mesmos comandos.
+
+O **CachyOS** é uma distribuição separada, com repositórios e pacotes recompilados próprios, então
+tem o seu próprio pacote, compilado no CachyOS:
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+```
 
 **Compilar você mesmo (opcional, 🟡 Intermediário).** No Arch também dá para montar o pacote no
 seu próprio computador a partir de um **PKGBUILD** (um script-receita que diz de onde baixar o

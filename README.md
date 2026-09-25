@@ -237,7 +237,8 @@ chmod +x install.sh
 | Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
 | Debian 13 | `~debian13_amd64.deb` |
 | Debian 12 | `.AppImage` (no `.deb` for Debian 12) |
-| Arch Linux / Manjaro / CachyOS / EndeavourOS | `.pkg.tar.zst` (or PKGBUILD, built locally with `makepkg`) |
+| Arch Linux / Manjaro / EndeavourOS | `-x86_64.pkg.tar.zst` (or PKGBUILD, built locally with `makepkg`) |
+| CachyOS | `-cachyos-x86_64.pkg.tar.zst` (built on CachyOS) |
 | Any other x86-64 distro (glibc ≥ 2.36) | `.AppImage` (no install needed) |
 
 Distros on an Ubuntu 22.04 base (Pop!\_OS 22.04, Zorin OS 17, Mint 21) are not supported:
@@ -278,7 +279,8 @@ chmod +x install.sh
 | Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
 | Debian 13 | `~debian13_amd64.deb` |
 | Debian 12 | `.AppImage` (não há `.deb` para o Debian 12) |
-| Arch Linux / Manjaro / CachyOS / EndeavourOS | `.pkg.tar.zst` (ou PKGBUILD, compilado localmente com `makepkg`) |
+| Arch Linux / Manjaro / EndeavourOS | `-x86_64.pkg.tar.zst` (ou PKGBUILD, compilado localmente com `makepkg`) |
+| CachyOS | `-cachyos-x86_64.pkg.tar.zst` (compilado no CachyOS) |
 | Qualquer outra distro x86-64 (glibc ≥ 2.36) | `.AppImage` (não precisa instalar) |
 
 Distros com base Ubuntu 22.04 (Pop!\_OS 22.04, Zorin OS 17, Mint 21) não são suportadas: o

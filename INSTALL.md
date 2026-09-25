@@ -99,11 +99,18 @@ sudo apt-get install ./astrofind_1.2.0-1~debian13_amd64.deb
 `apt-get install ./file.deb` resolves dependencies automatically. There is no `.deb` for
 Debian 12 Bookworm: use the AppImage below.
 
-**Arch Linux / Manjaro / CachyOS / EndeavourOS (Arch package):**
+**Arch Linux / Manjaro / EndeavourOS (Arch package):**
 
 ```bash
 curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-x86_64.pkg.tar.zst
 sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst
+```
+
+**CachyOS (package built on CachyOS, against its own repositories):**
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
 ```
 
 To build it yourself instead, use the PKGBUILD (a build recipe script used by Arch's package
@@ -215,11 +222,18 @@ sudo apt-get install ./astrofind_1.2.0-1~debian13_amd64.deb
 `apt-get install ./arquivo.deb` resolve dependências automaticamente. Não há `.deb` para o
 Debian 12 Bookworm: use o AppImage abaixo.
 
-**Arch Linux / Manjaro / CachyOS / EndeavourOS (pacote do Arch):**
+**Arch Linux / Manjaro / EndeavourOS (pacote do Arch):**
 
 ```bash
 curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-x86_64.pkg.tar.zst
 sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst
+```
+
+**CachyOS (pacote compilado no CachyOS, com os repositórios dele):**
+
+```bash
+curl -LO https://github.com/petrinhu/astrofind/releases/download/v1.2.0/astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
+sudo pacman -U ./astrofind-1.2.0-1-cachyos-x86_64.pkg.tar.zst
 ```
 
 Para compilar você mesmo, use o PKGBUILD (um script-receita de build usado pelo gerenciador
