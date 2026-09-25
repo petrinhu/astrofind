@@ -349,13 +349,13 @@ absolutos, com referência de menus e de configurações.
 
 C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
 cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; optional: LibRaw,
-libarchive, QuaZip, Qt6Keychain.
+libarchive, Qt6Keychain.
 
 ### 🇧🇷 Português
 
 C++23, Qt 6.4+ (Widgets, OpenGL, Charts, Concurrent, Network, Sql, Xml), CMake 3.22+,
 cfitsio + CCfits, FFTW3, SEP (Source Extractor), spdlog, nlohmann/json; opcionais: LibRaw,
-libarchive, QuaZip, Qt6Keychain.
+libarchive, Qt6Keychain.
 
 ---
 
@@ -381,7 +381,6 @@ libarchive, QuaZip, Qt6Keychain.
 
 | Dependency | License | Notes |
 |------------|---------|-------|
-| QuaZip + Qt6Core5Compat | LGPL-2.1 + static-linking exception | ZIP archive extraction |
 | libarchive | BSD-2/3-Clause | TAR.GZ/BZ2/XZ, 7Z, RAR extraction |
 | LibRaw | LGPL-2.1 / CDDL-1.0 | DSLR RAW loading (optional) |
 | Qt6LinguistTools | LGPL-3.0 | Compile `.ts` translations |
@@ -412,7 +411,6 @@ see [`NOTICE`](NOTICE). Exact per-distro package names: see [INSTALL.md](INSTALL
 
 | Dependência | Licença | Notas |
 |-------------|---------|-------|
-| QuaZip + Qt6Core5Compat | LGPL-2.1 + exceção de linkagem estática | Extração de arquivos ZIP |
 | libarchive | BSD-2/3-Clause | Extração TAR.GZ/BZ2/XZ, 7Z, RAR |
 | LibRaw | LGPL-2.1 / CDDL-1.0 | Leitura de RAW de DSLR (opcional) |
 | Qt6LinguistTools | LGPL-3.0 | Compilar traduções `.ts` |
@@ -553,7 +551,6 @@ Libraries used: [Qt6](https://github.com/qt/qtbase),
 [spdlog](https://github.com/gabime/spdlog),
 [nlohmann/json](https://github.com/nlohmann/json),
 [Catch2](https://github.com/catchorg/Catch2),
-[QuaZip](https://github.com/stachenov/quazip),
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain),
 [libarchive](https://www.libarchive.org/),
 [LibRaw](https://www.libraw.org/).
@@ -587,7 +584,6 @@ Bibliotecas utilizadas: [Qt6](https://github.com/qt/qtbase),
 [spdlog](https://github.com/gabime/spdlog),
 [nlohmann/json](https://github.com/nlohmann/json),
 [Catch2](https://github.com/catchorg/Catch2),
-[QuaZip](https://github.com/stachenov/quazip),
 [qt-keychain](https://github.com/frankosterfeld/qtkeychain),
 [libarchive](https://www.libarchive.org/),
 [LibRaw](https://www.libraw.org/).

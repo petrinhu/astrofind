@@ -11,7 +11,6 @@ license=('AGPL-3.0-or-later')
 depends=(
     'qt6-base'
     'qt6-charts'
-    'qt6-5compat'
     'qtkeychain-qt6'
     'cfitsio'
     'fftw'

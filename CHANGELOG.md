@@ -176,15 +176,21 @@ primeiro.
   código de centroide já fazia (era 2,355).
 - **Credits and license notices / Créditos e avisos de licença (AUD-PROV-9, AUD-PROV-11,
   AUD-PROV-12, AUD-PROV-13).** 🇬🇧 Eigen3 was credited (About, Help, CLAUDE.md, wiki) and
-  required by the RPM/DEB/Arch packages but is not used anywhere; removed. `NOTICE` gains the
-  verbatim zlib text of the MiniZip files inside QuaZip, the {fmt} copyright and optional
-  exception, and a section for the projects credited as inspiration only; the README no
+  required by the RPM/DEB/Arch packages but is not used anywhere; removed. QuaZip was the same
+  case: fetched and compiled whenever Qt6Core5Compat was installed, but never linked (ZIP image
+  sets are extracted with the system `unzip`), and its install rules put a stray library and
+  headers into the packages; it is removed from the build, the packages and the credits.
+  `NOTICE` gains the {fmt} copyright and optional exception, and a section for the projects
+  credited as inspiration only; the README no
   longer says `NOTICE` covers "every item above" without that section. The full LGPL-3.0,
   GPL-3.0, LGPL-2.1 and GPL-2.0 texts are now in `LICENSES/` and the packages ship them with
   `NOTICE`. 🇧🇷 O Eigen3 era creditado (Sobre, Ajuda, CLAUDE.md, wiki) e exigido pelos
-  pacotes RPM/DEB/Arch, mas não é usado em lugar nenhum; removido. O `NOTICE` ganha o texto
-  zlib literal dos arquivos MiniZip dentro do QuaZip, o copyright e a exceção opcional do
-  {fmt}, e uma seção para os projetos creditados só como inspiração; o README não diz mais
+  pacotes RPM/DEB/Arch, mas não é usado em lugar nenhum; removido. O QuaZip era o mesmo caso:
+  baixado e compilado sempre que o Qt6Core5Compat estava instalado, mas nunca linkado (os
+  conjuntos ZIP são extraídos pelo `unzip` do sistema), e as regras de instalação dele punham
+  uma biblioteca e headers soltos dentro dos pacotes; saiu do build, dos pacotes e dos
+  créditos. O `NOTICE` ganha o copyright e a exceção opcional do {fmt}, e uma seção para os
+  projetos creditados só como inspiração; o README não diz mais
   que o `NOTICE` cobre "cada item acima" sem essa seção. Os textos completos da LGPL-3.0,
   GPL-3.0, LGPL-2.1 e GPL-2.0 agora estão em `LICENSES/` e os pacotes os instalam junto com
   o `NOTICE`.

@@ -680,7 +680,6 @@ translation tools):
 
 ```bash
 sudo zypper install -y \
-    qt6-core5compat-devel \
     libarchive-devel \
     libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -750,7 +749,6 @@ chave, ferramentas de tradução):
 
 ```bash
 sudo zypper install -y \
-    qt6-core5compat-devel \
     libarchive-devel \
     libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \

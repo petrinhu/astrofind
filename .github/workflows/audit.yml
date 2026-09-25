@@ -166,8 +166,7 @@ jobs:
       # Fedora ships Qt Network/Sql/Xml/Concurrent/OpenGL inside
       # qt6-qtbase-devel and needs libasan/libubsan separately; on Arch and
       # CachyOS the sanitizer runtimes come with gcc and clang-tidy with clang.
-      # zlib dev files: QuaZip (pulled in because Core5Compat is installed)
-      # needs them, and minimal Fedora/Debian images do not ship them. Not
+      # zlib dev files: minimal Fedora/Debian images do not ship them. Not
       # listed for pacman: zlib-ng-compat (already in the Arch/CachyOS base)
       # provides zlib with headers, and naming zlib conflicts with it.
       - name: "Install build + audit toolchain (dnf)"
@@ -176,7 +175,7 @@ jobs:
           dnf install -y \
             cmake ninja-build gcc-c++ libasan libubsan procps-ng git pkgconf-pkg-config file unzip \
             qt6-qtbase-devel qt6-qtcharts-devel \
-            qt6-qttools-devel qt6-qt5compat-devel \
+            qt6-qttools-devel \
             cfitsio-devel fftw-devel libarchive-devel zlib-devel LibRaw-devel \
             mesa-libGL-devel libxkbcommon-devel \
             clang-tools-extra cppcheck valgrind
@@ -186,7 +185,7 @@ jobs:
         run: |
           pacman -Syu --noconfirm --needed \
             cmake ninja gcc git pkgconf file procps-ng unzip \
-            qt6-base qt6-charts qt6-tools qt6-5compat \
+            qt6-base qt6-charts qt6-tools \
             cfitsio fftw libarchive libraw \
             mesa libxkbcommon \
             clang cppcheck valgrind debuginfod
@@ -201,7 +200,7 @@ jobs:
           apt-get install -y \
             cmake ninja-build gcc g++ git pkg-config file procps unzip \
             qt6-base-dev libqt6charts6-dev libqt6opengl6-dev \
-            qt6-tools-dev qt6-tools-dev-tools libqt6core5compat6-dev \
+            qt6-tools-dev qt6-tools-dev-tools \
             libcfitsio-dev libfftw3-dev libarchive-dev zlib1g-dev libraw-dev \
             libgl1-mesa-dev libxkbcommon-dev \
             clang-tidy cppcheck valgrind

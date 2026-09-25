@@ -62,7 +62,7 @@ if(CLANG_TIDY)
             -header-filter "^${CMAKE_SOURCE_DIR}/src/.*"
             "-checks=-*,bugprone-*,cert-*,cppcoreguidelines-*,misc-*,performance-*,readability-narrowing-conversions"
             # Only AstroFind's own sources (src/): the database also lists
-            # FetchContent deps (Catch2, CCfits, quazip, SEP) and AUTOMOC files.
+            # FetchContent deps (Catch2, CCfits, SEP) and AUTOMOC files.
             # No -export-fixes: newer run-clang-tidy aborts without PyYAML
             # ("Cannot combine fixes in one yaml file"), which is exactly how
             # the CI report ended up empty on Fedora/Arch (AUD-CI-7).

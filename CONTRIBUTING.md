@@ -34,8 +34,8 @@ CMake 3.22+
 cfitsio, fftw3
 spdlog, nlohmann_json, SEP, Catch2 (fetched automatically by CMake FetchContent)
 CCfits (bundled, extracted automatically from originals/CCfits.tar.gz)
-Optional: Qt6Keychain (secure API-key storage), Qt6Core5Compat (ZIP via QuaZip),
-          libarchive (TAR.GZ/BZ2/XZ/7Z/RAR), LibRaw (DSLR RAW files)
+Optional: Qt6Keychain (secure API-key storage), libarchive (TAR.GZ/BZ2/XZ/7Z/RAR),
+          LibRaw (DSLR RAW files); unzip(1) at run time for ZIP image sets
 ```
 
 Note for beginners: "bundled" means the library's source code ships inside this
@@ -51,8 +51,8 @@ CMake 3.22+
 cfitsio, fftw3
 spdlog, nlohmann_json, SEP, Catch2 (baixados automaticamente pelo FetchContent do CMake)
 CCfits (empacotado, extraído automaticamente de originals/CCfits.tar.gz)
-Opcionais: Qt6Keychain (armazenamento seguro da chave de API), Qt6Core5Compat (ZIP via
-           QuaZip), libarchive (TAR.GZ/BZ2/XZ/7Z/RAR), LibRaw (arquivos RAW de DSLR)
+Opcionais: Qt6Keychain (armazenamento seguro da chave de API), libarchive (TAR.GZ/BZ2/XZ/
+           7Z/RAR), LibRaw (arquivos RAW de DSLR); unzip(1) em tempo de execução para ZIP
 ```
 
 Nota para iniciantes: "empacotado" (bundled) significa que o código-fonte da

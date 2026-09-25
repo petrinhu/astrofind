@@ -31,9 +31,6 @@ LICENSES = {
     "spdlog": "MIT",
     "nlohmann_json": "MIT",
     "cfitsio": "CFITSIO",
-    # LGPL-2.1 plus QuaZip's own static-linking exception (no SPDX id for
-    # it; verbatim text in NOTICE §3) and zlib for the embedded MiniZip.
-    "quazip": "LGPL-2.1-only AND Zlib",
     "sep": "LGPL-3.0-or-later AND BSD-3-Clause AND MIT",
     "catch2": "BSL-1.0",
     "ccfits": "CFITSIO",
@@ -43,7 +40,6 @@ SCOPE = {"catch2": "excluded"}
 # Declared, but only fetched in some configurations.
 CONDITION = {
     "cfitsio": "fallback: fetched only when no system cfitsio is found",
-    "quazip": "optional: fetched only when Qt6Core5Compat is available",
     "ccfits": "fallback: fetched only when originals/CCfits.tar.gz is absent",
 }
 

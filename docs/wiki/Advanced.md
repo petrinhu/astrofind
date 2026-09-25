@@ -836,7 +836,6 @@ dependencies:
 | LibRaw | `Found LibRaw … — DSLR RAW loading enabled` → `ASTROFIND_HAS_LIBRAW` | RAW files are refused with a clear message |
 | libarchive | → `ASTROFIND_HAS_LIBARCHIVE` | TAR.GZ/BZ2/XZ, 7Z, RAR cannot be opened |
 | Qt6Keychain (+ libsecret) | `Qt6Keychain found — secure API key storage enabled` → `ASTROFIND_HAS_KEYCHAIN` | API key stored in **plain text** in the settings file |
-| Qt6 Core5Compat | found → fetches QuaZip | (ZIP files are extracted by the system `unzip` command in either case) |
 | Qt6 LinguistTools | `Qt6 LinguistTools found — translations will be compiled` | `.qm` translations are not rebuilt |
 
 Build option: `-DASTROFIND_ASAN=ON` adds AddressSanitizer + UndefinedBehaviorSanitizer (use a
@@ -879,7 +878,6 @@ dependências opcionais:
 | LibRaw | `Found LibRaw … — DSLR RAW loading enabled` → `ASTROFIND_HAS_LIBRAW` | Arquivos RAW são recusados com mensagem clara |
 | libarchive | → `ASTROFIND_HAS_LIBARCHIVE` | TAR.GZ/BZ2/XZ, 7Z, RAR não abrem |
 | Qt6Keychain (+ libsecret) | `Qt6Keychain found — secure API key storage enabled` → `ASTROFIND_HAS_KEYCHAIN` | Chave de API guardada em **texto puro** no arquivo de configurações |
-| Qt6 Core5Compat | encontrado → baixa o QuaZip | (arquivos ZIP são extraídos pelo comando `unzip` do sistema em qualquer caso) |
 | Qt6 LinguistTools | `Qt6 LinguistTools found — translations will be compiled` | As traduções `.qm` não são recompiladas |
 
 Opção de build: `-DASTROFIND_ASAN=ON` liga AddressSanitizer + UndefinedBehaviorSanitizer (use uma

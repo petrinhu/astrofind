@@ -337,7 +337,6 @@ sudo dnf install \
 
 ```bash
 sudo dnf install \
-    qt6-qt5compat-devel \
     libarchive-devel \
     LibRaw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -363,7 +362,6 @@ sudo dnf install \
 
 ```bash
 sudo dnf install \
-    qt6-qt5compat-devel \
     libarchive-devel \
     LibRaw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -401,7 +399,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
@@ -431,7 +428,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libqt6keychain1 qt6-qtkeychain-dev libsecret-1-dev \
@@ -463,7 +459,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -493,7 +488,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -530,7 +524,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -555,7 +548,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -592,7 +584,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -615,7 +606,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -649,7 +639,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -672,7 +661,6 @@ sudo apt-get install -y \
 
 ```bash
 sudo apt-get install -y \
-    libqt6core5compat6-dev \
     libarchive-dev \
     libraw-dev \
     libsecret-1-dev \
@@ -700,7 +688,6 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    qt6-5compat \
     libarchive \
     libraw \
     qtkeychain \
@@ -723,7 +710,6 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    qt6-5compat \
     libarchive \
     libraw \
     qtkeychain \
@@ -752,7 +738,6 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    qt6-5compat \
     libarchive \
     libraw \
     qtkeychain \
@@ -773,7 +758,6 @@ sudo pacman -S --needed \
 
 ```bash
 sudo pacman -S --needed \
-    qt6-5compat \
     libarchive \
     libraw \
     qtkeychain \
@@ -803,7 +787,6 @@ sudo zypper install -y \
 
 ```bash
 sudo zypper install -y \
-    qt6-core5compat-devel \
     libarchive-devel \
     libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -827,7 +810,6 @@ sudo zypper install -y \
 
 ```bash
 sudo zypper install -y \
-    qt6-core5compat-devel \
     libarchive-devel \
     libraw-devel \
     qtkeychain-qt6-devel libsecret-devel \
@@ -874,7 +856,6 @@ sudo dnf install -y \
 
 ```bash
 sudo dnf install -y \
-    qt6-qt5compat-devel \
     libarchive-devel \
     LibRaw-devel \
     libsecret-devel \
@@ -907,7 +888,6 @@ sudo dnf install -y \
 
 ```bash
 sudo dnf install -y \
-    qt6-qt5compat-devel \
     libarchive-devel \
     LibRaw-devel \
     libsecret-devel \
@@ -922,7 +902,6 @@ sudo dnf install -y \
 
 | Dependency | Purpose | Install |
 |------------|---------|---------|
-| QuaZip / Qt6Core5Compat | ZIP archive extraction | see distro section above |
 | libarchive | TAR.GZ/BZ2/XZ, 7Z, RAR extraction | see distro section above |
 | LibRaw | DSLR RAW loading (CR2/CR3/NEF/ARW/DNG/...) | see distro section above (Rocky 9: CRB repo) |
 | Qt6Keychain | Secure API key storage (falls back to QSettings if absent) | see distro section above |
@@ -936,7 +915,6 @@ sudo dnf install -y \
 
 | Dependência | Propósito | Instalação |
 |------------|---------|---------|
-| QuaZip / Qt6Core5Compat | Extração de arquivos ZIP | ver seção da distro acima |
 | libarchive | Extração de TAR.GZ/BZ2/XZ, 7Z, RAR | ver seção da distro acima |
 | LibRaw | Leitura de RAW de DSLR (CR2/CR3/NEF/ARW/DNG/...) | ver seção da distro acima (Rocky 9: repositório CRB) |
 | Qt6Keychain | Armazenamento seguro de chave de API (cai para QSettings se ausente) | ver seção da distro acima |
