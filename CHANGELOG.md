@@ -1,6 +1,6 @@
 # Changelog
 
-> **Last reviewed / Última revisão:** 2026-09-24
+> **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
 > Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
@@ -146,6 +146,36 @@ primeiro.
   localhost/127.0.0.1/::1): um aviso indica o campo e o diálogo continua aberto. Os clientes
   e o diálogo usam a mesma verificação.
 
+- **Loader and detector hardening / Endurecimento de carregadores e detector (AUD-INPUT-11,
+  AUD-INPUT-12, AUD-MEM-7).** 🇬🇧 SER files now go through the same size check as every other
+  loader: 20000×20000 used to pass the per-axis limit while being twice the total-pixel
+  ceiling. A FITS table whose header declares more rows than the ceiling (20 million) or than
+  the file can hold is refused before anything is allocated. The blended-source (ClumpFind)
+  pass skips a detection with a non-finite or off-image position instead of converting it to
+  an integer. 🇧🇷 Arquivos SER passam pela mesma checagem de tamanho dos outros carregadores:
+  20000×20000 passava pelo limite por eixo com o dobro do teto de pixels totais. Uma tabela
+  FITS cujo cabeçalho declara mais linhas que o teto (20 milhões) ou que o arquivo comporta é
+  recusada antes de qualquer alocação. A passada de fontes blendadas (ClumpFind) ignora uma
+  detecção com posição não finita ou fora da imagem em vez de convertê-la para inteiro.
+- **FWHM constant / Constante do FWHM (AUD-CORR-9).** 🇬🇧 The FWHM of detected stars uses the
+  exact 2·√(2·ln 2) = 2.354820045, as the centroid code already did (was 2.355).
+  🇧🇷 O FWHM das estrelas detectadas usa o valor exato 2·√(2·ln 2) = 2,354820045, como o
+  código de centroide já fazia (era 2,355).
+- **Credits and license notices / Créditos e avisos de licença (AUD-PROV-9, AUD-PROV-11,
+  AUD-PROV-12, AUD-PROV-13).** 🇬🇧 Eigen3 was credited (About, Help, CLAUDE.md, wiki) and
+  required by the RPM/DEB/Arch packages but is not used anywhere; removed. `NOTICE` gains the
+  verbatim zlib text of the MiniZip files inside QuaZip, the {fmt} copyright and optional
+  exception, and a section for the projects credited as inspiration only; the README no
+  longer says `NOTICE` covers "every item above" without that section. The full LGPL-3.0,
+  GPL-3.0, LGPL-2.1 and GPL-2.0 texts are now in `LICENSES/` and the packages ship them with
+  `NOTICE`. 🇧🇷 O Eigen3 era creditado (Sobre, Ajuda, CLAUDE.md, wiki) e exigido pelos
+  pacotes RPM/DEB/Arch, mas não é usado em lugar nenhum; removido. O `NOTICE` ganha o texto
+  zlib literal dos arquivos MiniZip dentro do QuaZip, o copyright e a exceção opcional do
+  {fmt}, e uma seção para os projetos creditados só como inspiração; o README não diz mais
+  que o `NOTICE` cobre "cada item acima" sem essa seção. Os textos completos da LGPL-3.0,
+  GPL-3.0, LGPL-2.1 e GPL-2.0 agora estão em `LICENSES/` e os pacotes os instalam junto com
+  o `NOTICE`.
+
 ### Changed / Alterado
 
 - **Menu wording, no longer copied from Astrometrica.exe / Texto de menus, sem mais cópia do
@@ -264,6 +294,19 @@ primeiro.
 
 ### Added / Adicionado
 
+- 🇬🇧 SBOM (AUD-SEC-9): a new `sbom.yml` workflow runs syft (pinned, checksum-verified) over
+  the source tree and `scripts/fetchcontent-sbom.py` over the FetchContent pins and the
+  bundled CCfits, and uploads SPDX + CycloneDX files. CI hardening (AUD-CI-8): every workflow
+  declares `permissions: contents: read` and `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, and writes
+  its result to the run summary page. CMake warns at configure time when the local
+  `pre-commit` hook is not armed (AUD-CI-9; silent on CI). A Catch2 test name now says what it
+  asserts (AUD-TEST-7). 🇧🇷 SBOM (AUD-SEC-9): o novo workflow `sbom.yml` roda o syft (versão
+  fixa, checksum verificado) sobre a árvore de fontes e o `scripts/fetchcontent-sbom.py`
+  sobre os pins do FetchContent e o CCfits embutido, e publica arquivos SPDX + CycloneDX.
+  Endurecimento do CI (AUD-CI-8): todo workflow declara `permissions: contents: read` e
+  `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, e escreve o resultado na página de resumo da execução.
+  O CMake avisa no configure quando o hook local `pre-commit` não está armado (AUD-CI-9; mudo
+  no CI). Um nome de teste Catch2 agora diz o que verifica (AUD-TEST-7).
 - 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in
   `scripts/pre-commit` (AUD-SEC-8). Regression tests with hostile headers (NAXIS=4,
   100000², lying sizes, XISF) and non-finite pixels in the centroids (AUD-TEST-4).
