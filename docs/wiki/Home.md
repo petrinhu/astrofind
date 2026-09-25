@@ -14,6 +14,7 @@ observadores experientes e desenvolvedores. Nenhum conhecimento prévio é assum
 [Where do I start?](#where-do-i-start--por-onde-começo) ·
 [Coming from Astrometrica](#coming-from-astrometrica--vindo-do-astrometrica) ·
 [Map of the wiki](#map-of-the-wiki--mapa-da-wiki) ·
+[What's new in 1.2.0](#whats-new-in-120--novidades-da-120) ·
 [What's new in 1.1.0](#whats-new-in-110--novidades-da-110) ·
 [Validation status](#validation-status--estado-da-validação)
 
@@ -46,8 +47,8 @@ Think of it as: **camera → AstroFind → report for the MPC**.
 AstroFind is inspired by [Astrometrica](http://www.astrometrica.at/), the classic Windows tool
 used by amateur astronomers worldwide for this exact task (its author, Herbert Raab, is
 credited in **Help → About...**). AstroFind is a separate program written from scratch in
-modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.1.0**
-(released 2026-09-24). License: **AGPL-3.0** (free software: you can read, change and share
+modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.0**
+(released 2026-09-25). License: **AGPL-3.0** (free software: you can read, change and share
 the source code).
 
 🇧🇷 **Português**
@@ -75,7 +76,7 @@ O AstroFind é inspirado no [Astrometrica](http://www.astrometrica.at/), a ferra
 para Windows usada por astrônomos amadores do mundo todo para essa mesma tarefa (o autor,
 Herbert Raab, aparece nos créditos em **Ajuda → Sobre...**). O AstroFind é um programa
 separado, escrito do zero em C++ moderno com o kit Qt 6, e roda só em Linux. Versão atual:
-**1.1.0** (lançada em 2026-09-24). Licença: **AGPL-3.0** (software livre: você pode ler,
+**1.2.0** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
 alterar e compartilhar o código-fonte).
 
 ---
@@ -158,7 +159,7 @@ Portuguese UI label). The last column says what is **different**.
 | Step you know | In AstroFind (EN / PT) | What is different |
 |---|---|---|
 | Observer data, MPC code, camera | **File → Settings...** (`Ctrl+,`) / **Arquivo → Configurações...** — tabs Observer, Camera, Connections, Detection, Display, Legacy | The site can come from the FITS header, a built-in list of 84 observatories, manual coordinates, or "Telescópio Espacial". See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings). |
-| Load the image series | **File → Import Images...** (`Ctrl+L`) / **Arquivo → Importar Imagens...** | Also opens SER, XISF, TIFF/PNG, DSLR RAW, NASA PDS and archives (ZIP, TAR, 7Z, RAR). In 1.1.0 and earlier `Ctrl+L` was also given to **Utilities → Light Curve…** and could do nothing (use the menu or the toolbar there); the next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`. |
+| Load the image series | **File → Import Images...** (`Ctrl+L`) / **Arquivo → Importar Imagens...** | Also opens SER, XISF, TIFF/PNG, DSLR RAW, NASA PDS and archives (ZIP, TAR, 7Z, RAR). In 1.1.0 and earlier `Ctrl+L` was also given to **Utilities → Light Curve…** and could do nothing (use the menu or the toolbar there); version 1.2.0 moves Light Curve to `Ctrl+Shift+L`. |
 | Dark / flat calibration | **File → Use Dark Frame for Calibration… / Use Flat Field for Calibration… / Calibration Wizard…** (PT **Arquivo → Usar Dark de Calibração / Usar Flat de Calibração / Assistente de Calibração…**) | Masters can be built in the Calibration dock ("Build Master…"). Calibration is applied inside Run Data Reduction. |
 | Data Reduction | **Astrometry Tools → Run Data Reduction...** (`Ctrl+A`) / **Ferramentas de Astrometria → Executar Redução de Dados...** | The plate solution comes from **astrometry.net** (online, free API key) or **ASTAP** (offline). Images that already have a WCS (sky-coordinate solution) in the header are skipped. |
 | Reference stars and known objects | **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos Conhecidos** | Reference stars: UCAC4 or Gaia DR3 via VizieR (online) or a local FITS table. Known objects: IMCCE SkyBoT online, with MPCORB.DAT as the offline fallback. |
@@ -183,7 +184,7 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 | Passo que você conhece | No AstroFind (PT / EN) | O que muda |
 |---|---|---|
 | Dados do observador, código MPC, câmera | **Arquivo → Configurações...** (`Ctrl+,`) / **File → Settings...** — abas Observador, Câmera, Conexões, Detecção, Exibição, Legado | O local pode vir do cabeçalho FITS, de uma lista embutida de 84 observatórios, de coordenadas manuais ou de "Telescópio Espacial". Veja [Configurações](https://github.com/petrinhu/astrofind/wiki/Settings). |
-| Carregar a série de imagens | **Arquivo → Importar Imagens...** (`Ctrl+L`) / **File → Import Images...** | Também abre SER, XISF, TIFF/PNG, RAW de DSLR, NASA PDS e arquivos compactados (ZIP, TAR, 7Z, RAR). Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Utilitários → Curva de Luz…** e podia não fazer nada (lá, use o menu ou a barra de ferramentas); a próxima versão (depois da 1.1.0) passa a Curva de Luz para `Ctrl+Shift+L`. |
+| Carregar a série de imagens | **Arquivo → Importar Imagens...** (`Ctrl+L`) / **File → Import Images...** | Também abre SER, XISF, TIFF/PNG, RAW de DSLR, NASA PDS e arquivos compactados (ZIP, TAR, 7Z, RAR). Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Utilitários → Curva de Luz…** e podia não fazer nada (lá, use o menu ou a barra de ferramentas); a versão 1.2.0 passa a Curva de Luz para `Ctrl+Shift+L`. |
 | Calibração com dark / flat | **Arquivo → Usar Dark de Calibração...** / **Usar Flat de Calibração...** / **Assistente de Calibração…** | Dá para montar masters no painel Calibração ("Construir Master…"). A calibração é aplicada dentro da Execução da Redução de Dados. |
 | Redução de Dados | **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) / **Astrometry Tools → Run Data Reduction...** | A solução de placa vem do **astrometry.net** (online, chave de API gratuita) ou do **ASTAP** (offline). Imagens que já têm WCS (solução de coordenadas do céu) no cabeçalho são puladas. |
 | Estrelas de referência e objetos conhecidos | **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) / **Utilities → Show Known Objects** | Estrelas de referência: UCAC4 ou Gaia DR3 via VizieR (online) ou tabela FITS local. Objetos conhecidos: IMCCE SkyBoT online, com o MPCORB.DAT como reserva offline. |
@@ -236,6 +237,71 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 | [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ) | 🟢 | Respostas curtas para dúvidas comuns. |
 | [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary) | 🟢 | Dicionário das palavras de astronomia e computação usadas na wiki. |
 | [Avançado](https://github.com/petrinhu/astrofind/wiki/Advanced) | 🔴 | Como os cálculos funcionam, limitações conhecidas e links para desenvolvedores. |
+
+---
+
+## What's new in 1.2.0 / Novidades da 1.2.0
+
+🇬🇧 **English**
+
+Version 1.2.0 was released on 2026-09-25. It fixes the problems found in a full code audit of
+1.1.0; most of them affect the numbers you send to the MPC, so updating is recommended.
+
+- **More accurate positions.** Refraction is no longer added a second time to positions from a
+  plate solution (the error was up to ~1.7′ at 30° altitude). Images whose WCS header has pole
+  cards (LONPOLE/LATPOLE) are read correctly, and the catalog overlay is no longer misplaced on
+  southern fields with the CAR/MER/GLS/AIT projections.
+- **Better offline ephemeris.** Positions computed from MPCORB agree with JPL Horizons to under
+  1′ (they could be off by 6′ to 49′).
+- **Correct observation time.** Fractions of a second in the image time are kept. ΔT is no
+  longer added to the report time, so `obsTime` is real UTC again. "Time Offset:" is no longer
+  filled in automatically (an old value is reset to 0 once, with a note in the log).
+- **Clearer Settings.** Pixel scale is in ″/px, "Minimum FWHM:" in ″ and "Time Precision:" in
+  decimals of a second (the old labels said °/px, px and h).
+- **Keyboard shortcuts work.** `Ctrl+L` is only Import Images (Light Curve is now
+  `Ctrl+Shift+L`), and `Ctrl+Shift+T` toggles the theme.
+- **Safer file loading.** Damaged or hostile files (FITS, SER, XISF, PNG/TIFF, TAR archives)
+  are refused with a message instead of freezing or crashing the program.
+- **AstroFind's own menu wording.** Menu texts that had been copied from Astrometrica were
+  rewritten; shortcuts and behaviour are unchanged.
+- **Ready-made packages** for Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (and Mint 22,
+  Pop!_OS 24.04, Zorin OS 18), Debian 12 and 13, and Arch/Manjaro, plus an **AppImage** for
+  other distributions (see [Installation](https://github.com/petrinhu/astrofind/wiki/Installation)).
+  A list of all components (SBOM) is now generated automatically, and the packages include
+  the full license texts.
+
+Full details: [`CHANGELOG.md`](https://github.com/petrinhu/astrofind/blob/main/CHANGELOG.md).
+
+🇧🇷 **Português**
+
+A versão 1.2.0 saiu em 2026-09-25. Ela corrige os problemas achados numa auditoria completa do
+código da 1.1.0; a maioria afeta os números que você envia ao MPC, por isso vale atualizar.
+
+- **Posições mais precisas.** A refração não é mais somada uma segunda vez às posições vindas
+  de uma solução de placa (o erro chegava a ~1,7′ a 30° de altura). Imagens cujo cabeçalho WCS
+  tem cartões de polo (LONPOLE/LATPOLE) são lidas corretamente, e a sobreposição do catálogo
+  não sai mais do lugar em campos do hemisfério sul com as projeções CAR/MER/GLS/AIT.
+- **Efeméride offline melhor.** As posições calculadas a partir do MPCORB concordam com o JPL
+  Horizons em menos de 1′ (podiam errar de 6′ a 49′).
+- **Horário da observação correto.** As frações de segundo do horário da imagem são mantidas.
+  O ΔT não é mais somado ao horário do relatório, então o `obsTime` volta a ser UTC de verdade.
+  O "Deslocamento de tempo:" não é mais preenchido sozinho (um valor antigo é zerado uma vez,
+  com um aviso no registro).
+- **Configurações mais claras.** A escala de pixel está em ″/px, o "FWHM mínimo:" em ″ e a
+  "Precisão de tempo:" em casas decimais do segundo (os rótulos antigos diziam °/px, px e h).
+- **Atalhos de teclado funcionam.** O `Ctrl+L` é só Importar Imagens (a Curva de Luz agora é
+  `Ctrl+Shift+L`), e o `Ctrl+Shift+T` alterna o tema.
+- **Abertura de arquivos mais segura.** Arquivos danificados ou maliciosos (FITS, SER, XISF,
+  PNG/TIFF, arquivos TAR) são recusados com uma mensagem, em vez de travar ou fechar o programa.
+- **Textos de menu próprios do AstroFind.** Os textos de menu que tinham sido copiados do
+  Astrometrica foram reescritos; atalhos e comportamento não mudaram.
+- **Pacotes prontos** para Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (e Mint 22,
+  Pop!_OS 24.04, Zorin OS 18), Debian 12 e 13, e Arch/Manjaro, mais um **AppImage** para as
+  outras distribuições (veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation)).
+  Uma lista de todos os componentes (SBOM) agora é gerada automaticamente, e os pacotes
+  incluem os textos completos das licenças.
+
+Detalhes completos: [`CHANGELOG.md`](https://github.com/petrinhu/astrofind/blob/main/CHANGELOG.md).
 
 ---
 

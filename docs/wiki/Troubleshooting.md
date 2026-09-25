@@ -86,7 +86,7 @@ terminal window. The name has a capital A and a capital F.)
 
 | Problem | Cause | Fix |
 |---|---|---|
-| The terminal says that a shared library (a file ending in `.so`, for example one whose name starts with `libQt6`, `libcfitsio` or `libraw`) cannot be found | A library AstroFind needs is not installed. | With the RPM package, install the extra dependencies listed in INSTALL.md (`sudo dnf install qt6-qtbase qt6-qtcharts …`). With the DEB package, install it with `sudo apt-get install ./astrofind_1.1.0_amd64.deb`, which installs the dependencies too. |
+| The terminal says that a shared library (a file ending in `.so`, for example one whose name starts with `libQt6`, `libcfitsio` or `libraw`) cannot be found | A library AstroFind needs is not installed. | Install the package with its package manager, which installs the dependencies too: `sudo dnf install ./astrofind-1.2.0-1.fc44.x86_64.rpm` (Rocky/RHEL 9: the `.el9` file, after enabling EPEL and CRB; openSUSE: `sudo zypper install ./…opensuse-tumbleweed….rpm`), `sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb` (Debian: the `~debian12`/`~debian13` file) or `sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst`. Use the file made for your system. See [Installation](https://github.com/petrinhu/astrofind/wiki/Installation). |
 | The terminal mentions the Qt "platform plugin" (for example `xcb` or `wayland`) | Graphics libraries used by Qt are missing. | Install the graphics packages listed for your distribution in INSTALL.md (on Fedora the RPM section lists `mesa-libGL` and `libxkbcommon`). |
 | The window opens in a strange place, off screen, or with panels missing | The saved window layout does not fit your current screen. | Use **Window → Auto-Arrange Windows** and the **Window → View …** items to show the panels again. If that does not help, reset the settings (see [below](#how-to-reset-the-settings--como-restaurar-as-configurações)). |
 | AstroFind closes right after starting | Could be a bad settings file or a bug. | Reset the settings as explained below. If it still closes, report a bug with the terminal output. |
@@ -103,7 +103,7 @@ terminal. O nome tem A e F maiúsculos.)
 
 | Problema | Causa | Solução |
 |---|---|---|
-| O terminal diz que uma biblioteca compartilhada (um arquivo terminado em `.so`, por exemplo um cujo nome começa com `libQt6`, `libcfitsio` ou `libraw`) não foi encontrada | Falta instalar uma biblioteca de que o AstroFind precisa. | Com o pacote RPM, instale as dependências extras listadas no INSTALL.md (`sudo dnf install qt6-qtbase qt6-qtcharts …`). Com o pacote DEB, instale com `sudo apt-get install ./astrofind_1.1.0_amd64.deb`, que instala também as dependências. |
+| O terminal diz que uma biblioteca compartilhada (um arquivo terminado em `.so`, por exemplo um cujo nome começa com `libQt6`, `libcfitsio` ou `libraw`) não foi encontrada | Falta instalar uma biblioteca de que o AstroFind precisa. | Instale o pacote pelo gerenciador de pacotes, que instala também as dependências: `sudo dnf install ./astrofind-1.2.0-1.fc44.x86_64.rpm` (Rocky/RHEL 9: o arquivo `.el9`, depois de ligar EPEL e CRB; openSUSE: `sudo zypper install ./…opensuse-tumbleweed….rpm`), `sudo apt-get install ./astrofind_1.2.0-1~ubuntu24.04_amd64.deb` (Debian: o arquivo `~debian12`/`~debian13`) ou `sudo pacman -U ./astrofind-1.2.0-1-x86_64.pkg.tar.zst`. Use o arquivo feito para o seu sistema. Veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation). |
 | O terminal fala do "platform plugin" do Qt (por exemplo `xcb` ou `wayland`) | Faltam bibliotecas gráficas usadas pelo Qt. | Instale os pacotes gráficos listados para a sua distribuição no INSTALL.md (no Fedora a seção do RPM lista `mesa-libGL` e `libxkbcommon`). |
 | A janela abre num lugar estranho, fora da tela, ou sem alguns painéis | O layout de janela salvo não serve para a tela atual. | Use **Janelas → Organizar todas as Janelas** e os itens **Janelas → Exibir …** para mostrar os painéis de novo. Se não resolver, restaure as configurações (veja [abaixo](#how-to-reset-the-settings--como-restaurar-as-configurações)). |
 | O AstroFind fecha logo depois de abrir | Pode ser um arquivo de configurações ruim ou um bug. | Restaure as configurações como explicado abaixo. Se continuar fechando, relate um bug com a saída do terminal. |
@@ -248,7 +248,7 @@ stars (VizieR or a local file) and known asteroids (SkyBoT or MPCORB.DAT).
 |---|---|---|
 | "Catalog download failed: …" | VizieR could not be reached, or it returned an error. | Check your internet connection and try again later. Offline, use a local catalog (**Settings → Connections** → "Source:" → "Local FITS BINTABLE"). |
 | "No catalog stars found in field" | No catalog star in the field fits the magnitude limits, or the field centre is wrong. | Check "Catalog mag (faint):" (default 16) and "Catalog mag (bright):" (default 10) in **Settings → Detection**. Make sure Run Data Reduction solved image 1: without a solution the search uses the header position and a 0.5° radius. |
-| You changed "VizieR mirror:" and nothing changed | The field needs the full address of a VizieR TAP service (`https://…/TAPVizieR/tap/sync`). A bare host name, or `http://` for anything other than `localhost`, is rejected, and AstroFind keeps using the default `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was always rejected; the next version (after 1.1.0) replaces that old value with the default.) | Leave the default. If you type another server, give its complete `https://` TAP address. |
+| You changed "VizieR mirror:" and nothing changed | The field needs the full address of a VizieR TAP service (`https://…/TAPVizieR/tap/sync`). A bare host name, or `http://` for anything other than `localhost`, is rejected, and AstroFind keeps using the default `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (In 1.1.0 and earlier the field showed `vizier.cfa.harvard.edu`, which was always rejected; version 1.2.0 replaces that old value with the default.) | Leave the default. If you type another server, give its complete `https://` TAP address. |
 | "No local catalog file configured. Set it in Settings → Connections." | "Source:" is "Local FITS BINTABLE" but "Local catalog:" is empty. | Choose the file with "Browse…". |
 | "Local catalog error: …" or "No RA/Dec columns found in local catalog" | The local file is not a FITS table with RA/Dec columns. | Use a FITS BINTABLE export (for example from VizieR) that includes RA and Dec columns. |
 | "SkyBoT query failed: …" | The IMCCE SkyBoT service could not be reached. | Download MPCORB.DAT once with **Internet → Download MPCOrb Database**; AstroFind then uses it when SkyBoT is unreachable. |
@@ -265,7 +265,7 @@ MPCORB.DAT).
 |---|---|---|
 | "Falha no download do catálogo: …" | O VizieR não pôde ser acessado, ou devolveu um erro. | Confira a internet e tente mais tarde. Sem internet, use um catálogo local (**Configurações → Conexões** → "Fonte:" → "FITS BINTABLE local"). |
 | "Nenhuma estrela do catálogo encontrada no campo" | Nenhuma estrela do catálogo no campo cabe nos limites de magnitude, ou o centro do campo está errado. | Confira "Magnitude do catálogo (fraca):" (padrão 16) e "Magnitude do catálogo (brilhante):" (padrão 10) em **Configurações → Detecção**. Garanta que a Redução de Dados resolveu a imagem 1: sem solução, a busca usa a posição do cabeçalho e um raio de 0,5°. |
-| Você mudou "Espelho VizieR:" e nada mudou | O campo precisa do endereço completo de um serviço TAP do VizieR (`https://…/TAPVizieR/tap/sync`). Só o nome do host, ou `http://` para algo que não seja `localhost`, é recusado, e o AstroFind continua usando o padrão `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (Na 1.1.0 e anteriores o campo mostrava `vizier.cfa.harvard.edu`, sempre recusado; a próxima versão (depois da 1.1.0) troca esse valor antigo pelo padrão.) | Deixe o padrão. Se digitar outro servidor, informe o endereço TAP completo com `https://`. |
+| Você mudou "Espelho VizieR:" e nada mudou | O campo precisa do endereço completo de um serviço TAP do VizieR (`https://…/TAPVizieR/tap/sync`). Só o nome do host, ou `http://` para algo que não seja `localhost`, é recusado, e o AstroFind continua usando o padrão `https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync`. (Na 1.1.0 e anteriores o campo mostrava `vizier.cfa.harvard.edu`, sempre recusado; a versão 1.2.0 troca esse valor antigo pelo padrão.) | Deixe o padrão. Se digitar outro servidor, informe o endereço TAP completo com `https://`. |
 | "Nenhum arquivo de catálogo local configurado. Defina em Configurações → Conexões." | "Fonte:" está em "FITS BINTABLE local", mas "Catálogo local:" está vazio. | Escolha o arquivo com "Procurar…". |
 | "Erro no catálogo local: …" ou "Nenhuma coluna AR/Dec encontrada no catálogo local" | O arquivo local não é uma tabela FITS com colunas AR/Dec. | Use uma exportação FITS BINTABLE (por exemplo do VizieR) que tenha colunas de AR e Dec. |
 | "Consulta ao SkyBoT falhou: …" | O serviço SkyBoT do IMCCE não pôde ser acessado. | Baixe o MPCORB.DAT uma vez em **Internet → Baixar MPCOrb**; o AstroFind passa a usá-lo quando o SkyBoT não responde. |
@@ -365,8 +365,8 @@ imagem. Se o número é 0 ou muito pequeno:
 | "ADES auto-save failed: …" | The "Report output folder:" is not writable. | Choose another folder in **Settings → Connections**. |
 | The report has no magnitudes | "Include magnitude in ADES report" is off in **Settings → Detection**. | Tick it. |
 | You need the old MPC 80-column format | AstroFind writes only ADES (XML and PSV). | Send the ADES report; the MPC accepts it. |
-| `obsTime` in the ADES report is about 1 minute (68 s) later than the real UTC mid-exposure, or grows each time you rerun Data Reduction (1.1.0 and earlier) | Bug AUD-CORR-15, fixed in the next version (after 1.1.0): Data Reduction added ΔT (default 68 s) and "Time Offset:" to every image time on each run, and the report labelled the result UTC. Now `obsTime` is the UTC mid-exposure plus Time Offset, applied once; ΔT is used only for the offline MPCORB search | Update. On 1.1.0: set **Settings → Camera → ΔT (TT − UTC):** and **Settings → Observer → Time Offset:** to 0, reload the images, run Data Reduction once. See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings) |
-| Log warning "Time Offset reset from … to 0 s: older versions filled it automatically with a wrong value…" | Shown once, on the first start of the next version (after 1.1.0), because 1.1.0 and earlier filled Time Offset with longitude ÷ 15 | Nothing to do. If your camera clock has a known error, type it again in **Settings → Observer → Time Offset:** (seconds) |
+| `obsTime` in the ADES report is about 1 minute (68 s) later than the real UTC mid-exposure, or grows each time you rerun Data Reduction (1.1.0 and earlier) | Bug AUD-CORR-15, fixed in version 1.2.0: Data Reduction added ΔT (default 68 s) and "Time Offset:" to every image time on each run, and the report labelled the result UTC. Now `obsTime` is the UTC mid-exposure plus Time Offset, applied once; ΔT is used only for the offline MPCORB search | Update. On 1.1.0: set **Settings → Camera → ΔT (TT − UTC):** and **Settings → Observer → Time Offset:** to 0, reload the images, run Data Reduction once. See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings) |
+| Log warning "Time Offset reset from … to 0 s: older versions filled it automatically with a wrong value…" | Shown once, on the first start of version 1.2.0, because 1.1.0 and earlier filled Time Offset with longitude ÷ 15 | Nothing to do. If your camera clock has a known error, type it again in **Settings → Observer → Time Offset:** (seconds) |
 | The seconds in `obsTime` have an unexpected number of decimals | "Time Precision:" in **Settings → Observer** is the number of decimals of the seconds (0–3; 1 = tenths of a second). In 1.1.0 and earlier it was labelled in hours, with the same meaning. | Leave it at 1 unless you need another precision. |
 
 🇧🇷 **Português**
@@ -383,8 +383,8 @@ imagem. Se o número é 0 ou muito pequeno:
 | "Falha ao salvar automaticamente o relatório ADES: …" | A "Pasta de saída de relatórios:" não permite gravação. | Escolha outra pasta em **Configurações → Conexões**. |
 | O relatório não tem magnitudes | "Incluir magnitude no relatório ADES" está desmarcado em **Configurações → Detecção**. | Marque a opção. |
 | Você precisa do antigo formato MPC de 80 colunas | O AstroFind só escreve ADES (XML e PSV). | Envie o relatório ADES; o MPC aceita. |
-| O `obsTime` do relatório ADES sai cerca de 1 minuto (68 s) depois do meio da exposição em UTC, ou aumenta cada vez que você roda a Redução de Dados de novo (1.1.0 e anteriores) | Bug AUD-CORR-15, corrigido na próxima versão (depois da 1.1.0): a Redução de Dados somava o ΔT (padrão 68 s) e o "Deslocamento de tempo:" ao horário de cada imagem a cada execução, e o relatório marcava o resultado como UTC. Agora o `obsTime` é o meio da exposição em UTC mais o Deslocamento de tempo, aplicado uma vez; o ΔT só é usado na busca offline pelo MPCORB | Atualize. Na 1.1.0: coloque **Configurações → Câmera → ΔT (TT − UTC):** e **Configurações → Observador → Deslocamento de tempo:** em 0, recarregue as imagens e rode a Redução de Dados uma vez. Veja [Configurações](https://github.com/petrinhu/astrofind/wiki/Settings) |
-| Aviso no Registro "Time Offset redefinido de … para 0 s: versões anteriores o preenchiam automaticamente com um valor errado…" | Aparece uma vez, na primeira execução da próxima versão (depois da 1.1.0), porque a 1.1.0 e anteriores preenchiam o Deslocamento de tempo com longitude ÷ 15 | Nada a fazer. Se o relógio da câmera tem um erro conhecido, digite de novo em **Configurações → Observador → Deslocamento de tempo:** (segundos) |
+| O `obsTime` do relatório ADES sai cerca de 1 minuto (68 s) depois do meio da exposição em UTC, ou aumenta cada vez que você roda a Redução de Dados de novo (1.1.0 e anteriores) | Bug AUD-CORR-15, corrigido na versão 1.2.0: a Redução de Dados somava o ΔT (padrão 68 s) e o "Deslocamento de tempo:" ao horário de cada imagem a cada execução, e o relatório marcava o resultado como UTC. Agora o `obsTime` é o meio da exposição em UTC mais o Deslocamento de tempo, aplicado uma vez; o ΔT só é usado na busca offline pelo MPCORB | Atualize. Na 1.1.0: coloque **Configurações → Câmera → ΔT (TT − UTC):** e **Configurações → Observador → Deslocamento de tempo:** em 0, recarregue as imagens e rode a Redução de Dados uma vez. Veja [Configurações](https://github.com/petrinhu/astrofind/wiki/Settings) |
+| Aviso no Registro "Time Offset redefinido de … para 0 s: versões anteriores o preenchiam automaticamente com um valor errado…" | Aparece uma vez, na primeira execução da versão 1.2.0, porque a 1.1.0 e anteriores preenchiam o Deslocamento de tempo com longitude ÷ 15 | Nada a fazer. Se o relógio da câmera tem um erro conhecido, digite de novo em **Configurações → Observador → Deslocamento de tempo:** (segundos) |
 | Os segundos em `obsTime` têm um número inesperado de casas decimais | "Precisão de tempo:" em **Configurações → Observador** é o número de casas decimais dos segundos (0–3; 1 = décimos de segundo). Na 1.1.0 e anteriores ela aparecia em horas, com o mesmo significado. | Deixe em 1, a menos que precise de outra precisão. |
 
 ---
@@ -427,8 +427,8 @@ Esses ajustes mudam só o que você vê, nunca as medições.
 
 | Problem | Cause | Fix |
 |---|---|---|
-| `Ctrl+L` does nothing (1.1.0 and earlier) | In 1.1.0 `Ctrl+L` was assigned to both **File → Import Images…** and **Utilities → Light Curve…**. When one key has two actions, Qt may run neither. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`. | Update, or use the menu or the "Import Images (Ctrl+L)" toolbar button. |
-| `Ctrl+Shift+T` does not change the theme (1.1.0 and earlier) | In 1.1.0 it was assigned twice (menu item and toolbar button). In the next version (after 1.1.0) it belongs only to the toolbar theme button and works. | Update, or click the moon/sun icon on the toolbar, or use **Window → Toggle Day/Night Mode**, or **Settings → Display → Theme:**. |
+| `Ctrl+L` does nothing (1.1.0 and earlier) | In 1.1.0 `Ctrl+L` was assigned to both **File → Import Images…** and **Utilities → Light Curve…**. When one key has two actions, Qt may run neither. Version 1.2.0 moves Light Curve to `Ctrl+Shift+L`. | Update, or use the menu or the "Import Images (Ctrl+L)" toolbar button. |
+| `Ctrl+Shift+T` does not change the theme (1.1.0 and earlier) | In 1.1.0 it was assigned twice (menu item and toolbar button). In version 1.2.0 it belongs only to the toolbar theme button and works. | Update, or click the moon/sun icon on the toolbar, or use **Window → Toggle Day/Night Mode**, or **Settings → Display → Theme:**. |
 | `S`, `A`, `N` or `M` do nothing | A text field or another window has the keyboard focus. | Click on an image window first, then press the key. |
 | `Ctrl+A` does not select all text | In AstroFind `Ctrl+A` starts **Run Data Reduction**. | Use the mouse to select text. |
 | Space, Left/Right do not control the blink | These keys work only while the blink view has focus. | Click inside the blink view first. |
@@ -440,8 +440,8 @@ Full shortcut list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/
 
 | Problema | Causa | Solução |
 |---|---|---|
-| `Ctrl+L` não faz nada (1.1.0 e anteriores) | Na 1.1.0 o `Ctrl+L` estava ligado a **Arquivo → Carregar Imagens…** e a **Ferramentas → Curva de Luz…**. Quando uma tecla tem duas ações, o Qt pode não rodar nenhuma. A próxima versão (depois da 1.1.0) passa a Curva de Luz para `Ctrl+Shift+L`. | Atualize, ou use o menu ou o botão "Carregar Imagens (Ctrl+L)" da barra de ferramentas. |
-| `Ctrl+Shift+T` não muda o tema (1.1.0 e anteriores) | Na 1.1.0 o atalho estava em dois lugares (item de menu e botão da barra). Na próxima versão (depois da 1.1.0) ele é só do botão de tema da barra e funciona. | Atualize, ou clique no ícone de lua/sol da barra, ou use **Janelas → Alternar modo Dia/Noite**, ou **Configurações → Exibição → Tema:**. |
+| `Ctrl+L` não faz nada (1.1.0 e anteriores) | Na 1.1.0 o `Ctrl+L` estava ligado a **Arquivo → Carregar Imagens…** e a **Ferramentas → Curva de Luz…**. Quando uma tecla tem duas ações, o Qt pode não rodar nenhuma. A versão 1.2.0 passa a Curva de Luz para `Ctrl+Shift+L`. | Atualize, ou use o menu ou o botão "Carregar Imagens (Ctrl+L)" da barra de ferramentas. |
+| `Ctrl+Shift+T` não muda o tema (1.1.0 e anteriores) | Na 1.1.0 o atalho estava em dois lugares (item de menu e botão da barra). Na versão 1.2.0 ele é só do botão de tema da barra e funciona. | Atualize, ou clique no ícone de lua/sol da barra, ou use **Janelas → Alternar modo Dia/Noite**, ou **Configurações → Exibição → Tema:**. |
 | `S`, `A`, `N` ou `M` não fazem nada | Um campo de texto ou outra janela está com o foco do teclado. | Clique numa janela de imagem antes e depois aperte a tecla. |
 | `Ctrl+A` não seleciona todo o texto | No AstroFind, `Ctrl+A` inicia a **Redução de Dados**. | Selecione o texto com o mouse. |
 | Espaço e Esquerda/Direita não controlam o blink | Essas teclas só funcionam quando a visão de piscar está com o foco. | Clique dentro da visão de piscar antes. |
@@ -581,7 +581,7 @@ guardada no chaveiro do sistema não é apagada por isso.
 🇬🇧 **English**
 Collect these before you open an issue at <https://github.com/petrinhu/astrofind/issues>:
 
-1. **Version:** **Help → About…** shows "Version …" (for example 1.1.0).
+1. **Version:** **Help → About…** shows "Version …" (for example 1.2.0).
 2. **Distribution:** run
 
    ```bash
@@ -589,7 +589,7 @@ Collect these before you open an issue at <https://github.com/petrinhu/astrofind
    ```
 
    (This prints the name and version of your Linux system. Copy the `PRETTY_NAME` line.)
-3. **How you installed AstroFind:** package (RPM, DEB, Arch PKGBUILD) or built from source. If
+3. **How you installed AstroFind:** package (RPM, DEB, Arch package or PKGBUILD), AppImage, or built from source. If
    built from source, say whether LibRaw and libarchive were found by `cmake`.
 4. **The Log panel:** click **"Copy all"** and paste the text.
 5. **Terminal output**, if the problem is a crash (see [Where is the log?](#where-is-the-log--onde-fica-o-log)).
@@ -599,7 +599,7 @@ Collect these before you open an issue at <https://github.com/petrinhu/astrofind
 🇧🇷 **Português**
 Junte isto antes de abrir uma issue em <https://github.com/petrinhu/astrofind/issues>:
 
-1. **Versão:** **Ajuda → Sobre…** mostra "Version …" (por exemplo 1.1.0).
+1. **Versão:** **Ajuda → Sobre…** mostra "Version …" (por exemplo 1.2.0).
 2. **Distribuição:** rode
 
    ```bash
@@ -607,7 +607,7 @@ Junte isto antes de abrir uma issue em <https://github.com/petrinhu/astrofind/is
    ```
 
    (Isso mostra o nome e a versão do seu sistema Linux. Copie a linha `PRETTY_NAME`.)
-3. **Como você instalou o AstroFind:** pacote (RPM, DEB, PKGBUILD do Arch) ou compilado do
+3. **Como você instalou o AstroFind:** pacote (RPM, DEB, pacote ou PKGBUILD do Arch), AppImage ou compilado do
    código-fonte. Se compilou, diga se o `cmake` encontrou a LibRaw e a libarchive.
 4. **O painel de Log:** clique em **"Copiar tudo"** e cole o texto.
 5. **A saída do terminal**, se o problema for um travamento (veja [Onde fica o log?](#where-is-the-log--onde-fica-o-log)).

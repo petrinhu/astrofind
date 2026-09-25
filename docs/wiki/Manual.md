@@ -1,13 +1,13 @@
 # User Manual / Manual do Usuário
 
-🇬🇧 **Who this page is for.** This is the complete manual for AstroFind 1.1.0. It follows the
+🇬🇧 **Who this page is for.** This is the complete manual for AstroFind 1.2.0. It follows the
 real path an observer takes: **plan → load → calibrate → reduce → find → measure → report →
 submit**. It is written for first-time reporters as well as experienced Astrometrica/MPC
 observers: each section has a level badge (🟢 Beginner, 🟡 Intermediate, 🔴 Advanced), so you
 can skip what you already know. For the fastest path see [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start); for every button in
 detail see [Tutorial](https://github.com/petrinhu/astrofind/wiki/Tutorial) and [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference); for words you don't know see [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary).
 
-🇧🇷 **Para quem é esta página.** Este é o manual completo do AstroFind 1.1.0. Ele segue o
+🇧🇷 **Para quem é esta página.** Este é o manual completo do AstroFind 1.2.0. Ele segue o
 caminho real de quem observa: **planejar → carregar → calibrar → reduzir → encontrar → medir →
 relatar → enviar**. Serve para quem vai relatar pela primeira vez e também para quem já usa o
 Astrometrica e envia ao MPC: cada seção tem um selo de nível (🟢 Iniciante, 🟡 Intermediário,
@@ -256,7 +256,7 @@ carregadas" says whether the images are black-and-white or colour.
 
 > 💡 **Version 1.1.0 / Versão 1.1.0** — in 1.1.0 and earlier `Ctrl+L` was assigned to both
 > **Import Images...** and **Utilities → Light Curve…**, so the key could do nothing; use the menu or
-> the toolbar there. The next version (after 1.1.0) moves Light Curve to `Ctrl+Shift+L`.
+> the toolbar there. Version 1.2.0 moves Light Curve to `Ctrl+Shift+L`.
 
 > ⚠️ **DSLR RAW and files without a time zone** — the Log shows
 > "DATE-OBS sem fuso horário e sem TIMESYS — assumido UTC; verifique se a câmera grava hora
@@ -292,7 +292,7 @@ coloridas.
 
 > 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Carregar
 > Imagens...** e também a **Ferramentas → Curva de Luz…**, então a tecla podia não fazer nada;
-> lá, use o menu ou a barra de ferramentas. A próxima versão (depois da 1.1.0) passa a Curva de
+> lá, use o menu ou a barra de ferramentas. A versão 1.2.0 passa a Curva de
 > Luz para `Ctrl+Shift+L`.
 
 > ⚠️ **RAW de DSLR e arquivos sem fuso horário** — o Registro mostra
@@ -812,7 +812,7 @@ What to do:
 > **again on every run**, so `obsTime` came out about 68 s late, and loading images filled Time
 > Offset with *longitude ÷ 15* (hours, applied as seconds). Workaround for 1.1.0: set **ΔT**
 > and **Time Offset** to `0` after loading and before Run Data Reduction, and reload the images
-> before running it a second time. The next version (after 1.1.0) needs none of this; on its
+> before running it a second time. Version 1.2.0 needs none of this; on its
 > first start it resets an old non-zero Time Offset to 0 once, with a warning in the Log.
 
 ✅ **Check before sending:** open the PSV tab of the report and compare `obsTime` with the
@@ -857,7 +857,7 @@ O que fazer:
 > carregar imagens preenchia o Deslocamento de tempo com *longitude ÷ 15* (horas, aplicadas
 > como segundos). Contorno na 1.1.0: ponha **ΔT** e **Deslocamento de tempo** em `0` depois de
 > carregar e antes da Redução de Dados, e recarregue as imagens antes de rodar uma segunda vez.
-> A próxima versão (depois da 1.1.0) não precisa de nada disso; na primeira execução ela zera
+> A versão 1.2.0 não precisa de nada disso; na primeira execução ela zera
 > uma vez um Deslocamento de tempo antigo diferente de 0, com um aviso no Registro.
 
 ✅ **Confira antes de enviar:** abra a aba PSV do relatório e compare o `obsTime` com o horário

@@ -42,7 +42,7 @@ astronomia nem de Linux. Qualquer palavra desconhecida está explicada no
 
 - A computer with **Linux** (AstroFind is Linux only). Tested on Ubuntu 24.04, Debian 12,
   Fedora, Arch, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9, Linux Mint 22, Pop!_OS and
-  Zorin.
+  Zorin (Pop!_OS 22.04, Zorin OS 17 and other Ubuntu 22.04-based systems are not supported).
 - An internet connection. It is used to identify the star field ("plate solving", see Step 6)
   and to find known asteroids (Step 7).
 - **At least 3 images of the same patch of sky, taken several minutes apart** (for example
@@ -64,7 +64,8 @@ astronomia nem de Linux. Qualquer palavra desconhecida está explicada no
 
 - Um computador com **Linux** (o AstroFind só roda em Linux). Testado em Ubuntu 24.04,
   Debian 12, Fedora, Arch, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9, Linux Mint 22,
-  Pop!_OS e Zorin.
+  Pop!_OS e Zorin (Pop!_OS 22.04, Zorin OS 17 e outros sistemas com base Ubuntu 22.04 não são
+  suportados).
 - Conexão com a internet. Ela é usada para identificar o campo de estrelas ("plate solving",
   veja o Passo 6) e para achar asteroides conhecidos (Passo 7).
 - **Pelo menos 3 imagens do mesmo pedaço do céu, tiradas com alguns minutos de intervalo**
@@ -96,16 +97,16 @@ installer. Open a **terminal** (the text window where you type commands) and typ
 lines, pressing Enter after each one:
 
 ```bash
-# Download the installer script for version 1.1.0
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+# Download the installer script for version 1.2.0
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 # Allow the file to run as a program
 chmod +x install.sh
 # Run it: it detects your Linux and installs the right package
 ./install.sh
 ```
 
-The installer may ask for your password (to install packages). For `.rpm`/`.deb`/Arch packages
-or building from source, see
+The installer may ask for your password (to install packages). For `.rpm`/`.deb`/Arch packages,
+the AppImage or building from source, see
 [INSTALL.md](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md) and [Installation](https://github.com/petrinhu/astrofind/wiki/Installation).
 
 🇧🇷 **Português**
@@ -114,16 +115,16 @@ universal. Abra um **terminal** (a janela de texto onde você digita comandos) e
 linhas, apertando Enter depois de cada uma:
 
 ```bash
-# Baixa o script instalador da versão 1.1.0
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+# Baixa o script instalador da versão 1.2.0
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 # Permite que o arquivo rode como programa
 chmod +x install.sh
 # Executa: ele detecta seu Linux e instala o pacote certo
 ./install.sh
 ```
 
-O instalador pode pedir sua senha (para instalar pacotes). Para pacotes `.rpm`/`.deb`/Arch ou para
-compilar do código-fonte, veja o
+O instalador pode pedir sua senha (para instalar pacotes). Para pacotes `.rpm`/`.deb`/Arch, o AppImage
+ou para compilar do código-fonte, veja o
 [INSTALL.md](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md) e [Installation](https://github.com/petrinhu/astrofind/wiki/Installation).
 
 ---

@@ -7,7 +7,7 @@
 
 <!-- Release / license / CI -->
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.1.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.2.0-orange)](https://github.com/petrinhu/astrofind/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/build.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/build.yml)
 [![Audit](https://img.shields.io/github/actions/workflow/status/petrinhu/astrofind/audit.yml?branch=main&label=audit&logo=githubactions&logoColor=white)](https://github.com/petrinhu/astrofind/actions/workflows/audit.yml)
 
@@ -222,7 +222,7 @@ correct package, resolves dependencies, and sets up desktop integration. Bilingu
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -231,9 +231,17 @@ chmod +x install.sh
 
 | Distro family | Package |
 |---|---|
-| Fedora / RHEL / Rocky Linux | `.rpm` |
-| Ubuntu / Debian / Mint / Pop!\_OS / Zorin | `.deb` |
-| Arch Linux / Manjaro / CachyOS | PKGBUILD (built locally with `makepkg`) |
+| Fedora 44 | `.fc44.x86_64.rpm` |
+| Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (enable EPEL and CRB first) |
+| openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
+| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
+| Debian 12 / Debian 13 | `~debian12_amd64.deb` / `~debian13_amd64.deb` |
+| Arch Linux / Manjaro / CachyOS / EndeavourOS | `.pkg.tar.zst` (or PKGBUILD, built locally with `makepkg`) |
+| Any other x86-64 distro (glibc ≥ 2.36) | `.AppImage` (no install needed) |
+
+Distros on an Ubuntu 22.04 base (Pop!\_OS 22.04, Zorin OS 17, Mint 21) are not supported:
+their Qt 6.2 is older than the Qt 6.4 AstroFind needs, and their glibc 2.35 is too old for the
+AppImage.
 
 Every exact command, per-distro dependency list, and build-from-source instructions are in
 **[INSTALL.md](INSTALL.md)**: keep that file as the single source of truth for install
@@ -254,7 +262,7 @@ pacote correto, resolve dependências e configura a integração com o desktop. 
 (EN/PT-BR).
 
 ```bash
-curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.1.0/packaging/install.sh
+curl -LO https://raw.githubusercontent.com/petrinhu/astrofind/v1.2.0/packaging/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -263,9 +271,17 @@ chmod +x install.sh
 
 | Família de distro | Pacote |
 |---|---|
-| Fedora / RHEL / Rocky Linux | `.rpm` |
-| Ubuntu / Debian / Mint / Pop!\_OS / Zorin | `.deb` |
-| Arch Linux / Manjaro / CachyOS | PKGBUILD (compilado localmente com `makepkg`) |
+| Fedora 44 | `.fc44.x86_64.rpm` |
+| Rocky Linux / AlmaLinux / RHEL 9 | `.el9.x86_64.rpm` (ative EPEL e CRB antes) |
+| openSUSE Tumbleweed | `.opensuse-tumbleweed.x86_64.rpm` |
+| Ubuntu 24.04 / Mint 22 / Pop!\_OS 24.04 / Zorin OS 18 | `~ubuntu24.04_amd64.deb` |
+| Debian 12 / Debian 13 | `~debian12_amd64.deb` / `~debian13_amd64.deb` |
+| Arch Linux / Manjaro / CachyOS / EndeavourOS | `.pkg.tar.zst` (ou PKGBUILD, compilado localmente com `makepkg`) |
+| Qualquer outra distro x86-64 (glibc ≥ 2.36) | `.AppImage` (não precisa instalar) |
+
+Distros com base Ubuntu 22.04 (Pop!\_OS 22.04, Zorin OS 17, Mint 21) não são suportadas: o
+Qt 6.2 delas é mais antigo que o Qt 6.4 exigido pelo AstroFind, e a glibc 2.35 é antiga demais
+para o AppImage.
 
 Todos os comandos exatos, dependências por distribuição e instruções de compilação a
 partir do código-fonte estão em **[INSTALL.md](INSTALL.md)**: mantenha esse arquivo como

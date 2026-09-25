@@ -67,20 +67,22 @@ Escola…** (os alunos carregam esse arquivo).
 🟢 Beginner / Iniciante
 
 🇬🇧 **English**
-No. AstroFind runs only on **Linux**. Version 1.1.0 is tested on Ubuntu 24.04, Debian 12,
+No. AstroFind runs only on **Linux**. Version 1.2.0 is tested on Ubuntu 24.04, Debian 12,
 Fedora 44, Arch Linux, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 and Linux Mint 22.
 Pop!_OS and Zorin OS are checked with Ubuntu 24.04 containers (test machines that imitate
-those systems), not with the real systems. Installation steps: [Installation](https://github.com/petrinhu/astrofind/wiki/Installation) and
+those systems), not with the real systems; versions on an Ubuntu 22.04 base (Pop!_OS 22.04,
+Zorin OS 17, Linux Mint 21) are not supported. Installation steps: [Installation](https://github.com/petrinhu/astrofind/wiki/Installation) and
 [INSTALL.md](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md).
 
 If you use Windows or macOS, one option is to run Linux inside a virtual machine (a program
 that runs a second operating system in a window). This is not tested by the project.
 
 🇧🇷 **Português**
-Não. O AstroFind roda apenas no **Linux**. A versão 1.1.0 é testada no Ubuntu 24.04, Debian 12,
+Não. O AstroFind roda apenas no **Linux**. A versão 1.2.0 é testada no Ubuntu 24.04, Debian 12,
 Fedora 44, Arch Linux, CachyOS, Manjaro, openSUSE Tumbleweed, Rocky Linux 9 e Linux Mint 22.
 Pop!_OS e Zorin OS são verificados com containers do Ubuntu 24.04 (máquinas de teste que imitam
-esses sistemas), não com os sistemas reais. Passos de instalação: [Installation](https://github.com/petrinhu/astrofind/wiki/Installation) e
+esses sistemas), não com os sistemas reais; versões com base Ubuntu 22.04 (Pop!_OS 22.04,
+Zorin OS 17, Linux Mint 21) não são suportadas. Passos de instalação: [Installation](https://github.com/petrinhu/astrofind/wiki/Installation) e
 [INSTALL.md](https://github.com/petrinhu/astrofind/blob/main/INSTALL.md).
 
 Se você usa Windows ou macOS, uma opção é rodar o Linux dentro de uma máquina virtual (um
@@ -633,8 +635,8 @@ What to do:
 > is stored but not used in the calculations. "Time Offset:" only accepts −999…999 seconds, so
 > it cannot fix an error of whole hours; it is meant for a small camera-clock error in seconds,
 > and it is applied only once, however many times you run the reduction. In 1.1.0 and earlier
-> AstroFind filled "Time Offset:" automatically with longitude/15 (an hours value); the next
-> version (after 1.1.0) no longer does, and resets such an old value to 0 once at start (with a
+> AstroFind filled "Time Offset:" automatically with longitude/15 (an hours value); version
+> 1.2.0 no longer does, and resets such an old value to 0 once at start (with a
 > warning in the Log). See [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 🇧🇷 **Português**
@@ -661,7 +663,7 @@ O que fazer:
 > −999…999 segundos, então não resolve um erro de horas inteiras; ele serve para um pequeno erro
 > do relógio da câmera em segundos, e é aplicado uma vez só, não importa quantas vezes você rode
 > a redução. Na 1.1.0 e anteriores o AstroFind preenchia "Deslocamento de tempo:" sozinho com
-> longitude/15 (um valor em horas); a próxima versão (depois da 1.1.0) não faz mais isso, e zera
+> longitude/15 (um valor em horas); a versão 1.2.0 não faz mais isso, e zera
 > esse valor antigo uma vez ao iniciar (com um aviso no Registro). Veja [Settings](https://github.com/petrinhu/astrofind/wiki/Settings).
 
 ---
@@ -743,7 +745,7 @@ O AstroFind só escreve o formato **ADES** (XML e PSV). Detalhes: [Manual](https
 | **View ADES Report File** is greyed out | Run **Astrometry Tools → Run Data Reduction…** (`Ctrl+A`) first |
 | "No observations yet." | Measure and accept at least one object first |
 | Report shows station `XXX` | "MPC Station Code:" is empty in **Settings → Observer** |
-| `Ctrl+L` does nothing (1.1.0 and earlier) | It was assigned twice (Import Images and Light Curve); use the menu or the toolbar. Fixed in the next version (after 1.1.0): Light Curve is now `Ctrl+Shift+L` |
+| `Ctrl+L` does nothing (1.1.0 and earlier) | It was assigned twice (Import Images and Light Curve); use the menu or the toolbar. Fixed in version 1.2.0: Light Curve is now `Ctrl+Shift+L` |
 | Verification window shows "Nenhum objeto conhecido próximo" | Normal when no known object is nearby |
 
 Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
@@ -758,7 +760,7 @@ Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu
 | **Ver Arquivo de Relatório ADES** está desativado | Rode **Astrometria → Redução de Dados…** (`Ctrl+A`) antes |
 | "Nenhuma observação ainda." | Meça e aceite pelo menos um objeto antes |
 | O relatório mostra a estação `XXX` | "Código de estação MPC:" está vazio em **Configurações → Observador** |
-| `Ctrl+L` não faz nada (1.1.0 e anteriores) | O atalho estava em dois lugares (Carregar Imagens e Curva de Luz); use o menu ou a barra de ferramentas. Corrigido na próxima versão (depois da 1.1.0): a Curva de Luz agora é `Ctrl+Shift+L` |
+| `Ctrl+L` não faz nada (1.1.0 e anteriores) | O atalho estava em dois lugares (Carregar Imagens e Curva de Luz); use o menu ou a barra de ferramentas. Corrigido na versão 1.2.0: a Curva de Luz agora é `Ctrl+Shift+L` |
 | A janela de Verificação mostra "Nenhum objeto conhecido próximo" | Normal quando não há objeto conhecido por perto |
 
 Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
@@ -773,7 +775,7 @@ Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/pet
 Open an issue on GitHub: <https://github.com/petrinhu/astrofind/issues> (you need a free GitHub
 account). Please include:
 
-1. The AstroFind version from **Help → About…** ("Version 1.1.0", for example).
+1. The AstroFind version from **Help → About…** ("Version 1.2.0", for example).
 2. Your Linux distribution and its version.
 3. What you did, step by step, what you expected, and what happened.
 4. The Log panel text: in the Log panel click **"Copy all"** and paste it.
@@ -785,7 +787,7 @@ account). Please include:
 Abra uma issue no GitHub: <https://github.com/petrinhu/astrofind/issues> (é preciso uma conta
 gratuita no GitHub). Inclua, por favor:
 
-1. A versão do AstroFind em **Ajuda → Sobre…** (por exemplo "Version 1.1.0").
+1. A versão do AstroFind em **Ajuda → Sobre…** (por exemplo "Version 1.2.0").
 2. Sua distribuição Linux e a versão dela.
 3. O que você fez, passo a passo, o que esperava e o que aconteceu.
 4. O texto do painel de Log: no painel de Log clique em **"Copiar tudo"** e cole.

@@ -23,7 +23,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Stack protector on all targets; FORTIFY_SOURCE only with optimisation enabled
 add_compile_options(-fstack-protector-strong)
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+# Distribution package builds pass their own level (e.g. Fedora/Arch/Debian
+# use -D_FORTIFY_SOURCE=3); only add ours when none is set, to avoid a
+# "redefined" warning on every file.
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
+   AND NOT "${CMAKE_CXX_FLAGS} $ENV{CXXFLAGS} $ENV{CPPFLAGS}" MATCHES "_FORTIFY_SOURCE")
     add_compile_options(-D_FORTIFY_SOURCE=2)
 endif()
 # Linker hardening for the executable — stored for use in src/CMakeLists.txt

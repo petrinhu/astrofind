@@ -1236,7 +1236,7 @@ JD_\text{TT} = JD_\text{UTC} + \frac{\Delta T}{86400}
 $$
 
 (Version 1.1.0 and earlier added $\Delta T$ to the image JD during Run Data Reduction, so
-`obsTime` was about 68 s late; the next version (after 1.1.0) fixes this.)
+`obsTime` was about 68 s late; version 1.2.0 fixes this.)
 
 **Mid-exposure JD and sub-second precision (AUD-CORR-13).** `julianDateUtc()`
 keeps the milliseconds of the input instant (`QDateTime::msecsTo`, not
@@ -1301,7 +1301,7 @@ JD_\text{TT} = JD_\text{UTC} + \frac{\Delta T}{86400}
 $$
 
 (A versão 1.1.0 e anteriores somavam o $\Delta T$ ao JD da imagem na Redução de Dados,
-e o `obsTime` saía cerca de 68 s atrasado; a próxima versão (depois da 1.1.0) corrige
+e o `obsTime` saía cerca de 68 s atrasado; a versão 1.2.0 corrige
 isso.)
 
 **JD do meio da exposição e precisão sub-segundo (AUD-CORR-13).**
@@ -1831,5 +1831,5 @@ permID |provID |trkSub|mode|stn|obsTime                |ra        |dec      |rms
 
 ---
 
-*AstroFind. Last updated / Última atualização: 2026-09-24, AstroFind v1.1.0.*
+*AstroFind. Last updated / Última atualização: 2026-09-25, AstroFind v1.2.0.*
 *Author / Autor: Petrus Silva Costa.*

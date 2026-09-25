@@ -1506,4 +1506,4 @@ Zorin OS 17.
 
 ---
 
-*AstroFind. Last updated / Última atualização: 2026-09-24, AstroFind v1.1.0.*
+*AstroFind. Last updated / Última atualização: 2026-09-25, AstroFind v1.2.0.*

@@ -7,7 +7,7 @@ MPC-grade data out of it, and how to build, test and audit it from source. Most 
 user can follow. Unknown words are in the [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary). The full maths is in the repository file
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (we call it "TR" below). Where TR and the code disagree, this page says so and describes what
-the **code** does (AstroFind v1.1.0; where the next version (after 1.1.0) already behaves
+the **code** does (AstroFind v1.2.0; where 1.1.0 and earlier behaved
 differently, for example in timing, the page says so).
 
 🇧🇷 **Para quem é esta página.** Observadores experientes (usuários do Astrometrica / MPC) e
@@ -18,7 +18,7 @@ simples, para que um usuário intermediário acompanhe. Palavras desconhecidas e
 [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary). A matemática completa está no arquivo do repositório
 [`docs/technical-reference.md`](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md)
 (chamado de "TR" abaixo). Onde o TR e o código divergem, esta página avisa e descreve o que o
-**código** faz (AstroFind v1.1.0; onde a próxima versão (depois da 1.1.0) já se comporta
+**código** faz (AstroFind v1.2.0; onde a 1.1.0 e anteriores se comportavam
 diferente, por exemplo no tempo, a página avisa).
 
 > ⚠️ **Watch out / Atenção** — 🇬🇧 AstroFind has **not yet been validated end to end with real
@@ -539,8 +539,8 @@ barras. A tabela abaixo diz de onde vem cada campo, para você saber quais confe
 
 🇬🇧 **English**
 *In short: an asteroid moves, so a wrong clock means a wrong position. Read this section fully
-before you submit anything. Version 1.1.0 had time-handling traps that the next version (after
-1.1.0) fixes; a note below says what changed.*
+before you submit anything. Version 1.1.0 had time-handling traps that version
+1.2.0 fixes; a note below says what changed.*
 
 **How the image time is read** (FITS):
 
@@ -583,8 +583,8 @@ before you submit anything. Version 1.1.0 had time-handling traps that the next 
   wrong equinox. Fixed; error against JPL Horizons dropped from 348″ to 13″ for Ceres and from
   2952″ to 49″ for Eros. The propagator still does not model light-time or use a high-precision
   Sun, so always cross-check against Horizons before submitting (§3).
-- Time Offset is **never filled automatically**. On the first start of the next version
-  (after 1.1.0), a stored non-zero Time Offset is reset to 0 once, with a warning in the log,
+- Time Offset is **never filled automatically**. On the first start of version
+  1.2.0, a stored non-zero Time Offset is reset to 0 once, with a warning in the log,
   because older versions filled it with a wrong value.
 - **Time Zone:** (`observer/timeZone`) is saved, but nothing in the pipeline uses it. It does
   **not** convert a local-time DATE-OBS.
@@ -628,7 +628,7 @@ you chose.
 🇧🇷 **Português**
 *Resumindo: um asteroide se move, então relógio errado = posição errada. Leia esta seção inteira
 antes de enviar qualquer coisa. A versão 1.1.0 tinha armadilhas no tratamento de tempo que a
-próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
+versão 1.2.0 corrige; uma nota abaixo diz o que mudou.*
 
 **Como o horário da imagem é lido** (FITS):
 
@@ -672,8 +672,8 @@ próxima versão (depois da 1.1.0) corrige; uma nota abaixo diz o que mudou.*
   13″ para Ceres e de 2952″ para 49″ para Eros. O propagador ainda não modela tempo-luz nem usa
   uma posição de alta precisão do Sol, então sempre confira contra o Horizons antes de enviar
   (§3).
-- O Deslocamento de tempo **nunca é preenchido sozinho**. Na primeira vez que a próxima versão
-  (depois da 1.1.0) abre, um Deslocamento de tempo diferente de 0 é zerado uma vez, com um
+- O Deslocamento de tempo **nunca é preenchido sozinho**. Na primeira vez que a versão
+  1.2.0 abre, um Deslocamento de tempo diferente de 0 é zerado uma vez, com um
   aviso no log, porque as versões antigas o preenchiam com um valor errado.
 - **Fuso horário:** (`observer/timeZone`) é salvo, mas nada no pipeline o usa. Ele **não**
   converte um DATE-OBS em hora local.

@@ -1,0 +1,240 @@
+name: Release
+
+# Builds every installer natively inside its target distribution, installs
+# each one into a FRESH container of that distribution and starts it
+# (packaging/ci/smoke-test.sh), then publishes them on the GitHub Release.
+#
+#   push tag vX.Y.Z  → build + smoke-test + GitHub Release "AstroFind vX.Y.Z"
+#                      with all files, SHA256SUMS and a CycloneDX SBOM
+#   pull request     → build + smoke-test only (touching packaging files)
+#   manual run       → build + smoke-test only; files kept as artifacts
+#
+# All build logic lives in packaging/ci/*.sh so it can be run locally in the
+# same container images (see packaging/ci/README.md).
+
+on:
+  push:
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'packaging/**'
+      - '.github/workflows/release.yml'
+      - 'CMakeLists.txt'
+      - 'astrofind.desktop'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # ── Source tarball (every package is built from it) ──────────────────────
+  source:
+    name: Source tarball
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version and consistency checks
+        id: v
+        run: |
+          set -euo pipefail
+          v=$(packaging/ci/version.sh)
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "CMakeLists.txt version: $v"
+          # Every packaging file must carry the same version.
+          grep -q "^Version:        $v$"          packaging/rpm/astrofind.spec
+          grep -q "^pkgver=$v$"                    packaging/arch/PKGBUILD
+          head -1 packaging/debian/changelog | grep -q "^astrofind ($v-"
+          grep -q "^readonly VERSION=\"$v\"$"      packaging/install.sh
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "v$v" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match CMakeLists.txt version v$v"
+            exit 1
+          fi
+
+      - name: Build source tarball
+        run: packaging/ci/source-tarball.sh dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source
+          path: dist/
+          if-no-files-found: error
+
+  # ── Native packages, one container per target distribution ────────────────
+  package:
+    name: ${{ matrix.name }}
+    needs: source
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ matrix.image }}
+      options: --user root
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "RPM · Fedora 44",           image: "fedora:44",                           script: build-rpm.sh }
+          - { name: "RPM · RHEL/Rocky/Alma 9",   image: "rockylinux:9",                        script: build-rpm.sh }
+          - { name: "RPM · openSUSE Tumbleweed", image: "opensuse/tumbleweed",                 script: build-rpm.sh }
+          - { name: "DEB · Ubuntu 24.04",        image: "ubuntu:24.04",                        script: build-deb.sh }
+          - { name: "DEB · Debian 12",           image: "debian:12",                           script: build-deb.sh }
+          - { name: "DEB · Debian 13",           image: "debian:13",                           script: build-deb.sh }
+          - { name: "Arch Linux",                image: "archlinux:latest",                    script: build-arch.sh }
+          - { name: "AppImage (Debian 12 base)", image: "debian:12",                           script: build-appimage.sh }
+    steps:
+      # checkout@v4 falls back to the REST API when git is missing in the
+      # container; the scripts themselves need only tar/gzip to start.
+      - name: Bootstrap tools
+        run: |
+          if command -v apt-get >/dev/null; then apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates tar gzip >/dev/null
+          elif command -v dnf >/dev/null; then dnf -y -q install tar gzip findutils
+          elif command -v zypper >/dev/null; then zypper --non-interactive install tar gzip findutils
+          elif command -v pacman >/dev/null; then pacman -Sy --noconfirm --needed tar gzip findutils
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: source
+          path: source
+
+      - name: Build
+        id: build
+        run: |
+          set -euo pipefail
+          tarball=$(ls source/astrofind-*-source.tar.gz)
+          packaging/ci/${{ matrix.script }} "$tarball" out
+          ls -l out/
+
+      - name: Artifact name
+        id: art
+        run: echo "name=pkg-$(echo '${{ matrix.name }}' | tr -c 'A-Za-z0-9' '-')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.art.outputs.name }}
+          path: out/
+          if-no-files-found: error
+
+  # ── Install each file into a fresh container of its distribution ──────────
+  smoke:
+    name: Smoke · ${{ matrix.name }}
+    needs: package
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ matrix.image }}
+      options: --user root
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Fedora 44 RPM",            image: "fedora:44",           pattern: "astrofind-*.fc44.x86_64.rpm" }
+          - { name: "Rocky 9 RPM",              image: "rockylinux:9",        pattern: "astrofind-*.el9.x86_64.rpm" }
+          - { name: "openSUSE Tumbleweed RPM",  image: "opensuse/tumbleweed", pattern: "astrofind-*.opensuse-tumbleweed.x86_64.rpm" }
+          - { name: "Ubuntu 24.04 DEB",         image: "ubuntu:24.04",        pattern: "astrofind_*~ubuntu24.04_amd64.deb" }
+          - { name: "Debian 12 DEB",            image: "debian:12",           pattern: "astrofind_*~debian12_amd64.deb" }
+          - { name: "Debian 13 DEB",            image: "debian:13",           pattern: "astrofind_*~debian13_amd64.deb" }
+          - { name: "Arch package",             image: "archlinux:latest",    pattern: "astrofind-*-x86_64.pkg.tar.zst" }
+          - { name: "AppImage on Debian 12",    image: "debian:12",           pattern: "AstroFind-*-x86_64.AppImage" }
+          - { name: "AppImage on Ubuntu 24.04", image: "ubuntu:24.04",        pattern: "AstroFind-*-x86_64.AppImage" }
+          - { name: "AppImage on Fedora 44",    image: "fedora:44",           pattern: "AstroFind-*-x86_64.AppImage" }
+          - { name: "AppImage on Arch Linux",   image: "archlinux:latest",    pattern: "AstroFind-*-x86_64.AppImage" }
+          - { name: "AppImage on openSUSE TW",  image: "opensuse/tumbleweed", pattern: "AstroFind-*-x86_64.AppImage" }
+    steps:
+      - name: Bootstrap tools
+        run: |
+          if command -v apt-get >/dev/null; then apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates tar gzip >/dev/null
+          elif command -v dnf >/dev/null; then dnf -y -q install tar gzip findutils coreutils
+          elif command -v zypper >/dev/null; then zypper --non-interactive install tar gzip findutils
+          elif command -v pacman >/dev/null; then pacman -Sy --noconfirm --needed tar gzip findutils
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pkg-*
+          merge-multiple: true
+          path: pkgs
+
+      - name: Install and start
+        run: |
+          set -euo pipefail
+          file=$(ls pkgs/${{ matrix.pattern }})
+          packaging/ci/smoke-test.sh "$file"
+
+  # ── GitHub Release (tags only) ─────────────────────────────────────────────
+  release:
+    name: Publish GitHub Release
+    if: github.ref_type == 'tag'
+    needs: [ source, package, smoke ]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Checksums, SBOM and release notes
+        run: |
+          set -euo pipefail
+          v="${{ needs.source.outputs.version }}"
+          mkdir -p release
+          find artifacts -maxdepth 1 -type f \( -name '*.rpm' -o -name '*.deb' -o -name '*.pkg.tar.zst' \
+               -o -name '*.AppImage' -o -name '*-source.tar.gz' \) -exec cp {} release/ \;
+          python3 scripts/fetchcontent-sbom.py > "release/astrofind-${v}-fetchcontent.cdx.json"
+          (cd release && sha256sum -- * > SHA256SUMS)
+          cat release/SHA256SUMS
+          test "$(ls release | wc -l)" -ge 11
+          # Release notes = this version's section of CHANGELOG.md.
+          awk -v v="$v" '
+            $0 ~ "^## \\[" v "\\]" { on = 1; next }
+            on && /^## \[/        { exit }
+            on                    { print }
+          ' CHANGELOG.md > notes.md
+          {
+            echo ""
+            echo "### Installation / Instalação"
+            echo ""
+            echo "Universal installer / instalador universal:"
+            echo '```bash'
+            echo "curl -LO https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/v${v}/packaging/install.sh"
+            echo "chmod +x install.sh && ./install.sh"
+            echo '```'
+            echo "Per-distribution files and commands / arquivos e comandos por distribuição: [INSTALL.md](https://github.com/${GITHUB_REPOSITORY}/blob/v${v}/INSTALL.md)."
+            echo "Verify / conferir: \`sha256sum -c SHA256SUMS --ignore-missing\`"
+          } >> notes.md
+          test -s notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          v="${{ needs.source.outputs.version }}"
+          gh release create "v${v}" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "AstroFind v${v}" \
+            --notes-file notes.md
+          {
+            echo "### Published: AstroFind v${v}"
+            echo ""
+            echo '```'
+            cat release/SHA256SUMS
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

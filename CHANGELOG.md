@@ -12,6 +12,19 @@ primeiro.
 
 ## [Unreleased]
 
+---
+
+## [1.2.0] - 2026-09-25
+
+> 🇬🇧 First published release since 0.9.0: the `v1.1.0` tag was never released on GitHub, and
+> 1.2.0 carries it plus audit waves E1–E4. Installers for Fedora 44, RHEL/Rocky/Alma 9, openSUSE
+> Tumbleweed, Ubuntu 24.04 (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 12 and 13, the Arch
+> family, and an AppImage for other distributions. 🇧🇷 Primeira versão publicada desde a 0.9.0: a
+> tag `v1.1.0` nunca virou release no GitHub, e a 1.2.0 inclui o conteúdo dela e as ondas E1–E4 da
+> auditoria. Instaladores para Fedora 44, RHEL/Rocky/Alma 9, openSUSE Tumbleweed, Ubuntu 24.04
+> (Mint 22, Pop!_OS 24.04, Zorin OS 18), Debian 12 e 13, a família Arch e uma AppImage para as
+> demais distribuições.
+
 ### Fixed / Corrigido
 
 - **Refraction on plate-solved positions / Refração em posições com solução astrométrica
@@ -294,6 +307,25 @@ primeiro.
 
 ### Added / Adicionado
 
+- 🇬🇧 Installers built by a new `release.yml` workflow, each one natively inside its target
+  distribution from the release source tarball, then installed into a fresh container of that
+  distribution and started (`packaging/ci/*.sh`, runnable locally): RPM for Fedora 44, RHEL/Rocky/
+  Alma 9 and openSUSE Tumbleweed (one spec), DEB for Ubuntu 24.04, Debian 12 and Debian 13, an Arch
+  package, and an AppImage (glibc ≥ 2.36). Library dependencies are now generated from the binary
+  (rpm/dpkg-shlibdeps) instead of hand-written names that broke on renames such as Ubuntu's
+  `t64` libraries; only the run-time Qt plugins (SQLite driver, platform plugins) are declared by
+  hand. `install.sh` picks the right file for the distribution and checks it against `SHA256SUMS`
+  before installing. New `AstroFind --version` and `--help`. 🇧🇷 Instaladores gerados pelo novo
+  workflow `release.yml`, cada um compilado dentro da própria distribuição a partir do tarball de
+  fontes da versão, depois instalado num container limpo dessa distribuição e iniciado
+  (`packaging/ci/*.sh`, que também rodam localmente): RPM para Fedora 44, RHEL/Rocky/Alma 9 e
+  openSUSE Tumbleweed (um só spec), DEB para Ubuntu 24.04, Debian 12 e Debian 13, pacote Arch e uma
+  AppImage (glibc ≥ 2.36). As dependências de bibliotecas agora são geradas a partir do binário
+  (rpm/dpkg-shlibdeps), em vez de nomes escritos à mão que quebravam com renomeações como as
+  bibliotecas `t64` do Ubuntu; só os plugins do Qt carregados em tempo de execução (driver SQLite,
+  plugins de plataforma) são declarados à mão. O `install.sh` escolhe o arquivo certo para a
+  distribuição e o confere contra o `SHA256SUMS` antes de instalar. Novos `AstroFind --version` e
+  `--help`.
 - 🇬🇧 SBOM (AUD-SEC-9): a new `sbom.yml` workflow runs syft (pinned, checksum-verified) over
   the source tree and `scripts/fetchcontent-sbom.py` over the FetchContent pins and the
   bundled CCfits, and uploads SPDX + CycloneDX files. CI hardening (AUD-CI-8): every workflow

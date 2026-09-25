@@ -34,5 +34,5 @@
 
 ---
 
-**Status:** v1.1.0 (2026-09-24) · Linux only / só Linux
+**Status:** v1.2.0 (2026-09-25) · Linux only / só Linux
 **License / Licença:** AGPL-3.0
