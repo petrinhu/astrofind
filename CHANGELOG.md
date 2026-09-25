@@ -307,6 +307,14 @@ primeiro.
   `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, e escreve o resultado na página de resumo da execução.
   O CMake avisa no configure quando o hook local `pre-commit` não está armado (AUD-CI-9; mudo
   no CI). Um nome de teste Catch2 agora diz o que verifica (AUD-TEST-7).
+- 🇬🇧 The ZIP extraction tests now run in the core test binary, so the audit's ASan and
+  valgrind passes cover them too (AUD-MEM-gaps). valgrind runs with Qt's regex JIT turned off
+  (it cannot follow run-time generated code) and ignores Qt's harmless `waitid` probe; the
+  full suite is clean under both tools. 🇧🇷 Os testes de extração de ZIP agora rodam no
+  binário de testes do core, então as passadas de ASan e valgrind da auditoria também os
+  cobrem (AUD-MEM-gaps). O valgrind roda com o JIT de regex do Qt desligado (ele não
+  acompanha código gerado em tempo de execução) e ignora a sondagem inofensiva de `waitid` do
+  Qt; a suíte inteira fica limpa nas duas ferramentas.
 - 🇬🇧 Secret scanning: a gitleaks CI job over the full git history and a gitleaks step in
   `scripts/pre-commit` (AUD-SEC-8). Regression tests with hostile headers (NAXIS=4,
   100000², lying sizes, XISF) and non-finite pixels in the centroids (AUD-TEST-4).
