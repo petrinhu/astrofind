@@ -153,8 +153,8 @@ Manual coordinates / Coordenadas manuais:
 > versão 1.2.0 nenhuma parte do processamento lê esse valor. Horários sem fuso são
 > simplesmente **considerados UTC**, e o Registro avisa "DATE-OBS sem fuso horário e sem
 > TIMESYS — assumido UTC; verifique se a câmera grava hora local." Se sua câmera grava hora
-> local, corrija na origem (câmera/programa de captura) ou por imagem em **Imagens → Editar
-> Parâmetros da Imagem...** (Data Juliana).
+> local, corrija na origem (câmera/programa de captura) ou por imagem em **Ferramentas de Imagem → Editar
+> Configurações da Imagem...** (Data Juliana).
 
 > 💡 **Time Offset / Deslocamento de tempo**
 > 🇬🇧 This is a **camera-clock correction in seconds**. Run Data Reduction applies it **exactly
@@ -261,7 +261,7 @@ placa.
 > focal em mm (ex.: 3,76 µm e 530 mm → 1,46″/px). A caixa aceita de 0 a 100 com 3 decimais.
 > Na 1.1.0 e anteriores a caixa tinha o rótulo errado **°/px** e não passava de 1, embora o
 > valor já fosse lido em ″/px; lá, escalas acima de 1″/px precisavam ser dadas por imagem em
-> **Imagens → Editar Parâmetros da Imagem...**.
+> **Ferramentas de Imagem → Editar Configurações da Imagem...**.
 
 ---
 

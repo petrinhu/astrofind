@@ -64,7 +64,7 @@ The strength of a spot compared to the noise decides if it counts.*
 conhecida (SEP). A força do ponto em relação ao ruído decide se ele conta.*
 
 - Biblioteca: **SEP** (a versão em biblioteca C do Source Extractor), rodando em paralelo em
-  todas as imagens durante **Astrometria → Redução de Dados...** (`Ctrl+A`).
+  todas as imagens durante **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`).
 - Parâmetros: limiar = **Configurações → Detecção → Limiar de detecção:** (`detection/sigmaLimit`,
   padrão 4σ; σ = ruído do céu), área mínima de 5 pixels conectados, deblending ligado, filtro
   casado (convolução) 3×3, no máximo **500** fontes mantidas (as mais brilhantes em fluxo).
@@ -321,7 +321,7 @@ precisão.*
 - **Massa de ar** é sempre calculada e registrada. O código usa a fórmula de **Pickering (2002)**;
   o TR §12 descreve sec z / Young & Irvine, que não é o que o código faz.
 - **Extinção**: −k·X só é somado quando **Coef. de extinção k:** > 0 (padrão 0 = desligado).
-- Para ajustar a abertura, use **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`).
+- Para ajustar a abertura, use **Utilitários → Curva de Crescimento…** (`Ctrl+Shift+G`).
 - TR: [§10](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#10-aperture-photometry-and-zero-point--fotometria-de-abertura-e-zero-point),
   [§11](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#11-differential-photometry--fotometria-diferencial),
   [§12](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#12-airmass--massa-de-ar).
@@ -347,10 +347,10 @@ trick (FFT). Then it averages, medians or adds them.*
 *Resumindo: para empilhar, o AstroFind primeiro alinha as imagens, pelas estrelas ou por um
 truque no domínio de frequência (FFT). Depois tira a média, a mediana ou soma.*
 
-- **Imagens → Re-empilhar Imagens**: alinha pela lista de estrelas quando toda imagem tem estrelas
+- **Ferramentas de Imagem → Reconstruir Empilhamento**: alinha pela lista de estrelas quando toda imagem tem estrelas
   detectadas; senão usa **correlação de fase por FFT** (fftw3). A saída é `stacked.fits`.
   - No código, o pico subpixel é achado por interpolação parabólica (o TR §15 diz ajuste gaussiano).
-- **Astrometria → Empilhar Imagens...** (`Ctrl+T`): *Track & Stack*. Você digita o movimento do
+- **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`): *Track & Stack*. Você digita o movimento do
   objeto como dX/dY por quadro (−500…500 px). A saída é `track_stacked.fits`. Use para objetos
   fracos demais em quadros isolados.
 - Modos: **Average** (média), **Median** (mediana; rejeita discrepantes como satélites), **Add**
@@ -454,7 +454,7 @@ frames.*
 *Resumindo: o AstroFind procura fontes que andam em linha reta, com velocidade constante, ao
 longo dos seus quadros.*
 
-- **Astrometria → Detecção de Objetos em Movimento...** (`Ctrl+M`) precisa de pelo menos 2 imagens
+- **Ferramentas de Astrometria → Detectar Objetos em Movimento...** (`Ctrl+M`) precisa de pelo menos 2 imagens
   com estrelas detectadas.
 - Pareia fontes entre quadros e agrupa vetores de movimento que concordam dentro de
   `detection/modTolerance` (2 px). Mantém trilhas vistas em ≥ `detection/modMinFrames` (3)
@@ -477,7 +477,7 @@ you when the field is crowded and dimmed by dust.*
 *Resumindo: o AstroFind pode desenhar a eclíptica e o plano da Via Láctea na imagem, e avisa
 quando o campo está lotado e apagado pela poeira.*
 
-- **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`).
+- **Utilitários → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`).
 - O selo de aviso aparece quando |b| < **15°** (valor do código; o TR §14 diz 10°).
 - TR: [§14](https://github.com/petrinhu/astrofind/blob/main/docs/technical-reference.md#14-ecliptic-and-galactic-coordinates--coordenadas-eclípticas-e-galácticas).
 
@@ -696,7 +696,7 @@ versão 1.2.0 corrige; uma nota abaixo diz o que mudou.*
    segundos, se você souber. A faixa é −999…999 s.
 3. Rode a **Redução de Dados** (`Ctrl+A`). Rodar de novo não causa problema.
 4. Para uma imagem só, ou uma DSLR com erro de relógio conhecido, você pode digitar o JD correto
-   do meio da exposição em **Imagens → Editar Parâmetros da Imagem...** (campo "Julian Date:", 6
+   do meio da exposição em **Ferramentas de Imagem → Editar Configurações da Imagem...** (campo "Julian Date:", 6
    decimais ≈ 0,09 s). Se o JD digitado já está corrigido, mantenha o Deslocamento de tempo em 0.
 5. Antes de enviar, compare o `obsTime` na pré-visualização ADES com o UTC do meio da exposição
    que você espera.
@@ -778,7 +778,7 @@ com verificações próprias do AstroFind.*
    - Ajuste **Magnitude do catálogo (brilhante):** para excluir estrelas saturadas, e confira
      **Nível de saturação:**.
 5. **Conferência de resíduos.**
-   - Leia `WCS RMS = …" (N matched stars)` no log depois de **Ferramentas → Sobreposição de Objetos
+   - Leia `WCS RMS = …" (N matched stars)` no log depois de **Utilitários → Mostrar Objetos
      Conhecidos** (`Ctrl+K`). Valores bem acima de ~1″, ou N abaixo de ~10, indicam solução ou
      pareamento ruim. Não envie.
    - Meça um ou dois asteroides **conhecidos** nos mesmos quadros e compare com uma efeméride.

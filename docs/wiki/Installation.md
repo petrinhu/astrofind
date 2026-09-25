@@ -898,7 +898,7 @@ do AstroFind**. Ele tem três páginas. Toda página tem o botão **"Pular esta 
 3. **"Etapa 3 de 3 — Catálogo de asteroides (opcional)"**: **"Baixar agora (~200 MB)"** baixa o
    **MPCORB.DAT**, a lista do MPC com as órbitas de todos os asteroides conhecidos. O AstroFind
    só o usa quando o serviço online SkyBoT não responde. Dá para fazer depois em
-   **Internet → Baixar MPCOrb**.
+   **Internet → Baixar Banco MPCOrb**.
 
 O assistente **não** pergunta a sua localização. Configure depois em
 **Arquivo → Configurações...** (`Ctrl+,`) → **Observador** → grupo "Localização (correção
@@ -911,7 +911,7 @@ de configuração ao iniciar o aplicativo".
 
 **O que você deve ver:** uma janela escura (o tema "Noite" é o padrão) com o título
 `AstroFind 1.2.0`, o painel **Fluxo de Trabalho** à esquerda e o texto "Nenhuma imagem
-carregada / Use Arquivo → Carregar Imagens…" no meio. Próximo passo: [Início Rápido](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
+carregada / Use Arquivo → Importar Imagens…" no meio. Próximo passo: [Início Rápido](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 ---
 
@@ -1128,7 +1128,7 @@ Repita a instalação com o novo número de versão. Por exemplo, para uma vers�
   e repita o passo 4 de [4.7](#47-build-from-source--compilar-do-código-fonte).
 
 Suas configurações, chave de API, MPCORB.DAT e projetos são mantidos. Para atualizar a lista de
-asteroides, use **Internet → Atualizar MPCOrb**.
+asteroides, use **Internet → Atualizar Banco MPCOrb**.
 
 ---
 

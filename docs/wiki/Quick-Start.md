@@ -280,7 +280,7 @@ black or white. This step only changes **how the image looks**, never the measur
 Imagens astronômicas têm mais níveis de brilho do que a tela consegue mostrar, então podem
 parecer quase pretas ou brancas. Este passo só muda **a aparência**, nunca os dados medidos.
 
-1. Clique numa imagem e depois em **Ferramentas de Imagem → Fundo e Intervalo...**.
+1. Clique numa imagem e depois em **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...**.
 2. Clique em **⟳ Auto**. Se precisar, mexa nos controles **Fundo (mín)** e **Intervalo (máx)** ou
    teste outra "Função de transferência", como **Asinh** ou **Raiz Quadrada (Sqrt)**.
 3. Marque **Aplicar a todas as imagens da sessão** e clique em **OK**.

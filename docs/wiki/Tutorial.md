@@ -122,7 +122,7 @@ trabalha junto).
 **Para que serve:** toda medição começa com imagens de um campo do céu tiradas com minutos de
 intervalo.
 **Como fazer:**
-1. **Arquivo → Carregar Imagens...**. Selecione todos os quadros de uma vez.
+1. **Arquivo → Importar Imagens...**. Selecione todos os quadros de uma vez.
 2. Ou **Arquivo → Abrir Recente...**: lista as 8 últimas *pastas*; clicar numa carrega toda imagem
    suportada dela (compactados, BMP, JPEG e `.xml` PDS4 não são lidos). **Limpar Recentes** esvazia
    a lista.
@@ -143,7 +143,7 @@ Configurações como escala de pixel e localização são preenchidas a partir d
 primeira imagem quando estão vazias.
 
 > 🇧🇷 ⚠️ **Atenção:**
-> - O atalho é `Ctrl+L`. (Na 1.1.0 e anteriores ele também estava em Ferramentas → Curva de
+> - O atalho é `Ctrl+L`. (Na 1.1.0 e anteriores ele também estava em Utilitários → Curva de
 >   Luz…, então a tecla podia não fazer nada; lá, use o menu.)
 > - Carregar com imagens abertas pergunta **Acréscimo** (somar) ou **Novo Projeto**. *Novo
 >   Projeto* também zera escala de pixel, saturação e localização (o Deslocamento de tempo é
@@ -220,9 +220,9 @@ guardados**; as imagens são recarregadas do disco (ou extraídas de novo do com
 - **Arquivo → Projetos Recentes**: os 5 últimos projetos.
 - **Arquivo → Fechar Projeto**: oferece salvar e depois limpa tudo.
 
-> 🇧🇷 ⚠️ **Atenção:** **Arquivo → Resetar Arquivos** (`Ctrl+R`), **Arquivo → Fechar Imagens**
-> (`Ctrl+W`) e **Janelas → Fechar Todas as Imagens Abertas** limpam a sessão inteira **sem perguntar se
-> quer salvar**. **Janelas → Fechar Todas as Janelas** só fecha as janelas e mantém a sessão.
+> 🇧🇷 ⚠️ **Atenção:** **Arquivo → Limpar Arquivos da Sessão** (`Ctrl+R`), **Arquivo → Fechar Imagens**
+> (`Ctrl+W`) e **Janela → Fechar Todas as Imagens Abertas** limpam a sessão inteira **sem perguntar se
+> quer salvar**. **Janela → Fechar Todas as Janelas** só fecha as janelas e mantém a sessão.
 
 ---
 
@@ -247,9 +247,9 @@ before measuring.
 **Para que serve:** conferir ou corrigir metadados errados (ex.: hora ou escala de pixel
 faltando) antes de medir.
 **Como fazer:**
-- **Imagens → Exibir Cabeçalho...** (ou clique direito → **Cabeçalho FITS…**): só leitura. Não
+- **Ferramentas de Imagem → Ver Cabeçalho FITS...** (ou clique direito → **Cabeçalho FITS…**): só leitura. Não
   mostra nada para arquivos que não são FITS (RAW, PDS3, SER…).
-- **Imagens → Editar Parâmetros da Imagem...**: nome do objeto, filtro, observador, telescópio,
+- **Ferramentas de Imagem → Editar Configurações da Imagem...**: nome do objeto, filtro, observador, telescópio,
   AR/Dec, Data Juliana do meio da exposição, tempo de exposição, escala de placa, ganho,
   saturação.
 
@@ -285,13 +285,13 @@ faltando) antes de medir.
 **Como fazer:**
 - A roda do mouse dá zoom em torno do cursor. Arraste com o botão esquerdo ou do meio para mover.
   As setas do teclado também movem.
-- **Imagens → Ampliar Mais** (`Ctrl++`, `+`); **Ampliar Menos** (`Ctrl+-`, `-`); **Ajustar ao
-  Tamanho da Janela** (`Ctrl+F`, `0`).
-- **Imagens → Inverter Exibição** (`Ctrl+I`): estrelas pretas em fundo branco.
-- **Imagens → Espelhar na Horizontal / Espelhar na Vertical**: espelham a visualização, para
+- **Ferramentas de Imagem → Ampliar Mais** (`Ctrl++`, `+`); **Ampliar Menos** (`Ctrl+-`, `-`); **Ajustar à
+  Janela** (`Ctrl+F`, `0`).
+- **Ferramentas de Imagem → Inverter Cores** (`Ctrl+I`): estrelas pretas em fundo branco.
+- **Ferramentas de Imagem → Espelhar na Horizontal / Espelhar na Vertical**: espelham a visualização, para
   bater com uma carta de outra orientação.
-- **Imagens → Lupa** (`Ctrl+G`): uma visão ampliada sob o cursor.
-- **Janelas → Organizar em Grade / Cascata de Janelas / Organizar todas as Janelas**. Clique numa
+- **Ferramentas de Imagem → Ferramenta Lupa** (`Ctrl+G`): uma visão ampliada sob o cursor.
+- **Janela → Organizar Janelas Lado a Lado / Empilhar Janelas na Diagonal / Organizar Automaticamente**. Clique numa
   miniatura na barra Imagens para trazer aquela imagem para frente.
 - A barra de status mostra o valor do pixel e AR/Dec (graus decimais) sob o cursor.
 
@@ -323,7 +323,7 @@ Pixels with no value (**NaN**) are always drawn in **magenta**.
 curva usada; uma **LUT** (tabela de cores) pinta o brilho com cores.
 **Para que serve:** deixar visíveis estrelas e asteroides fracos. Nunca muda os dados usados na
 medição.
-**Como fazer:** **Imagens → Ajustar Ponto Preto e Contraste...** (ou a barra Exibição). Na janela:
+**Como fazer:** **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...** (ou a barra Exibição). Na janela:
 - Controles **Fundo (mín)** e **Intervalo (máx)**, com prévia do histograma.
 - **⟳ Auto**: níveis automáticos a partir do ruído do céu.
 - "Função de transferência": Linear, Logarítmica, Raiz Quadrada (Sqrt), Asinh, Equalização de
@@ -363,9 +363,9 @@ sobrepostas); cruz amarela = estrela de referência do catálogo; círculo verde
 selecionado.
 **Para que serve:** ver de relance o que o AstroFind achou.
 **Como fazer:**
-- **Imagens → Escolher Exibição de Marcadores...**: escolha que tipos mostrar (estrelas detectadas, estrelas
+- **Ferramentas de Imagem → Escolher Exibição de Marcadores...**: escolha que tipos mostrar (estrelas detectadas, estrelas
   do catálogo, objetos conhecidos, rótulos). Vale para todas as janelas.
-- **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`): desenha a **eclíptica** (o
+- **Utilitários → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`): desenha a **eclíptica** (o
   caminho do Sol, onde está a maioria dos asteroides) e o plano da Via Láctea. Se o campo estiver
   a menos de 15° da Via Láctea, um selo avisa "Plano galáctico — alta extinção interestelar":
   muitas estrelas e poeira dificultam o trabalho.
@@ -403,7 +403,7 @@ uma curva de sino ao céu (dando o nível do céu μ e o ruído σ). O **espectr
 - Clique direito na imagem → **Exibir Histograma**.
 - Clique direito → **Mostrar Espectro de Potência** (imagens grandes são reduzidas a 1024 px para
   ficar rápido).
-- **Imagens → Estatísticas de Região** (`Ctrl+Shift+R`): arraste um retângulo; `Esc` cancela.
+- **Ferramentas de Imagem → Estatísticas de Região** (`Ctrl+Shift+R`): arraste um retângulo; `Esc` cancela.
 
 ---
 
@@ -433,9 +433,9 @@ uma curva de sino ao céu (dando o nível do céu μ e o ruído σ). O **espectr
 - **Editar → Ferramenta Anotação** (`N`): clique e digite o texto; ele é desenhado em magenta.
   **Editar → Ferramenta Seleção** (`S`) volta ao normal.
 - **Editar → Copiar Imagem** (`Ctrl+C`): copia a janela da imagem para a área de transferência.
-- **Arquivo → Exportar Imagem como...** → **JPEG / PNG / BMP…**, **JPEG (rápido)…** ou **PNG…**
+- **Arquivo → Exportar Imagem Como...** → **JPEG / PNG / BMP…**, **JPEG (rápido)…** ou **PNG…**
   (também clique direito → **Exportar como JPEG/PNG…**). Salva a imagem como está na tela.
-- **Arquivo → Salvar como FITS...** e **Arquivo → Salvar todos como FITS**: gravam cópias
+- **Arquivo → Salvar Cópia em FITS...** e **Arquivo → Salvar todos como FITS**: gravam cópias
   chamadas `<nome>_wcs.fits`, com a solução de céu (WCS) quando a imagem está resolvida. Use para
   aproveitar a solução em outros programas.
 
@@ -563,8 +563,8 @@ marcando também traços e fontes blendadas) e depois **plate solving**: casar a
 para obter um **WCS** (a fórmula de pixel para AR/Dec).
 **Para que serve:** sem WCS não dá para medir posição no céu.
 **Como fazer:**
-1. **Astrometria → Redução de Dados...** (`Ctrl+A`).
-2. Para cancelar: **Astrometria → Parar Redução de Dados** (`Ctrl+.`).
+1. **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`).
+2. Para cancelar: **Ferramentas de Astrometria → Parar Redução de Dados** (`Ctrl+.`).
 3. Escolha o resolvedor em **Configurações → Conexões → Backend**: "astrometry.net (online)"
    (padrão, precisa de chave de API gratuita) ou "ASTAP (local, offline)" (precisa do programa
    ASTAP à parte e do caminho em "Executável ASTAP").
@@ -573,7 +573,7 @@ para obter um **WCS** (a fórmula de pixel para AR/Dec).
 - Se a localização não estiver configurada, o aviso "Localização não configurada" oferece abrir
   as Configurações.
 - "Salvar WCS no arquivo FITS após solução de campo" (Configurações → Conexões) grava a solução
-  **no seu arquivo original**. Desligado por padrão. Arquivo → Salvar como FITS... é mais seguro.
+  **no seu arquivo original**. Desligado por padrão. Arquivo → Salvar Cópia em FITS... é mais seguro.
 - Projeções de céu lidas do cabeçalho: TAN, SIN, ARC, STG, CAR, MER, GLS/SFL, AIT.
 - Opções de detecção (limiar, alongamento de traço, SNR mínimo): **Configurações → Detecção**.
 
@@ -595,7 +595,7 @@ inside a FITS file).
 own detection.
 **How to do it:** with an image active, **Astrometry Tools → Import Detected Stars
 (DAOPHOT/SExtractor)…** or **Astrometry Tools → Import Reduction Table (IRAF/Astropy)…** /
-**Astrometria → Importar Estrelas Detectadas (DAOPHOT/SExtractor)…** / **Importar Tabela de
+**Ferramentas de Astrometria → Importar Estrelas Detectadas (DAOPHOT/SExtractor)…** / **Importar Tabela de
 Redução (IRAF/Astropy)…**. The stars replace the active image's detected stars; rows with RA/Dec
 count as matched.
 
@@ -604,8 +604,8 @@ count as matched.
 **BINTABLE** (uma tabela dentro de um arquivo FITS).
 **Para que serve:** reaproveitar uma redução do DAOPHOT, SExtractor, IRAF ou Astropy no lugar da
 detecção do AstroFind.
-**Como fazer:** com uma imagem ativa, **Astrometria → Importar Estrelas Detectadas
-(DAOPHOT/SExtractor)…** ou **Astrometria → Importar Tabela de Redução (IRAF/Astropy)…**. As
+**Como fazer:** com uma imagem ativa, **Ferramentas de Astrometria → Importar Estrelas Detectadas
+(DAOPHOT/SExtractor)…** ou **Ferramentas de Astrometria → Importar Tabela de Redução (IRAF/Astropy)…**. As
 estrelas substituem as detectadas da imagem ativa; linhas com AR/Dec contam como casadas.
 
 ---
@@ -617,8 +617,7 @@ estrelas substituem as detectadas da imagem ativa; linhas com AR/Dec contam como
 🟢 Beginner / Iniciante (🟡 for MPCOrb and Horizons / 🟡 em MPCOrb e Horizons)
 
 🇬🇧 **English**
-**What it is:** **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos
-Objetos Conhecidos** does two things for the field:
+**What it is:** **Utilities → Show Known Objects** (`Ctrl+K`) / **Utilitários → Mostrar Objetos Conhecidos** does two things for the field:
 - downloads **reference stars** from a **catalog** (a precise star list): UCAC4 (default) or
   Gaia DR3 from VizieR, or a local FITS catalog for offline use. They are used for the position
   and magnitude of your measurements, and give the "WCS RMS" (accuracy) in the Log;
@@ -642,7 +641,7 @@ Objetos Conhecidos** does two things for the field:
 > the tooltip of "Estrela Guia" always says UCAC4, even when Gaia DR3 is selected.
 
 🇧🇷 **Português**
-**O que é:** **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`) faz duas coisas no
+**O que é:** **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) faz duas coisas no
 campo:
 - baixa **estrelas de referência** de um **catálogo** (lista precisa de estrelas): UCAC4 (padrão)
   ou Gaia DR3 do VizieR, ou um catálogo FITS local para uso offline. Elas servem para a posição e
@@ -654,8 +653,8 @@ campo:
 **Como fazer:**
 - Rode Ctrl+K depois da Redução de Dados. Escolha do catálogo: **Configurações → Conexões**
   ("Catálogo", "Fonte", "Catálogo local"). Limites de magnitude: **Configurações → Detecção**.
-- **Internet → Baixar MPCOrb**: a lista completa de asteroides (cerca de 200 MB; a dica da barra
-  de status diz ~500 MB, a confirmação diz 200 MB). **Internet → Atualizar MPCOrb** acrescenta
+- **Internet → Baixar Banco MPCOrb**: a lista completa de asteroides (cerca de 200 MB; a dica da barra
+  de status diz ~500 MB, a confirmação diz 200 MB). **Internet → Atualizar Banco MPCOrb** acrescenta
   objetos novos do arquivo diário. **Arquivo → Recarregar MPCOrb** relê o arquivo do disco.
 - **Internet → Consultar Horizons…**: digite um alvo (ex.: `433`, `Eros`, `2023 DW`), clique em
   **Consultar** e depois em **Adicionar à Sobreposição** para marcá-lo em todas as imagens.
@@ -689,8 +688,8 @@ images). **Utilities → End Blink Mode** (`Ctrl+F9`) / **Encerrar Modo de Pisca
 **O que é:** mostrar as imagens uma depois da outra no mesmo lugar.
 **Para que serve:** o olho percebe fácil um ponto que pula enquanto as estrelas ficam paradas. É
 o jeito clássico de achar asteroides.
-**Como fazer:** **Ferramentas → Piscar Imagens** (`Ctrl+B`) (precisa de ≥ 2 imagens).
-**Ferramentas → Encerrar Modo de Piscagem** (`Ctrl+F9`) fecha.
+**Como fazer:** **Utilitários → Ativar Modo de Piscagem** (`Ctrl+B`) (precisa de ≥ 2 imagens).
+**Utilitários → Encerrar Modo de Piscagem** (`Ctrl+F9`) fecha.
 - Na Visão de piscar: `Espaço` toca/pausa, `←`/`→` anterior/seguinte, `Esc` para, `+`/`-`/`0`
   zoom.
 - Barra de baixo: `◀ ⏸ ▶`, **■ Parar**, **Nitidez** (Desativado → USM → LoG: filtros de máscara
@@ -712,7 +711,7 @@ o jeito clássico de achar asteroides.
 steady rate across the frames (a **tracklet**).
 **What it's for:** finding faint or easy-to-miss candidates in many images.
 **How to do it:** after Run Data Reduction, **Astrometry Tools → Detect Moving Objects...** (`Ctrl+M`) /
-**Astrometria → Detecção de Objetos em Movimento...**. There is no options dialog: it keeps
+**Ferramentas de Astrometria → Detectar Objetos em Movimento...**. There is no options dialog: it keeps
 tracks seen in ≥ 3 frames with SNR ≥ "MOD min. SNR" (**Settings → Detection**, default 5). A box
 lists the candidates (motion dx, dy in px/frame, SNR, frames) and they are marked "Cand #N".
 Always **confirm a candidate by blinking** before measuring it.
@@ -721,7 +720,7 @@ Always **confirm a candidate by blinking** before measuring it.
 **O que é:** uma busca automática. Liga fontes detectadas que se movem em linha reta, em ritmo
 constante, entre os quadros (um **tracklet**).
 **Para que serve:** achar candidatos fracos ou fáceis de perder em muitas imagens.
-**Como fazer:** depois da Redução de Dados, **Astrometria → Detecção de Objetos em
+**Como fazer:** depois da Redução de Dados, **Ferramentas de Astrometria → Detectar Objetos em
 Movimento...** (`Ctrl+M`). Não há janela de opções: ele mantém trilhas vistas em ≥ 3 quadros com
 SNR ≥ "MOD SNR mín." (**Configurações → Detecção**, padrão 5). Uma caixa lista os candidatos
 (movimento dx, dy em px/quadro, SNR, quadros) e eles são marcados "Cand #N". Sempre **confirme um
@@ -752,9 +751,9 @@ ponto nítido enquanto as estrelas viram rastros.
 **Para que serve:** mais sinal que ruído (**SNR**), revelando objetos fracos demais para uma
 imagem só.
 **Como fazer:**
-- **Imagens → Re-empilhar Imagens**: escolha o método. As imagens são alinhadas pelas estrelas
+- **Ferramentas de Imagem → Reconstruir Empilhamento**: escolha o método. As imagens são alinhadas pelas estrelas
   (ou por FFT se faltarem estrelas). Abre `stacked.fits`.
-- **Astrometria → Empilhar Imagens...** (`Ctrl+T`): este é o Track & Stack. Digite o movimento
+- **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`): este é o Track & Stack. Digite o movimento
   **dX/frame** e **dY/frame** em pixels (ex.: de um candidato do MOD ou do Horizons) e depois o
   método. Abre `track_stacked.fits`.
 
@@ -777,7 +776,7 @@ sources and the method ("WCS warp" or "direct subtraction").
 **O que é:** subtrair das suas imagens uma imagem de referência do mesmo campo; o que sobra (o
 **resíduo**) é o que mudou.
 **Para que serve:** achar objetos novos ou em movimento comparando com uma imagem mais antiga.
-**Como fazer:** **Ferramentas → Comparar Sessões…** (`Ctrl+Shift+C`): escolha um FITS ou pasta de
+**Como fazer:** **Utilitários → Comparar Sessões…** (`Ctrl+Shift+C`): escolha um FITS ou pasta de
 referência (**Browse…**), ajuste o limiar de detecção e clique em **Compare**. Abre uma janela
 "Residual" e a linha de resultado dá o número de fontes residuais e o método ("WCS warp" ou
 "direct subtraction").
@@ -826,7 +825,7 @@ work on accepted measurements.
 3. **✓ Aceitar** (a janela fica aberta), **✓ Aceitar e Fechar** ou **✗ Rejeitar**.
 4. Repita em todas as imagens.
 
-O painel **Observações** (também **Janelas → Exibir observações** ou **Arquivo → Mostrar
+O painel **Observações** (também **Janela → Exibir observações** ou **Arquivo → Mostrar
 Resultados de Fotometria**) lista `#`, Object, RA, Dec, Mag, Band, FWHM", SNR, Airmass, JD, Image. Dê duplo
 clique em **Object** ou **Band** para editar. **Editar → Desfazer** (`Ctrl+Z`) / **Refazer**
 (`Ctrl+Shift+Z`) valem para medições aceitas.
@@ -925,10 +924,10 @@ tempo.
 **Para que serve:** escolher o melhor raio de abertura; ver a variação de brilho de um asteroide
 (rotação) ou achar uma medição ruim.
 **Como fazer:**
-- **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`) (precisa de estrelas detectadas):
+- **Utilitários → Curva de Crescimento…** (`Ctrl+Shift+G`) (precisa de estrelas detectadas):
   escolha uma estrela e os raios, **Compute**, depois **Use optimal aperture (N px)**, que passa a
   abertura para o modo manual nas Configurações.
-- **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`): escolha "All objects" ou um objeto; **Export PNG…**. Atualiza
+- **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`): escolha "All objects" ou um objeto; **Export PNG…**. Atualiza
   quando você adiciona medições; clique num ponto para abrir a imagem dele.
 
 ---
@@ -1017,7 +1016,7 @@ separadas por `|`). Ele **não** gera o antigo formato MPC de 80 colunas.
 redução vira **⏹ Parar**).
 **Para que serve:** guiar iniciantes e turmas passo a passo.
 **Como fazer:**
-- Mostrar/esconder: **Janelas → Exibir painel de fluxo de trabalho**.
+- Mostrar/esconder: **Janela → Exibir painel de fluxo de trabalho**.
 - Marque **Fluxo automático** para rodar sozinhas as etapas 2, 3 e 4 depois de carregar.
 - Para professores: **Arquivo → Exportar Configuração da Escola...** salva todas as configurações
   num arquivo `.ini`; os alunos carregam com **Arquivo → Importar Configuração da Escola...**.
@@ -1050,12 +1049,12 @@ be brought back.
 **Para que serve:** o tema escuro protege sua visão noturna no telescópio; painéis escondidos
 podem voltar.
 **Como fazer:**
-- **Janelas → Alternar modo Dia/Noite**, ou o ícone de lua/sol na barra: Noite → Dia →
+- **Janela → Alternar modo Dia/Noite**, ou o ícone de lua/sol na barra: Noite → Dia →
   Automático (segue o sistema). Também **Configurações → Exibição → Tema**. O atalho
   `Ctrl+Shift+T` faz o mesmo que o ícone. (Na 1.1.0 e anteriores ele estava ligado duas vezes e
   podia não responder; lá, use o menu ou o ícone.)
 - **Configurações → Exibição → Idioma**: English ou Português (BR). É preciso reiniciar.
-- **Janelas → Exibir …**: barras padrão, de exibição e de piscar; painéis de fluxo de trabalho,
+- **Janela → Exibir …**: barras padrão, de exibição e de piscar; painéis de fluxo de trabalho,
   calibração, imagens, log, observações e catálogo de imagens.
 - O painel **Registro** (**Arquivo → Ver Arquivo de Log** só mostra esse painel, não abre arquivo)
   tem os botões **Copiar tudo** e **Limpar**.
@@ -1069,16 +1068,16 @@ podem voltar.
 🇬🇧 **English**
 - **Help → Help Topics** (`F1`) / **Ajuda → Tópicos de Ajuda**: built-in help, with an
   English / Português (BR) selector.
-- **Help → About...** / **Ajuda → Sobre...**: version, credits and licence (AGPL-3.0).
+- **Help → About AstroFind...** / **Ajuda → Sobre o AstroFind...**: version, credits and licence (AGPL-3.0).
 - **Help → Product Registration...** / **Ajuda → Registro do Produto...** only shows a status-bar message:
   "Registration — not needed (free software, AGPL-3.0)". (Version 1.1.0 and earlier wrongly
   said "MIT open source".)
 - **File → Exit** (`Ctrl+Q`) / **Arquivo → Sair** offers to save a modified project.
 
 🇧🇷 **Português**
-- **Ajuda → Conteúdo da Ajuda** (`F1`): ajuda embutida, com seletor English / Português (BR).
-- **Ajuda → Sobre...**: versão, créditos e licença (AGPL-3.0).
-- **Ajuda → Registro...** só mostra uma mensagem na barra de status: "Registro — não é
+- **Ajuda → Tópicos de Ajuda** (`F1`): ajuda embutida, com seletor English / Português (BR).
+- **Ajuda → Sobre o AstroFind...**: versão, créditos e licença (AGPL-3.0).
+- **Ajuda → Registro do Produto...** só mostra uma mensagem na barra de status: "Registro — não é
   necessário (software livre, AGPL-3.0)". (A versão 1.1.0 e anteriores diziam, errado, "código
   aberto MIT".)
 - **Arquivo → Sair** (`Ctrl+Q`) oferece salvar um projeto modificado.

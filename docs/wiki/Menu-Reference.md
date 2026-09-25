@@ -119,10 +119,10 @@ suas medições; ele não copia os pixels (veja [File-Formats](https://github.co
 > (`Ctrl+S`) se quiser guardar o trabalho.
 
 > 💡 **Version 1.1.0 / Versão 1.1.0**
-> 🇬🇧 In 1.1.0 and earlier `Ctrl+L` was also given to **Tools → Light Curve…**, so the key
+> 🇬🇧 In 1.1.0 and earlier `Ctrl+L` was also given to **Utilities → Light Curve…**, so the key
 > could do nothing; there, use the menu or the toolbar button. In version
 > 1.2.0 `Ctrl+L` is only Import Images. See [the shortcut table](#all-keyboard-shortcuts--todos-os-atalhos-de-teclado).
-> 🇧🇷 Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Ferramentas → Curva de Luz…**, então
+> 🇧🇷 Na 1.1.0 e anteriores o `Ctrl+L` também estava em **Utilitários → Curva de Luz…**, então
 > a tecla podia não fazer nada; lá, use o menu ou o botão da barra. Na versão
 > 1.2.0 o `Ctrl+L` é só Importar Imagens.
 

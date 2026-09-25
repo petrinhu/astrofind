@@ -247,7 +247,7 @@ chips such as "✓ Escala …\"/px", "✓ WCS pré-resolvido", "✓ Data/hora UT
 carregadas" says whether the images are black-and-white or colour.
 
 - If the image looks black, that is only the display: use **Image Tools → Adjust Black Point and Contrast…**
-  / **Imagens → Ajustar Ponto Preto e Contraste...** (⟳ Auto, transfer function, false colour). This does not
+  / **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...** (⟳ Auto, transfer function, false colour). This does not
   change the data.
 - The session holds up to **20 images**. The limit message says to raise it in Settings, but
   there is no such field.
@@ -282,7 +282,7 @@ acima das imagens mostra etiquetas como "✓ Escala …\"/px", "✓ WCS pré-res
 Configurações. Um aviso "Imagens carregadas" informa se as imagens são preto e branco ou
 coloridas.
 
-- Se a imagem parecer preta, é só a exibição: use **Imagens → Ajustar Ponto Preto e Contraste...** /
+- Se a imagem parecer preta, é só a exibição: use **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste...** /
   **Ferramentas de Imagem → Adjust Black Point and Contrast…** (⟳ Auto, função de transferência, cor falsa). Isso não
   altera os dados.
 - A sessão aceita até **20 imagens**. A mensagem de limite manda aumentar nas Configurações, mas
@@ -291,7 +291,7 @@ coloridas.
   suas configurações estão vazias.
 
 > 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Carregar
-> Imagens...** e também a **Ferramentas → Curva de Luz…**, então a tecla podia não fazer nada;
+> Imagens...** e também a **Utilitários → Curva de Luz…**, então a tecla podia não fazer nada;
 > lá, use o menu ou a barra de ferramentas. A versão 1.2.0 passa a Curva de
 > Luz para `Ctrl+Shift+L`.
 
@@ -444,7 +444,7 @@ each image AstroFind:
 🇧🇷 **Português**
 
 Rode **Ferramentas de Astrometria → Executar Redução de Dados...** (`Ctrl+A`) / **Astrometry Tools → Run Data Reduction...**, ou
-**▶ Executar** na etapa 2 do fluxo. **Astrometria → Parar Redução de Dados** (`Ctrl+.`)
+**▶ Executar** na etapa 2 do fluxo. **Ferramentas de Astrometria → Parar Redução de Dados** (`Ctrl+.`)
 cancela. Para cada imagem o AstroFind:
 
 1. Aplica calibração, correção de pixels ruins e (se ligada) subtração de fundo
@@ -526,7 +526,7 @@ their number or name. Log: "SkyBoT: N known object(s) in field".
 🇧🇷 **Português**
 
 Rode **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) / **Utilities → Show Known
-Overlay**, ou a etapa 3 do fluxo. Ela faz duas coisas:
+Objects**, ou a etapa 3 do fluxo. Ela faz duas coisas:
 
 **1. Estrelas de referência (catálogo).** Estrelas de um catálogo preciso são casadas com as
 estrelas detectadas. Isso dá o **RMS do WCS** por imagem ("Image %1: WCS RMS = %2\" (%3
@@ -552,11 +552,11 @@ ou laranja (cometas), com número ou nome. Registro: "SkyBoT: N known object(s) 
 
 - Baixe o MPCORB.DAT em **Internet → Baixar Banco MPCOrb** / **Internet → Download MPCOrb Database** (a janela
   diz ~200 MB; a dica da barra de status diz ~500 MB). Atualize com **Internet → Atualizar
-  MPCOrb**. **Arquivo → Recarregar MPCOrb** relê o arquivo do disco.
+  Banco MPCOrb**. **Arquivo → Recarregar MPCOrb** relê o arquivo do disco.
 - **Internet → Consultar Horizons…** pede ao JPL Horizons a posição de um objeto e permite
   **Adicionar à Sobreposição**. A efeméride é geocêntrica (do centro da Terra), então pode
   diferir alguns segundos de arco do que você vê, para objetos próximos.
-- **Ferramentas → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`) desenha a eclíptica e o plano
+- **Utilitários → Sobreposição Eclíptica / Galáctica** (`Ctrl+E`) desenha a eclíptica e o plano
   da Via Láctea.
 
 **O que você deve ver:** cruzes amarelas nas estrelas de catálogo, rótulos verdes nos
@@ -581,7 +581,7 @@ Guia" e "Asteroide Conhecido".
 4. Stop with **Utilities → End Blink Mode** (`Ctrl+F9`).
 
 **Automatic Moving Object Detection (MOD):** **Astrometry Tools → Detect Moving Objects...**
-(`Ctrl+M`) / **Astrometria → Detecção de Objetos em Movimento...**. It links detections that
+(`Ctrl+M`) / **Ferramentas de Astrometria → Detectar Objetos em Movimento...**. It links detections that
 move in a straight line at a steady rate across at least 3 frames, with SNR ≥ 5 (**Detection →
 MOD min. SNR:**). A box lists the candidates ("#1 dx=… dy=… px/frame …"), and each is marked
 "Cand #N" on the images. **Always confirm a candidate by eye in the blink.**
@@ -603,15 +603,15 @@ measure and report it: known objects need observations too.
    **Speed** ajusta de 50 a 2000 ms por quadro.
 3. Para objetos fracos clique em **Nitidez: Desativado** para alternar *USM* (máscara de
    nitidez) → *LoG* (Laplaciano).
-4. Pare com **Ferramentas → Encerrar Modo de Piscagem** (`Ctrl+F9`).
+4. Pare com **Utilitários → Encerrar Modo de Piscagem** (`Ctrl+F9`).
 
-**Detecção automática de objetos em movimento (MOD):** **Astrometria → Detecção de Objetos em
+**Detecção automática de objetos em movimento (MOD):** **Ferramentas de Astrometria → Detectar Objetos em
 Movimento...** (`Ctrl+M`) / **Astrometry Tools → Detect Moving Objects...**. Ela liga detecções que
 andam em linha reta, com velocidade constante, em pelo menos 3 quadros, com SNR ≥ 5 (**Detecção
 → MOD SNR mín.:**). Uma janela lista os candidatos ("#1 dx=… dy=… px/frame …"), e cada um é
 marcado "Cand #N" nas imagens. **Sempre confirme um candidato a olho no blink.**
 
-**Comparar Sessões** (**Ferramentas → Comparar Sessões…**, `Ctrl+Shift+C`) subtrai uma imagem de
+**Comparar Sessões** (**Utilitários → Comparar Sessões…**, `Ctrl+Shift+C`) subtrai uma imagem de
 referência do mesmo campo das suas imagens e mostra o que sobra numa janela "Residual" — útil
 para achar algo novo.
 
@@ -764,9 +764,9 @@ no relatório ADES**).
   sem filtro). Lembre a banda do catálogo: UCAC4 é parecida com V, Gaia é G.
 - A **massa de ar** (quanto ar a luz atravessou) é sempre calculada; a correção de extinção só é
   aplicada se **Coef. de extinção k:** for maior que 0.
-- **Ferramentas → Curva de Crescimento…** (`Ctrl+Shift+G`) mostra quanta luz cada raio de
+- **Utilitários → Curva de Crescimento…** (`Ctrl+Shift+G`) mostra quanta luz cada raio de
   abertura captura e pode ajustar o raio ideal para você.
-- **Ferramentas → Curva de Luz…** (`Ctrl+Shift+L`) traça magnitude contra tempo. **Export
+- **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`) traça magnitude contra tempo. **Export
   PNG…** salva o gráfico. (Na 1.1.0 e anteriores o atalho era `Ctrl+L`, que conflitava com
   Carregar Imagens; lá, abra pelo menu.)
 
@@ -951,7 +951,7 @@ UTC de meio de exposição que você espera para uma imagem.
 - **Arquivo → Abrir Projeto...** (`Ctrl+O`) recarrega as imagens do disco (e as extrai de novo do
   arquivo compactado). Se um arquivo mudou de lugar, escolha **Localizar…**, **Pular** ou
   **Cancelar tudo**. **Projetos Recentes** lista os 5 últimos projetos.
-- **Arquivo → Fechar Projeto** oferece salvar antes. **Arquivo → Resetar Arquivos** (`Ctrl+R`) e
+- **Arquivo → Fechar Projeto** oferece salvar antes. **Arquivo → Limpar Arquivos da Sessão** (`Ctrl+R`) e
   **Fechar Imagens** (`Ctrl+W`) limpam tudo **sem perguntar se quer salvar**.
 - **Arquivo → Abrir Recente...** reabre todas as imagens de uma das 8 últimas pastas.
 

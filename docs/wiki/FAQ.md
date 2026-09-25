@@ -37,7 +37,7 @@ projects. If you distribute a modified version, or offer one as a network servic
 publish its source code under the same license. See the `LICENSE` file in the repository for
 the exact terms.
 
-> 💡 **Note:** **Help → About…** and **Help → Registration…** both say "AGPL-3.0"
+> 💡 **Note:** **Help → About AstroFind…** and **Help → Product Registration…** both say "AGPL-3.0"
 > ("Registration — not needed (free software, AGPL-3.0)"). In 1.1.0 and earlier, Registration
 > still showed an old "MIT open source" text; the license was already AGPL-3.0.
 
@@ -52,7 +52,7 @@ aulas e projetos pagos. Se você distribuir uma versão modificada, ou oferecê-
 pela rede, precisa publicar o código-fonte dela sob a mesma licença. Veja o arquivo `LICENSE`
 no repositório para os termos exatos.
 
-> 💡 **Nota:** **Ajuda → Sobre…** e **Ajuda → Registro…** dizem "AGPL-3.0" ("Registro — não é
+> 💡 **Nota:** **Ajuda → Sobre o AstroFind…** e **Ajuda → Registro do Produto…** dizem "AGPL-3.0" ("Registro — não é
 > necessário (software livre, AGPL-3.0)"). Na 1.1.0 e anteriores, o Registro ainda mostrava um
 > texto antigo "código aberto MIT"; a licença já era AGPL-3.0.
 
@@ -115,7 +115,7 @@ enviar ao MPC (Minor Planet Center, o órgão que reúne observações de astero
 conferências:
 
 1. Meça um asteroide **conhecido** no seu campo e compare com uma previsão. Use
-   **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`) ou **Internet → Consultar
+   **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) ou **Internet → Consultar
    Horizons…**. A consulta ao Horizons é **geocêntrica** (vista do centro da Terra), então
    espere pequenas diferenças para objetos próximos.
 2. Veja a linha de WCS RMS no painel de Log depois da Sobreposição de Objetos Conhecidos, por
@@ -186,7 +186,7 @@ Full details: [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-For
 
 🇧🇷 **Português**
 Normalmente um arquivo **FITS** (`.fits`, `.fit` ou `.fts`), o formato padrão de imagens
-astronômicas (veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary)). Abra com **Arquivo → Carregar Imagens…**
+astronômicas (veja o [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary)). Abra com **Arquivo → Importar Imagens…**
 (`Ctrl+L`; na 1.1.0 e anteriores essa tecla podia não fazer nada, veja "Quais são os problemas mais comuns?" abaixo).
 O AstroFind também lê:
 
@@ -203,7 +203,7 @@ O AstroFind também lê:
 Detalhes completos: [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-Formats).
 
 > ⚠️ **Atenção:** arrastar arquivos para a janela só aceita `.fits`, `.fit`, `.fts`, ZIP e os
-> outros tipos compactados. Para o resto, use **Arquivo → Carregar Imagens…**.
+> outros tipos compactados. Para o resto, use **Arquivo → Importar Imagens…**.
 
 ---
 
@@ -232,7 +232,7 @@ things to check:
   format, solving fails; see [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
 🇧🇷 **Português**
-Sim. Abra o arquivo RAW da câmera direto com **Arquivo → Carregar Imagens…**; não é preciso
+Sim. Abra o arquivo RAW da câmera direto com **Arquivo → Importar Imagens…**; não é preciso
 converter para FITS. O AstroFind mantém os dados lineares (sem curva de gama, sem balanço de
 branco), que é o que as medições precisam. Ele detecta estrelas numa imagem de brilho por
 "superpixel" 2×2, feita de cada grupo de quatro pixels coloridos do sensor. Para a tela, monta
@@ -241,7 +241,7 @@ uma imagem colorida simples. Três coisas para conferir:
 - **Horário.** O horário vem do relógio da câmera (dados EXIF dentro do arquivo). Ele costuma
   estar no horário local, sem fuso, então o AstroFind marca o horário como **ambíguo** (veja
   "Por que o horário aparece como ambíguo?" abaixo). Acerte o relógio da câmera em UTC antes de
-  observar, ou corrija o horário de cada imagem em **Imagens → Editar Parâmetros da Imagem…**
+  observar, ou corrija o horário de cada imagem em **Ferramentas de Imagem → Editar Configurações da Imagem…**
   (campo "Data Juliana:", o meio da exposição).
 - **Compilação.** O suporte a RAW precisa da biblioteca LibRaw quando o AstroFind é compilado:
   `LibRaw-devel` no Fedora e no Rocky Linux 9 (repositório CRB), `libraw-dev` no
@@ -284,7 +284,7 @@ Sim. PDS (Planetary Data System) é o formato de arquivo da NASA para dados de m
   abre o FITS.
 
 Imagens de missões raramente trazem solução de placa (a ligação entre pixels e coordenadas do
-céu), então rode **Astrometria → Redução de Dados…** (`Ctrl+A`) primeiro. Alguns arquivos PDS3
+céu), então rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`) primeiro. Alguns arquivos PDS3
 antigos usam formatos numéricos VAX; eles são recusados ("VAX floating point PDS3 images are
 not supported").
 
@@ -388,13 +388,13 @@ Nem sempre. Estas partes usam a internet:
 |---|---|---|
 | Plate solving | astrometry.net | ASTAP (instale o programa e um banco de estrelas) |
 | Estrelas de referência | VizieR (UCAC4 ou Gaia DR3) | Catálogo local FITS BINTABLE (**Configurações → Conexões** → "Fonte:" → "FITS BINTABLE local") |
-| Asteroides conhecidos | IMCCE SkyBoT | MPCORB.DAT, baixado uma vez em **Internet → Baixar MPCOrb** (cerca de 200 MB) |
+| Asteroides conhecidos | IMCCE SkyBoT | MPCORB.DAT, baixado uma vez em **Internet → Baixar Banco MPCOrb** (cerca de 200 MB) |
 | Efeméride de um objeto | JPL Horizons | nenhuma |
 | Envio do relatório | MPC (HTTP ou e-mail) | Salve o arquivo do relatório e envie depois |
 
 Imagens que já têm solução de placa no cabeçalho pulam totalmente a etapa de solução.
 
-> ⚠️ **Atenção:** a dica da barra de status do Baixar MPCOrb diz "~500 MB", mas o diálogo de
+> ⚠️ **Atenção:** a dica da barra de status do Baixar Banco MPCOrb diz "~500 MB", mas o diálogo de
 > confirmação e o Assistente de Configuração dizem "~200 MB".
 
 ---
@@ -527,7 +527,7 @@ no value (NaN) in the file. More cases: [Troubleshooting](https://github.com/pet
 Isso é normal e os seus dados estão bem. Imagens astronômicas guardam uma faixa de brilho muito
 maior do que a tela consegue mostrar, então a maior parte parece escura. Para ver mais:
 
-1. Abra **Imagens → Fundo e Intervalo…**.
+1. Abra **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste…**.
 2. Clique em **"⟳ Auto"**.
 3. Se continuar escuro, mude "Função de transferência:" para "Raiz Quadrada (Sqrt)", "Asinh" ou
    "Equalização de Histograma".
@@ -537,7 +537,7 @@ maior do que a tela consegue mostrar, então a maior parte parece escura. Para v
 **O que você deve ver:** um fundo de céu cinza com muitos pontos brancos (estrelas).
 
 Isso só muda a visualização, nunca os dados medidos. Se a imagem está quase **branca**, veja se
-**Imagens → Inverter Exibição** (`Ctrl+I`) está ligada. Pixels em **magenta** não têm valor
+**Ferramentas de Imagem → Inverter Cores** (`Ctrl+I`) está ligada. Pixels em **magenta** não têm valor
 (NaN) no arquivo. Mais casos: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).
 
 ---
@@ -565,7 +565,7 @@ a summary line starting with "Redução concluída:".
 2. Configure sua localização em **Arquivo → Configurações…** → **Observador** (ou use
    "Automático (do FITS)" quando os arquivos trazem essa informação). Se a localização for
    0°, 0°, o AstroFind avisa "Localização não configurada".
-3. Rode **Astrometria → Redução de Dados…** (`Ctrl+A`).
+3. Rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`).
 
 **O que você deve ver:** no painel de Log, `Solved! RA=… Dec=… scale=…"/px` para cada imagem, e
 depois uma linha de resumo que começa com "Redução concluída:".
@@ -654,7 +654,7 @@ O que fazer:
 
 1. Se a sua câmera ou programa de captura já grava em UTC, não há erro. Pode ignorar o aviso.
 2. Se grava horário local, corrija o horário antes de reportar. Para cada imagem, abra
-   **Imagens → Editar Parâmetros da Imagem…** e corrija "Data Juliana:" (a Data Juliana, uma
+   **Ferramentas de Imagem → Editar Configurações da Imagem…** e corrija "Data Juliana:" (a Data Juliana, uma
    contagem de dias usada por astrônomos, do meio da exposição).
 3. Daqui para a frente, acerte o relógio da câmera ou do programa em UTC.
 
@@ -691,10 +691,10 @@ estrelas ficam paradas. Ele não risca a tela como um meteoro. Dicas:
 
 - Use imagens do mesmo campo tiradas ao longo de pelo menos 30–60 minutos, para o movimento
   aparecer.
-- Rode antes **Ferramentas → Sobreposição de Objetos Conhecidos** (`Ctrl+K`): círculos verdes
+- Rode antes **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`): círculos verdes
   marcam asteroides conhecidos que deveriam estar no campo. Observe um deles no blink como
   teste.
-- Experimente **Astrometria → Detecção de Objetos em Movimento…** (`Ctrl+M`), que procura
+- Experimente **Ferramentas de Astrometria → Detectar Objetos em Movimento…** (`Ctrl+M`), que procura
   sozinha e marca candidatos como "Cand #N".
 - Na visão de piscar, o botão "Nitidez:" pode deixar pontos fracos mais fáceis de ver.
 
@@ -754,10 +754,10 @@ Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu
 
 | Sintoma | Causa provável / solução |
 |---|---|
-| Imagem toda preta ou toda branca | Ajuste a visualização em **Imagens → Fundo e Intervalo…**, ou desligue **Inverter Exibição** (`Ctrl+I`) |
+| Imagem toda preta ou toda branca | Ajuste a visualização em **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste…**, ou desligue **Inverter Cores** (`Ctrl+I`) |
 | Clicar na imagem não mede nada | A ferramenta **Seleção** (`S`) está ativa. Aperte `M` ou `A` antes |
 | O Log diz "Centroide falhou — nenhuma fonte encontrada na posição clicada" | Clique mais perto do centro do ponto, ou aproxime o zoom antes |
-| **Ver Arquivo de Relatório ADES** está desativado | Rode **Astrometria → Redução de Dados…** (`Ctrl+A`) antes |
+| **Ver Arquivo de Relatório ADES** está desativado | Rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`) antes |
 | "Nenhuma observação ainda." | Meça e aceite pelo menos um objeto antes |
 | O relatório mostra a estação `XXX` | "Código de estação MPC:" está vazio em **Configurações → Observador** |
 | `Ctrl+L` não faz nada (1.1.0 e anteriores) | O atalho estava em dois lugares (Carregar Imagens e Curva de Luz); use o menu ou a barra de ferramentas. Corrigido na versão 1.2.0: a Curva de Luz agora é `Ctrl+Shift+L` |
@@ -775,7 +775,7 @@ Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/pet
 Open an issue on GitHub: <https://github.com/petrinhu/astrofind/issues> (you need a free GitHub
 account). Please include:
 
-1. The AstroFind version from **Help → About…** ("Version 1.2.0", for example).
+1. The AstroFind version from **Help → About AstroFind…** ("Version 1.2.0", for example).
 2. Your Linux distribution and its version.
 3. What you did, step by step, what you expected, and what happened.
 4. The Log panel text: in the Log panel click **"Copy all"** and paste it.
@@ -787,7 +787,7 @@ account). Please include:
 Abra uma issue no GitHub: <https://github.com/petrinhu/astrofind/issues> (é preciso uma conta
 gratuita no GitHub). Inclua, por favor:
 
-1. A versão do AstroFind em **Ajuda → Sobre…** (por exemplo "Version 1.2.0").
+1. A versão do AstroFind em **Ajuda → Sobre o AstroFind…** (por exemplo "Version 1.2.0").
 2. Sua distribuição Linux e a versão dela.
 3. O que você fez, passo a passo, o que esperava e o que aconteceu.
 4. O texto do painel de Log: no painel de Log clique em **"Copiar tudo"** e cole.

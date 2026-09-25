@@ -46,7 +46,7 @@ Think of it as: **camera → AstroFind → report for the MPC**.
 
 AstroFind is inspired by [Astrometrica](http://www.astrometrica.at/), the classic Windows tool
 used by amateur astronomers worldwide for this exact task (its author, Herbert Raab, is
-credited in **Help → About...**). AstroFind is a separate program written from scratch in
+credited in **Help → About AstroFind...**). AstroFind is a separate program written from scratch in
 modern C++ with the Qt 6 toolkit, and runs on Linux only. Current version: **1.2.0**
 (released 2026-09-25). License: **AGPL-3.0** (free software: you can read, change and share
 the source code).
@@ -74,7 +74,7 @@ Pense assim: **câmera → AstroFind → relatório para o MPC**.
 
 O AstroFind é inspirado no [Astrometrica](http://www.astrometrica.at/), a ferramenta clássica
 para Windows usada por astrônomos amadores do mundo todo para essa mesma tarefa (o autor,
-Herbert Raab, aparece nos créditos em **Ajuda → Sobre...**). O AstroFind é um programa
+Herbert Raab, aparece nos créditos em **Ajuda → Sobre o AstroFind...**). O AstroFind é um programa
 separado, escrito do zero em C++ moderno com o kit Qt 6, e roda só em Linux. Versão atual:
 **1.2.0** (lançada em 2026-09-25). Licença: **AGPL-3.0** (software livre: você pode ler,
 alterar e compartilhar o código-fonte).
@@ -193,7 +193,7 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 | Track & Stack | **Ferramentas de Astrometria → Empilhar Imagens...** (`Ctrl+T`) / **Astrometry Tools → Stack Images...** | Você digita dX/dY por quadro à mão. |
 | Medir um objeto | **Editar → Ferramenta Abertura** (`A`) / **Edit → Aperture Tool**, ou o botão de medir da barra de ferramentas (tecla `M`) | Centroide por PSF elíptica, correção de refração quando a posição ainda não vem de uma solução de plate-solve por catálogo, fotometria diferencial. Abre a janela Verificação: clique em "✓ Aceitar". |
 | Relatório para o MPC | **Arquivo → Ver Arquivo de Relatório ADES** / **File → View ADES Report File** | **Só ADES 2022 (XML e PSV).** **Não existe saída no formato MPC de 80 colunas (MPC1992).** Envio por HTTP ao MPC, por e-mail ou para o professor. |
-| MPCOrb | **Internet → Baixar MPCOrb** / **Atualizar MPCOrb** | Usado só como reserva offline quando o SkyBoT não responde. |
+| MPCOrb | **Internet → Baixar Banco MPCOrb** / **Atualizar Banco MPCOrb** | Usado só como reserva offline quando o SkyBoT não responde. |
 | Pastas de catálogos locais (USNO-A2, UCAC-2/3, CMC-14) | **Configurações → Legado** / **Settings → Legacy** | Mantidas só por compatibilidade. **O processamento nunca as lê.** Use o VizieR ou um catálogo local FITS BINTABLE (aba Conexões). |
 
 > ⚠️ **Atenção:** alguns rótulos ficam em português mesmo com a interface em inglês (por
