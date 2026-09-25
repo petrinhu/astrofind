@@ -581,7 +581,7 @@ guardada no chaveiro do sistema não é apagada por isso.
 🇬🇧 **English**
 Collect these before you open an issue at <https://github.com/petrinhu/astrofind/issues>:
 
-1. **Version:** **Help → About AstroFind…** shows "Version …" (for example 1.2.0). In a
+1. **Version:** **Help → About AstroFind…** shows "Version …" (for example 1.2.1). In a
    terminal, `AstroFind --version` prints the same number.
 2. **Distribution:** run
 
@@ -600,7 +600,7 @@ Collect these before you open an issue at <https://github.com/petrinhu/astrofind
 🇧🇷 **Português**
 Junte isto antes de abrir uma issue em <https://github.com/petrinhu/astrofind/issues>:
 
-1. **Versão:** **Ajuda → Sobre o AstroFind…** mostra "Versão …" (por exemplo 1.2.0). Num
+1. **Versão:** **Ajuda → Sobre o AstroFind…** mostra "Versão …" (por exemplo 1.2.1). Num
    terminal, `AstroFind --version` mostra o mesmo número.
 2. **Distribuição:** rode
 

@@ -14,6 +14,7 @@ observadores experientes e desenvolvedores. Nenhum conhecimento prévio é assum
 [Where do I start?](#where-do-i-start--por-onde-começo) ·
 [Coming from Astrometrica](#coming-from-astrometrica--vindo-do-astrometrica) ·
 [Map of the wiki](#map-of-the-wiki--mapa-da-wiki) ·
+[What's new in 1.2.1](#whats-new-in-121--novidades-da-121) ·
 [What's new in 1.2.0](#whats-new-in-120--novidades-da-120) ·
 [What's new in 1.1.0](#whats-new-in-110--novidades-da-110) ·
 [Validation status](#validation-status--estado-da-validação)
@@ -240,6 +241,22 @@ depois o rótulo em inglês). A última coluna diz o que é **diferente**.
 
 ---
 
+## What's new in 1.2.1 / Novidades da 1.2.1
+
+🇬🇧 Version 1.2.1 (2026-09-25) only fixes the installers for **Ubuntu 24.04** (and Mint 22,
+Pop!_OS 24.04, Zorin OS 18) and **Debian 13**. GitHub changes `~` into `.` in download names,
+so in 1.2.0 the universal installer could not find the `.deb` files and stopped with a
+download error. The program itself is the same as 1.2.0: if 1.2.0 already runs on your
+computer, you do not need to update.
+
+🇧🇷 A versão 1.2.1 (2026-09-25) só corrige os instaladores do **Ubuntu 24.04** (e Mint 22,
+Pop!_OS 24.04, Zorin OS 18) e do **Debian 13**. O GitHub troca `~` por `.` nos nomes dos
+downloads, então na 1.2.0 o instalador universal não achava os arquivos `.deb` e parava com
+erro de download. O programa em si é o mesmo da 1.2.0: se a 1.2.0 já funciona no seu
+computador, não precisa atualizar.
+
+---
+
 ## What's new in 1.2.0 / Novidades da 1.2.0
 
 🇬🇧 **English**
@@ -265,7 +282,7 @@ Version 1.2.0 was released on 2026-09-25. It fixes the problems found in a full 
 - **AstroFind's own menu wording.** Menu texts that had been copied from Astrometrica were
   rewritten; shortcuts and behaviour are unchanged.
 - **Ready-made packages** for Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (and Mint 22,
-  Pop!_OS 24.04, Zorin OS 18), Debian 13, and Arch/Manjaro, plus an **AppImage** for Debian 12
+  Pop!_OS 24.04, Zorin OS 18), Debian 13, Arch/Manjaro and CachyOS, plus an **AppImage** for Debian 12
   and other distributions (see [Installation](https://github.com/petrinhu/astrofind/wiki/Installation)).
   A list of all components (SBOM) is now generated automatically, and the packages include
   the full license texts.
@@ -296,7 +313,7 @@ código da 1.1.0; a maioria afeta os números que você envia ao MPC, por isso v
 - **Textos de menu próprios do AstroFind.** Os textos de menu que tinham sido copiados do
   Astrometrica foram reescritos; atalhos e comportamento não mudaram.
 - **Pacotes prontos** para Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (e Mint 22,
-  Pop!_OS 24.04, Zorin OS 18), Debian 13, e Arch/Manjaro, mais um **AppImage** para o Debian 12
+  Pop!_OS 24.04, Zorin OS 18), Debian 13, Arch/Manjaro e CachyOS, mais um **AppImage** para o Debian 12
   e as outras distribuições (veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation)).
   Uma lista de todos os componentes (SBOM) agora é gerada automaticamente, e os pacotes
   incluem os textos completos das licenças.

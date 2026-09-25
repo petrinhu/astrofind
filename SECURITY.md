@@ -1,6 +1,6 @@
 # Security Policy / Política de Segurança
 
-> **Last reviewed / Última revisão:** 2026-09-24
+> **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa (petrinhu@yahoo.com.br)
 
 ---
@@ -33,9 +33,10 @@ ZIP/TAR/7Z/RAR archives: an attacker-controlled file could try to trigger a cras
 memory corruption), network calls (astrometry.net, VizieR, JPL Horizons, SkyBoT, MPC
 submission), and stored credentials (API keys via Qt Keychain or the `QSettings`
 fallback). The audit dossier [`AUDIT_FIND.md`](AUDIT_FIND.md) lists every finding with
-its status: **not every item there is fixed yet**. Open items and their priority are
-tracked in [`TODO.md`](TODO.md) (rows marked ⏳ or 🟡); fixed ones cite the commit or
-pull request. If you plan to rely on a specific item, check its row first.
+its status **at the time of the audit**. How each one was fixed is tracked in
+[`TODO.md`](TODO.md), where every row cites the commit or pull request: since version
+1.2.0 all audit items are marked ✅ (fixed). If you plan to rely on a specific item,
+check its row first.
 
 ---
 
@@ -70,7 +71,7 @@ via LibRaw e arquivos ZIP/TAR/7Z/RAR: um arquivo controlado por um atacante pode
 disparar um crash ou corrupção de memória), chamadas de rede (astrometry.net, VizieR,
 JPL Horizons, SkyBoT, submissão ao MPC), e credenciais armazenadas (chaves de API via Qt
 Keychain ou o fallback `QSettings`). O dossiê de auditoria [`AUDIT_FIND.md`](AUDIT_FIND.md)
-lista todos os achados com seu status: **nem todo item listado lá já está corrigido**. Os
-itens abertos e sua prioridade ficam no [`TODO.md`](TODO.md) (linhas marcadas ⏳ ou 🟡);
-os corrigidos citam o commit ou pull request. Se você depende de um item específico,
-confira a linha dele antes.
+lista todos os achados com o status **da época da auditoria**. Como cada um foi corrigido
+fica no [`TODO.md`](TODO.md), em que cada linha cita o commit ou pull request: desde a
+versão 1.2.0 todos os itens da auditoria estão marcados ✅ (corrigidos). Se você depende
+de um item específico, confira a linha dele antes.

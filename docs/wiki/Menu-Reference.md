@@ -1,13 +1,13 @@
 # Menu Reference / Referência de Menus
 
 🇬🇧 **Who this page is for.** Anyone who wants to know what a menu item, button or key does in
-AstroFind 1.2.0. You do not need to read it from top to bottom: use it like a dictionary. Each
+AstroFind 1.2.1. You do not need to read it from top to bottom: use it like a dictionary. Each
 entry gives the English label, the Portuguese label, the keyboard shortcut, what it does in
 plain words, and a level badge: 🟢 Beginner, 🟡 Intermediate, 🔴 Advanced. New to the words?
 See [Glossary](https://github.com/petrinhu/astrofind/wiki/Glossary). For a guided first session, start with [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
 
 🇧🇷 **Para quem é esta página.** Para quem quer saber o que faz um item de menu, botão ou tecla
-do AstroFind 1.2.0. Não precisa ler de cima a baixo: use como um dicionário. Cada item traz o
+do AstroFind 1.2.1. Não precisa ler de cima a baixo: use como um dicionário. Cada item traz o
 rótulo em inglês, o rótulo em português, o atalho de teclado, o que ele faz em palavras simples
 e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma palavra estranha? Veja o
 [Glossário](https://github.com/petrinhu/astrofind/wiki/Glossary). Para uma primeira sessão guiada, comece pelo [Quick-Start](https://github.com/petrinhu/astrofind/wiki/Quick-Start).
@@ -45,7 +45,7 @@ e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma
   groups them under their older section names (**Astrometry**, **Images**, **Tools**,
   **Windows**) so links from other pages keep working; the "EN label" column always shows the
   current on-screen text.
-- The main window title is `AstroFind 1.2.0` when the program starts. After you save or open a
+- The main window title is `AstroFind 1.2.1` when the program starts. After you save or open a
   project it shows `AstroFind — <name>.gus`, with a `*` when there are unsaved changes.
 - A shortcut such as `Ctrl+L` means: hold the **Ctrl** key and press **L**.
 - Some items are greyed out (disabled) until you do an earlier step. For example, most
@@ -63,7 +63,7 @@ e um selo de nível: 🟢 Iniciante, 🟡 Intermediário, 🔴 Avançado. Alguma
   os itens sob os nomes de seção antigos (**Astrometria**, **Imagens**, **Ferramentas**,
   **Janelas**) para não quebrar os links de outras páginas; a coluna "PT label" sempre mostra o
   texto atual na tela.
-- O título da janela principal é `AstroFind 1.2.0` quando o programa abre. Depois de salvar ou
+- O título da janela principal é `AstroFind 1.2.1` quando o programa abre. Depois de salvar ou
   abrir um projeto ele mostra `AstroFind — <nome>.gus`, com `*` quando há alterações não salvas.
 - Um atalho como `Ctrl+L` quer dizer: segure a tecla **Ctrl** e aperte **L**.
 - Alguns itens ficam cinza (desabilitados) até você fazer um passo anterior. Por exemplo, a

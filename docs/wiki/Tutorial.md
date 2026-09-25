@@ -93,7 +93,7 @@ relatório, e precisa da sua localização e de uma chave do astrometry.net.
    Dropping one file while images are open shows a menu: **Open as Science Image**, **Use as
    Dark Frame**, **Use as Flat Field**, **Cancel**.
 
-Formats (v1.2.0): FITS, SER video (first frame only), XISF (PixInsight), TIFF/PNG (16-bit
+Formats (v1.2.1): FITS, SER video (first frame only), XISF (PixInsight), TIFF/PNG (16-bit
 read directly), BMP, JPEG, **DSLR RAW** (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF and more,
 if the program was built with LibRaw), **NASA PDS3** (`.img`, or `.img` + `.lbl`) and **PDS4**
 (`.xml` label). ZIP is always unpacked; TAR.GZ/BZ2/XZ, 7Z and RAR need libarchive. Details:
@@ -130,7 +130,7 @@ intervalo.
    arquivo com imagens já abertas mostra um menu: **Abrir como imagem científica**, **Usar como
    dark frame**, **Usar como flat field**, **Cancelar**.
 
-Formatos (v1.2.0): FITS, vídeo SER (só o primeiro quadro), XISF (PixInsight), TIFF/PNG (16 bits
+Formatos (v1.2.1): FITS, vídeo SER (só o primeiro quadro), XISF (PixInsight), TIFF/PNG (16 bits
 lidos direto), BMP, JPEG, **RAW de DSLR** (CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF e outros,
 se o programa foi compilado com LibRaw), **NASA PDS3** (`.img`, ou `.img` + `.lbl`) e **PDS4**
 (rótulo `.xml`). ZIP é sempre extraído; TAR.GZ/BZ2/XZ, 7Z e RAR precisam da libarchive. Detalhes:

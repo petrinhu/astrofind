@@ -1,6 +1,6 @@
 # Contributing to AstroFind / Contribuindo com o AstroFind
 
-> **Last reviewed / Última revisão:** 2026-09-24
+> **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
 
 Thank you for your interest in contributing to AstroFind! / Obrigado pelo seu interesse em contribuir com o AstroFind!

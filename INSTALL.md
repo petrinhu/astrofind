@@ -2,7 +2,7 @@
 
 > **Last reviewed / Última revisão:** 2026-09-25
 > **Owner:** Petrus Silva Costa
-> **Applies to / Aplica-se a:** AstroFind v1.2.0+
+> **Applies to / Aplica-se a:** AstroFind v1.2.1+
 
 ---
 
