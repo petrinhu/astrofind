@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-test:
     name: Ubuntu 24.04 · Qt 6 · GCC-14
@@ -57,14 +63,33 @@ jobs:
 
       # ── Build ─────────────────────────────────────────────────────────────────
       - name: Build
+        id: build
         run: cmake --build build --parallel
 
       # ── Core unit tests (no display needed) ──────────────────────────────────
-      - name: Core tests (116 cases)
+      - name: Core tests
+        id: core_tests
         run: build/bin/astrofind_tests --reporter console
 
       # ── UI integration tests (offscreen, no X server needed) ─────────────────
-      - name: UI tests (23 cases)
+      - name: UI tests
+        id: ui_tests
         env:
           QT_QPA_PLATFORM: offscreen
         run: build/bin/astrofind_ui_tests --reporter console
+
+      # ── Job summary (AUD-CI-8) ───────────────────────────────────────────────
+      - name: "📝  Job summary"
+        if: always()
+        run: |
+          {
+            echo "### ${{ github.workflow }}"
+            echo ""
+            echo "| Step | Result |"
+            echo "|---|---|"
+            echo "| Build | ${{ steps.build.outcome }} |"
+            echo "| Core unit tests | ${{ steps.core_tests.outcome }} |"
+            echo "| UI tests | ${{ steps.ui_tests.outcome }} |"
+            echo ""
+            echo "Runner OS: $(grep PRETTY_NAME /etc/os-release | cut -d= -f2)"
+          } >> "$GITHUB_STEP_SUMMARY"

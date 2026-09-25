@@ -83,6 +83,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   numerical-audit:
     name: Numerical audit · ${{ matrix.image }} · ASan/UBSan + cppcheck + clang-tidy + valgrind
@@ -363,11 +366,14 @@ jobs:
           fi
 
           echo ""
+          # AUD-CI-8: one line per image on the run's summary page.
           if [ "$FAIL" -ne 0 ]; then
             echo "Numerical audit gate: FAILED — see errors above."
+            echo "### Numerical audit gate · ${{ matrix.image }}: FAILED" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
           echo "Numerical audit gate: PASSED."
+          echo "### Numerical audit gate · ${{ matrix.image }}: PASSED" >> "$GITHUB_STEP_SUMMARY"
 
       # ── 10. KEEP THE REPORTS ─────────────────────────────────────────────────
       - name: "Upload audit reports"

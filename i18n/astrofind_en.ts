@@ -23,8 +23,8 @@ Outputs ADES 2022 format reports.</translation>
     </message>
     <message>
         <location filename="../src/ui/AboutDialog.cpp" line="158" />
-        <source>Inspired by &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; by Herbert Raab.&lt;br&gt;Built with Qt6, cfitsio, Eigen3, SEP.&lt;br&gt;Licensed under the &lt;a href="license"&gt;AGPL-3.0&lt;/a&gt;.</source>
-        <translation>Inspired by &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; by Herbert Raab.&lt;br&gt;Built with Qt6, cfitsio, Eigen3, SEP.&lt;br&gt;Licensed under the &lt;a href="license"&gt;AGPL-3.0&lt;/a&gt;.</translation>
+        <source>Inspired by &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; by Herbert Raab.&lt;br&gt;Built with Qt6, cfitsio, FFTW3, SEP.&lt;br&gt;Licensed under the &lt;a href="license"&gt;AGPL-3.0&lt;/a&gt;.</source>
+        <translation>Inspired by &lt;a href="http://www.astrometrica.at/"&gt;Astrometrica&lt;/a&gt; by Herbert Raab.&lt;br&gt;Built with Qt6, cfitsio, FFTW3, SEP.&lt;br&gt;Licensed under the &lt;a href="license"&gt;AGPL-3.0&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/AboutDialog.cpp" line="183" />

@@ -40,6 +40,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   DEBIAN_FRONTEND: noninteractive
@@ -151,12 +154,14 @@ jobs:
 
       # ── 8. CORE UNIT TESTS ───────────────────────────────────────────────────
       - name: "🧪  Core unit tests (116 cases, no display required)"
+        id: core_tests
         run: |
           build/bin/astrofind_tests --reporter console --verbosity high
           echo ""
 
       # ── 9. UI INTEGRATION TESTS ─────────────────────────────────────────────
       - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        id: ui_tests
         env:
           QT_QPA_PLATFORM: offscreen
           QT_LOGGING_RULES: "qt.qpa.*=false"
@@ -179,3 +184,18 @@ jobs:
           echo ""
           ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
           echo ""
+
+      # ── Job summary (AUD-CI-8) ───────────────────────────────────────────────
+      - name: "📝  Job summary"
+        if: always()
+        run: |
+          {
+            echo "### ${{ github.workflow }}"
+            echo ""
+            echo "| Step | Result |"
+            echo "|---|---|"
+            echo "| Core unit tests | ${{ steps.core_tests.outcome }} |"
+            echo "| UI tests | ${{ steps.ui_tests.outcome }} |"
+            echo ""
+            echo "Runner OS: $(grep PRETTY_NAME /etc/os-release | cut -d= -f2)"
+          } >> "$GITHUB_STEP_SUMMARY"

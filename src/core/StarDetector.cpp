@@ -113,7 +113,11 @@ detectStars(const FitsImage& img, const StarDetectorConfig& cfg)
     const double rmsArea = (globalRms > 0.0f) ? static_cast<double>(globalRms) : 1.0;
 
     for (int i = 0; i < cat->nobj; ++i) {
-        if (cat->flux[i] <= 0.0f) continue;
+        if (!(cat->flux[i] > 0.0f)) continue;   // also drops NaN flux
+        // AUD-MEM-7: never hand a non-finite centroid/shape downstream.
+        if (!std::isfinite(cat->x[i]) || !std::isfinite(cat->y[i]) ||
+            !std::isfinite(cat->a[i]) || !std::isfinite(cat->b[i]))
+            continue;
 
         DetectedStar s;
         s.x     = cat->x[i];
@@ -142,69 +146,10 @@ detectStars(const FitsImage& img, const StarDetectorConfig& cfg)
     // above the detection threshold.  Two maxima closer than
     // blendPeakSepFraction * star.a pixels are merged (noise suppression).
     // SEP flag bit 0x1 (MERGED = successfully deblended) also sets blended=true.
-    if (cfg.detectBlended) {
-        const float peakThresh = static_cast<float>(cfg.threshold) * globalRms;
-
-        for (auto& star : stars) {
-            // Already deblended by SEP → mark blended
-            if (star.flag & 0x1) {
-                star.blended = true;
-                continue;
-            }
-            if (star.a < 1.0) continue;  // point-like, can't be blended
-
-            const int margin = static_cast<int>(std::ceil(3.0 * star.a)) + 1;
-            const int cx = static_cast<int>(std::round(star.x));
-            const int cy = static_cast<int>(std::round(star.y));
-            const int x0 = std::max(1, cx - margin);
-            const int y0 = std::max(1, cy - margin);
-            const int x1 = std::min(w - 2, cx + margin);
-            const int y1 = std::min(h - 2, cy + margin);
-
-            const double a2 = (3.0 * star.a) * (3.0 * star.a);  // ellipse clip radius²
-
-            // Minimum inter-peak separation² (pixels²)
-            const double minSep2 = (cfg.blendPeakSepFraction * star.a) *
-                                   (cfg.blendPeakSepFraction * star.a);
-
-            struct Peak { double px, py; };
-            std::vector<Peak> peaks;
-
-            for (int py = y0; py <= y1; ++py) {
-                for (int px = x0; px <= x1; ++px) {
-                    // Clip to 3*a ellipse around centroid
-                    const double dx = px - star.x;
-                    const double dy = py - star.y;
-                    if (dx*dx + dy*dy > a2) continue;
-
-                    const float v = data[py * w + px];
-                    if (v < peakThresh) continue;
-
-                    // 8-connected local maximum
-                    bool isMax = true;
-                    for (int oy = -1; oy <= 1 && isMax; ++oy)
-                        for (int ox = -1; ox <= 1 && isMax; ++ox)
-                            if (ox || oy)
-                                isMax = (v >= data[(py + oy) * w + (px + ox)]);
-                    if (!isMax) continue;
-
-                    // Suppress peaks too close to an existing one
-                    bool tooClose = false;
-                    for (const auto& q : peaks) {
-                        const double ddx = px - q.px;
-                        const double ddy = py - q.py;
-                        if (ddx*ddx + ddy*ddy < minSep2) { tooClose = true; break; }
-                    }
-                    if (!tooClose)
-                        peaks.push_back({static_cast<double>(px),
-                                         static_cast<double>(py)});
-                }
-            }
-
-            if (peaks.size() >= 2)
-                star.blended = true;
-        }
-    }
+    if (cfg.detectBlended)
+        markBlendedSources(data.data(), w, h,
+                           static_cast<float>(cfg.threshold) * globalRms,
+                           cfg.blendPeakSepFraction, stars);
 
     // ── 8. Sort by flux, limit count ──────────────────────────────────────
     std::sort(stars.begin(), stars.end(),
@@ -223,6 +168,81 @@ detectStars(const FitsImage& img, const StarDetectorConfig& cfg)
                  stars.size(), w, h, static_cast<double>(globalRms), nBlended, nStreak);
 
     return stars;
+}
+
+void markBlendedSources(const float* data, int w, int h, float peakThresh,
+                        double blendPeakSepFraction, QVector<DetectedStar>& stars)
+{
+    if (!data) return;
+
+    for (auto& star : stars) {
+        // Already deblended by SEP → mark blended
+        if (star.flag & 0x1) {
+            star.blended = true;
+            continue;
+        }
+        // AUD-MEM-7: a non-finite or off-image centroid/axis would make the
+        // static_cast<int> below undefined behaviour; nothing to scan anyway.
+        if (!std::isfinite(star.x) || !std::isfinite(star.y) || !std::isfinite(star.a))
+            continue;
+        if (star.x < 0.0 || star.x >= w || star.y < 0.0 || star.y >= h)
+            continue;
+        if (star.a < 1.0) continue;  // point-like, can't be blended
+
+        // The box never needs to exceed the image, so clamp before the cast.
+        const double marginD = std::min(std::ceil(3.0 * star.a) + 1.0,
+                                        static_cast<double>(std::max(w, h)));
+        const int margin = static_cast<int>(marginD);
+        const int cx = static_cast<int>(std::round(star.x));
+        const int cy = static_cast<int>(std::round(star.y));
+        const int x0 = std::max(1, cx - margin);
+        const int y0 = std::max(1, cy - margin);
+        const int x1 = std::min(w - 2, cx + margin);
+        const int y1 = std::min(h - 2, cy + margin);
+
+        const double a2 = (3.0 * star.a) * (3.0 * star.a);  // ellipse clip radius²
+
+        // Minimum inter-peak separation² (pixels²)
+        const double minSep2 = (blendPeakSepFraction * star.a) *
+                               (blendPeakSepFraction * star.a);
+
+        struct Peak { double px, py; };
+        std::vector<Peak> peaks;
+
+        for (int py = y0; py <= y1; ++py) {
+            for (int px = x0; px <= x1; ++px) {
+                // Clip to 3*a ellipse around centroid
+                const double dx = px - star.x;
+                const double dy = py - star.y;
+                if (dx*dx + dy*dy > a2) continue;
+
+                const float v = data[py * w + px];
+                if (v < peakThresh) continue;
+
+                // 8-connected local maximum
+                bool isMax = true;
+                for (int oy = -1; oy <= 1 && isMax; ++oy)
+                    for (int ox = -1; ox <= 1 && isMax; ++ox)
+                        if (ox || oy)
+                            isMax = (v >= data[(py + oy) * w + (px + ox)]);
+                if (!isMax) continue;
+
+                // Suppress peaks too close to an existing one
+                bool tooClose = false;
+                for (const auto& q : peaks) {
+                    const double ddx = px - q.px;
+                    const double ddy = py - q.py;
+                    if (ddx*ddx + ddy*ddy < minSep2) { tooClose = true; break; }
+                }
+                if (!tooClose)
+                    peaks.push_back({static_cast<double>(px),
+                                     static_cast<double>(py)});
+            }
+        }
+
+        if (peaks.size() >= 2)
+            star.blended = true;
+    }
 }
 
 } // namespace core

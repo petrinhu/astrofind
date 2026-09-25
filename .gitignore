@@ -1,6 +1,7 @@
 # Build
 build/
 build-*/
+build_*/
 cmake-build-*/
 _deps/
 .cmake/

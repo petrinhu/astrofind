@@ -64,3 +64,16 @@
     Memcheck:Value8
     obj:*/libz*.so*
 }
+
+# QProcess (ZIP extraction via unzip(1), AUD-MEM-gaps): Qt's forkfd probes
+# pidfd support with waitid(P_PIDFD, fd, NULL, ...). A NULL infop is valid on
+# Linux (the kernel then skips writing it), but memcheck checks the pointer
+# anyway. Only this syscall-parameter report with the call coming from
+# libQt6Core is suppressed.
+{
+   qt_forkfd_waitid_null_infop
+   Memcheck:Param
+   waitid(infop)
+   fun:syscall
+   obj:*/libQt6Core.so*
+}

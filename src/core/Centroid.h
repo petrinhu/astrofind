@@ -46,7 +46,7 @@ std::optional<CentroidResult> findCentroidPsf(const FitsImage& img,
 /// Fits a fully elliptical 2-D Gaussian (6 parameters: cx, cy, σ_a, σ_b,
 /// rotation angle θ, amplitude) using Levenberg-Marquardt.
 ///
-/// Returns fwhmX = 2.355·σ_a (major axis), fwhmY = 2.355·σ_b (minor axis),
+/// Returns fwhmX = 2.354820045·σ_a (major axis), fwhmY = 2.354820045·σ_b (minor axis),
 /// and theta = angle of the major axis in degrees (CCW from +X).
 /// Useful for measuring true FWHM, elongation (coma, tracking error, defocus),
 /// and position angle of the PSF.

@@ -375,6 +375,22 @@ TEST_CASE("loadSer rejects a sign-bit width before narrowing it", "[loaders][ser
     CHECK(r.error().contains(QStringLiteral("out of range")));
 }
 
+// AUD-INPUT-11: 20000x20000 passes the per-axis SER ceiling but is 400e6 px,
+// above the shared total-pixel ceiling (200e6) every other loader enforces.
+TEST_CASE("loadSer rejects a frame above the shared total-pixel ceiling", "[loaders][ser][hostile]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("huge_total.ser");
+    QByteArray bytes = serHeader(20000, 20000, 8, 0);
+    bytes.append(QByteArray(64, '\0'));
+    REQUIRE(writeBytes(path, bytes));
+
+    auto r = core::loadImage(path);
+    REQUIRE_FALSE(r.has_value());
+    CHECK(r.error().contains(QStringLiteral("too large")));
+}
+
 TEST_CASE("loadSer rejects a frame shorter than the header declares", "[loaders][ser][hostile]")
 {
     QTemporaryDir dir;

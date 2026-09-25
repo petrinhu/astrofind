@@ -542,7 +542,9 @@ Libraries used: [Qt6](https://github.com/qt/qtbase),
 [libarchive](https://www.libarchive.org/),
 [LibRaw](https://www.libraw.org/).
 
-See [`NOTICE`](NOTICE) for the license and copyright of every item above.
+See [`NOTICE`](NOTICE) for the license and copyright of every library above and of
+WCSLIB, whose projection code was adapted. The other rows of the table are credited for
+inspiration only: no code from them is included, and `NOTICE` §9-§10 says so for each one.
 
 ### 🇧🇷 Português
 
@@ -574,7 +576,9 @@ Bibliotecas utilizadas: [Qt6](https://github.com/qt/qtbase),
 [libarchive](https://www.libarchive.org/),
 [LibRaw](https://www.libraw.org/).
 
-Ver [`NOTICE`](NOTICE) para a licença e o copyright de cada item acima.
+Ver [`NOTICE`](NOTICE) para a licença e o copyright de cada biblioteca acima e da
+WCSLIB, cujo código de projeção foi adaptado. As demais linhas da tabela são crédito de
+inspiração: nenhum código delas está incluído, e o `NOTICE` §9-§10 registra isso para cada uma.
 
 ---
 

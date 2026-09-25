@@ -2,8 +2,10 @@
 // Copyright (C) 2026 Petrus Silva Costa
 //
 // AUD-TEST-6: core::extractZipImages (the body of MainWindow::expandZip). It
-// shells out to unzip(1) through QProcess, so it is registered in
-// astrofind_ui_tests, which provides a real QApplication (test_ui_main.cpp).
+// shells out to unzip(1) through QProcess's blocking API, which needs no
+// QCoreApplication, so it lives in astrofind_tests and therefore runs under
+// the ASan and valgrind passes of the audit (AUD-MEM-gaps; it used to be in
+// astrofind_ui_tests, which neither pass runs).
 // The ZIP fixtures are written byte by byte (stored entries, no compression),
 // including a Unix symlink entry — the AUD-INPUT-4 attack. unzip(1) is an
 // optional runtime tool: without it the cases SKIP with that reason (the

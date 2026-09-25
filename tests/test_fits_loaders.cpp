@@ -201,6 +201,44 @@ TEST_CASE("readFitsTable: NAXIS2 lies about row count (truncated data) -> return
     CHECK_FALSE(result.error().isEmpty());
 }
 
+// AUD-INPUT-12: NAXIS2 patched to 2e9 on a 3-row table. Before the fix the
+// value went unchecked into reserve()/static_cast<int>; now it must be refused
+// by the row ceiling before anything is allocated from it.
+TEST_CASE("readFitsTable: huge NAXIS2 is refused before any allocation",
+          "[loaders][bintable][hostile][AUD-INPUT-12]")
+{
+    QTemporaryDir dir;
+    REQUIRE(dir.isValid());
+    const QString path = dir.filePath("naxis2_huge.fits");
+    QString err;
+    REQUIRE(writeSynthBinTable(path, /*nRowsDeclared=*/3, /*nRowsPhysical=*/3, &err));
+
+    auto patchNaxis2 = [&](qint64 rows) {
+        QFile f(path);
+        REQUIRE(f.open(QIODevice::ReadWrite));
+        QByteArray bytes = f.readAll();
+        // Second HDU (the BINTABLE) header starts after the 2880-byte primary.
+        const qsizetype at = bytes.indexOf("NAXIS2  =", 2880);
+        REQUIRE(at > 0);
+        const QByteArray card = QByteArray("NAXIS2  = ")
+            + QByteArray::number(rows).rightJustified(20, ' ');
+        bytes.replace(at, card.size(), card);
+        REQUIRE(f.seek(0));
+        REQUIRE(f.write(bytes) == bytes.size());
+    };
+
+    patchNaxis2(2'000'000'000LL);
+    auto huge = core::readFitsTable(path);
+    REQUIRE_FALSE(huge.has_value());
+    CHECK(huge.error().contains(QStringLiteral("ceiling")));
+
+    // Under the ceiling but far beyond the file: refused by the size check.
+    patchNaxis2(1'000'000LL);
+    auto lie = core::readFitsTable(path);
+    REQUIRE_FALSE(lie.has_value());
+    CHECK(lie.error().contains(QStringLiteral("lying/corrupt header")));
+}
+
 TEST_CASE("readFitsTable: error on file with no BINTABLE extension", "[loaders][bintable]")
 {
     QTemporaryDir dir;

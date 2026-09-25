@@ -29,6 +29,17 @@ endif()
 # Linker hardening for the executable — stored for use in src/CMakeLists.txt
 set(ASTROFIND_HARDEN_LINK -pie -Wl,-z,relro,-z,now,-z,noexecstack)
 
+# AUD-CI-9: the local pre-commit gate (scripts/pre-commit, see CONTRIBUTING.md)
+# only runs once it is armed in .git/hooks of each clone. Remind at configure
+# time when it is not; skipped on CI runners (env CI) and silenced by -Wno-dev.
+if(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git/hooks"
+   AND NOT EXISTS "${CMAKE_SOURCE_DIR}/.git/hooks/pre-commit"
+   AND NOT DEFINED ENV{CI})
+    message(AUTHOR_WARNING
+        "pre-commit hook not armed in this clone. Arm it once with:\n"
+        "  ln -sf ../../scripts/pre-commit .git/hooks/pre-commit")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()

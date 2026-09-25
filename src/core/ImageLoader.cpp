@@ -227,6 +227,19 @@ std::expected<FitsImage, QString> loadSer(const QString& filePath)
         return std::unexpected(QObject::tr("Unsupported SER pixel depth %1 in: %2")
             .arg(serPixelDepth).arg(filePath));
 
+    // AUD-INPUT-11: the per-axis ceiling alone still admits 20000x20000 =
+    // 400e6 px, twice the total-pixel ceiling every other loader enforces.
+    // Apply the SAME shared check (per-axis, total incl. RGB planes, and
+    // declared size vs. file on disk) as FITS/PDS/RAW (L-17).
+    {
+        const long serChannels = (hdr.colorID == SER_RGB || hdr.colorID == SER_BGR) ? 3 : 1;
+        QString dimErr;
+        if (!validateLoaderDims(static_cast<long>(serImageWidth),
+                                static_cast<long>(serImageHeight),
+                                serChannels, filePath, dimErr))
+            return std::unexpected(dimErr);
+    }
+
     FitsImage img;
     img.filePath  = filePath;
     img.fileName  = QFileInfo(filePath).fileName();

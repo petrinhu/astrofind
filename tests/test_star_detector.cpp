@@ -5,6 +5,8 @@
 #include "core/FitsImage.h"
 
 #include <cmath>
+#include <limits>
+#include <vector>
 
 // Build a synthetic FitsImage with Gaussian blobs at known positions
 static core::FitsImage makeSyntheticImage(int w, int h,
@@ -74,7 +76,7 @@ TEST_CASE("StarDetector: detects stars in synthetic image", "[stardetector]")
     CHECK(matched >= 4);
 }
 
-TEST_CASE("StarDetector: empty image returns stars or succeeds", "[stardetector]")
+TEST_CASE("StarDetector: flat image at high threshold returns no stars", "[stardetector]")
 {
     // An image with only background noise should return no stars at high threshold
     core::FitsImage img;
@@ -99,4 +101,50 @@ TEST_CASE("StarDetector: rejects invalid image", "[stardetector]")
     core::FitsImage empty;
     auto result = core::detectStars(empty);
     REQUIRE_FALSE(result.has_value());
+}
+
+// AUD-MEM-7: the ClumpFind pass must never static_cast<int> a non-finite or
+// off-image centroid, nor let a huge semi-major axis overflow the search box.
+TEST_CASE("StarDetector: markBlendedSources skips non-finite and off-image stars",
+          "[stardetector][AUD-MEM-7]")
+{
+    const int w = 64, h = 64;
+    std::vector<float> data(static_cast<size_t>(w * h), 0.0f);
+    // Two separated peaks around (32,32) so a sane star there is blended.
+    data[32 * w + 28] = 100.0f;
+    data[32 * w + 36] = 100.0f;
+
+    auto star = [](double x, double y, double a) {
+        core::DetectedStar s;
+        s.x = x; s.y = y; s.a = a; s.b = 1.0;
+        return s;
+    };
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+
+    QVector<core::DetectedStar> stars = {
+        star(32.0, 32.0, 3.0),      // control: two peaks → blended
+        star(nan,  32.0, 3.0),
+        star(32.0, inf,  3.0),
+        star(32.0, 32.0, nan),
+        star(-1e12, 32.0, 3.0),     // finite but far off-image
+        star(32.0, 32.0, 1e12),     // huge axis: box must clamp, not overflow int
+    };
+    core::markBlendedSources(data.data(), w, h, 10.0f, 0.5, stars);
+
+    CHECK(stars[0].blended);
+    CHECK_FALSE(stars[1].blended);
+    CHECK_FALSE(stars[2].blended);
+    CHECK_FALSE(stars[3].blended);
+    CHECK_FALSE(stars[4].blended);
+    // Huge axis → min peak separation spans the image, so a single peak
+    // survives; the point is that the box cast did not overflow (UBSan).
+    CHECK_FALSE(stars[5].blended);
+}
+
+TEST_CASE("DetectedStar::fwhm uses the exact Gaussian constant", "[stardetector][AUD-CORR-9]")
+{
+    core::DetectedStar s;
+    s.a = 2.0; s.b = 2.0;
+    CHECK_THAT(s.fwhm(), Catch::Matchers::WithinAbs(2.0 * std::sqrt(2.0 * std::log(2.0)) * 2.0, 1e-8));
 }
