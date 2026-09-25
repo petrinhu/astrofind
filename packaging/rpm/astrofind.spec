@@ -51,7 +51,11 @@ BuildRequires:  pkgconf-pkg-config
 BuildRequires:  qt6-qtbase-devel >= 6.4
 BuildRequires:  qt6-qtcharts-devel
 BuildRequires:  qt6-qttools-devel
+%if ! (0%{?rhel} && 0%{?rhel} < 10)
+# Not in EPEL 9: on EL9 the API key is kept in the settings file (mode 0600)
+# instead of the system keychain (CMake finds Qt6Keychain as optional).
 BuildRequires:  qtkeychain-qt6-devel
+%endif
 BuildRequires:  cfitsio-devel
 BuildRequires:  fftw-devel
 BuildRequires:  libarchive-devel

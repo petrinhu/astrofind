@@ -41,19 +41,19 @@ case "$pkg" in
     # A desktop system has these; minimal container images do not. They are
     # the libraries the AppImage excludelist deliberately leaves to the host
     # (OpenGL/EGL via glvnd, fontconfig, freetype, harfbuzz, xkbcommon, D-Bus,
-    # GLib), because they must match the host's drivers and configuration.
+    # GLib, Kerberos com_err, X11 ICE/SM), because they must match the host's drivers and configuration.
     case " ${ID} ${ID_LIKE:-} " in
       *" debian "*|*" ubuntu "*)
         export DEBIAN_FRONTEND=noninteractive; apt-get update -qq
         apt-get install -y -qq libgl1 libegl1 libopengl0 libfontconfig1 libfreetype6 \
-            libharfbuzz0b libxkbcommon0 libdbus-1-3 libglib2.0-0 >/dev/null ;;
+            libharfbuzz0b libxkbcommon0 libdbus-1-3 libglib2.0-0 libcom-err2 libice6 libsm6 >/dev/null ;;
       *" fedora "*) dnf -y -q install mesa-libGL mesa-libEGL libglvnd-opengl fontconfig \
-            freetype harfbuzz libxkbcommon dbus-libs glib2 ;;
+            freetype harfbuzz libxkbcommon dbus-libs glib2 libcom_err libICE libSM ;;
       *" arch "*) pacman -Syu --noconfirm --needed mesa libglvnd fontconfig freetype2 \
-            harfbuzz libxkbcommon dbus glib2 ;;
+            harfbuzz libxkbcommon dbus glib2 e2fsprogs libice libsm ;;
       *" opensuse"*|*" suse "*) zypper --non-interactive install Mesa-libGL1 Mesa-libEGL1 \
             libglvnd fontconfig libfreetype6 libharfbuzz0 libxkbcommon0 libdbus-1-3 \
-            libglib-2_0-0 ;;
+            libglib-2_0-0 libcom_err2 libICE6 libSM6 ;;
     esac
     chmod +x "$pkg"
     export APPIMAGE_EXTRACT_AND_RUN=1
