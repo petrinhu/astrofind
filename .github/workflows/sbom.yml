@@ -1,0 +1,89 @@
+name: SBOM (syft + FetchContent)
+
+# AUD-SEC-9: publish a Software Bill of Materials on every push/PR.
+#   - syft catalogs the source tree (GitHub Actions used by the workflows and
+#     any package-manager manifest that appears later), SPDX + CycloneDX.
+#   - scripts/fetchcontent-sbom.py lists what syft cannot see: the C/C++
+#     libraries CMake FetchContent compiles into the binary (pinned SHAs from
+#     cmake/dependencies.cmake) and the CCfits tarball bundled in originals/.
+# System libraries (Qt6, cfitsio, FFTW3, libarchive, LibRaw) come from the
+# distro package manager; NOTICE lists them with their licenses.
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SYFT_VERSION: "1.52.0"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  sbom:
+    name: SBOM · syft + FetchContent pins
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned version; the tarball is verified against the checksums file
+      # published with that same release before it is executed (same pattern
+      # as gitleaks in secret-scan.yml).
+      - name: Install syft ${{ env.SYFT_VERSION }}
+        run: |
+          set -euo pipefail
+          base="https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}"
+          tarball="syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+          cd "$RUNNER_TEMP"
+          curl -fsSLO "${base}/${tarball}"
+          curl -fsSLO "${base}/syft_${SYFT_VERSION}_checksums.txt"
+          grep " ${tarball}\$" "syft_${SYFT_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "${tarball}" syft
+          sudo install -m 0755 syft /usr/local/bin/syft
+          syft version
+
+      - name: Generate SBOMs
+        run: |
+          set -euo pipefail
+          mkdir -p sbom
+          syft dir:. --source-name astrofind \
+            -o spdx-json=sbom/astrofind-source.spdx.json \
+            -o cyclonedx-json=sbom/astrofind-source.cdx.json
+          python3 scripts/fetchcontent-sbom.py > sbom/astrofind-fetchcontent.cdx.json
+          # Fail if the FetchContent SBOM came out empty or malformed.
+          python3 -c "import json,sys; b=json.load(open('sbom/astrofind-fetchcontent.cdx.json')); sys.exit(0 if b['components'] else 1)"
+          ls -l sbom/
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom/
+          if-no-files-found: error
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "### SBOM"
+            echo ""
+            if [ -f sbom/astrofind-fetchcontent.cdx.json ]; then
+              echo "| Component | Version | Pinned to commit |"
+              echo "|---|---|---|"
+              python3 - <<'PY'
+          import json
+          b = json.load(open("sbom/astrofind-fetchcontent.cdx.json"))
+          for c in b["components"]:
+              props = {p["name"]: p["value"] for p in c.get("properties", [])}
+              pinned = props.get("astrofind:pinned-to-commit", "n/a (bundled tarball)")
+              print(f"| {c['name']} | {c['version']} | {pinned} |")
+          PY
+            else
+              echo "FetchContent SBOM not generated."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

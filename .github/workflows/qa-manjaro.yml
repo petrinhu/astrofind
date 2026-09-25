@@ -47,6 +47,9 @@ on:
     branches: [ main ]
   workflow_dispatch:        # allow manual trigger from GitHub Actions UI
 
+permissions:
+  contents: read
+
 env:
   # actions/checkout and actions/cache ship Node.js 20 in their v4 releases.
   # GitHub will force Node.js 24 as the default from 2026-06-02.
@@ -216,6 +219,7 @@ jobs:
       # photometry, calibration, stacking, MOD, ADES generation, etc.
       # No display is required.
       - name: "🧪  Core unit tests (116 cases, no display required)"
+        id: core_tests
         run: |
           echo "── Running astrofind_tests ─────────────────────────────────────"
           echo "   Reporter: console (full output for each test case)"
@@ -228,6 +232,7 @@ jobs:
       # plugin — no X11/Wayland display server is needed.
       # QT_QPA_PLATFORM=offscreen is the standard headless Qt testing approach.
       - name: "🖼️   UI integration tests (23 cases, offscreen platform)"
+        id: ui_tests
         env:
           QT_QPA_PLATFORM: offscreen
           # Suppress Qt debug output about missing fonts in headless environment
@@ -256,3 +261,18 @@ jobs:
           echo "Artifacts:"
           ls -lh build/bin/ 2>/dev/null || echo "  (build directory not found)"
           echo ""
+
+      # ── Job summary (AUD-CI-8) ───────────────────────────────────────────────
+      - name: "📝  Job summary"
+        if: always()
+        run: |
+          {
+            echo "### ${{ github.workflow }}"
+            echo ""
+            echo "| Step | Result |"
+            echo "|---|---|"
+            echo "| Core unit tests | ${{ steps.core_tests.outcome }} |"
+            echo "| UI tests | ${{ steps.ui_tests.outcome }} |"
+            echo ""
+            echo "Runner OS: $(grep PRETTY_NAME /etc/os-release | cut -d= -f2)"
+          } >> "$GITHUB_STEP_SUMMARY"
