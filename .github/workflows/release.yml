@@ -30,6 +30,12 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+# Container jobs default to `sh` (dash on Debian/Ubuntu), which has no
+# `set -o pipefail`; every image used here ships bash.
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
