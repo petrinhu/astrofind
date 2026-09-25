@@ -228,8 +228,9 @@ placa.
 > computes known asteroids from the **offline** MPCORB file, whose orbits use TT. The online
 > SkyBoT service takes UTC directly. **Leave ΔT at its default** (68 s).
 > **Version 1.1.0 and earlier** added ΔT (and Time Offset) to every image time on each Data
-> Reduction, so `obsTime` came out about 68 s late (bug **AUD-CORR-15**). If you are still on
-> 1.1.0: set **ΔT (TT − UTC):** and **Time Offset:** to **0** *before* the first Data
+> Reduction, so `obsTime` came out about 68 s late (bug **AUD-CORR-15**). If you still run a
+> build of the 1.1.0 source (never published as a release) or an older version:
+> set **ΔT (TT − UTC):** and **Time Offset:** to **0** *before* the first Data
 > Reduction, and reload the images if you already ran it. Version 1.2.0
 > does not need this. See [Advanced](https://github.com/petrinhu/astrofind/wiki/Advanced) for details.
 >
@@ -240,7 +241,8 @@ placa.
 > padrão** (68 s).
 > **Na versão 1.1.0 e anteriores** a Redução de Dados somava o ΔT (e o Deslocamento de tempo)
 > ao horário de cada imagem a cada execução, e o `obsTime` saía cerca de 68 s atrasado (bug
-> **AUD-CORR-15**). Se ainda usa a 1.1.0: ponha **ΔT (TT − UTC):** e **Deslocamento de
+> **AUD-CORR-15**). Se ainda usa um build do código da 1.1.0 (nunca publicada como
+> release) ou uma versão mais antiga: ponha **ΔT (TT − UTC):** e **Deslocamento de
 > tempo:** em **0** *antes* da primeira Redução de Dados, e recarregue as imagens se já rodou.
 > A versão 1.2.0 não precisa disso. Detalhes em
 > [Avançado](https://github.com/petrinhu/astrofind/wiki/Advanced).

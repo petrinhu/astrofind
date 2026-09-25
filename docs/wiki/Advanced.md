@@ -592,8 +592,9 @@ before you submit anything. Version 1.1.0 had time-handling traps that version
 > ⚠️ **Version 1.1.0 and earlier (AUD-CORR-15).** There, Run Data Reduction added ΔT (68 s) and
 > Time Offset to the JD **on every run**, and the report still labelled the result UTC, so
 > `obsTime` came out about 68 s late (more after each re-run). Time Offset was also auto-filled
-> with *longitude / 15* (hours, then read as seconds; longitude −35° gave −2.3 s). If you are
-> still on 1.1.0: set **ΔT** and **Time Offset** to `0` before the first Run Data Reduction, run it
+> with *longitude / 15* (hours, then read as seconds; longitude −35° gave −2.3 s). If you still
+> run a build of the 1.1.0 source (never published as a release) or an older version:
+> set **ΔT** and **Time Offset** to `0` before the first Run Data Reduction, run it
 > only once per loaded session, and reload the images if you already ran it.
 
 **Recommended procedure:**
@@ -682,7 +683,8 @@ versão 1.2.0 corrige; uma nota abaixo diz o que mudou.*
 > e o Deslocamento de tempo ao JD **a cada execução**, e o relatório ainda marcava o resultado
 > como UTC, então o `obsTime` saía cerca de 68 s atrasado (mais a cada nova execução). O
 > Deslocamento de tempo também era preenchido sozinho com *longitude / 15* (horas, lidas depois
-> como segundos; longitude −35° dava −2,3 s). Se ainda usa a 1.1.0: ponha **ΔT** e
+> como segundos; longitude −35° dava −2,3 s). Se ainda usa um build do código da 1.1.0 (nunca publicada
+> como release) ou uma versão mais antiga: ponha **ΔT** e
 > **Deslocamento de tempo** em `0` antes da primeira Redução de Dados, rode só uma vez por
 > sessão carregada e recarregue as imagens se já rodou.
 

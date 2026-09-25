@@ -27,6 +27,19 @@ primeiro.
 
 ### Fixed / Corrigido
 
+- **Airmass near the horizon / Massa de ar perto do horizonte.** 🇬🇧 The Pickering (2002)
+  formula used the exponent 2.575 instead of 1.1: airmass was right within 1% above 20° but
+  about 3% high at 10° and 9% at 5°, which skewed the extinction correction of low targets.
+  🇧🇷 A fórmula de Pickering (2002) usava o expoente 2,575 em vez de 1,1: a massa de ar ficava
+  certa em até 1% acima de 20°, mas cerca de 3% alta a 10° e 9% a 5°, o que distorcia a
+  correção de extinção de alvos baixos.
+- **Report time precision / Precisão do horário no relatório.** 🇬🇧 With "Time Precision: 1"
+  the ADES `obsTime` could carry three decimals (Qt 6's `z` format), and the fraction was cut
+  instead of rounded (59.96 s at 0 decimals gave `:59`). It now has exactly the chosen number
+  of decimals, rounded, with the carry into minutes/hours. 🇧🇷 Com "Precisão de tempo: 1" o
+  `obsTime` do ADES podia sair com três casas (formato `z` do Qt 6), e a fração era cortada em
+  vez de arredondada (59,96 s com 0 casas dava `:59`). Agora tem exatamente o número de casas
+  escolhido, arredondado, levando o "vai um" para minutos/horas.
 - **Refraction on plate-solved positions / Refração em posições com solução astrométrica
   (AUD-CORR-7).** 🇬🇧 Bennett refraction is no longer added to RA/Dec that come from a
   catalog plate solution (the fit already absorbs it; applying it again double-corrected,

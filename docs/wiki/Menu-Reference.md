@@ -647,12 +647,14 @@ foco do teclado (clique nela antes).
 > do **nothing**: `Ctrl+L` (Import Images and Light Curve) and `Ctrl+Shift+T` (the Window menu
 > item and the toolbar theme button). Version 1.2.0 fixes both: Light Curve
 > moved to `Ctrl+Shift+L`, and `Ctrl+Shift+T` belongs only to the toolbar theme button. If you
-> are still on 1.1.0, use the menu entries or the toolbar buttons instead.
+> still run a build of the 1.1.0 source (never published as a release) or an older version,
+> use the menu entries or the toolbar buttons instead.
 >
 > 🇧🇷 Na 1.1.0 e anteriores duas teclas estavam em duas ações ao mesmo tempo, e apertá-las
 > podia não fazer **nada**: `Ctrl+L` (Importar Imagens e Curva de Luz) e `Ctrl+Shift+T` (o item
 > do menu Janela e o botão de tema da barra). A versão 1.2.0 corrige as
 > duas: a Curva de Luz passou para `Ctrl+Shift+L`, e o `Ctrl+Shift+T` é só do botão de tema da
-> barra. Se ainda usa a 1.1.0, use os itens de menu ou os botões da barra.
+> barra. Se ainda usa um build do código da 1.1.0 (nunca publicada como
+> release) ou uma versão mais antiga, use os itens de menu ou os botões da barra.
 
 See also / Veja também: [Settings](https://github.com/petrinhu/astrofind/wiki/Settings), [Manual](https://github.com/petrinhu/astrofind/wiki/Manual), [Tutorial](https://github.com/petrinhu/astrofind/wiki/Tutorial), [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting), [FAQ](https://github.com/petrinhu/astrofind/wiki/FAQ).

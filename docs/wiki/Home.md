@@ -265,8 +265,8 @@ Version 1.2.0 was released on 2026-09-25. It fixes the problems found in a full 
 - **AstroFind's own menu wording.** Menu texts that had been copied from Astrometrica were
   rewritten; shortcuts and behaviour are unchanged.
 - **Ready-made packages** for Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (and Mint 22,
-  Pop!_OS 24.04, Zorin OS 18), Debian 12 and 13, and Arch/Manjaro, plus an **AppImage** for
-  other distributions (see [Installation](https://github.com/petrinhu/astrofind/wiki/Installation)).
+  Pop!_OS 24.04, Zorin OS 18), Debian 13, and Arch/Manjaro, plus an **AppImage** for Debian 12
+  and other distributions (see [Installation](https://github.com/petrinhu/astrofind/wiki/Installation)).
   A list of all components (SBOM) is now generated automatically, and the packages include
   the full license texts.
 
@@ -296,8 +296,8 @@ código da 1.1.0; a maioria afeta os números que você envia ao MPC, por isso v
 - **Textos de menu próprios do AstroFind.** Os textos de menu que tinham sido copiados do
   Astrometrica foram reescritos; atalhos e comportamento não mudaram.
 - **Pacotes prontos** para Fedora, Rocky/RHEL 9, openSUSE, Ubuntu 24.04 (e Mint 22,
-  Pop!_OS 24.04, Zorin OS 18), Debian 12 e 13, e Arch/Manjaro, mais um **AppImage** para as
-  outras distribuições (veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation)).
+  Pop!_OS 24.04, Zorin OS 18), Debian 13, e Arch/Manjaro, mais um **AppImage** para o Debian 12
+  e as outras distribuições (veja [Instalação](https://github.com/petrinhu/astrofind/wiki/Installation)).
   Uma lista de todos os componentes (SBOM) agora é gerada automaticamente, e os pacotes
   incluem os textos completos das licenças.
 

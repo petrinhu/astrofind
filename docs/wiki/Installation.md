@@ -672,13 +672,14 @@ has the code as `astrofind-1.2.0-source.tar.gz`.
 
 ```bash
 sudo zypper install -y \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf \
     qt6-base-devel qt6-charts-devel \
     qt6-opengl-devel \
     cfitsio-devel fftw3-devel
 ```
 
-(Installs CMake, the build organiser; `gcc-c++`, the C++ compiler; and the Qt 6, FITS and FFT
+(Installs CMake, the build organiser; `gcc-c++`, the C++ compiler; `git` and `pkgconf`, which the
+build uses to fetch helper libraries and to find FFTW; and the Qt 6, FITS and FFT
 libraries in their `-devel` form, the version used for compiling. The `\` at the end of a line
 just means "the command continues on the next line": paste the whole block at once.)
 
@@ -741,13 +742,14 @@ também traz o código como `astrofind-1.2.0-source.tar.gz`.
 
 ```bash
 sudo zypper install -y \
-    cmake gcc-c++ \
+    cmake gcc-c++ git pkgconf \
     qt6-base-devel qt6-charts-devel \
     qt6-opengl-devel \
     cfitsio-devel fftw3-devel
 ```
 
-(Instala o CMake, o organizador da compilação; o `gcc-c++`, o compilador C++; e as bibliotecas
+(Instala o CMake, o organizador da compilação; o `gcc-c++`, o compilador C++; o `git` e o
+`pkgconf`, que a compilação usa para buscar bibliotecas auxiliares e achar a FFTW; e as bibliotecas
 Qt 6, FITS e FFT na forma `-devel`, a versão usada para compilar. A `\` no fim da linha só quer
 dizer "o comando continua na próxima linha": cole o bloco inteiro de uma vez.)
 

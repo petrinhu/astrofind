@@ -324,7 +324,7 @@ beginners, with a menu and settings reference.
 
 ### 🇧🇷 Português
 
-O painel **Fluxo** à esquerda conduz pelos mesmos seis passos:
+O painel **Fluxo de Trabalho** à esquerda conduz pelos mesmos seis passos:
 
 1. **Arquivo → Importar Imagens…**: abra 3 ou mais quadros do mesmo campo (FITS, ou qualquer
    formato em [Recursos](#features--recursos); **FITS** = Flexible Image Transport System, o

@@ -56,6 +56,24 @@ TEST_CASE("jdToIso8601 - decimal places", "[ades]")
     CHECK(core::jdToIso8601(jd, 3).contains(".000Z"));
 }
 
+// Qt 6 "z" prints the milliseconds without trailing zeros (1 to 3 digits),
+// so "Time Precision: 1" could produce three decimals; and the fraction was
+// truncated, not rounded. Unix epoch + 0.456 s and + 59.96 s:
+TEST_CASE("jdToIso8601 - exact number of decimals and rounding", "[ades]")
+{
+    const double t1 = 2440587.5 + 0.456 / 86400.0;
+    CHECK(core::jdToIso8601(t1, 0).toStdString() == "1970-01-01T00:00:00Z");
+    CHECK(core::jdToIso8601(t1, 1).toStdString() == "1970-01-01T00:00:00.5Z");
+    CHECK(core::jdToIso8601(t1, 2).toStdString() == "1970-01-01T00:00:00.46Z");
+    CHECK(core::jdToIso8601(t1, 3).toStdString() == "1970-01-01T00:00:00.456Z");
+
+    // Rounding carries into the next minute.
+    const double t2 = 2440587.5 + 59.96 / 86400.0;
+    CHECK(core::jdToIso8601(t2, 0).toStdString() == "1970-01-01T00:01:00Z");
+    CHECK(core::jdToIso8601(t2, 1).toStdString() == "1970-01-01T00:01:00.0Z");
+    CHECK(core::jdToIso8601(t2, 2).toStdString() == "1970-01-01T00:00:59.96Z");
+}
+
 // ── generateAdesXml ───────────────────────────────────────────────────────────
 
 TEST_CASE("generateAdesXml - well-formed XML structure", "[ades]")

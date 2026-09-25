@@ -46,8 +46,9 @@ double computeAirmass(double ra_deg, double dec_deg, double jd,
 
     if (alt_deg <= 0.0) return 0.0;
 
-    // Pickering (2002): X = 1 / sin(alt + 244 / (165 + 47·alt^2.575))
-    const double x = alt_deg + 244.0 / (165.0 + 47.0 * std::pow(alt_deg, 2.575));
+    // Pickering (2002), DIO 12: X = 1 / sin(alt + 244 / (165 + 47·alt^1.1)).
+    // (The exponent was mistyped as 2.575, which only mattered below ~20°.)
+    const double x = alt_deg + 244.0 / (165.0 + 47.0 * std::pow(alt_deg, 1.1));
     return 1.0 / std::sin(x * M_PI / 180.0);
 }
 

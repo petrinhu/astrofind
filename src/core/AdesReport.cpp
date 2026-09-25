@@ -8,28 +8,32 @@
 #include <QTimeZone>
 #include <QMap>
 
+#include <algorithm>
+#include <cmath>
+
 namespace core {
 
 // ─── jdToIso8601 ─────────────────────────────────────────────────────────────
 
 QString jdToIso8601(double jd, int decimalPlaces)
 {
-    // Unix epoch = JD 2440587.5
-    const double unixSec  = (jd - 2440587.5) * 86400.0;
-    const qint64 unixMs   = static_cast<qint64>(std::round(unixSec * 1000.0));
-    const QDateTime dt    = QDateTime::fromMSecsSinceEpoch(unixMs, QTimeZone(0));
-
+    // Round to the requested precision FIRST, in whole milliseconds, so a
+    // carry propagates into seconds/minutes/days (59.96 s at 1 decimal is
+    // 01:00.0, not 00:59.9), then print exactly `dp` decimals. Qt 6's "z"
+    // prints 1-3 digits without trailing zeros, so it is not used: "zzz" is
+    // always 3 digits and is cut to `dp`.
     const int dp = std::clamp(decimalPlaces, 0, 3);
-    QString fmt = QStringLiteral("yyyy-MM-ddTHH:mm:ss");
-    if (dp == 1) fmt += QStringLiteral(".z");   // tenths
-    else if (dp == 2) fmt += QStringLiteral(".zzz");  // will trim below // NOLINT(bugprone-branch-clone)
-    else if (dp == 3) fmt += QStringLiteral(".zzz");  // milliseconds
+    static constexpr qint64 kStepMs[] = {1000, 100, 10, 1};
+    const qint64 step = kStepMs[dp];
 
-    QString result = dt.toString(fmt);
+    // Unix epoch = JD 2440587.5
+    const double unixMs = (jd - 2440587.5) * 86400000.0;
+    const qint64 roundedMs = static_cast<qint64>(std::llround(unixMs / static_cast<double>(step))) * step;
+    const QDateTime dt = QDateTime::fromMSecsSinceEpoch(roundedMs, QTimeZone(0));
 
-    // Qt's "zzz" always gives 3 digits; trim to 2 if dp==2
-    if (dp == 2 && result.contains(QLatin1Char('.')))
-        result.chop(1);
+    QString result = dt.toString(QStringLiteral("yyyy-MM-ddTHH:mm:ss"));
+    if (dp > 0)
+        result += QLatin1Char('.') + dt.toString(QStringLiteral("zzz")).left(dp);
 
     return result + QLatin1Char('Z');
 }

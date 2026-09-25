@@ -1171,7 +1171,7 @@ overhead, higher near the horizon). AstroFind uses the Pickering (2002) formula 
 every altitude, with the altitude $a$ in degrees:
 
 $$
-X = \frac{1}{\sin\!\left(a + \dfrac{244}{165 + 47\,a^{2.575}}\right)}
+X = \frac{1}{\sin\!\left(a + \dfrac{244}{165 + 47\,a^{1.1}}\right)}
 $$
 
 where $a$ is the geometric (unrefracted) altitude computed below; the angle inside the
@@ -1179,9 +1179,9 @@ sine is in degrees. Near the zenith this reduces to the plane-parallel $X = \sec
 1/\sin a$; at the horizon it stays finite ($X \approx 38$). For $a \le 0$ the function
 returns 0 (below the horizon) and no extinction correction is applied.
 
-> **Note:** the exponent in the code (`Astronomy.cpp`, `computeAirmass`) is 2.575; the
-> exponent published by Pickering (2002) is 1.1. The two agree within 1% above 20° altitude
-> and differ by about 3% at 10° and 9% at 5°.
+> **Note:** up to 1.1.0 the code used the exponent 2.575 instead of Pickering's 1.1. The two
+> agree within 1% above 20° altitude but differ by about 3% at 10° and 9% at 5°, so
+> extinction-corrected magnitudes of low targets were affected; 1.2.0 uses 1.1.
 
 The altitude is computed from the hour angle $H$, declination $\delta$, and
 observer latitude $\varphi$:
@@ -1197,7 +1197,7 @@ maior perto do horizonte). O AstroFind usa a fórmula de Pickering (2002) em qua
 altitude, com a altitude $a$ em graus:
 
 $$
-X = \frac{1}{\sin\!\left(a + \dfrac{244}{165 + 47\,a^{2.575}}\right)}
+X = \frac{1}{\sin\!\left(a + \dfrac{244}{165 + 47\,a^{1.1}}\right)}
 $$
 
 onde $a$ é a altitude geométrica (sem refração) calculada abaixo; o ângulo dentro do
@@ -1205,9 +1205,9 @@ seno está em graus. Perto do zênite isso se reduz à plano-paralela $X = \sec 
 1/\sin a$; no horizonte continua finita ($X \approx 38$). Para $a \le 0$ a função
 retorna 0 (abaixo do horizonte) e nenhuma correção de extinção é aplicada.
 
-> **Nota:** o expoente no código (`Astronomy.cpp`, `computeAirmass`) é 2,575; o expoente
-> publicado por Pickering (2002) é 1,1. Os dois concordam em até 1% acima de 20° de altitude
-> e diferem cerca de 3% a 10° e 9% a 5°.
+> **Nota:** até a 1.1.0 o código usava o expoente 2,575 em vez do 1,1 de Pickering. Os dois
+> concordam em até 1% acima de 20° de altitude, mas diferem cerca de 3% a 10° e 9% a 5°, então
+> as magnitudes corrigidas de extinção de alvos baixos eram afetadas; a 1.2.0 usa 1,1.
 
 A altitude é calculada a partir do ângulo horário $H$, declinação $\delta$, e
 latitude do observador $\varphi$:
@@ -1484,39 +1484,44 @@ então a correlação é circular.
 
 ### 🇬🇧 English
 
-For each pixel $(i, j)$ across a stack of $N$ calibrated frames:
+The correction works on **one image at a time** (`applyBadPixelCorrection`, run in
+Data Reduction when the checkbox "Corrigir pixels ruins automaticamente" is on):
 
-1. Compute the local median $\tilde{p}$ and MAD (Median Absolute Deviation)
-   $= \text{median}(|p_k - \tilde{p}|)$.
-2. The normalised deviation is $s = |p_k - \tilde{p}| / (1.4826 \cdot \text{MAD})$.
-3. Pixels with $s > \sigma_\text{threshold}$ (default $\sigma = 5$) are flagged.
-4. Flagged pixels are replaced by bilinear interpolation from the 4 nearest valid
-   neighbours:
+1. For each pixel, compute the median $\tilde{p}_{i,j}$ of its 3×3 neighbourhood
+   (itself included; edges are clamped) and the difference
+   $d_{i,j} = p_{i,j} - \tilde{p}_{i,j}$.
+2. Estimate the image noise from the MAD (Median Absolute Deviation) of **all**
+   differences: $\sigma_\text{noise} = 1.4826 \cdot \text{median}(|d|)$. If the MAD is 0
+   (uniform image), nothing is done.
+3. Pixels with $|d_{i,j}| > k\,\sigma_\text{noise}$ are flagged, where $k$ is
+   **Settings → Camera → Bad Pixel Correction** (`camera/badPixelSigma`, default 5, range 2–15).
+4. Each flagged pixel is replaced by the **median of its non-flagged 3×3 neighbours**
+   (up to 8). If all its neighbours are flagged too, it is left unchanged:
 
 $$
-p_{i,j} = \frac{w_{+x}\,p_{i+1,j} + w_{-x}\,p_{i-1,j} + w_{+y}\,p_{i,j+1} + w_{-y}\,p_{i,j-1}}
-               {w_{+x} + w_{-x} + w_{+y} + w_{-y}}
+p_{i,j} \leftarrow \text{median}\{\,p_{i+u,\,j+v} : (u,v) \ne (0,0),\ |u|,|v| \le 1,\ \text{not flagged}\,\}
 $$
-
-where weights are 1 for valid pixels, 0 for flagged ones.
 
 ### 🇧🇷 Português
 
-Para cada pixel $(i, j)$ ao longo de uma pilha de $N$ frames calibrados:
+A correção trabalha em **uma imagem por vez** (`applyBadPixelCorrection`, rodada na
+Redução de Dados quando "Corrigir pixels ruins automaticamente" está ligado):
 
-1. Calcular a mediana local $\tilde{p}$ e o MAD (Desvio Absoluto Mediano)
-   $= \text{median}(|p_k - \tilde{p}|)$.
-2. O desvio normalizado é $s = |p_k - \tilde{p}| / (1.4826 \cdot \text{MAD})$.
-3. Pixels com $s > \sigma_\text{threshold}$ (padrão $\sigma = 5$) são marcados.
-4. Pixels marcados são substituídos por interpolação bilinear a partir dos 4
-   vizinhos válidos mais próximos:
+1. Para cada pixel, calcular a mediana $\tilde{p}_{i,j}$ da vizinhança 3×3 (incluindo
+   o próprio pixel; nas bordas os índices são limitados) e a diferença
+   $d_{i,j} = p_{i,j} - \tilde{p}_{i,j}$.
+2. Estimar o ruído da imagem pelo MAD (Desvio Absoluto Mediano) de **todas** as
+   diferenças: $\sigma_\text{ruído} = 1{,}4826 \cdot \text{mediana}(|d|)$. Se o MAD for 0
+   (imagem uniforme), nada é feito.
+3. Pixels com $|d_{i,j}| > k\,\sigma_\text{ruído}$ são marcados, onde $k$ vem de
+   **Configurações → Câmera → Correção de Pixels Ruins** (`camera/badPixelSigma`, padrão 5,
+   faixa 2–15).
+4. Cada pixel marcado é substituído pela **mediana dos vizinhos 3×3 não marcados**
+   (até 8). Se todos os vizinhos também estão marcados, ele fica como está:
 
 $$
-p_{i,j} = \frac{w_{+x}\,p_{i+1,j} + w_{-x}\,p_{i-1,j} + w_{+y}\,p_{i,j+1} + w_{-y}\,p_{i,j-1}}
-               {w_{+x} + w_{-x} + w_{+y} + w_{-y}}
+p_{i,j} \leftarrow \text{mediana}\{\,p_{i+u,\,j+v} : (u,v) \ne (0,0),\ |u|,|v| \le 1,\ \text{não marcado}\,\}
 $$
-
-onde os pesos são 1 para pixels válidos, 0 para os marcados.
 
 ---
 
@@ -1533,11 +1538,13 @@ $$
 e = a / b
 $$
 
-Sources with $e > e_\text{threshold}$ (default 4.0) are classified as
+Sources with $e \ge e_\text{threshold}$ (and $b > 0.1$ px) are classified as
 streaks/trails (long elongated blobs, typical of a fast-moving asteroid or
-satellite crossing the frame during the exposure) and shown with a dashed-line
-overlay. Their position angle $\theta_\text{PA}$ is stored in the measurement
-record for archival purposes.
+satellite crossing the frame during the exposure). The threshold is
+**Settings → Detection → Streak threshold (a/b):** (`detection/streakElongation`,
+default 3.0, range 1.5–20; `StarDetectorConfig::streakMinElongation`, where 0
+disables the flag). Streaks are drawn as an orange ellipse rotated by the SEP
+position angle $\theta$, with a direction tick.
 
 The second moments from SEP:
 
@@ -1562,11 +1569,13 @@ $$
 e = a / b
 $$
 
-Fontes com $e > e_\text{threshold}$ (padrão 4,0) são classificadas como
+Fontes com $e \ge e_\text{threshold}$ (e $b > 0{,}1$ px) são classificadas como
 traços/rastros (blobs longos e alongados, típicos de um asteroide ou satélite se
-movendo rápido pelo campo durante a exposição) e mostradas com um overlay de
-linha tracejada. O ângulo de posição $\theta_\text{PA}$ é armazenado no registro
-de medição para fins de arquivo.
+movendo rápido pelo campo durante a exposição). O limiar é
+**Configurações → Detecção → Limiar de traço (a/b):** (`detection/streakElongation`,
+padrão 3,0, faixa 1,5–20; `StarDetectorConfig::streakMinElongation`, onde 0 desliga a
+marcação). Os traços são desenhados como uma elipse laranja girada pelo ângulo de
+posição $\theta$ do SEP, com um traço indicando a direção.
 
 Os momentos de segunda ordem do SEP:
 
@@ -1735,39 +1744,48 @@ $$
 "ADES" = Astrometry Data Exchange Standard, the format the Minor Planet Center
 (MPC) uses to receive asteroid position reports.
 
-**ADES 2017 XML Structure:**
+**ADES 2022 XML structure** (what `generateAdesXml` writes; `obsTime` has "Time Precision:" decimals, 1 by default):
 
 ```xml
-<ades version="2017">
+<ades version="2022">
   <obsBlock>
     <obsContext>
       <observatory>
         <mpcCode>T05</mpcCode>
       </observatory>
-      <submitter><name>Smith, J.</name></submitter>
-      <observers><name>Smith, J.</name></observers>
-      <measurers><name>Smith, J.</name></measurers>
+      <submitter>
+        <name>Smith, J.</name>
+      </submitter>
+      <observers>
+        <name>Smith, J.</name>
+      </observers>
+      <measurers>
+        <name>Smith, J.</name>
+      </measurers>
       <telescope>
-        <design>Reflector</design>
-        <aperture>0.40</aperture>
-        <fRatio>8</fRatio>
-        <detector>CMOS</detector>
+        <name>0.40-m f/8 reflector + CMOS</name>
       </telescope>
+      <software>
+        <product>AstroFind</product>
+      </software>
     </obsContext>
     <obsData>
       <optical>
         <trkSub>2024ABC</trkSub>
         <mode>CCD</mode>
         <stn>T05</stn>
-        <obsTime>2024-03-15T22:14:37.50Z</obsTime>
-        <ra>185.4321</ra>
-        <dec>+12.3456</dec>
-        <rmsRA>0.15</rmsRA>
-        <rmsDec>0.15</rmsDec>
-        <mag>18.4</mag>
-        <band>V</band>
+        <obsTime>2024-03-15T22:14:37.5Z</obsTime>
+        <ra>185.432100000</ra>
+        <dec>12.345600000</dec>
         <sys>ICRF</sys>
-        <ctr>399</ctr>
+        <rmsRA>0.150</rmsRA>
+        <rmsDec>0.150</rmsDec>
+        <rmsCorr>0.0000</rmsCorr>
+        <astCat>UCAC4</astCat>
+        <mag>18.40</mag>
+        <rmsMag>0.30</rmsMag>
+        <band>V</band>
+        <photCat>UCAC4</photCat>
       </optical>
     </obsData>
   </obsBlock>
@@ -1784,16 +1802,17 @@ precession/nutation step to the exported RA/Dec, those are only logged
 AstroFind can apply explicitly, but only when `shouldApplyRefraction()`
 (AUD-CORR-7) says the position was **not** derived from a catalog plate
 solution (in practice, not for a typical measured position, since those come
-from a plate solution). The `<ctr>399</ctr>` tag is the NAIF body code for
-Earth (NAIF = the numbering scheme JPL uses to identify solar-system bodies).
+from a plate solution).
 
 **PSV Format:**
 
-Pipe-Separated Values, one observation per line:
+Pipe-Separated Values: a `# version=2022` line, a header line, then one observation
+per line (empty fields are left blank):
 
 ```
-permID |provID |trkSub|mode|stn|obsTime                |ra        |dec      |rmsRA|rmsDec|mag|rmsMag|band|sys |ctr
-       |       |A001  |CCD |T05|2024-03-15T22:14:37.50Z|185.432100|+12.34560|0.15 |0.15  |18.4|0.3  |V   |ICRF|399
+# version=2022
+permID|provID|trkSub|mode|stn|obsTime|ra|dec|sys|rmsRA|rmsDec|astCat|mag|rmsMag|band|photCat|notes|observers|measurers|telescope
+||2024ABC|CCD|T05|2024-03-15T22:14:37.5Z|185.432100000|12.345600000|ICRF|0.150|0.150|UCAC4|18.40|0.30|V|UCAC4||Smith, J.|Smith, J.|0.40-m f/8 reflector + CMOS
 ```
 
 ### 🇧🇷 Português
@@ -1802,39 +1821,48 @@ permID |provID |trkSub|mode|stn|obsTime                |ra        |dec      |rms
 Astrometria), o formato que o Minor Planet Center (MPC) usa para receber
 relatórios de posição de asteroides.
 
-**Estrutura XML ADES 2017:**
+**Estrutura XML ADES 2022** (o que o `generateAdesXml` grava; o `obsTime` tem as casas decimais de "Precisão de tempo:", 1 por padrão):
 
 ```xml
-<ades version="2017">
+<ades version="2022">
   <obsBlock>
     <obsContext>
       <observatory>
         <mpcCode>T05</mpcCode>
       </observatory>
-      <submitter><name>Smith, J.</name></submitter>
-      <observers><name>Smith, J.</name></observers>
-      <measurers><name>Smith, J.</name></measurers>
+      <submitter>
+        <name>Smith, J.</name>
+      </submitter>
+      <observers>
+        <name>Smith, J.</name>
+      </observers>
+      <measurers>
+        <name>Smith, J.</name>
+      </measurers>
       <telescope>
-        <design>Reflector</design>
-        <aperture>0.40</aperture>
-        <fRatio>8</fRatio>
-        <detector>CMOS</detector>
+        <name>0.40-m f/8 reflector + CMOS</name>
       </telescope>
+      <software>
+        <product>AstroFind</product>
+      </software>
     </obsContext>
     <obsData>
       <optical>
         <trkSub>2024ABC</trkSub>
         <mode>CCD</mode>
         <stn>T05</stn>
-        <obsTime>2024-03-15T22:14:37.50Z</obsTime>
-        <ra>185.4321</ra>
-        <dec>+12.3456</dec>
-        <rmsRA>0.15</rmsRA>
-        <rmsDec>0.15</rmsDec>
-        <mag>18.4</mag>
-        <band>V</band>
+        <obsTime>2024-03-15T22:14:37.5Z</obsTime>
+        <ra>185.432100000</ra>
+        <dec>12.345600000</dec>
         <sys>ICRF</sys>
-        <ctr>399</ctr>
+        <rmsRA>0.150</rmsRA>
+        <rmsDec>0.150</rmsDec>
+        <rmsCorr>0.0000</rmsCorr>
+        <astCat>UCAC4</astCat>
+        <mag>18.40</mag>
+        <rmsMag>0.30</rmsMag>
+        <band>V</band>
+        <photCat>UCAC4</photCat>
       </optical>
     </obsData>
   </obsBlock>
@@ -1851,17 +1879,17 @@ precessão/nutação ao RA/Dec exportado, elas só são registradas em log (§7,
 que o AstroFind pode aplicar explicitamente, mas só quando
 `shouldApplyRefraction()` (AUD-CORR-7) diz que a posição **não** veio de uma
 solução de plate-solve por catálogo, na prática, não para uma posição medida
-típica, já que estas vêm de uma solução de plate-solve. A tag `<ctr>399</ctr>`
-é o código de corpo NAIF para a Terra (NAIF = o esquema de numeração que o JPL
-usa para identificar corpos do Sistema Solar).
+típica, já que estas vêm de uma solução de plate-solve.
 
 **Formato PSV:**
 
-Pipe-Separated Values (Valores Separados por Pipe), uma observação por linha:
+Pipe-Separated Values (Valores Separados por Pipe): uma linha `# version=2022`, uma
+linha de cabeçalho e depois uma observação por linha (campos vazios ficam em branco):
 
 ```
-permID |provID |trkSub|mode|stn|obsTime                |ra        |dec      |rmsRA|rmsDec|mag|rmsMag|band|sys |ctr
-       |       |A001  |CCD |T05|2024-03-15T22:14:37.50Z|185.432100|+12.34560|0.15 |0.15  |18.4|0.3  |V   |ICRF|399
+# version=2022
+permID|provID|trkSub|mode|stn|obsTime|ra|dec|sys|rmsRA|rmsDec|astCat|mag|rmsMag|band|photCat|notes|observers|measurers|telescope
+||2024ABC|CCD|T05|2024-03-15T22:14:37.5Z|185.432100000|12.345600000|ICRF|0.150|0.150|UCAC4|18.40|0.30|V|UCAC4||Smith, J.|Smith, J.|0.40-m f/8 reflector + CMOS
 ```
 
 ---

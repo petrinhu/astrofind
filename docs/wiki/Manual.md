@@ -779,7 +779,9 @@ no relatório ADES**).
 🇬🇧 **English**
 
 The time in your report is the **middle of the exposure**. AstroFind uses the `JD` keyword if
-present, otherwise `DATE-OBS` + half of `EXPTIME`.
+present, otherwise `MJD-OBS` + half of `EXPTIME`, otherwise `DATE-OBS` + half of `EXPTIME`
+(when both `MJD-OBS` and `DATE-OBS` exist and differ by more than 1 s, the Log warns and
+`MJD-OBS` is used).
 
 **The "ambiguous time" warning.** A FITS `DATE-OBS` ending in `Z`, with a `±HH:MM` offset, or
 with `TIMESYS = 'UTC'` is clear. Without any of those, AstroFind *assumes* UTC and logs
@@ -821,7 +823,9 @@ mid-exposure UTC time you expect for one image.
 🇧🇷 **Português**
 
 O horário do relatório é o **meio da exposição**. O AstroFind usa a palavra-chave `JD` se ela
-existir, senão `DATE-OBS` + metade do `EXPTIME`.
+existir, senão `MJD-OBS` + metade do `EXPTIME`, senão `DATE-OBS` + metade do `EXPTIME`
+(quando `MJD-OBS` e `DATE-OBS` existem e diferem em mais de 1 s, o Registro avisa e o
+`MJD-OBS` é usado).
 
 **O aviso de "horário ambíguo".** Um `DATE-OBS` terminando em `Z`, com deslocamento `±HH:MM`, ou
 com `TIMESYS = 'UTC'` é claro. Sem nada disso, o AstroFind *supõe* UTC e registra

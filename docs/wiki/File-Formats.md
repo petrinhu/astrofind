@@ -36,13 +36,13 @@ completo veja o [Manual](https://github.com/petrinhu/astrofind/wiki/Manual); par
 
 | Format / Formato | Extensions / Extensões | Colour? / Cor? | Metadata read / Metadados lidos | Notes / Observações |
 |---|---|---|---|---|
-| **FITS** (2-D) | `.fits` `.fit` `.fts` | No / Não | Time (`DATE-OBS`, `JD`, `TIMESYS`), `EXPTIME`, WCS, site, MPC code, filter, pixel scale, saturation, binning, object, telescope / Horário, exposição, WCS, local, código MPC, filtro, escala, saturação, binning, objeto, telescópio | Best format. Compressed FITS via cfitsio if the name ends in `.fits`. / Melhor formato. FITS comprimido via cfitsio se o nome terminar em `.fits`. |
+| **FITS** (2-D) | `.fits` `.fit` `.fts` | No / Não | Time (`DATE-OBS`, `MJD-OBS`, `JD`, `TIMESYS`), `EXPTIME`, WCS, site, MPC code, filter, pixel scale, saturation, binning, object, telescope / Horário, exposição, WCS, local, código MPC, filtro, escala, saturação, binning, objeto, telescópio | Best format. Compressed FITS via cfitsio if the name ends in `.fits`. / Melhor formato. FITS comprimido via cfitsio se o nome terminar em `.fits`. |
 | **FITS colour** / **FITS colorido** | same / idem | Yes (`NAXIS3 = 3`) / Sim | as FITS / como FITS | Detection uses a luminance mix. / A detecção usa uma mistura de luminância. |
 | **FITS multi-extension** / **multi-extensão** | same / idem | Yes if exactly 3 same-size image HDUs / Sim se houver exatamente 3 HDUs de imagem do mesmo tamanho | as FITS / como FITS | Otherwise an HDU navigation bar appears. / Senão aparece uma barra de navegação de HDU. |
 | **FITS cube** / **cubo FITS** | same / idem | No / Não | as FITS / como FITS | `NAXIS3 > 3`: first plane shown; right-click → **Animate Cube**. / Primeiro plano exibido; botão direito → **Animar Cubo**. |
 | **FITS 1-D spectrum** / **espectro 1-D** | same / idem | — | — | Opens a Spectrum plot, not an image. / Abre um gráfico de espectro, não uma imagem. |
 | **SER** video / vídeo | `.ser` | Mono, RGB or Bayer / Mono, RGB ou Bayer | Observer, telescope / Observador, telescópio | **Only frame 1** is loaded; **no time** is read. / **Só o quadro 1**; **sem horário**. |
-| **XISF** (PixInsight) | `.xisf` | 1 or 3 channels / 1 ou 3 canais | `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`, `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` | No WCS read → plate-solve. Uncompressed only. / WCS não lido → faça plate solving. Só sem compressão. |
+| **XISF** (PixInsight) | `.xisf` | 1 or 3 channels / 1 ou 3 canais | `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`, `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS`, `MJD-OBS` | No WCS read → plate-solve. Uncompressed only. / WCS não lido → faça plate solving. Só sem compressão. |
 | **TIFF / PNG / BMP / JPEG** | `.tif` `.tiff` `.png` `.bmp` `.jpg` `.jpeg` | Yes if the file is colour / Sim se o arquivo for colorido | **None** / **Nenhum** | 16-bit grayscale kept; colour is reduced to 8 bits per channel. Time must be typed in. / Cinza 16 bits preservado; cor vira 8 bits por canal. Horário precisa ser digitado. |
 | **DSLR RAW** (needs LibRaw / precisa da LibRaw) | `.cr2` `.cr3` `.crw` `.nef` `.nrw` `.arw` `.srf` `.sr2` `.orf` `.rw2` `.raf` `.pef` `.dng` `.srw` `.3fr` `.erf` `.kdc` `.mrw` `.x3f` `.iiq` `.mef` `.mos` `.rwl` | Yes (display) / Sim (exibição) | EXIF exposure, camera make/model, saturation, camera-clock time (**flagged ambiguous**) / Exposição EXIF, marca/modelo, saturação, horário do relógio da câmera (**marcado ambíguo**) | Linear data; no WCS, no site → set location and plate-solve. / Dados lineares; sem WCS nem local → configure o local e faça plate solving. |
 | **NASA PDS3** | `.img` (+ `.lbl`) | No / Não | `START_TIME`/`STOP_TIME`, `EXPOSURE_DURATION`, `TARGET_NAME`, instrument, filter, RA/Dec / instrumento, filtro, AR/Dec | First band only; missing values → NaN (magenta). Plate-solve first. / Só a primeira banda; valores ausentes → NaN (magenta). Faça plate solving antes. |
@@ -138,7 +138,7 @@ a text **header** of keywords followed by the pixel data. One file can hold seve
 
 | Purpose | Keywords |
 |---|---|
-| Time | `DATE-OBS`, `TIMESYS`, `JD` (if present it wins), `EXPTIME` |
+| Time | `DATE-OBS`, `TIMESYS`, `MJD-OBS` (preferred over `DATE-OBS`), `JD` (if present it wins over both), `EXPTIME` |
 | Plate solution (WCS) | `CTYPE1`, `CRVAL1/2`, `CRPIX1/2`, `CD1_1…CD2_2` or `CDELT1/2` + `CROTA1/2` |
 | Pointing | `RA`, `DEC`, `OBJCTRA`, `OBJCTDEC` |
 | Site | `SITELAT`/`SITELONG`/`SITEELEV`, `LAT-OBS`/`LONG-OBS`/`ALT-OBS`, `LATITUDE`/`LONGITUD`/`ALTITUDE`, `OBSGEO-B/L/H` |
@@ -178,7 +178,7 @@ várias **HDUs** (unidades cabeçalho/dados). O AstroFind lê o arquivo com a bi
 
 | Para quê | Palavras-chave |
 |---|---|
-| Horário | `DATE-OBS`, `TIMESYS`, `JD` (se existir, vale ele), `EXPTIME` |
+| Horário | `DATE-OBS`, `TIMESYS`, `MJD-OBS` (preferido ao `DATE-OBS`), `JD` (se existir, vale ele acima dos dois), `EXPTIME` |
 | Solução de placa (WCS) | `CTYPE1`, `CRVAL1/2`, `CRPIX1/2`, `CD1_1…CD2_2` ou `CDELT1/2` + `CROTA1/2` |
 | Apontamento | `RA`, `DEC`, `OBJCTRA`, `OBJCTDEC` |
 | Local | `SITELAT`/`SITELONG`/`SITEELEV`, `LAT-OBS`/`LONG-OBS`/`ALT-OBS`, `LATITUDE`/`LONGITUD`/`ALTITUDE`, `OBSGEO-B/L/H` |
@@ -252,7 +252,8 @@ XISF is PixInsight's format. AstroFind reads the first image, with 1 channel (mo
 channels (colour), samples UInt8/16/32 or Float32/64, stored as attachment or embedded.
 
 - It reads these FITS keywords stored in the XISF: `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`,
-  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` (`DATE-OBS` is taken as UTC).
+  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS`, `MJD-OBS` (`DATE-OBS` is taken as UTC;
+  `MJD-OBS` is preferred when present).
 - The plate solution is **not** read: Run Data Reduction will plate-solve it.
 - Save the XISF **without compression** in PixInsight; compressed data is not decoded.
 
@@ -262,7 +263,8 @@ XISF é o formato do PixInsight. O AstroFind lê a primeira imagem, com 1 canal 
 (cor), amostras UInt8/16/32 ou Float32/64, gravadas como anexo ou embutidas.
 
 - Ele lê estas palavras-chave FITS guardadas no XISF: `OBJECT`, `EXPTIME`, `GAIN`, `FILTER`,
-  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS` (`DATE-OBS` é tomado como UTC).
+  `TELESCOP`, `OBSERVER`, `JD`, `RA`, `DEC`, `DATE-OBS`, `MJD-OBS` (`DATE-OBS` é tomado como UTC;
+  o `MJD-OBS` é preferido quando existe).
 - A solução de placa **não** é lida: a Redução de Dados fará o plate solving.
 - Salve o XISF **sem compressão** no PixInsight; dados comprimidos não são decodificados.
 
@@ -307,7 +309,8 @@ Arquivos de imagem comuns, lidos pelo Qt.
 
 🇬🇧 **English**
 
-New in 1.1.0. A **RAW** file is the untouched data from a digital camera sensor. AstroFind reads
+New since 1.1.0 (first published in 1.2.0).
+A **RAW** file is the untouched data from a digital camera sensor. AstroFind reads
 it with the **LibRaw** library.
 
 **Which cameras / extensions:**
@@ -375,7 +378,8 @@ it, RAW files are refused with: "DSLR RAW support is not available in this build
 
 🇧🇷 **Português**
 
-Novidade da 1.1.0. Um arquivo **RAW** são os dados intactos do sensor de uma câmera digital. O
+Novidade desde a 1.1.0 (publicada pela primeira vez na 1.2.0).
+Um arquivo **RAW** são os dados intactos do sensor de uma câmera digital. O
 AstroFind o lê com a biblioteca **LibRaw**.
 
 **Quais câmeras / extensões:** veja a tabela acima (Canon `.cr2` `.cr3` `.crw`, Nikon `.nef`
@@ -434,7 +438,8 @@ LibRaw e recompile — veja [Installation](https://github.com/petrinhu/astrofind
 
 🇬🇧 **English**
 
-New in 1.1.0. The **PDS** (Planetary Data System) is NASA's public archive of data from
+New since 1.1.0 (first published in 1.2.0).
+The **PDS** (Planetary Data System) is NASA's public archive of data from
 planetary missions and some telescopes. Its images are raw binary files described by a text
 **label**. There are two generations:
 
@@ -470,7 +475,8 @@ PDS4 `.xml` must be an observational product (`Product_Observational`) with a 2-
 
 🇧🇷 **Português**
 
-Novidade da 1.1.0. O **PDS** (Planetary Data System) é o arquivo público da NASA com dados de
+Novidade desde a 1.1.0 (publicada pela primeira vez na 1.2.0).
+O **PDS** (Planetary Data System) é o arquivo público da NASA com dados de
 missões planetárias e de alguns telescópios. Suas imagens são arquivos binários descritos por um
 **rótulo** (label) de texto. Há duas gerações:
 
