@@ -309,8 +309,9 @@ Detalhes completos: [`CHANGELOG.md`](https://github.com/petrinhu/astrofind/blob/
 
 🇬🇧 **English**
 
-Version 1.1.0 was released on 2026-09-24. The previous tag was 0.9.0, which was already as
-mature as a "1.0"; this release adds new features on top of it, so it is numbered 1.1.0.
+Version 1.1.0 was tagged on 2026-09-24 but never published as a release; its changes ship in
+1.2.0. The previous tag was 0.9.0, which was already as mature as a "1.0"; 1.1.0 adds new
+features on top of it, so it is numbered 1.1.0.
 
 - **DSLR RAW images** (the raw files of digital cameras: CR2, CR3, CRW, NEF, NRW, ARW, SRF, SR2,
   ORF, RW2, RAF, PEF, DNG, SRW, 3FR, ERF, KDC, MRW, X3F, IIQ, MEF, MOS, RWL), read through the
@@ -335,8 +336,9 @@ File details: [File-Formats](https://github.com/petrinhu/astrofind/wiki/File-For
 
 🇧🇷 **Português**
 
-A versão 1.1.0 saiu em 2026-09-24. A tag anterior era a 0.9.0, que já tinha maturidade de "1.0";
-esta versão acrescenta funcionalidades sobre ela, por isso recebeu o número 1.1.0.
+A versão 1.1.0 recebeu a tag em 2026-09-24, mas nunca foi publicada como release; as mudanças
+dela saem na 1.2.0. A tag anterior era a 0.9.0, que já tinha maturidade de "1.0"; a 1.1.0
+acrescenta funcionalidades sobre ela, por isso recebeu o número 1.1.0.
 
 - **Imagens RAW de DSLR** (os arquivos brutos de câmeras digitais: CR2, CR3, CRW, NEF, NRW, ARW,
   SRF, SR2, ORF, RW2, RAF, PEF, DNG, SRW, 3FR, ERF, KDC, MRW, X3F, IIQ, MEF, MOS, RWL), lidas pela

@@ -1030,7 +1030,7 @@ Images, so use the menu there).
 🇧🇷 **Português**
 Um gráfico do brilho de um objeto ao longo do tempo. Pode mostrar a rotação de um asteroide. No
 AstroFind: **Utilitários → Curva de Luz…** (`Ctrl+Shift+L`; na 1.1.0 e anteriores o atalho
-`Ctrl+L` conflitava com Carregar Imagens, então lá use o menu).
+`Ctrl+L` conflitava com Importar Imagens, então lá use o menu).
 
 ---
 

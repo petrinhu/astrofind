@@ -915,7 +915,7 @@ growing radius. The **light curve** plots the magnitude of your measurements aga
 > `Ctrl+L`, which clashed with Import Images and could do nothing; there, use the menu.
 >
 > 🇧🇷 💡 **Atalho:** a Curva de Luz é `Ctrl+Shift+L`. Na 1.1.0 e anteriores o menu mostrava
-> `Ctrl+L`, que conflitava com Carregar Imagens e podia não fazer nada; lá, use o menu.
+> `Ctrl+L`, que conflitava com Importar Imagens e podia não fazer nada; lá, use o menu.
 
 🇧🇷 **Português**
 **O que é:** a **curva de crescimento** mostra quanto da luz de uma estrela cai dentro de
@@ -1010,8 +1010,8 @@ separadas por `|`). Ele **não** gera o antigo formato MPC de 80 colunas.
   the **Enviar para Professor** button.
 
 🇧🇷 **Português**
-**O que é:** o painel **Fluxo de Trabalho** (à esquerda) lista seis etapas: 1 Carregar Imagens,
-2 Redução de Dados, 3 Obj. Conhecidos, 4 Piscar Imagens, 5 Medir Objetos, 6 Relatório ADES.
+**O que é:** o painel **Fluxo de Trabalho** (à esquerda) lista seis etapas: 1 Importar Imagens,
+2 Executar Redução de Dados, 3 Mostrar Conhecidos, 4 Ativar Modo de Piscagem, 5 Medir Objetos, 6 Relatório ADES.
 ○ = ainda não, ▶ = próxima, ✓ = feita. A próxima etapa tem o botão **▶ Executar** (durante a
 redução vira **⏹ Parar**).
 **Para que serve:** guiar iniciantes e turmas passo a passo.

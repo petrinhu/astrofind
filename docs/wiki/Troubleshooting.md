@@ -337,13 +337,13 @@ imagem. Se o número é 0 ou muito pequeno:
 |---|---|---|
 | "Carregue pelo menos 2 imagens para usar o modo piscar." | O blink precisa de duas ou mais imagens. | Carregue pelo menos 2 imagens do mesmo campo (3–5 é melhor). |
 | A visão de piscar mostra só 4 miniaturas | A visão de piscar tem 4 espaços. | Normal. |
-| "Execute a Redução de Dados primeiro para detectar estrelas nas imagens." (Detecção de Objetos em Movimento) | Ainda não há estrelas detectadas. | Rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`) antes. |
+| "Execute a Redução de Dados primeiro para detectar estrelas nas imagens." (Detectar Objetos em Movimento) | Ainda não há estrelas detectadas. | Rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`) antes. |
 | "Nenhum objeto em movimento detectado em … imagens." | Nada atendeu às regras da busca. Por padrão, um objeto precisa aparecer em pelo menos 3 imagens, andar de forma regular (dentro de 2 px) e ter SNR (razão sinal-ruído) de pelo menos 5. | Use pelo menos 3 imagens. Diminua "MOD SNR mín.:" em **Configurações → Detecção**. Pisque as imagens você mesmo: objetos muito rápidos podem aparecer como rastros. |
 | Clicar na imagem não mede nada | A ferramenta **Seleção** está ativa. | Aperte `M` (Medir Objeto) ou `A` (**Editar → Ferramenta Abertura**) antes de clicar. |
 | O Log mostra "Centroide falhou — nenhuma fonte encontrada na posição clicada" | Nenhum ponto parecido com estrela foi achado onde você clicou. | Aproxime o zoom (roda do mouse) e clique exatamente no ponto. |
 | Uma janela "Blink em execução" pergunta "Parar e Medir" / "Continuar Blink" | Você clicou com o blink rodando. | Escolha "Parar e Medir" para medir. Pause antes com a barra de espaço para evitar a pergunta. |
 | O Log mostra "Elongação PSF=… — verifique rastreamento, foco ou coma" | As imagens das estrelas estão esticadas (alongadas). | Confira o acompanhamento do telescópio e o foco. A medição funciona, mas pode ser menos precisa. |
-| O Log mostra "Fotometria: nenhuma estrela do catálogo correspondida — usando magnitude instrumental" | Nenhuma estrela de catálogo perto do objeto pôde calibrar o brilho. | Rode a Sobreposição de Objetos Conhecidos (`Ctrl+K`) antes de medir. A posição continua válida. |
+| O Log mostra "Fotometria: nenhuma estrela do catálogo correspondida — usando magnitude instrumental" | Nenhuma estrela de catálogo perto do objeto pôde calibrar o brilho. | Rode Mostrar Objetos Conhecidos (`Ctrl+K`) antes de medir. A posição continua válida. |
 
 ---
 
@@ -411,7 +411,7 @@ These settings change only what you see, never the measurements.
 |---|---|---|
 | Imagem quase preta | Normal: a tela não consegue mostrar toda a faixa de brilho. | **Ferramentas de Imagem → Ajustar Ponto Preto e Contraste…** → **"⟳ Auto"**; experimente a função de transferência "Asinh" ou "Raiz Quadrada (Sqrt)". |
 | Imagem quase branca | **Inverter Cores** está ligado, ou o intervalo está baixo demais. | Desligue **Ferramentas de Imagem → Inverter Cores** (`Ctrl+I`); clique em "⟳ Auto". |
-| Só algumas imagens ficam boas | Os ajustes foram aplicados a uma imagem só. | Marque "Aplicar a todas as imagens da sessão" em Fundo e Intervalo. |
+| Só algumas imagens ficam boas | Os ajustes foram aplicados a uma imagem só. | Marque "Aplicar a todas as imagens da sessão" em Ajustar Ponto Preto e Contraste. |
 | Pixels magenta | Esses pixels não têm valor (NaN) no arquivo, por exemplo fora da área da câmera. | Nada a corrigir; eles são ignorados. |
 | Cores estranhas | Uma paleta de cor falsa está ativa. | Mude "Cor falsa (LUT):" para "Cinza (Grayscale)". |
 
@@ -440,7 +440,7 @@ Full shortcut list: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/
 
 | Problema | Causa | Solução |
 |---|---|---|
-| `Ctrl+L` não faz nada (1.1.0 e anteriores) | Na 1.1.0 o `Ctrl+L` estava ligado a **Arquivo → Importar Imagens…** e a **Utilitários → Curva de Luz…**. Quando uma tecla tem duas ações, o Qt pode não rodar nenhuma. A versão 1.2.0 passa a Curva de Luz para `Ctrl+Shift+L`. | Atualize, ou use o menu ou o botão "Carregar Imagens (Ctrl+L)" da barra de ferramentas. |
+| `Ctrl+L` não faz nada (1.1.0 e anteriores) | Na 1.1.0 o `Ctrl+L` estava ligado a **Arquivo → Importar Imagens…** e a **Utilitários → Curva de Luz…**. Quando uma tecla tem duas ações, o Qt pode não rodar nenhuma. A versão 1.2.0 passa a Curva de Luz para `Ctrl+Shift+L`. | Atualize, ou use o menu ou o botão "Importar Imagens (Ctrl+L)" da barra de ferramentas. |
 | `Ctrl+Shift+T` não muda o tema (1.1.0 e anteriores) | Na 1.1.0 o atalho estava em dois lugares (item de menu e botão da barra). Na versão 1.2.0 ele é só do botão de tema da barra e funciona. | Atualize, ou clique no ícone de lua/sol da barra, ou use **Janela → Alternar modo Dia/Noite**, ou **Configurações → Exibição → Tema:**. |
 | `S`, `A`, `N` ou `M` não fazem nada | Um campo de texto ou outra janela está com o foco do teclado. | Clique numa janela de imagem antes e depois aperte a tecla. |
 | `Ctrl+A` não seleciona todo o texto | No AstroFind, `Ctrl+A` inicia a **Redução de Dados**. | Selecione o texto com o mouse. |

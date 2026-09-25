@@ -118,7 +118,7 @@ conferências:
    **Utilitários → Mostrar Objetos Conhecidos** (`Ctrl+K`) ou **Internet → Consultar
    Horizons…**. A consulta ao Horizons é **geocêntrica** (vista do centro da Terra), então
    espere pequenas diferenças para objetos próximos.
-2. Veja a linha de WCS RMS no painel de Log depois da Sobreposição de Objetos Conhecidos, por
+2. Veja a linha de WCS RMS no painel de Log depois de Mostrar Objetos Conhecidos, por
    exemplo `Image 1: WCS RMS = 0.4" (35 matched stars)`. Um valor pequeno (bem abaixo de 1") é
    bom sinal.
 3. Confira o horário da observação e o seu código de estação MPC na pré-visualização do
@@ -155,7 +155,7 @@ reduzir, sobrepor objetos conhecidos, piscar, medir, reportar. Principais difere
 | Plate solving | Solução "às cegas" com astrometry.net (online) ou ASTAP (offline). Imagens que já têm WCS no cabeçalho não são resolvidas de novo. |
 | Catálogo de referência | UCAC4 (padrão) ou Gaia DR3 via VizieR, ou um arquivo FITS BINTABLE local. Os caminhos da aba **Legado** (USNO-A2.0, UCAC-2/3, CMC-14) são guardados mas nunca usados. |
 | Objetos conhecidos | IMCCE SkyBoT online; alternativa offline com o MPCORB.DAT. |
-| Teclas principais | `Ctrl+A` Redução de Dados, `Ctrl+K` Sobreposição de Objetos Conhecidos, `Ctrl+B` Piscar, `Ctrl+M` Detecção de Objetos em Movimento, `M` Medir. Lista completa: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference). |
+| Teclas principais | `Ctrl+A` Executar Redução de Dados, `Ctrl+K` Mostrar Objetos Conhecidos, `Ctrl+B` Piscar, `Ctrl+M` Detectar Objetos em Movimento, `M` Medir. Lista completa: [Menu-Reference](https://github.com/petrinhu/astrofind/wiki/Menu-Reference). |
 | Posições | A correção de refração só se aplica a uma medição terrestre não derivada de uma solução de plate-solve por catálogo (que já a absorve); o relatório é uma posição astrométrica, `sys=ICRF`. |
 | Tamanho da sessão | 20 imagens por sessão por padrão (veja abaixo). |
 
@@ -760,7 +760,7 @@ Full list with the exact messages: [Troubleshooting](https://github.com/petrinhu
 | **Ver Arquivo de Relatório ADES** está desativado | Rode **Ferramentas de Astrometria → Executar Redução de Dados…** (`Ctrl+A`) antes |
 | "Nenhuma observação ainda." | Meça e aceite pelo menos um objeto antes |
 | O relatório mostra a estação `XXX` | "Código de estação MPC:" está vazio em **Configurações → Observador** |
-| `Ctrl+L` não faz nada (1.1.0 e anteriores) | O atalho estava em dois lugares (Carregar Imagens e Curva de Luz); use o menu ou a barra de ferramentas. Corrigido na versão 1.2.0: a Curva de Luz agora é `Ctrl+Shift+L` |
+| `Ctrl+L` não faz nada (1.1.0 e anteriores) | O atalho estava em dois lugares (Importar Imagens e Curva de Luz); use o menu ou a barra de ferramentas. Corrigido na versão 1.2.0: a Curva de Luz agora é `Ctrl+Shift+L` |
 | A janela de Verificação mostra "Nenhum objeto conhecido próximo" | Normal quando não há objeto conhecido por perto |
 
 Lista completa com as mensagens exatas: [Troubleshooting](https://github.com/petrinhu/astrofind/wiki/Troubleshooting).

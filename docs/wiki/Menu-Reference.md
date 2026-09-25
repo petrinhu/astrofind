@@ -229,7 +229,7 @@ análise.
 > 💡 **Version 1.1.0 / Versão 1.1.0**
 > 🇬🇧 In 1.1.0 and earlier Light Curve showed `Ctrl+L`, shared with Import Images, so the key
 > might not work; there, open it from the menu (**Utilities → Light Curve…**).
-> 🇧🇷 Na 1.1.0 e anteriores a Curva de Luz mostrava `Ctrl+L`, compartilhado com Carregar
+> 🇧🇷 Na 1.1.0 e anteriores a Curva de Luz mostrava `Ctrl+L`, compartilhado com Importar
 > Imagens, então a tecla podia não funcionar; lá, abra pelo menu (**Utilitários → Curva de
 > Luz…**).
 
@@ -428,10 +428,10 @@ tabela Observações, o Registro e o Catálogo de Imagem **não** têm menu de c
 ## Docks (side and bottom panels) / Painéis laterais e inferiores
 
 🇬🇧 **English** — *Docks* are panels around the image area. You can drag them to another side,
-or close them and reopen them from the **Windows** menu.
+or close them and reopen them from the **Window** menu.
 
 🇧🇷 **Português** — *Docks* são painéis em volta da área das imagens. Você pode arrastar para
-outro lado, ou fechar e reabrir pelo menu **Janelas**.
+outro lado, ou fechar e reabrir pelo menu **Janela**.
 
 | EN title | PT title | Where / when | What is inside | O que tem dentro | Level |
 |---|---|---|---|---|---|
@@ -575,7 +575,8 @@ empty window says "No image loaded / Use File → Import Images…".
 encostadas) · cruz amarela = estrela de catálogo · círculo verde = asteroide conhecido (azul
 claro = planeta, laranja = cometa) com número ou nome · "Cand #N" = candidato a objeto em
 movimento · vermelho = item selecionado · texto magenta = suas anotações. **Pixels magenta**
-são pixels sem valor válido (NaN).
+são pixels sem valor válido (NaN). Uma janela vazia mostra "Nenhuma imagem carregada / Use
+Arquivo → Importar Imagens…".
 
 ---
 
@@ -649,8 +650,8 @@ foco do teclado (clique nela antes).
 > are still on 1.1.0, use the menu entries or the toolbar buttons instead.
 >
 > 🇧🇷 Na 1.1.0 e anteriores duas teclas estavam em duas ações ao mesmo tempo, e apertá-las
-> podia não fazer **nada**: `Ctrl+L` (Carregar Imagens e Curva de Luz) e `Ctrl+Shift+T` (o item
-> do menu Janelas e o botão de tema da barra). A versão 1.2.0 corrige as
+> podia não fazer **nada**: `Ctrl+L` (Importar Imagens e Curva de Luz) e `Ctrl+Shift+T` (o item
+> do menu Janela e o botão de tema da barra). A versão 1.2.0 corrige as
 > duas: a Curva de Luz passou para `Ctrl+Shift+L`, e o `Ctrl+Shift+T` é só do botão de tema da
 > barra. Se ainda usa a 1.1.0, use os itens de menu ou os botões da barra.
 

@@ -290,7 +290,7 @@ coloridas.
 - O AstroFind lê escala de pixel, saturação, localização e código MPC da primeira imagem quando
   suas configurações estão vazias.
 
-> 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Carregar
+> 💡 **Versão 1.1.0** — na 1.1.0 e anteriores o `Ctrl+L` estava ligado a **Importar
 > Imagens...** e também a **Utilitários → Curva de Luz…**, então a tecla podia não fazer nada;
 > lá, use o menu ou a barra de ferramentas. A versão 1.2.0 passa a Curva de
 > Luz para `Ctrl+Shift+L`.
@@ -980,8 +980,8 @@ UTC de meio de exposição que você espera para uma imagem.
 
 🇧🇷 **Português**
 
-- O painel **Fluxo de Trabalho** (à esquerda) lista as 6 etapas: Carregar Imagens, Redução de
-  Dados, Obj. Conhecidos, Piscar Imagens, Medir Objetos, Relatório ADES. ○ = ainda não,
+- O painel **Fluxo de Trabalho** (à esquerda) lista as 6 etapas: Importar Imagens, Executar Redução de
+  Dados, Mostrar Conhecidos, Ativar Modo de Piscagem, Medir Objetos, Relatório ADES. ○ = ainda não,
   ▶ = próxima, ✓ = feita. Clique em **▶ Executar** na próxima etapa.
 - **Fluxo automático** (caixa, desligada por padrão) roda as etapas 2, 3 e 4 sozinho depois de
   carregar.
