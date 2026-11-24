@@ -1,41 +1,29 @@
-# AstroFind — Claude Code Instructions
+# AstroFind: instruções para o Claude Code
 
-## MCP Tools (always use)
-
-### context7
-Always use context7 when referencing Qt6, CMake, or any external library API.
-Before answering questions about Qt classes, methods, or signals/slots, fetch the current docs via context7.
-
-### superpowers-mcp
-For any non-trivial implementation task, use `recommend_skills` to check if a relevant skill exists.
-For debugging, use the `debugging` skill. For new features, use the `tdd` or `brainstorm` skill as appropriate.
-
-## Project
-
-AstroFind is a Qt6/C++ astrometry application for asteroid detection and measurement.
+AstroFind é um aplicativo Qt6/C++ de astrometria para detecção e medição de asteroides.
 Stack: Qt6, CMake, cfitsio, fftw3.
-Language: C++ (src/) with Qt translations (i18n/astrofind_pt_BR.ts → .qm).
+Linguagem: C++ (`src/`) com traduções Qt (`i18n/astrofind_pt_BR.ts` → `.qm`).
 
-## Paths
+## Caminhos
 
-- User temp folder: `/home/petrus/IDrive/Documentos/temp/` — CI logs, screenshots, and debug artifacts shared during sessions
+- Pasta temporária do usuário: `/home/petrus/IDrive/Documentos/temp/`, com logs de CI, screenshots e artefatos de debug compartilhados nas sessões.
 
-## Conventions
+## Leis do projeto
 
-- UI files: `src/ui/` — Qt widgets, no .ui files (all code-built)
-- Core logic: `src/core/` — no Qt UI dependencies
-- Icons: drawn programmatically via QPainter in `AppIcons.cpp`
-- Translations: run `lupdate-qt6` then `lrelease-qt6` after adding `tr()` strings
-- Settings keys: `observer/*`, `camera/*`, `astrometry/*`, `catalog/*`, `photometry/*`, `report/*`, `ui/*`, `display/*`
-- No toolbar modifications — features added via menus, context menus, docks, keyboard shortcuts
+Leia [`GODS_LAWS.md`](GODS_LAWS.md) antes de agir. `L-NN` sem prefixo é lei global.
 
-## Pending Tasks Table
+| Lei | Gatilho: dispara quando você vai... |
+|---|---|
+| [AF-01](GODS_LAWS.md#af-01) | citar ou usar API de Qt6, CMake ou outra biblioteca externa |
+| [AF-02](GODS_LAWS.md#af-02) | começar implementação não trivial, depurar, ou criar feature |
+| [AF-03](GODS_LAWS.md#af-03) | criar tela, ícone, lógica central ou chave de settings |
+| [AF-04](GODS_LAWS.md#af-04) | acrescentar string `tr()` |
+| [AF-05](GODS_LAWS.md#af-05) | acrescentar função à interface |
+| [AF-06](GODS_LAWS.md#af-06) | terminar uma tarefa, ou acrescentar item à tabela de tarefas abaixo |
 
-Whenever tasks from the table below are pending, **show the full updated table at the end of every completed task response**, with:
-- ✅ for completed items
-- ❌ for pending items
+## Tabela de tarefas
 
-The table must be shown automatically — do not wait for the user to ask.
+Regra de exibição: AF-06.
 
 | # | Feature | Categoria | Prioridade | Dificuldade | Status |
 |---|---------|-----------|:----------:|:-----------:|:------:|
